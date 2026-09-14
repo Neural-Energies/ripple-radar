@@ -1,0 +1,36 @@
+# deps / build
+node_modules/
+.tanstack/
+.output/
+dist/
+.vercel/
+.nitro/
+.vite/
+
+# sandbox / local
+.grok/
+artifacts/
+attachments/
+screenshots/
+.project_id
+.node_modules.lock
+startup.sh
+
+# env / secrets
+.env
+.env.*
+!.env.example
+*.local
+*.pem
+*.key
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+thumbs.db
+
+# logs
+*.log
+npm-debug.log*
