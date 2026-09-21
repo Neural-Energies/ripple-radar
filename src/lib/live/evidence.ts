@@ -79,6 +79,8 @@ export function headlineToEvidence(h: LiveHeadline, clock: (ms: number) => strin
     reliability: reliabilityOf(h.source),
     direction: h.tone,
     strength: cls.evidenceClass === "fundamental" ? 3 : cls.evidenceClass === "expectation" ? 2 : 1,
+    eventTimeMs: h.published,
+    availableTimeMs: h.published,
   };
 }
 

@@ -61,6 +61,8 @@ export interface LiveDesk {
   liveEvents: RadarEvent[];
   quoteLive: number;
   quoteCount: number;
+  /** Delayed FRED+ALFRED macro prints. Empty when FRED_API_KEY is unset. */
+  macroEvidence?: EvidenceItem[];
 }
 
 export interface RescoreResult {
