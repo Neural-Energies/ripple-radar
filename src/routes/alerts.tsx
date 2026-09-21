@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { DeskHint } from "@/components/desk-sync";
 import { Badge, Button, Input, Panel } from "@/components/ui";
 import type { AlertRule } from "@/data/types";
-import { alertIsHit, useAlertHits } from "@/lib/live/provider";
+import { goToEvent } from "@/lib/hooks/use-event-param-sync";
+import { alertIsHit, useAlertHits, useLiveEvents } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,10 @@ function AlertsPage() {
   const add = useApp((s) => s.addAlert);
   const dismiss = useApp((s) => s.dismissAlert);
   const hits = useAlertHits();
+  const events = useLiveEvents();
+  const setEvent = useApp((s) => s.setSelectedEventId);
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [title, setTitle] = useState("");
   const [detail, setDetail] = useState("");
   const [kind, setKind] = useState<AlertRule["kind"]>("probability");
@@ -53,6 +58,31 @@ function AlertsPage() {
                   </div>
                   <p className="mt-1 text-tiny text-muted">{a.detail}</p>
                   {hit && <p className="mt-1 font-mono text-tiny text-up">{hit.reason}</p>}
+                  {(a.ticker || (a.eventId && events.some((e) => e.id === a.eventId))) && (
+                    <p className="mt-1 flex gap-2 text-tiny">
+                      {a.ticker && (
+                        <Link
+                          to="/assets/$ticker"
+                          params={{ ticker: a.ticker }}
+                          className="font-mono text-primary hover:underline"
+                        >
+                          {a.ticker} →
+                        </Link>
+                      )}
+                      {a.eventId && events.some((e) => e.id === a.eventId) && (
+                        <button
+                          type="button"
+                          className="text-primary hover:underline"
+                          onClick={() => {
+                            setEvent(a.eventId!);
+                            goToEvent(navigate, pathname, a.eventId!);
+                          }}
+                        >
+                          Open book →
+                        </button>
+                      )}
+                    </p>
+                  )}
                   <p className="mt-1 text-micro text-subtle">Created {a.created}</p>
                 </div>
                 <div className="flex gap-2">

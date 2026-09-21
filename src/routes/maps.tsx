@@ -193,7 +193,13 @@ function NodeInspector({ event, node }: { event: RadarEvent; node: RippleNode | 
         <div className="rounded-sm bg-card-2 px-2 py-1.5">
           <div className="text-micro uppercase tracking-wider text-subtle">Expression</div>
           <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-caption">
-            <span className="font-mono text-primary">{trade.ticker}</span>
+            <Link
+              to="/assets/$ticker"
+              params={{ ticker: trade.ticker }}
+              className="font-mono text-primary hover:underline"
+            >
+              {trade.ticker}
+            </Link>
             <span className="text-muted">{trade.side}</span>
             {trade.crowding ? <Badge tone="warn">{trade.crowding}</Badge> : null}
             {trade.confirmation ? <Badge tone="primary">{trade.confirmation}</Badge> : null}

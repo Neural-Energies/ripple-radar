@@ -1,6 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Sparkline } from "@/components/sparkline";
 import { Badge, Button, Panel } from "@/components/ui";
+import { goToEvent } from "@/lib/hooks/use-event-param-sync";
 import { useLiveAsset, useLiveAssets, useLiveEvents, useQuote } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
 import { cn, formatPct, formatPrice } from "@/lib/utils";
@@ -15,6 +16,9 @@ function AssetDetail() {
   const quote = useQuote(ticker);
   const add = useApp((s) => s.addToWatchlist);
   const lists = useApp((s) => s.watchlists);
+  const setEvent = useApp((s) => s.setSelectedEventId);
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   if (!asset) {
     return (
@@ -96,7 +100,16 @@ function AssetDetail() {
               return (
                 <li key={e.id} className="rounded-md bg-card-2 p-3">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-caption font-medium">{e.title}</span>
+                    <button
+                      type="button"
+                      className="text-left text-caption font-medium text-foreground hover:text-primary hover:underline"
+                      onClick={() => {
+                        setEvent(e.id);
+                        goToEvent(navigate, pathname, e.id);
+                      }}
+                    >
+                      {e.title}
+                    </button>
                     <Badge tone="primary">{e.probability}%</Badge>
                   </div>
                   {node && (
