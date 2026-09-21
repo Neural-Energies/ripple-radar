@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { afterEach, beforeEach, describe, it } from "node:test";
-import type { EvidenceItem } from "../data/types.ts";
+import type { EvidenceItem } from "../../data/types.ts";
 import {
   FRED_SERIES_V0,
   FRED_USER_AGENT,

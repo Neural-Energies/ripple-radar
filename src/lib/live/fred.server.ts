@@ -12,7 +12,7 @@
  * FRED policy). Missing key or fetch errors return an empty/degraded bundle;
  * callers must not throw the desk.
  */
-import type { EvidenceItem } from "../data/types.ts";
+import type { EvidenceItem } from "../../data/types.ts";
 import { env } from "../env.server.ts";
 
 export const FRED_SERIES_V0 = [
