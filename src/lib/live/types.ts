@@ -1,8 +1,10 @@
 import type {
   EvidenceItem,
+  ForecastProvenance,
   HeatPoint,
   RadarEvent,
   Scenario,
+  TriageDisposition,
 } from "@/data/types";
 
 export type QuoteState = "live" | "last" | "stale";
@@ -15,7 +17,12 @@ export interface LiveQuote {
   changePct: number;
   spark: number[];
   state: QuoteState;
+  /** Print/event time (ms UTC). Alias of eventTimeMs for existing call sites. */
   asOf: number;
+  /** When the print occurred (ms UTC); source of truth. */
+  eventTimeMs: number;
+  /** When this quote entered our info-set (ms UTC). */
+  availableTimeMs: number;
   exchange: string;
 }
 
@@ -24,11 +31,32 @@ export interface LiveHeadline {
   title: string;
   source: string;
   url: string;
+  /** Event time (ms UTC). Deprecated alias of eventTimeMs. */
   published: number;
+  /** When the world fact / pubDate occurred (ms UTC); source of truth. */
   eventTimeMs: number;
+  /** When this headline entered our info-set (ms UTC). */
   availableTimeMs: number;
   eventIds: string[];
   tone: "up" | "down" | "neutral";
+}
+
+/** Client DTO for a headline cluster (no Set tokens / full headline payloads). */
+export interface LiveCluster {
+  id: string;
+  title: string;
+  significance: number;
+  sources: number;
+  headlineCount: number;
+  entities: string[];
+  tags: string[];
+  tone: "up" | "down" | "neutral";
+  newest: number;
+  oldest: number;
+  /** Composed book id when present (composeFromCluster uses cluster.id). */
+  eventId?: string;
+  /** Judge triage — omit until DS/ML ships. No % on this field. */
+  disposition?: TriageDisposition;
 }
 
 export interface LiveBook {
@@ -59,6 +87,7 @@ export interface LiveDesk {
   sessions: LiveSessions;
   quotes: Record<string, LiveQuote>;
   headlines: LiveHeadline[];
+  clusters: LiveCluster[];
   books: Record<string, LiveBook>;
   liveEvents: RadarEvent[];
   quoteLive: number;
@@ -74,6 +103,8 @@ export interface RescoreResult {
   narrative: string;
   scenarioShifts: { id: string; probability: number }[];
   asOf: number;
+  /** Stamped by rescore path — llm_proposal | unchanged. Never calibrated from this call alone. */
+  provenance?: ForecastProvenance;
 }
 
 export interface AlertHit {

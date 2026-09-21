@@ -1,5 +1,7 @@
 import type { LiveHeadline } from "@/lib/live/types";
+import { familyOf } from "./extract";
 import { tagsFromText, toneOf } from "./ontology";
+import { filterMarketRelevantClusters, isMarketRelevant } from "./relevance";
 import { bigrams, hid, jaccard, properPhrases, tokens } from "./tokenize";
 
 export interface Cluster {
@@ -14,6 +16,16 @@ export interface Cluster {
   sources: number;
   newest: number;
   oldest: number;
+}
+
+/** Phenomena / calendar / wire words that look like entities but over-merge unrelated stories. */
+const WEAK_ENTITY =
+  /^(hurricane|typhoon|cyclone|earthquake|wildfire|tornado|blizzard|flood|storm|monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|june|july|august|september|october|november|december|reuters|bloomberg|associated|press|update|breaking|live|analysis|opinion|watch|alert)$/i;
+
+function substantiveEntities(ents: string[]): string[] {
+  return ents.filter(
+    (e) => e.length >= 4 && !WEAK_ENTITY.test(e.trim()) && !/^\d+$/.test(e),
+  );
 }
 
 function featureSet(title: string): Set<string> {
@@ -37,6 +49,40 @@ function significance(items: LiveHeadline[], tags: string[], tone: Cluster["tone
   return Math.round(items.length * 7 + sources * 6 + tags.length * 2 + esc + recency);
 }
 
+function sharedSubstantive(a: string[], b: Iterable<string>): number {
+  const B = [...b].map((x) => x.toLowerCase());
+  return substantiveEntities(a).filter((e) =>
+    B.some(
+      (x) =>
+        x === e.toLowerCase() ||
+        (e.length > 8 && x.includes(e.toLowerCase())) ||
+        (x.length > 8 && e.toLowerCase().includes(x)),
+    ),
+  ).length;
+}
+
+/** Distant families should not merge on a single shared name. */
+function familiesCompatible(tagsA: string[], tagsB: string[]): boolean {
+  const fa = familyOf(tagsA);
+  const fb = familyOf(tagsB);
+  if (fa === fb) return true;
+  if (fa === "other" || fb === "other") return true;
+  // Policy ↔ fx / credit often co-move; physical ↔ weather / commodity likewise.
+  const soft = new Set([
+    "policy|fx",
+    "fx|policy",
+    "policy|credit",
+    "credit|policy",
+    "physical|weather",
+    "weather|physical",
+    "physical|commodity",
+    "commodity|physical",
+    "kinetic|physical",
+    "physical|kinetic",
+  ]);
+  return soft.has(`${fa}|${fb}`);
+}
+
 export function clusterHeadlines(headlines: LiveHeadline[]): Cluster[] {
   const ranked = [...headlines].sort((a, b) => b.published - a.published);
   const groups: { feats: Set<string>; items: LiveHeadline[]; entities: Set<string> }[] = [];
@@ -49,17 +95,17 @@ export function clusterHeadlines(headlines: LiveHeadline[]): Cluster[] {
     for (let i = 0; i < groups.length; i++) {
       const g = groups[i]!;
       let sim = jaccard(feats, g.feats);
-      const sharedEnt = ents.filter((e) =>
-        [...g.entities].some((x) => x.toLowerCase() === e.toLowerCase() || (e.length > 8 && x.toLowerCase().includes(e.toLowerCase()))),
-      ).length;
-      if (sharedEnt >= 2) sim += 0.18;
-      else if (sharedEnt === 1 && ents.some((e) => e.length > 10)) sim += 0.08;
+      const sharedEnt = sharedSubstantive(ents, g.entities);
+      // Entity overlap boosts similarity, but weak/calendar names never do.
+      if (sharedEnt >= 2) sim += 0.16;
+      else if (sharedEnt === 1 && ents.some((e) => substantiveEntities([e]).length && e.length > 10)) sim += 0.06;
       if (sim > bestSim) {
         bestSim = sim;
         best = i;
       }
     }
-    if (best >= 0 && bestSim >= 0.2) {
+    // Raised from 0.2 — sparse days were over-merging on shared proper names.
+    if (best >= 0 && bestSim >= 0.26) {
       const g = groups[best]!;
       g.items.push(h);
       for (const f of feats) g.feats.add(f);
@@ -73,9 +119,8 @@ export function clusterHeadlines(headlines: LiveHeadline[]): Cluster[] {
   for (const g of groups) {
     if (g.items.length < 2 && g.items.length === 1) {
       const h = g.items[0]!;
-      const tagged = tagsFromText(h.title).length >= 1;
-      const hot = toneOf(h.title) === "up" && tagged;
-      if (!hot && !tagged) continue;
+      // Single-headline clusters must clear the market-relevance gate.
+      if (!isMarketRelevant(h.title)) continue;
     }
     const blob = g.items.map((h) => h.title).join(" · ");
     const tags = tagsFromText(blob);
@@ -118,7 +163,9 @@ export function clusterHeadlines(headlines: LiveHeadline[]): Cluster[] {
       uniq.push(c);
     }
   }
-  return mergeSimilar(uniq).slice(0, 10);
+  const merged = mergeSimilar(uniq);
+  // Market-relevance gate: only clusters with a transmission path to liquid markets.
+  return filterMarketRelevantClusters(merged).slice(0, 10);
 }
 
 function mergeSimilar(clusters: Cluster[]): Cluster[] {
@@ -130,28 +177,30 @@ function mergeSimilar(clusters: Cluster[]): Cluster[] {
     for (let j = i + 1; j < clusters.length; j++) {
       if (used.has(j)) continue;
       const b = clusters[j]!;
-      const sharedEnt = acc.entities.filter((e) =>
-        b.entities.some((x) => x.toLowerCase() === e.toLowerCase()),
-      ).length;
+      const sharedEnt = sharedSubstantive(acc.entities, b.entities);
       const sim = jaccard(acc.tokens, b.tokens);
       const tagOverlap = acc.tags.filter((t) => b.tags.includes(t)).length;
-      if (sim >= 0.32 || (sharedEnt >= 2 && sim >= 0.14) || (sharedEnt >= 1 && tagOverlap >= 2 && sim >= 0.16)) {
-        used.add(j);
-        const headlines = [...acc.headlines, ...b.headlines].sort((x, y) => y.published - x.published);
-        const feats = new Set([...acc.tokens, ...b.tokens]);
-        acc = {
-          ...acc,
-          headlines,
-          tokens: feats,
-          entities: [...new Set([...acc.entities, ...b.entities])].slice(0, 10),
-          tags: [...new Set([...acc.tags, ...b.tags])].slice(0, 10),
-          sources: new Set(headlines.map((h) => h.source)).size,
-          newest: Math.max(acc.newest, b.newest),
-          oldest: Math.min(acc.oldest, b.oldest),
-          significance: Math.max(acc.significance, b.significance) + 4,
-          title: acc.headlines.length >= b.headlines.length ? acc.title : b.title,
-        };
-      }
+      const familyOk = familiesCompatible(acc.tags, b.tags);
+      // Tightened merge gates — no lone shared-name glue across distant families.
+      const strongLexical = sim >= 0.36;
+      const multiEntity = sharedEnt >= 2 && sim >= 0.18 && familyOk;
+      const entityTag = sharedEnt >= 1 && tagOverlap >= 2 && sim >= 0.22 && familyOk;
+      if (!(strongLexical || multiEntity || entityTag)) continue;
+      used.add(j);
+      const headlines = [...acc.headlines, ...b.headlines].sort((x, y) => y.published - x.published);
+      const feats = new Set([...acc.tokens, ...b.tokens]);
+      acc = {
+        ...acc,
+        headlines,
+        tokens: feats,
+        entities: [...new Set([...acc.entities, ...b.entities])].slice(0, 10),
+        tags: [...new Set([...acc.tags, ...b.tags])].slice(0, 10),
+        sources: new Set(headlines.map((h) => h.source)).size,
+        newest: Math.max(acc.newest, b.newest),
+        oldest: Math.min(acc.oldest, b.oldest),
+        significance: Math.max(acc.significance, b.significance) + 4,
+        title: acc.headlines.length >= b.headlines.length ? acc.title : b.title,
+      };
     }
     out.push(acc);
   }

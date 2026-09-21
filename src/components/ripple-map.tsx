@@ -2,11 +2,14 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { LEVEL_META } from "@/data/catalog";
 import type { RadarEvent, RippleLevel, RippleNode } from "@/data/types";
+import { nodeNavTarget } from "@/lib/engine/instruments";
 import { cn } from "@/lib/utils";
 
 const CX = 320;
 const CY = 268;
 const RINGS = [0, 78, 128, 178, 228];
+/** Minimum SVG hit radius — ~44 CSS px on a phone-width map. */
+const MIN_HIT_R = 28;
 
 function polar(r: number, deg: number) {
   const rad = (deg * Math.PI) / 180;
@@ -35,13 +38,19 @@ function nodeRadius(level: RippleLevel) {
   return level === 0 ? 36 : level === 1 ? 22 : 16;
 }
 
+function hitRadius(level: RippleLevel) {
+  return Math.max(nodeRadius(level) + 6, MIN_HIT_R);
+}
+
 export function RippleMap({
   event,
   onSelect,
+  selectedId,
   compact = false,
 }: {
   event: RadarEvent;
   onSelect?: (node: RippleNode) => void;
+  selectedId?: string | null;
   compact?: boolean;
 }) {
   const navigate = useNavigate();
@@ -57,15 +66,22 @@ export function RippleMap({
     return m;
   }, [event.nodes]);
 
+  const focusId = hover;
   const related = useMemo(() => {
-    if (!hover) return new Set<string>();
-    const s = new Set<string>([hover]);
+    if (!focusId) return new Set<string>();
+    const s = new Set<string>([focusId]);
     for (const l of event.links) {
-      if (l.source === hover) s.add(l.dest);
-      if (l.dest === hover) s.add(l.source);
+      if (l.source === focusId) s.add(l.dest);
+      if (l.dest === focusId) s.add(l.source);
     }
     return s;
-  }, [hover, event.links]);
+  }, [focusId, event.links]);
+
+  const targets = useMemo(() => {
+    const m = new Map<string, ReturnType<typeof nodeNavTarget>>();
+    for (const n of event.nodes) m.set(n.id, nodeNavTarget(n, event));
+    return m;
+  }, [event]);
 
   function toggleLevel(lv: RippleLevel) {
     setHidden((prev) => {
@@ -77,17 +93,25 @@ export function RippleMap({
   }
 
   function activate(node: RippleNode) {
-    onSelect?.(node);
-    if (node.ticker) {
-      navigate({ to: "/assets/$ticker", params: { ticker: node.ticker } });
+    if (onSelect) {
+      onSelect(node);
+      return;
     }
+    const target = targets.get(node.id) ?? nodeNavTarget(node, event);
+    if (!target) return;
+    if (target.kind === "ticker") {
+      void navigate({ to: "/assets/$ticker", params: { ticker: target.ticker } });
+      return;
+    }
+    void navigate({ to: "/assets", search: { q: target.q } });
   }
 
   const hoveredNode = event.nodes.find((n) => n.id === hover);
+  const hoveredTarget = hoveredNode ? targets.get(hoveredNode.id) : null;
 
   return (
-    <div className="relative">
-      <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+    <div className={cn("relative", compact && "text-[0.95em]")}>
+      <div className="mb-1 flex flex-wrap items-center gap-x-2.5 gap-y-0.5">
         {(Object.keys(LEVEL_META) as unknown as RippleLevel[]).map((lv) => {
           const meta = LEVEL_META[lv];
           const off = hidden.has(lv);
@@ -113,7 +137,7 @@ export function RippleMap({
 
       <svg
         viewBox="0 0 640 536"
-        className="block h-auto w-full"
+        className="block h-auto w-full touch-manipulation"
         role="img"
         aria-label={`Ripple map for ${event.title}`}
       >
@@ -148,7 +172,7 @@ export function RippleMap({
           const src = event.nodes.find((n) => n.id === l.source);
           const dst = event.nodes.find((n) => n.id === l.dest);
           if (!src || !dst || hidden.has(src.level) || hidden.has(dst.level)) return null;
-          const active = !hover || related.has(l.source) || related.has(l.dest);
+          const active = !focusId || related.has(l.source) || related.has(l.dest);
           return (
             <line
               key={`${l.source}-${l.dest}`}
@@ -166,22 +190,38 @@ export function RippleMap({
         {visible.map((n) => {
           const p = pos.get(n.id)!;
           const r = nodeRadius(n.level);
+          const hit = hitRadius(n.level);
           const color = LEVEL_META[n.level].color;
-          const dim = hover != null && !related.has(n.id);
+          const dim = focusId != null && !related.has(n.id);
+          const selected = n.id === selectedId;
           const lines = wrapLabel(n.label, n.level === 0 ? 11 : 13);
-          const clickable = Boolean(n.ticker || onSelect);
+          const target = targets.get(n.id);
+          const clickable = Boolean(target || onSelect);
+          const tip =
+            target?.kind === "ticker"
+              ? target.ticker
+              : target?.kind === "filter"
+                ? `Filter: ${target.q}`
+                : undefined;
           return (
             <g
               key={n.id}
               transform={`translate(${p.x}, ${p.y})`}
               opacity={dim ? 0.28 : 1}
               filter={n.level <= 1 ? "url(#nodeGlow)" : undefined}
-              onMouseEnter={() => setHover(n.id)}
-              onMouseLeave={() => setHover(null)}
-              onClick={() => clickable && activate(n)}
+              onPointerEnter={() => setHover(n.id)}
+              onPointerLeave={() => setHover(null)}
+              onClick={(e) => {
+                if (!clickable) return;
+                e.stopPropagation();
+                activate(n);
+              }}
               className={clickable ? "cursor-pointer" : undefined}
               role={clickable ? "button" : undefined}
               tabIndex={clickable ? 0 : undefined}
+              aria-label={
+                tip ? `${n.label} · ${tip}` : n.label
+              }
               onKeyDown={(e) => {
                 if (clickable && (e.key === "Enter" || e.key === " ")) {
                   e.preventDefault();
@@ -189,7 +229,12 @@ export function RippleMap({
                 }
               }}
             >
-              <circle r={r} fill="var(--color-card)" stroke={color} strokeWidth={n.level === 0 ? 2.2 : 1.6} />
+              {/* Invisible expanded hit target for phone UX */}
+              <circle r={hit} fill="transparent" />
+              <circle r={r} fill="var(--color-card)" stroke={color} strokeWidth={selected || n.level === 0 ? 2.4 : 1.6} />
+              {selected && (
+                <circle r={r + 4} fill="none" stroke="var(--color-primary)" strokeOpacity="0.7" strokeWidth="1.4" />
+              )}
               {n.level === 0 && (
                 <circle r={r - 7} fill="none" stroke={color} strokeOpacity="0.45" strokeWidth="1" />
               )}
@@ -200,6 +245,7 @@ export function RippleMap({
                   fontSize="9"
                   fontWeight="600"
                   fontFamily="IBM Plex Sans, sans-serif"
+                  style={{ pointerEvents: "none" }}
                 >
                   {lines.map((ln, i) => (
                     <tspan key={ln} x="0" y={i === 0 ? (lines.length > 1 ? -4 : 3) : 8}>
@@ -214,6 +260,7 @@ export function RippleMap({
                   fill="var(--color-foreground)"
                   fontSize="9.5"
                   fontFamily="IBM Plex Sans, sans-serif"
+                  style={{ pointerEvents: "none" }}
                 >
                   {lines.map((ln, i) => (
                     <tspan key={ln} x="0" dy={i === 0 ? 0 : 11}>
@@ -232,8 +279,12 @@ export function RippleMap({
           <div className="flex items-center justify-between gap-2">
             <div className="text-caption font-medium text-foreground">
               {hoveredNode.label}
-              {hoveredNode.ticker ? (
+              {hoveredTarget?.kind === "ticker" ? (
+                <span className="ml-1.5 font-mono text-micro text-primary">{hoveredTarget.ticker}</span>
+              ) : hoveredNode.ticker ? (
                 <span className="ml-1.5 font-mono text-micro text-primary">{hoveredNode.ticker}</span>
+              ) : hoveredTarget?.kind === "filter" ? (
+                <span className="ml-1.5 text-micro text-muted">assets · {hoveredTarget.q}</span>
               ) : null}
             </div>
             <div className="text-micro tabular-nums text-muted">

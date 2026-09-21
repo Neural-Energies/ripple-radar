@@ -1,20 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useLiveAssets, useLiveEvents } from "@/lib/live/provider";
+import { pathUsesEventParam } from "@/lib/hooks/use-event-param-sync";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
+/** Same labels/order as the left rail groups. */
 const PAGES = [
-  { to: "/", label: "Dashboard · Live Overview" },
-  { to: "/events", label: "Event Feed" },
-  { to: "/maps", label: "Ripple Maps" },
-  { to: "/scenarios", label: "Scenario Lab" },
-  { to: "/assets", label: "Asset Explorer" },
+  { to: "/", label: "Live Desk" },
+  { to: "/events", label: "World Tape" },
+  { to: "/maps", label: "Ripple Map" },
+  { to: "/scenarios", label: "Scenarios" },
   { to: "/game-theory", label: "Game Theory" },
-  { to: "/learning", label: "Model Learning" },
-  { to: "/portfolio", label: "Portfolio" },
+  { to: "/assets", label: "Assets" },
   { to: "/watchlists", label: "Watchlists" },
   { to: "/alerts", label: "Alerts" },
+  { to: "/portfolio", label: "Portfolio" },
+  { to: "/learning", label: "Learning" },
+  { to: "/docs", label: "Docs" },
 ];
 
 export function CommandPalette() {
@@ -105,7 +108,15 @@ export function CommandPalette() {
   function go(item: (typeof items)[number]) {
     if (item.kind === "event") {
       setEvent(item.id);
-      void navigate({ to: "/" });
+      const path = router.state.location.pathname;
+      if (pathUsesEventParam(path)) {
+        void navigate({
+          to: ".",
+          search: (prev: Record<string, unknown>) => ({ ...prev, event: item.id }),
+        });
+      } else {
+        void navigate({ to: "/", search: { event: item.id } });
+      }
     } else if (item.kind === "asset") {
       void navigate({ to: "/assets/$ticker", params: { ticker: item.id } });
     } else {

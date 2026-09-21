@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AssetsRouteImport } from './routes/assets'
+import { Route as DocsRouteImport } from './routes/docs'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as GameTheoryRouteImport } from './routes/game-theory'
 import { Route as LearningRouteImport } from './routes/learning'
@@ -36,6 +37,11 @@ const AlertsRoute = AlertsRouteImport.update({
 const AssetsRoute = AssetsRouteImport.update({
   id: '/assets',
   path: '/assets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsRoute = EventsRouteImport.update({
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/assets': typeof AssetsRouteWithChildren
+  '/docs': typeof DocsRoute
   '/events': typeof EventsRoute
   '/game-theory': typeof GameTheoryRoute
   '/learning': typeof LearningRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/assets': typeof AssetsRouteWithChildren
+  '/docs': typeof DocsRoute
   '/events': typeof EventsRoute
   '/game-theory': typeof GameTheoryRoute
   '/learning': typeof LearningRoute
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/assets': typeof AssetsRouteWithChildren
+  '/docs': typeof DocsRoute
   '/events': typeof EventsRoute
   '/game-theory': typeof GameTheoryRoute
   '/learning': typeof LearningRoute
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/assets'
+    | '/docs'
     | '/events'
     | '/game-theory'
     | '/learning'
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/assets'
+    | '/docs'
     | '/events'
     | '/game-theory'
     | '/learning'
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/assets'
+    | '/docs'
     | '/events'
     | '/game-theory'
     | '/learning'
@@ -187,6 +199,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlertsRoute: typeof AlertsRoute
   AssetsRoute: typeof AssetsRouteWithChildren
+  DocsRoute: typeof DocsRoute
   EventsRoute: typeof EventsRoute
   GameTheoryRoute: typeof GameTheoryRoute
   LearningRoute: typeof LearningRoute
@@ -219,6 +232,13 @@ declare module '@tanstack/react-router' {
       path: '/assets'
       fullPath: '/assets'
       preLoaderRoute: typeof AssetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events': {
@@ -309,6 +329,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertsRoute: AlertsRoute,
   AssetsRoute: AssetsRouteWithChildren,
+  DocsRoute: DocsRoute,
   EventsRoute: EventsRoute,
   GameTheoryRoute: GameTheoryRoute,
   LearningRoute: LearningRoute,

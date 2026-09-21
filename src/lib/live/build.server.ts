@@ -1,5 +1,6 @@
 import { composeFromCluster } from "@/lib/engine/compose";
-import { clusterHeadlines, stampHeadlineClusters } from "@/lib/engine/cluster";
+import { clusterHeadlines, stampHeadlineClusters, type Cluster } from "@/lib/engine/cluster";
+import { filterMarketRelevantHeadlines } from "@/lib/engine/relevance";
 import { relateEvents } from "@/lib/engine/relate";
 import type { EvidenceItem, RadarEvent, Scenario } from "@/data/types";
 import { headlineToEvidence } from "./evidence";
@@ -7,7 +8,7 @@ import { etParts, quoteState, sessionFlags } from "./clock";
 import { attachFredEvidence, fetchFredSeriesBundle, latestFredEvidence } from "./fred.server";
 import { parseRss } from "./rss";
 import { DESK_TICKERS, fromYahoo, toYahoo } from "./symbols";
-import type { LiveBook, LiveDesk, LiveHeadline, LiveQuote } from "./types";
+import type { LiveBook, LiveCluster, LiveDesk, LiveHeadline, LiveQuote } from "./types";
 
 const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
@@ -116,7 +117,8 @@ async function sparkBatch(tickers: string[]): Promise<Record<string, LiveQuote>>
     const last = meta.regularMarketPrice ?? closes.at(-1);
     const prev = meta.chartPreviousClose ?? meta.previousClose ?? closes[0];
     if (typeof last !== "number" || typeof prev !== "number" || !Number.isFinite(last)) continue;
-    const asOf = (meta.regularMarketTime ?? 0) * 1000 || now;
+    const eventTimeMs = (meta.regularMarketTime ?? 0) * 1000 || now;
+    const availableTimeMs = now;
     const change = last - prev;
     const changePct = prev !== 0 ? (change / prev) * 100 : 0;
     const step = Math.max(1, Math.floor(closes.length / 24));
@@ -129,8 +131,10 @@ async function sparkBatch(tickers: string[]): Promise<Record<string, LiveQuote>>
       change,
       changePct,
       spark,
-      state: quoteState(asOf, now),
-      asOf,
+      state: quoteState(eventTimeMs, now),
+      asOf: eventTimeMs,
+      eventTimeMs,
+      availableTimeMs,
       exchange: meta.exchangeName ?? "",
     };
   }
@@ -235,13 +239,40 @@ function hitsSafe(event: RadarEvent) {
   return event.evidence.length || 1;
 }
 
-function discover(headlines: LiveHeadline[], quotes: Record<string, LiveQuote>): { events: RadarEvent[]; headlines: LiveHeadline[] } {
+function toLiveCluster(c: Cluster, eventIds: Set<string>): LiveCluster {
+  return {
+    id: c.id,
+    title: c.title,
+    significance: c.significance,
+    sources: c.sources,
+    headlineCount: c.headlines.length,
+    entities: c.entities,
+    tags: c.tags,
+    tone: c.tone,
+    newest: c.newest,
+    oldest: c.oldest,
+    ...(eventIds.has(c.id) ? { eventId: c.id } : {}),
+  };
+}
+
+function discover(
+  headlines: LiveHeadline[],
+  quotes: Record<string, LiveQuote>,
+): { events: RadarEvent[]; headlines: LiveHeadline[]; clusters: LiveCluster[] } {
   const clusters = clusterHeadlines(headlines);
   const stamped = stampHeadlineClusters(headlines, clusters);
+  // Desk tape: only market-relevant headlines (or ones stamped to a surviving cluster).
+  const deskHeadlines = filterMarketRelevantHeadlines(stamped);
   const events = relateEvents(
     clusters.map((c) => composeFromCluster(c, quotes)).sort((a, b) => (b.importance ?? 0) - (a.importance ?? 0)),
   );
-  return { events, headlines: stamped };
+  const eventIds = new Set(events.map((e) => e.id));
+  // Empty clusters → empty events; overlay falls back to EMPTY_EVENT. Do not invent fixtures.
+  return {
+    events,
+    headlines: deskHeadlines,
+    clusters: clusters.map((c) => toLiveCluster(c, eventIds)),
+  };
 }
 
 export async function buildDesk(): Promise<LiveDesk> {
@@ -251,7 +282,7 @@ export async function buildDesk(): Promise<LiveDesk> {
     loadNews().catch(() => newsCache?.headlines ?? []),
     loadFredMacroEvidence(),
   ]);
-  const { events, headlines } = discover(rawNews, quotes);
+  const { events, headlines, clusters } = discover(rawNews, quotes);
   const books: Record<string, LiveBook> = {};
   for (const ev of events) {
     const book = bookFromEvent(ev, headlines, quotes, fredEvidence);
@@ -285,6 +316,7 @@ export async function buildDesk(): Promise<LiveDesk> {
     sessions,
     quotes,
     headlines: headlines.slice(0, 40),
+    clusters,
     books,
     liveEvents: events,
     quoteLive,

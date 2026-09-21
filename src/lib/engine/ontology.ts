@@ -3,6 +3,139 @@ import type { NodeKind, TradeCategory } from "@/data/types";
 /** Seed tags for transmission. Unknown tokens may also become tags at compose time. */
 export type Tag = string;
 
+/**
+ * Tags that imply a transmission path to liquid markets.
+ * Used by the live-desk market-relevance gate — not a list of events.
+ */
+export const MARKET_CORE_TAGS = new Set<Tag>([
+  "energy",
+  "crude",
+  "refined",
+  "gas",
+  "shipping",
+  "freight",
+  "insurance",
+  "rates",
+  "policy",
+  "inflation",
+  "fx",
+  "yen",
+  "usd",
+  "europe",
+  "banking",
+  "credit",
+  "semiconductor",
+  "foundry",
+  "compute",
+  "tech",
+  "defense",
+  "rareearth",
+  "magnets",
+  "copper",
+  "lithium",
+  "industrial",
+  "weather",
+  "ag",
+  "airlines",
+  "crypto",
+  "liquidity",
+  "equity",
+  "vol",
+  "gold",
+  "haven",
+  "logistics",
+  "labor",
+  "cyber",
+  "ev",
+  "duration",
+  "conditions",
+  "china",
+  "consumer",
+]);
+
+/**
+ * Soft-news cues for downranking. Scoring, not hard bans — market tags can outweigh these.
+ * Crime / sports / entertainment / celebrity / lifestyle / medical oddities.
+ */
+export const SOFT_NEWS_CUES = [
+  "police",
+  "arrested",
+  "arrest",
+  "scam",
+  "fraudster",
+  "murder",
+  "stabbing",
+  "robbery",
+  "burglary",
+  "kidnapping",
+  "shooting",
+  "homicide",
+  "manslaughter",
+  "indicted for",
+  "nfl",
+  "nba",
+  "mlb",
+  "nhl",
+  "premier league",
+  "champions league",
+  "world cup",
+  "touchdown",
+  "home run",
+  "team owner",
+  "franchise owner",
+  "stadium deal",
+  "olympics",
+  "fifa",
+  "uefa",
+  "super bowl",
+  "coach fired",
+  "celebrity",
+  "actor",
+  "actress",
+  "singer",
+  "pop star",
+  "divorced",
+  "divorcing",
+  "oscar",
+  "grammy",
+  "emmy",
+  "box office",
+  "gossip",
+  "influencer",
+  "reality tv",
+  "red carpet",
+  "tabloid",
+  "soap opera",
+  "candy company",
+  "chocolate factory",
+  "recipe",
+  "horoscope",
+  "viral video",
+  "wedding dress",
+  "rare disease mystery",
+  "bizarre medical",
+  "weird medical",
+  "medical oddity",
+  "true crime",
+  "missing person",
+  "crime scene",
+  "lottery winner",
+  "beauty pageant",
+  "fashion week",
+  "tiktok",
+  "youtube star",
+  "reality show",
+  "boxing match",
+  "ufc",
+  "wimbledon",
+  "march madness",
+  "fantasy football",
+  "soap star",
+  "royal wedding",
+  "pet rescue",
+  "cat video",
+]
+
 export const ESCALATE = [
   "attack",
   "strike",
@@ -86,7 +219,7 @@ export const TICKER_META: Record<
   FRO: { name: "Frontline", tags: ["shipping", "freight"], kind: "company", category: "stock", lag: "days–weeks" },
   STNG: { name: "Scorpio Tankers", tags: ["shipping", "refined"], kind: "company", category: "stock", lag: "days–weeks" },
   DAC: { name: "Danaos", tags: ["shipping", "container"], kind: "company", category: "stock", lag: "weeks" },
-  FDX: { name: "FedEx", tags: ["shipping", "logistics"], kind: "company", category: "stock", lag: "weeks" },
+  FDX: { name: "FedEx", tags: ["shipping", "logistics", "cyber", "labor"], kind: "company", category: "stock", lag: "weeks" },
   AIG: { name: "AIG", tags: ["insurance", "shipping"], kind: "company", category: "stock", lag: "days–weeks" },
   JETS: { name: "US Global Jets", tags: ["airlines", "energy"], kind: "etf", category: "etf", lag: "days–weeks" },
   DAL: { name: "Delta", tags: ["airlines"], kind: "company", category: "stock", lag: "days–weeks" },
@@ -109,8 +242,8 @@ export const TICKER_META: Record<
   IWM: { name: "Russell 2000", tags: ["equity", "conditions"], kind: "etf", category: "etf", lag: "days–weeks" },
   KRE: { name: "Regional banks", tags: ["banking", "credit"], kind: "etf", category: "etf", lag: "hours–weeks" },
   XLF: { name: "Financials", tags: ["banking", "equity"], kind: "etf", category: "etf", lag: "days" },
-  BTC: { name: "Bitcoin", tags: ["crypto", "liquidity"], kind: "commodity", category: "crypto", lag: "minutes–weeks" },
-  ETH: { name: "Ether", tags: ["crypto", "liquidity"], kind: "commodity", category: "crypto", lag: "minutes–weeks" },
+  BTC: { name: "Bitcoin", tags: ["crypto", "liquidity"], kind: "crypto", category: "crypto", lag: "minutes–weeks" },
+  ETH: { name: "Ether", tags: ["crypto", "liquidity"], kind: "crypto", category: "crypto", lag: "minutes–weeks" },
   TSM: { name: "TSMC", tags: ["semiconductor", "foundry"], kind: "company", category: "stock", lag: "days–quarters" },
   NVDA: { name: "NVIDIA", tags: ["semiconductor", "compute"], kind: "company", category: "stock", lag: "weeks–quarters" },
   SMH: { name: "VanEck Semi", tags: ["semiconductor"], kind: "etf", category: "etf", lag: "days–weeks" },
@@ -128,9 +261,9 @@ export const TICKER_META: Record<
   HG: { name: "Copper", tags: ["copper", "industrial"], kind: "futures", category: "commodities", lag: "hours–weeks" },
   FCX: { name: "Freeport-McMoRan", tags: ["copper"], kind: "company", category: "stock", lag: "days–weeks" },
   COPX: { name: "Copper miners", tags: ["copper"], kind: "etf", category: "etf", lag: "days–weeks" },
-  VLO: { name: "Valero", tags: ["energy", "refined"], kind: "company", category: "stock", lag: "days–weeks" },
-  MPC: { name: "Marathon Petroleum", tags: ["energy", "refined"], kind: "company", category: "stock", lag: "days–weeks" },
-  UNP: { name: "Union Pacific", tags: ["logistics", "energy"], kind: "company", category: "stock", lag: "weeks" },
+  VLO: { name: "Valero", tags: ["energy", "refined", "weather"], kind: "company", category: "stock", lag: "days–weeks" },
+  MPC: { name: "Marathon Petroleum", tags: ["energy", "refined", "weather"], kind: "company", category: "stock", lag: "days–weeks" },
+  UNP: { name: "Union Pacific", tags: ["logistics", "energy", "labor"], kind: "company", category: "stock", lag: "weeks" },
   ICLN: { name: "Clean Energy", tags: ["energy", "alt"], kind: "etf", category: "etf", lag: "weeks" },
   XRT: { name: "Retail", tags: ["consumer"], kind: "etf", category: "etf", lag: "weeks" },
 };
@@ -210,7 +343,13 @@ export const LEXICON: Record<string, Tag[]> = {
   deposit: ["banking"],
   svb: ["banking"],
   bitcoin: ["crypto"],
+  btc: ["crypto"],
+  ether: ["crypto"],
+  ethereum: ["crypto"],
   crypto: ["crypto"],
+  cryptocurrency: ["crypto"],
+  stablecoin: ["crypto", "liquidity"],
+  "digital asset": ["crypto", "liquidity"],
   etf: ["equity"],
   strike: ["labor"],
   union: ["labor"],
@@ -272,6 +411,11 @@ export const TRANSMIT: Transmit[] = [
   { from: "inflation", to: "fx", direction: 1, lag: "days–weeks", mechanism: "Importers fund a higher bill in dollars.", confidence: 0.55 },
   { from: "rates", to: "duration", direction: -1, lag: "minutes–days", mechanism: "Higher path → lower long-duration price.", confidence: 0.8 },
   { from: "rates", to: "crypto", direction: -1, lag: "minutes–days", mechanism: "High-beta duration to financial conditions.", confidence: 0.58 },
+  { from: "crypto", to: "liquidity", direction: 1, lag: "minutes–days", mechanism: "Digital-asset leverage and stablecoin floats are a liquidity print, not a sector anecdote.", confidence: 0.62 },
+  { from: "crypto", to: "equity", direction: 1, lag: "minutes–days", mechanism: "High-beta risk-on: crypto stress reprices duration-sensitive equities.", confidence: 0.55 },
+  { from: "crypto", to: "vol", direction: 1, lag: "minutes–days", mechanism: "Leverage unwind in crypto shows up as gap risk in broader vol.", confidence: 0.5 },
+  { from: "crypto", to: "fx", direction: -1, lag: "minutes–days", mechanism: "Crypto risk-off often coincides with dollar funding tightness.", confidence: 0.48 },
+  { from: "liquidity", to: "fx", direction: -1, lag: "minutes–days", mechanism: "Funding stress tightens dollar liquidity first.", confidence: 0.52 },
   { from: "rates", to: "equity", direction: -1, lag: "minutes–weeks", mechanism: "Discount rates and financial conditions.", confidence: 0.62 },
   { from: "policy", to: "rates", direction: 1, lag: "minutes", mechanism: "The reaction function is the product.", confidence: 0.78 },
   { from: "yen", to: "fx", direction: 1, lag: "minutes", mechanism: "Official FX is a print, then a path.", confidence: 0.86 },
@@ -309,11 +453,18 @@ export function toneOf(text: string): "up" | "down" | "neutral" {
   return "neutral";
 }
 
+function lexiconKeyHits(hay: string, key: string): boolean {
+  // Short keys use word boundaries so "war" does not match "warn"/"awards".
+  if (key.includes(" ") || key.length >= 5) return hay.includes(key);
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(?:^|[^a-z0-9])${escaped}(?:[^a-z0-9]|$)`).test(hay);
+}
+
 export function tagsFromText(text: string): Tag[] {
   const hay = text.toLowerCase();
   const hits = new Map<Tag, number>();
   for (const [key, tags] of Object.entries(LEXICON)) {
-    if (hay.includes(key)) {
+    if (lexiconKeyHits(hay, key)) {
       for (const t of tags) hits.set(t, (hits.get(t) ?? 0) + 1 + (key.includes(" ") ? 1 : 0));
     }
   }
