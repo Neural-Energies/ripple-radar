@@ -19,3 +19,16 @@ export const analyzeEvent = createServerFn({ method: "POST" })
     const { analyze } = await import("@/lib/engine/analyze.server");
     return analyze(data.text);
   });
+
+export const getLiveCalibration = createServerFn({ method: "GET" }).handler(async () => {
+  const { getCalibration } = await import("./forecast-ledger.server");
+  return getCalibration();
+});
+
+/** Manual trigger — there is no background job runner in this app, so a
+ * resolution pass runs on demand rather than silently on a timer. Real no-op
+ * without XAI_API_KEY (see forecast-ledger.server), same as Analyze/Rescore. */
+export const runForecastResolution = createServerFn({ method: "POST" }).handler(async () => {
+  const { runResolutionPass } = await import("./forecast-ledger.server");
+  return runResolutionPass();
+});

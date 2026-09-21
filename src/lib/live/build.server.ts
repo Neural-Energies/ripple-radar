@@ -290,6 +290,14 @@ export async function buildDesk(): Promise<LiveDesk> {
     ev.evidence = book.evidence;
   }
 
+  // Freeze-at-T ledger: best-effort, never blocks the poll response. Archives
+  // this cycle's relevance-filtered headlines and freezes a new snapshot per
+  // event only when its scenario mix actually moved (see forecast-ledger.server).
+  void import("./forecast-ledger.server").then(({ freezeIfChanged, archiveHeadlines }) => {
+    void archiveHeadlines(headlines);
+    for (const ev of events) void freezeIfChanged(ev);
+  });
+
   const quoteCount = Object.keys(quotes).length;
   const quoteLive = Object.values(quotes).filter((q) => q.state === "live").length;
   const sessions = sessionFlags(now);
