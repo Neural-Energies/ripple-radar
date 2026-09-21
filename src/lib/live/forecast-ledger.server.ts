@@ -56,6 +56,39 @@ export async function freezeIfChanged(event: RadarEvent): Promise<void> {
   }
 }
 
+export interface PriorSnapshot {
+  asOfMs: number;
+  scenarios: { id: string; probability: number }[];
+}
+
+/**
+ * Latest frozen snapshot per event, in one query — this runs on the live poll
+ * path, so it must not be a round-trip per book.
+ */
+export async function latestSnapshots(eventIds: string[]): Promise<Map<string, PriorSnapshot>> {
+  const out = new Map<string, PriorSnapshot>();
+  if (eventIds.length === 0) return out;
+  try {
+    const { getSql } = await import("@/lib/db");
+    const sql = await getSql();
+    const rows = await sql<{ event_id: string; scenarios: string; as_of: string }>`
+      select distinct on (event_id) event_id, scenarios, as_of
+      from forecast_snapshots
+      where event_id = any(${eventIds})
+      order by event_id, as_of desc
+    `;
+    for (const r of rows) {
+      out.set(r.event_id, {
+        asOfMs: new Date(r.as_of).getTime(),
+        scenarios: JSON.parse(r.scenarios) as { id: string; probability: number }[],
+      });
+    }
+  } catch (err) {
+    console.error("[forecast-ledger] prior lookup failed:", err);
+  }
+  return out;
+}
+
 /** Archive already-relevance-filtered headlines so a resolution pass days
  * later has real text to judge against — the live RSS tape itself is a
  * rolling window with no memory. */

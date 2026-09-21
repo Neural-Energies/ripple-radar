@@ -2,7 +2,7 @@ import { composeFromCluster } from "@/lib/engine/compose";
 import { clusterHeadlines, stampHeadlineClusters, type Cluster } from "@/lib/engine/cluster";
 import { filterMarketRelevantHeadlines } from "@/lib/engine/relevance";
 import { relateEvents } from "@/lib/engine/relate";
-import type { EvidenceItem, RadarEvent, Scenario } from "@/data/types";
+import type { EvidenceItem, RadarEvent } from "@/data/types";
 import { headlineToEvidence } from "./evidence";
 import { etParts, quoteState, sessionFlags } from "./clock";
 import { attachFredEvidence, fetchFredSeriesBundle, latestFredEvidence } from "./fred.server";
@@ -43,10 +43,6 @@ const FEEDS: { source: string; url: string }[] = [
     url: "https://news.google.com/rss/search?q=when:1d+(markets+OR+geopolitics+OR+%22central+bank%22+OR+%22supply+chain%22+OR+sanctions+OR+hurricane+OR+semiconductor)&hl=en-US&gl=US&ceid=US:en",
   },
 ];
-
-function clamp(n: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, n));
-}
 
 async function fetchText(url: string, ms = 7000) {
   const res = await fetch(url, {
@@ -160,33 +156,6 @@ function clockOf(ms: number) {
   return etParts(ms).clock.replace(" ET", "");
 }
 
-function shiftScenarios(base: Scenario[], delta: number, evidence: string): Scenario[] {
-  if (!base.length) return base;
-  const risky = (s: Scenario) =>
-    /sustain|material|escalat|full|blockade|closure|default|rupture/i.test(s.name + s.detail);
-  const calm = (s: Scenario) => /fade|revers|headline premium|noise|talks|none/i.test(s.name + s.detail);
-  const next = base.map((s) => ({ ...s, prevProbability: s.probability }));
-  const tilt = clamp(delta * 0.35, -8, 10);
-  for (const s of next) {
-    if (risky(s)) s.probability = clamp(s.probability + tilt, 4, 72);
-    else if (calm(s)) s.probability = clamp(s.probability - tilt, 4, 80);
-  }
-  const sum = next.reduce((a, s) => a + s.probability, 0) || 1;
-  for (const s of next) {
-    s.probability = Math.round((s.probability / sum) * 100);
-    s.audit = {
-      ...s.audit,
-      previous: s.prevProbability,
-      updated: s.probability,
-      evidence,
-      direction: s.probability >= s.prevProbability ? "up" : "down",
-    };
-  }
-  const drift = 100 - next.reduce((a, s) => a + s.probability, 0);
-  if (next[0]) next[0].probability += drift;
-  return next;
-}
-
 async function loadFredMacroEvidence(): Promise<EvidenceItem[]> {
   try {
     const bundle = await fetchFredSeriesBundle();
@@ -204,12 +173,6 @@ function bookFromEvent(
 ): LiveBook {
   const matched = headlines.filter((h) => h.eventIds.includes(event.id));
   const use = matched.length ? matched : event.evidence.length ? matched : headlines.filter((h) => event.entities?.some((e) => h.title.toLowerCase().includes(e.toLowerCase())));
-  const relatedTickers = event.marketReaction.map((m) => m.ticker);
-  const related = relatedTickers.map((t) => quotes[t]).filter(Boolean);
-  const mkt = related.length > 0 ? related.reduce((a, q) => a + q.changePct, 0) / related.length : 0;
-  const esc = use.filter((h) => h.tone === "up").length;
-  const de = use.filter((h) => h.tone === "down").length;
-  const evidenceNote = use[0] ? `${use.length} live items. Latest: ${use[0].title}` : "Holding constructed prior.";
   const baseEvidence: EvidenceItem[] = event.evidence.length
     ? event.evidence
     : use.slice(0, 8).map((h) => headlineToEvidence(h, clockOf));
@@ -225,18 +188,14 @@ function bookFromEvent(
       ...m,
       change: quotes[m.ticker]?.changePct ?? m.change,
     })),
-    scenarios: shiftScenarios(
-      event.scenarios,
-      clamp((use.length || hitsSafe(event)) * 0.5 + (esc - de) * 1.5 + mkt * 0.4, -12, 16),
-      evidenceNote,
-    ),
+    // Left as the composed prior — buildDesk applies the evidence-driven
+    // Dirichlet update (engine/update-scenarios) against the last frozen
+    // snapshot and writes the posterior back onto both the event and this
+    // book. Tilting here too would double-count the same tape.
+    scenarios: event.scenarios,
     heatPoint: event.narrativeHeat[event.narrativeHeat.length - 1] ?? { date: "Now", news: 40, social: 20, search: 18 },
     sentiment: event.sentiment,
   };
-}
-
-function hitsSafe(event: RadarEvent) {
-  return event.evidence.length || 1;
 }
 
 function toLiveCluster(c: Cluster, eventIds: Set<string>): LiveCluster {
@@ -288,6 +247,33 @@ export async function buildDesk(): Promise<LiveDesk> {
     const book = bookFromEvent(ev, headlines, quotes, fredEvidence);
     books[ev.id] = book;
     ev.evidence = book.evidence;
+  }
+
+  // Prior → evidence → posterior. The last frozen snapshot is the prior; the
+  // evidence that entered the info-set since that freeze is what moves it.
+  // Awaited, because it changes the probabilities the desk actually shows —
+  // but batched into one query, and non-fatal if the ledger is unreachable.
+  // Written to the book as well as the event: overlay reads the book's copy.
+  try {
+    const { latestSnapshots } = await import("./forecast-ledger.server");
+    const { updateScenarios } = await import("@/lib/engine/update-scenarios");
+    const priors = await latestSnapshots(events.map((e) => e.id));
+    for (const ev of events) {
+      const prior = priors.get(ev.id);
+      if (!prior) continue; // first sighting: the composed book IS the prior
+      const { scenarios } = updateScenarios({
+        current: ev.scenarios,
+        prior: prior.scenarios,
+        evidence: ev.evidence.filter((e) => e.availableTimeMs > prior.asOfMs),
+        nodes: ev.nodes,
+        trades: ev.trades,
+      });
+      ev.scenarios = scenarios;
+      const book = books[ev.id];
+      if (book) book.scenarios = scenarios;
+    }
+  } catch (err) {
+    console.error("[build] scenario update skipped:", err);
   }
 
   // Freeze-at-T ledger: best-effort, never blocks the poll response. Archives
