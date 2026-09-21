@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { useApp } from "@/lib/store";
 import { evaluateAlerts } from "./alerts";
 import { analyzeEvent, getLiveDesk, rescoreBook } from "./desk";
-import { EMPTY_BOOKS } from "./empty";
+import { EMPTY_BOOKS, EMPTY_CLUSTERS } from "./empty";
 import { liveAssets, liveEventsList, liveGetAsset, liveGetEvent } from "./overlay";
 import type { AlertHit, LiveDesk, RescoreResult } from "./types";
 
@@ -208,6 +208,10 @@ export async function runAnalyze(text: string) {
   } finally {
     useLive.getState().setAnalyzing(false);
   }
+}
+
+export function useLiveClusters() {
+  return useLive((s) => s.desk?.clusters ?? EMPTY_CLUSTERS);
 }
 
 export function useAlertHits() {

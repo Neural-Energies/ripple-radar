@@ -1,5 +1,5 @@
 import type { CausalLink, RippleLevel, RippleNode, TradeIdea } from "@/data/types";
-import { tickersForTag } from "./instruments";
+import { resolveNodeTicker, tickersForTag } from "./instruments";
 import { TICKER_META, TRANSMIT, hopsFrom, type Tag } from "./ontology";
 
 function clamp(n: number, min: number, max: number) {
@@ -21,7 +21,8 @@ const TAG_NODE: Record<string, { label: string; kind: RippleNode["kind"] }> = {
   fx: { label: "FX / dollar funding", kind: "currency" },
   duration: { label: "Duration", kind: "rates" },
   equity: { label: "Equities", kind: "etf" },
-  crypto: { label: "Crypto / liquidity", kind: "commodity" },
+  crypto: { label: "Crypto / liquidity", kind: "crypto" },
+  liquidity: { label: "Funding / liquidity", kind: "rates" },
   semiconductor: { label: "Semiconductors", kind: "industry" },
   foundry: { label: "Foundry / wafers", kind: "industry" },
   compute: { label: "Compute / AI kit", kind: "industry" },
@@ -127,9 +128,10 @@ export function buildCausalGraph(opts: {
   function addNode(tag: Tag, level: RippleLevel, i: number, edge?: (typeof hopList)[number]["edge"]) {
     if (nodeByTag.has(tag)) return nodeByTag.get(tag)!;
     const meta = TAG_NODE[tag] ?? { label: tag.replace(/-/g, " "), kind: "other" as const };
-    const tickers = tickersForTag(tag, usedTickers, 1);
-    const ticker = tickers[0];
-    if (ticker) usedTickers.add(ticker);
+    // Prefer a fresh unused ticker for trade diversity; fall back to ontology/TRANSMIT proxy so the map can navigate.
+    const fresh = tickersForTag(tag, usedTickers, 1)[0];
+    const ticker = fresh ?? resolveNodeTicker(tag);
+    if (fresh) usedTickers.add(fresh);
     const id = tag.replace(/[^a-z0-9]+/g, "-") || `n${i}`;
     const dir: RippleNode["direction"] =
       edge?.direction === -1 ? "down" : tone === "down" && level === 1 ? "mixed" : "up";
@@ -191,6 +193,12 @@ export function buildCausalGraph(opts: {
       historicalSupport: "Reflexive policy offsets after prior supply and funding shocks.",
       scenarioDependence: "Materialization scenarios",
     });
+  }
+
+  for (const n of nodes) {
+    if (n.level === 0 || n.ticker) continue;
+    const proxy = resolveNodeTicker(n.id);
+    if (proxy) n.ticker = proxy;
   }
 
   const trades: TradeIdea[] = [];

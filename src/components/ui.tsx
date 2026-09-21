@@ -50,10 +50,12 @@ Input.displayName = "Input";
 export function Badge({
   className,
   tone = "neutral",
+  title,
   children,
 }: {
   className?: string;
   tone?: "neutral" | "up" | "down" | "warn" | "primary" | "core";
+  title?: string;
   children: ReactNode;
 }) {
   const tones = {
@@ -66,6 +68,7 @@ export function Badge({
   };
   return (
     <span
+      title={title}
       className={cn(
         "inline-flex items-center rounded-sm px-1.5 py-0.5 text-micro font-medium uppercase tracking-wider",
         tones[tone],
@@ -97,22 +100,22 @@ export function Panel({
   return (
     <section
       className={cn(
-        "flex h-full min-w-0 flex-col overflow-hidden rounded-lg bg-card shadow-[var(--shadow-border)]",
+        "flex h-full min-w-0 flex-col overflow-hidden rounded-md bg-card shadow-[var(--shadow-border)]",
         className,
       )}
     >
       {title != null && (
-        <header className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
-          <div className="flex min-w-0 items-center gap-2">
+        <header className="flex h-7 shrink-0 items-center justify-between gap-2 border-b border-border px-2.5">
+          <div className="flex min-w-0 items-center gap-1.5">
             {icon ? <span className="text-primary">{icon}</span> : null}
-            <h2 className="truncate text-tiny font-medium uppercase tracking-wider text-muted">
+            <h2 className="truncate text-micro font-medium uppercase tracking-wider text-muted">
               {title}
             </h2>
           </div>
           {action}
         </header>
       )}
-      <div className={cn(padded && "p-3", bodyClassName)}>{children}</div>
+      <div className={cn(padded && "p-2", bodyClassName)}>{children}</div>
     </section>
   );
 }

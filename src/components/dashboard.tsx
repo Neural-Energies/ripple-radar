@@ -4,257 +4,336 @@ import {
   ArrowUpRight,
   Bookmark,
   BookmarkCheck,
-  FlaskConical,
   Newspaper,
-  Swords,
+  X,
 } from "lucide-react";
-import { Donut, HeatChart, ImpactBars, LearningChart, ProbabilityChart } from "@/components/charts";
-import {
-  ActorsPanel,
-  ExpectedEvidencePanel,
-  HorizonPanel,
-  ImportanceMeter,
-  KnowledgePanel,
-  PipelineStrip,
-  RelatedEventsPanel,
-} from "@/components/engine-panels";
+import { ScenarioDistributionBar } from "@/components/charts";
+import { BookStateChips } from "@/components/research-header";
 import { RippleMap } from "@/components/ripple-map";
 import { Badge, Button, Delta, Input, Panel, buttonVariants } from "@/components/ui";
-import { DEFAULT_PORTFOLIO, MODEL_STATS } from "@/data/catalog";
-import type { Crowding, RadarEvent, TradeCategory } from "@/data/types";
-import { isNash, readMatrix } from "@/lib/engine/game";
+import type {
+  Crowding,
+  RadarEvent,
+  TradeCategory,
+  TriageDisposition,
+} from "@/data/types";
 import { runAnalyze, runRescore, useLive, useLiveEvents, useQuote } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
 import { cn, formatPct } from "@/lib/utils";
 
-const TABS = ["Ripple Map", "Research", "Key Takeaways", "Timeline", "Related Assets", "Sentiment", "Sources (Live)"] as const;
-type Tab = (typeof TABS)[number];
 const TRADE_FILTERS: Array<"All" | TradeCategory> = ["All", "etf", "stock", "futures", "forex", "commodities", "crypto"];
 
 export function Dashboard({ event }: { event: RadarEvent }) {
-  const [tab, setTab] = useState<Tab>("Ripple Map");
   const custom = useApp((s) => s.customScenarios).filter((s) => s.eventId === event.id);
   const scenarios = [...event.scenarios, ...custom];
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-1.5">
+      <DevelopingNowStrip activeId={event.id} />
+      <EventHero event={event} />
       <AnalyzeBar />
-      <PipelineStrip lifecycle={event.lifecycle} />
-      <DeskLoop event={event} />
-      <CommandCenter activeId={event.id} />
-      <EventHero event={event} tab={tab} onTab={setTab} />
 
-      {tab === "Ripple Map" && (
-        <div className="grid grid-cols-1 gap-3 xl:grid-cols-12">
-          <Panel title="Ripple Map" className="xl:col-span-6" bodyClassName="p-2 sm:p-3">
+      {/* Map stage + analysis column — map dominates */}
+      <div className="grid grid-cols-1 gap-1.5 xl:grid-cols-12 xl:items-stretch">
+        <Panel
+          title="Ripple Map"
+          className="min-h-[24rem] xl:col-span-9 xl:min-h-[32rem]"
+          bodyClassName="flex min-h-0 flex-1 flex-col p-1 sm:p-1.5"
+          action={
+            <Link to="/maps" className="text-micro text-primary hover:underline">
+              Full map
+            </Link>
+          }
+        >
+          <div className="min-h-[22rem] flex-1 xl:min-h-[30rem]">
             <RippleMap event={event} />
+          </div>
+        </Panel>
+
+        <div className="flex flex-col gap-1.5 xl:col-span-3">
+          <ProbabilityReadout event={event} />
+          <Panel
+            title="Scenario mix"
+            action={
+              <Link to="/scenarios" className="text-micro text-primary hover:underline">
+                Lab
+              </Link>
+            }
+          >
+            <ScenarioDistributionBar scenarios={scenarios} showSum />
           </Panel>
-          <Panel title="Event Impact Summary" className="xl:col-span-3">
-            <ImpactBars items={event.impacts} />
-          </Panel>
-          <div className="flex flex-col gap-3 xl:col-span-3">
-            <Panel
-              title="Event Probability"
-              action={
-                <div className="flex shrink-0 items-baseline gap-1.5">
-                  <span className="font-mono text-lg font-semibold tabular-nums text-foreground">
-                    {event.probability}%
-                  </span>
-                  <Delta n={event.probabilityDelta} digits={0} />
-                </div>
-              }
-            >
-              <ProbabilityChart data={event.probabilityHistory} />
-            </Panel>
-            <Panel title="Market Reaction">
-              <ul className="flex flex-col gap-1.5">
-                {event.marketReaction.map((m) => (
+          <Panel title="Market reaction">
+            {event.marketReaction.length === 0 ? (
+              <p className="text-caption text-muted">No liquid names on this book yet.</p>
+            ) : (
+              <ul className="flex flex-col">
+                {event.marketReaction.slice(0, 8).map((m) => (
                   <ReactionRow key={m.ticker} label={m.label} ticker={m.ticker} fallback={m.change} />
                 ))}
               </ul>
-            </Panel>
-            <Panel
-              title="Narrative Heat"
-              action={
-                <div className="hidden items-center gap-2 text-micro text-muted sm:flex">
-                  <span className="flex items-center gap-1">
-                    <i className="size-1.5 rounded-full bg-primary" /> News
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <i className="size-1.5 rounded-full bg-r2" /> Social
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <i className="size-1.5 rounded-full bg-r3" /> Search
-                  </span>
-                </div>
-              }
-            >
-              <HeatChart data={event.narrativeHeat} />
-            </Panel>
-          </div>
-        </div>
-      )}
-
-      {tab === "Ripple Map" && (
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-          <TransmissionPanel event={event} />
-          <ReflexivityPanel event={event} />
-        </div>
-      )}
-
-      {tab === "Ripple Map" && (
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-          <HorizonPanel event={event} />
-          <RelatedEventsPanel event={event} />
-          <ActorsPanel event={event} />
-        </div>
-      )}
-
-      {tab === "Research" && (
-        <div className="grid min-w-0 gap-3 lg:grid-cols-3">
-          <KnowledgePanel event={event} />
-          <ExpectedEvidencePanel event={event} />
-          <Panel title="Information value">
-            <ImportanceMeter event={event} />
-            <ul className="mt-3 flex flex-col gap-2">
-              {(event.questions ?? []).map((q) => (
-                <li key={q.q} className="rounded-md bg-card-2 px-3 py-2">
-                  <Badge tone={q.value === "critical" ? "core" : q.value === "high" ? "warn" : "neutral"}>
-                    {q.value}
-                  </Badge>
-                  <div className="mt-1 text-caption font-medium">{q.q}</div>
-                  <p className="mt-0.5 text-tiny text-muted">{q.unknown}</p>
-                </li>
-              ))}
-            </ul>
-            {(event.invalidation ?? []).length > 0 && (
-              <div className="mt-3">
-                <p className="text-micro uppercase tracking-wider text-subtle">Invalidation</p>
-                <ul className="mt-1 flex flex-col gap-1">
-                  {event.invalidation!.map((x) => (
-                    <li key={x} className="text-caption text-muted">
-                      {x}
-                    </li>
-                  ))}
-                </ul>
-              </div>
             )}
           </Panel>
+          <NextEvidencePanel event={event} />
         </div>
-      )}
-
-      {tab === "Key Takeaways" && (
-        <div className="grid gap-3 lg:grid-cols-2">
-          <Panel title="Key Takeaways">
-            <ol className="flex flex-col gap-2">
-              {event.takeaways.map((t, i) => (
-                <li key={t} className="flex gap-3 text-body text-foreground">
-                  <span className="mt-0.5 font-mono text-tiny text-primary">{String(i + 1).padStart(2, "0")}</span>
-                  {t}
-                </li>
-              ))}
-            </ol>
-          </Panel>
-          <Panel title="Research agenda">
-            {(event.questions ?? []).length === 0 ? (
-              <p className="text-caption text-muted">No open questions on this book.</p>
-            ) : (
-              <ul className="flex flex-col gap-2">
-                {event.questions!.map((q) => (
-                  <li key={q.q} className="rounded-md bg-card-2 px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <Badge tone={q.value === "critical" ? "core" : q.value === "high" ? "warn" : "neutral"}>
-                        {q.value}
-                      </Badge>
-                      <span className="text-caption font-medium">{q.q}</span>
-                    </div>
-                    <p className="mt-1 text-tiny text-muted">{q.unknown}</p>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {(event.invalidation ?? []).length > 0 && (
-              <div className="mt-3">
-                <p className="text-micro uppercase tracking-wider text-subtle">Invalidation</p>
-                <ul className="mt-1 flex flex-col gap-1">
-                  {event.invalidation!.map((x) => (
-                    <li key={x} className="text-caption text-muted">
-                      {x}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </Panel>
-        </div>
-      )}
-
-      {tab === "Timeline" && (
-        <Panel title="Event Timeline">
-          <ol className="relative ml-3 border-l border-border">
-            {event.timeline.map((t) => (
-              <li key={t.date + t.title} className="relative mb-4 pl-5 last:mb-0">
-                <span className="absolute -left-1.5 top-1 size-3 rounded-full bg-primary" />
-                <div className="font-mono text-tiny text-primary">{t.date}</div>
-                <div className="text-body font-medium">{t.title}</div>
-                <p className="text-caption text-muted">{t.detail}</p>
-              </li>
-            ))}
-          </ol>
-        </Panel>
-      )}
-
-      {tab === "Related Assets" && <TradesPanel event={event} />}
-
-      {tab === "Sentiment" && (
-        <Panel title="Narrative Sentiment">
-          <ul className="grid gap-3 sm:grid-cols-2">
-            {event.sentiment.map((s) => (
-              <li key={s.source} className="rounded-md bg-card-2 p-3">
-                <div className="flex items-center justify-between text-caption">
-                  <span className="text-muted">{s.source}</span>
-                  <Badge tone={s.score > 70 ? "core" : s.score > 50 ? "warn" : "primary"}>{s.label}</Badge>
-                </div>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-card-3">
-                  <div className="h-full rounded-full bg-primary" style={{ width: `${s.score}%` }} />
-                </div>
-                <div className="mt-1 text-right font-mono text-tiny tabular-nums text-muted">{s.score}/100</div>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-      )}
-
-      {tab === "Sources (Live)" && (
-        <Panel title="Sources — public tape">
-          <p className="mb-3 text-caption text-muted">
-            Headlines from public world/business RSS. Quotes via Yahoo last/spark. Indicative, not a broker feed.
-          </p>
-          <ul className="divide-y divide-border">
-            {event.sources.map((s) => (
-              <li key={s.name} className="flex items-center justify-between py-2 text-caption">
-                <span>{s.name}</span>
-                <span className="font-mono text-tiny text-muted">
-                  {s.count} items · last {s.latest}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-      )}
-
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-        <ScenarioPanel event={event} scenarios={scenarios} />
-        <GameTheoryPanel event={event} />
-        <TradesPanel event={event} compact />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-        <ModelPanel />
-        <EvidencePanel event={event} />
-        <PortfolioPanel />
+      {/* Footer: exposures + evidence + transmission */}
+      <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-12">
+        <div className="lg:col-span-5">
+          <TradesPanel event={event} compact />
+        </div>
+        <div className="lg:col-span-4">
+          <EvidencePanel event={event} />
+        </div>
+        <div className="lg:col-span-3">
+          <TransmissionPanel event={event} />
+        </div>
       </div>
     </div>
+  );
+}
+
+function DevelopingNowStrip({ activeId }: { activeId: string }) {
+  const raw = useLiveEvents();
+  const events = useMemo(
+    () =>
+      [...raw]
+        .sort((a, b) => (b.importance ?? 0) - (a.importance ?? 0) || b.probability - a.probability)
+        .slice(0, 8),
+    [raw],
+  );
+  const setEvent = useApp((s) => s.setSelectedEventId);
+
+  return (
+    <section className="rounded-md border border-border bg-card px-2 py-1.5">
+      <div className="mb-1 flex items-center justify-between gap-2">
+        <h2 className="text-micro font-medium uppercase tracking-wider text-muted">Developing now</h2>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-micro tabular-nums text-subtle">
+            {events.length} book{events.length === 1 ? "" : "s"} · by importance
+          </span>
+          <Link to="/events" className="text-micro text-primary hover:underline">
+            World Tape →
+          </Link>
+        </div>
+      </div>
+      {events.length === 0 ? (
+        <p className="px-1 py-1.5 text-caption text-muted">Clustering live headlines into events…</p>
+      ) : (
+        <ul className="flex gap-1.5 overflow-x-auto pb-0.5">
+          {events.map((e) => {
+            const active = e.id === activeId;
+            const hasImp = typeof e.importance === "number";
+            const imp = hasImp ? e.importance! : 0;
+            const riskTone: "core" | "warn" | "primary" | "neutral" =
+              hasImp && imp >= 70 ? "core" : hasImp && imp >= 45 ? "warn" : hasImp && imp >= 25 ? "primary" : "neutral";
+            const family = e.eventSubtype ?? e.eventType ?? e.theme;
+            const links = e.relatedEvents?.length ?? 0;
+            return (
+              <li key={e.id} className="min-w-[11rem] max-w-[13rem] shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setEvent(e.id)}
+                  className={cn(
+                    "flex h-full w-full flex-col rounded-sm border px-2 py-1.5 text-left transition-colors",
+                    active
+                      ? "border-primary/50 bg-primary/15"
+                      : "border-transparent bg-card-2 hover:border-border hover:bg-card-3",
+                  )}
+                >
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="truncate text-micro uppercase tracking-wider text-subtle">
+                      {family || e.lifecycle || e.region || "book"}
+                    </span>
+                    {hasImp ? (
+                      <Badge tone={riskTone} className="shrink-0 px-1 py-px">
+                        {imp >= 70 ? "high" : imp >= 45 ? "med" : "low"}
+                      </Badge>
+                    ) : (
+                      <Badge tone="neutral" className="shrink-0 px-1 py-px">
+                        —
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="mt-0.5 line-clamp-2 text-caption font-medium leading-snug">{e.title}</div>
+                  <div className="mt-1 flex items-center justify-between gap-1 font-mono text-micro text-muted">
+                    <span title="Importance 0–99">
+                      imp {hasImp ? e.importance : "—"}
+                    </span>
+                    <span className="tabular-nums text-primary" title="Probability">
+                      {e.probability}%
+                    </span>
+                  </div>
+                  {(e.lifecycle || links > 0 || e.disposition) && (
+                    <div className="mt-1 flex flex-wrap items-center gap-1">
+                      {e.lifecycle ? (
+                        <span className="truncate text-micro uppercase tracking-wider text-subtle">
+                          {e.lifecycle}
+                        </span>
+                      ) : null}
+                      {links > 0 ? (
+                        <span className="font-mono text-micro text-subtle">{links} rel</span>
+                      ) : null}
+                      {e.disposition ? (
+                        <Badge tone={dispositionTone(e.disposition)} className="px-1 py-px">
+                          {e.disposition}
+                        </Badge>
+                      ) : null}
+                    </div>
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+/** Thin book chrome — crowding ≠ confirmation; reserved fields only when present. */
+function EventHero({ event }: { event: RadarEvent }) {
+  const rescoring = useLive((s) => s.rescoring);
+  const mode = event.mode ?? (event.id.startsWith("live-") ? "live" : event.id.startsWith("desk-") ? "desk" : "standing");
+  const family = event.eventSubtype ?? event.eventType ?? event.theme;
+  const sourceN = event.sourceCount ?? event.sources.reduce((n, s) => n + s.count, 0);
+  const freshness = event.timestamp || event.firstDetected;
+  const empty = !event.id || event.title === "Listening to the world tape";
+  const hasImp = typeof event.importance === "number" && !empty;
+  const hasProb = !empty;
+
+  return (
+    <section className="rounded-md border border-border bg-card px-2.5 py-1.5">
+      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+        <Badge tone="up">{event.lifecycle ?? (mode === "desk" ? "desk" : "live")}</Badge>
+        {family ? <Badge tone="primary">{family}</Badge> : null}
+        {event.region && event.region !== "—" ? <Badge tone="neutral">{event.region}</Badge> : null}
+        <BookStateChips event={event} />
+        {freshness ? <span className="font-mono text-micro text-subtle">{freshness}</span> : null}
+        {sourceN > 0 ? <span className="font-mono text-micro text-subtle">{sourceN} src</span> : null}
+        <div className="ml-auto flex items-center gap-2">
+          <span className="font-mono text-caption tabular-nums text-muted" title="Importance 0–99 · not a 10-scale">
+            imp <span className="text-foreground">{hasImp ? event.importance : "—"}</span>
+          </span>
+          <span className="font-mono text-caption tabular-nums" title="Probability">
+            {hasProb ? (
+              <>
+                <span className="text-primary">{event.probability}%</span>
+                {typeof event.probabilityDelta === "number" && event.probabilityDelta !== 0 ? (
+                  <>
+                    {" "}
+                    <Delta n={event.probabilityDelta} digits={0} />
+                  </>
+                ) : null}
+              </>
+            ) : (
+              <span className="text-subtle">—%</span>
+            )}
+          </span>
+          <button
+            type="button"
+            disabled={rescoring === event.id || empty}
+            onClick={() => void runRescore(event.id)}
+            className={cn(buttonVariants({ size: "sm", variant: "secondary" }), "h-6 px-2 text-micro")}
+          >
+            {rescoring === event.id ? "…" : "Rescore"}
+          </button>
+        </div>
+      </div>
+      <h1 className="mt-1 truncate text-base font-semibold tracking-tight text-foreground sm:text-lg">
+        {empty ? "No active book" : event.title}
+      </h1>
+      {!empty && event.summary ? (
+        <p className="mt-0.5 line-clamp-1 text-caption text-muted">{event.summary}</p>
+      ) : null}
+    </section>
+  );
+}
+
+function ProbabilityReadout({ event }: { event: RadarEvent }) {
+  const empty = !event.id || event.title === "Listening to the world tape";
+  const hasImp = typeof event.importance === "number" && !empty;
+  const imp = hasImp ? event.importance! : 0;
+  if (empty) {
+    return (
+      <Panel title="Event analysis">
+        <p className="text-caption text-muted">Select a live book to see probability and importance.</p>
+      </Panel>
+    );
+  }
+  return (
+    <Panel title="Event analysis">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="rounded-sm bg-card-2 px-2 py-1.5">
+          <div className="text-micro uppercase tracking-wider text-subtle">Probability</div>
+          <div className="mt-0.5 flex items-baseline gap-1.5">
+            <span className="font-mono text-2xl font-semibold tabular-nums leading-none text-primary">
+              {event.probability}
+              <span className="text-sm font-medium">%</span>
+            </span>
+            <Delta n={event.probabilityDelta} digits={0} />
+          </div>
+          {event.provenance ? (
+            <div className="mt-1 text-micro uppercase tracking-wider text-subtle">
+              {event.provenance.replace("_", " ")}
+            </div>
+          ) : null}
+          <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-card-3">
+            <div
+              className="h-full rounded-full bg-primary"
+              style={{ width: `${Math.min(100, Math.max(0, event.probability))}%` }}
+            />
+          </div>
+        </div>
+        <div className="rounded-sm bg-card-2 px-2 py-1.5">
+          <div className="text-micro uppercase tracking-wider text-subtle">Importance</div>
+          <div className="mt-0.5 font-mono text-2xl font-semibold tabular-nums leading-none text-foreground">
+            {hasImp ? event.importance : "—"}
+          </div>
+          <div className="mt-0.5 text-micro text-subtle">raw 0–99 · ≠ prob</div>
+          <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-card-3">
+            <div
+              className="h-full rounded-full bg-warn"
+              style={{ width: `${hasImp ? Math.min(100, Math.max(0, imp)) : 0}%` }}
+            />
+          </div>
+        </div>
+      </div>
+    </Panel>
+  );
+}
+
+function NextEvidencePanel({ event }: { event: RadarEvent }) {
+  const next = event.expectedEvidence?.[0];
+  const kills = event.invalidation ?? [];
+  return (
+    <Panel title="Next evidence / invalidation">
+      {next ? (
+        <div className="rounded-sm bg-card-2 px-2 py-1.5">
+          <div className="text-micro uppercase tracking-wider text-subtle">If {next.ifTrue}</div>
+          <p className="mt-0.5 text-caption text-foreground">
+            Then within {next.lag}: {next.observe}
+          </p>
+          <div className="mt-1">
+            <Badge tone={next.appeared ? "up" : "neutral"}>{next.appeared ? "observed" : "awaiting"}</Badge>
+          </div>
+        </div>
+      ) : (
+        <p className="text-caption text-muted">No expected evidence on this book yet.</p>
+      )}
+      {kills.length > 0 && (
+        <div className="mt-1.5">
+          <p className="text-micro uppercase tracking-wider text-subtle">Kill the book</p>
+          <ul className="mt-0.5 flex flex-col gap-0.5">
+            {kills.slice(0, 3).map((x) => (
+              <li key={x} className="text-caption text-muted">
+                {x}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </Panel>
   );
 }
 
@@ -264,12 +343,12 @@ function AnalyzeBar() {
   const analyzing = useLive((s) => s.analyzing);
   useEffect(() => setReady(true), []);
   return (
-    <Panel title="Analyze this event" action={<span className="text-micro text-muted">Paste anything. The engine builds the book.</span>}>
+    <div className="rounded-md border border-border bg-card px-2 py-1">
       {!ready ? (
-        <div className="h-11 rounded-md bg-card-2" aria-hidden />
+        <div className="h-7 rounded-sm bg-card-2" aria-hidden />
       ) : (
         <form
-          className="flex flex-col gap-2 sm:flex-row"
+          className="flex flex-col gap-1 sm:flex-row sm:items-center"
           onSubmit={(e) => {
             e.preventDefault();
             const t = draft.trim();
@@ -277,18 +356,19 @@ function AnalyzeBar() {
             void runAnalyze(t).then(() => setDraft(""));
           }}
         >
+          <span className="shrink-0 text-micro font-medium uppercase tracking-wider text-muted">Analyze</span>
           <Input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder="A pipeline is hit. FOMC hikes 50bp. MoF yen intervention. A regional bank fails."
-            className="min-h-11 flex-1"
+            placeholder="Paste a shock — pipeline hit, FOMC hike, yen intervention…"
+            className="min-h-7 h-7 flex-1 text-caption"
           />
-          <Button type="submit" disabled={analyzing || !draft.trim()} className="min-h-11 sm:w-40">
-            {analyzing ? "Constructing…" : "Analyze"}
+          <Button type="submit" size="sm" disabled={analyzing || !draft.trim()} className="h-7 sm:w-20">
+            {analyzing ? "…" : "Run"}
           </Button>
         </form>
       )}
-    </Panel>
+    </div>
   );
 }
 
@@ -300,367 +380,165 @@ function crowdingTone(c?: Crowding): "up" | "warn" | "core" | "neutral" | "prima
   return "neutral";
 }
 
-function DeskLoop({ event }: { event: RadarEvent }) {
-  const head = event.trades.find((t) => t.headline) ?? event.trades[0];
-  const under =
-    event.trades.find((t) => (t.crowding === "low" || t.crowding === "emerging") && t.ticker !== head?.ticker) ??
-    event.trades.find((t) => t.ticker !== head?.ticker);
-  const steps = [
-    { k: "1 · Event", v: event.title || "Listening to the world tape" },
-    {
-      k: "2 · Don't trade this",
-      v: head
-        ? `${head.ticker} is the crowded first print${head.crowding ? ` (${head.crowding} crowd)` : ""}.`
-        : "First-order still constructing.",
-    },
-    {
-      k: "3 · Trade what it causes",
-      v: under
-        ? `${under.ticker} · d${under.distance ?? "?"} · ${under.causalPath ?? under.reason}`
-        : "Second-order names appear once the causal graph has hops.",
-    },
-    {
-      k: "4 · Whose move",
-      v:
-        event.gameTheory.actor && event.gameTheory.actor !== "—"
-          ? `${event.gameTheory.actor} vs ${event.gameTheory.counterpart}. ${event.gameTheory.insight}`
-          : "Players are discovered from the event — not a preloaded list.",
-    },
-    {
-      k: "5 · Next evidence",
-      v: event.expectedEvidence?.[0]
-        ? `If ${event.expectedEvidence[0].ifTrue}: ${event.expectedEvidence[0].observe}`
-        : "Expected evidence is generated per scenario.",
-    },
-    {
-      k: "6 · Kill the book",
-      v: event.invalidation?.[0] ?? "Invalidation is specific to this causal edge.",
-    },
-  ];
-  return (
-    <Panel title="Desk loop" action={<span className="text-micro text-muted">Don't trade the headline. Trade what it causes next.</span>}>
-      <ol className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-        {steps.map((s) => (
-          <li key={s.k} className="min-w-0 rounded-md bg-card-2 px-2.5 py-2">
-            <div className="text-micro uppercase tracking-wider text-subtle">{s.k}</div>
-            <p className="mt-1 line-clamp-3 text-caption text-foreground">{s.v}</p>
-          </li>
-        ))}
-      </ol>
-    </Panel>
-  );
+function dispositionTone(d: TriageDisposition): "up" | "warn" | "core" | "neutral" | "primary" {
+  if (d === "onRadar") return "core";
+  if (d === "watch") return "warn";
+  if (d === "duplicate") return "primary";
+  return "neutral";
 }
 
-function CommandCenter({ activeId }: { activeId: string }) {
-  const events = useLiveEvents().slice(0, 5);
-  const setEvent = useApp((s) => s.setSelectedEventId);
-  return (
-    <Panel title="Developing now" action={<span className="text-micro text-muted">Discovered from the tape — ranked by importance</span>}>
-      {events.length === 0 ? (
-        <p className="text-caption text-muted">Clustering live headlines into events…</p>
-      ) : (
-        <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
-          {events.map((e) => {
-            const under = e.trades.find((t) => t.crowding === "low" || t.crowding === "emerging") ?? e.trades[0];
-            const active = e.id === activeId;
-            return (
-              <li key={e.id + "-" + e.title.slice(0, 12)}>
-                <button
-                  type="button"
-                  onClick={() => setEvent(e.id)}
-                  className={cn(
-                    "flex h-full w-full flex-col rounded-md px-2.5 py-2 text-left",
-                    active ? "bg-primary/15" : "bg-card-2 hover:bg-card-3",
-                  )}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="truncate text-micro uppercase tracking-wider text-subtle">{e.lifecycle ?? e.region}</span>
-                    <span className="font-mono text-tiny tabular-nums text-primary">imp {e.importance ?? e.probability}</span>
-                  </div>
-                  <div className="mt-1 line-clamp-2 text-caption font-medium">{e.title}</div>
-                  {under && (
-                    <div className="mt-1 truncate font-mono text-micro text-muted">
-                      {e.probability}% · {under.ticker}
-                      {under.crowding ? ` · ${under.crowding}` : ""}
-                    </div>
-                  )}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </Panel>
-  );
-}
 
 function ReactionRow({ label, ticker, fallback }: { label: string; ticker: string; fallback: number }) {
   const q = useQuote(ticker);
   const change = q?.changePct ?? fallback;
+  const live = q != null;
   return (
-    <li className="flex items-center justify-between gap-2 text-caption">
+    <li className="flex items-center justify-between gap-2 border-t border-border/60 py-1 text-caption first:border-t-0 first:pt-0">
       <Link to="/assets/$ticker" params={{ ticker }} className="truncate text-muted hover:text-primary">
         {label}
+        <span className="ml-1 font-mono text-micro text-subtle">{live ? "live" : "last"}</span>
       </Link>
-      <span className={cn("font-mono tabular-nums", change >= 0 ? "text-up" : "text-down")}>
+      <span className={cn("shrink-0 font-mono tabular-nums", change >= 0 ? "text-up" : "text-down")}>
         {formatPct(change)}
       </span>
     </li>
   );
 }
 
-function EventHero({
-  event,
-  tab,
-  onTab,
-}: {
-  event: RadarEvent;
-  tab: Tab;
-  onTab: (t: Tab) => void;
-}) {
-  const rescoring = useLive((s) => s.rescoring);
-  const mode = event.mode ?? (event.id.startsWith("live-") ? "live" : event.id.startsWith("desk-") ? "desk" : "standing");
-  return (
-    <Panel padded={false} className="overflow-hidden">
-      <div className="flex flex-col gap-2 px-3 py-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <div className="mb-1.5 flex flex-wrap items-center gap-2">
-            <Badge tone="core">{event.badge}</Badge>
-            <Badge tone="up">{event.lifecycle ?? (mode === "desk" ? "desk" : "live")}</Badge>
-            <Badge tone="primary">{event.eventSubtype ?? event.eventType ?? event.forecastHorizon ?? "hours → quarters"}</Badge>
-            <Badge tone="warn">imp {event.importance ?? "—"}</Badge>
-            <span className="font-mono text-tiny text-muted">{event.timestamp}</span>
-          </div>
-          <h1 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">{event.title}</h1>
-          <p className="mt-1 max-w-3xl text-caption text-muted">{event.summary}</p>
-          {(() => {
-            const under = event.trades.find((t) => t.crowding === "low" || t.crowding === "emerging");
-            const head = event.trades.find((t) => t.headline) ?? event.trades[0];
-            if (!under && !head) return null;
-            return (
-              <p className="mt-2 text-tiny text-subtle">
-                {head ? (
-                  <>
-                    Headline print <span className="font-mono text-foreground">{head.ticker}</span>
-                    {head.crowding ? ` · ${head.crowding} crowd` : ""}.{" "}
-                  </>
-                ) : null}
-                {under && under.ticker !== head?.ticker ? (
-                  <>
-                    Under-recognized: <span className="font-mono text-primary">{under.ticker}</span>
-                    {under.distance != null ? ` · d${under.distance}` : ""} · {under.crowding} crowd
-                    {under.causalPath ? ` · ${under.causalPath}` : ""}
-                  </>
-                ) : null}
-              </p>
-            );
-          })()}
-        </div>
-        <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end">
-          <Link to="/events" className="inline-flex items-center gap-1 text-caption text-primary hover:underline">
-            View Full Story <ArrowUpRight className="size-3.5" />
-          </Link>
-          <button
-            type="button"
-            disabled={rescoring === event.id}
-            onClick={() => void runRescore(event.id)}
-            className={cn(buttonVariants({ size: "sm", variant: "secondary" }))}
-          >
-            {rescoring === event.id ? "Rescoring…" : "Rescore with Grok"}
-          </button>
-        </div>
-      </div>
-      <div className="flex gap-0 overflow-x-auto border-t border-border">
-        {TABS.map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => onTab(t)}
-            className={cn(
-              "min-h-10 shrink-0 border-b-2 px-3 py-2 text-caption transition-colors duration-150",
-              tab === t ? "border-primary text-foreground" : "border-transparent text-muted hover:text-foreground",
-            )}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
-    </Panel>
-  );
-}
-
 function TransmissionPanel({ event }: { event: RadarEvent }) {
-  const rows = event.links.filter((l) => l.dest !== "core").slice(0, 8);
-  return (
-    <Panel title="Transmission" action={<span className="text-micro text-muted">Mechanism · lag · invalidation</span>}>
-      {rows.length === 0 ? (
-        <p className="text-caption text-muted">Causal edges appear once the engine has hops from this event.</p>
-      ) : (
-        <ul className="flex flex-col gap-2">
-          {rows.map((l) => {
-            const src = event.nodes.find((n) => n.id === l.source);
-            const dst = event.nodes.find((n) => n.id === l.dest);
-            return (
-              <li key={`${l.source}-${l.dest}`} className="rounded-md bg-card-2 px-2.5 py-2">
-                <div className="flex items-center justify-between gap-2 text-caption">
-                  <span className="font-medium">
-                    {src?.label ?? l.source} → {dst?.label ?? l.dest}
-                    {dst?.ticker ? ` · ${dst.ticker}` : ""}
-                  </span>
-                  <span className="font-mono text-micro text-primary">d{l.distance}</span>
-                </div>
-                <p className="mt-1 text-tiny text-muted">{l.evidence}</p>
-                <p className="mt-0.5 text-micro text-subtle">
-                  Lag {l.expectedLag} · Kill: {l.invalidation}
-                </p>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </Panel>
-  );
-}
+  const rows = event.links.filter((l) => l.dest !== "core").slice(0, 6);
+  const [selected, setSelected] = useState<(typeof rows)[number] | null>(null);
 
-function ReflexivityPanel({ event }: { event: RadarEvent }) {
-  const back = event.links.filter((l) => l.dest === "core" && l.source !== "core");
-  return (
-    <Panel title="Reflexivity" action={<span className="text-micro text-muted">Price can change the event</span>}>
-      {back.length === 0 ? (
-        <p className="text-caption text-muted">
-          No feedback edge yet. When a macro node exists, the engine asks whether policy or price can unwind the shock.
-        </p>
-      ) : (
-        <ul className="flex flex-col gap-2">
-          {back.map((l) => {
-            const src = event.nodes.find((n) => n.id === l.source);
-            return (
-              <li key={l.source} className="rounded-md bg-card-2 px-2.5 py-2">
-                <div className="text-caption font-medium">{src?.label} → event</div>
-                <p className="mt-1 text-tiny text-muted">{l.evidence}</p>
-                <p className="mt-0.5 text-micro text-subtle">Invalidation: {l.invalidation}</p>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </Panel>
-  );
-}
+  useEffect(() => {
+    if (!selected) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelected(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selected]);
 
-function ScenarioPanel({
-  event,
-  scenarios,
-}: {
-  event: RadarEvent;
-  scenarios: RadarEvent["scenarios"];
-}) {
-  const [open, setOpen] = useState<string | null>(scenarios[0]?.id ?? null);
+  const src = selected ? event.nodes.find((n) => n.id === selected.source) : undefined;
+  const dst = selected ? event.nodes.find((n) => n.id === selected.dest) : undefined;
+
   return (
     <Panel
-      title="Scenario Analysis"
-      icon={<FlaskConical className="size-3.5" />}
+      title="Transmission"
       action={
-        <Link to="/scenarios" className="text-micro text-primary hover:underline">
-          {event.region} · Lab
+        <Link to="/maps" className="text-micro text-primary hover:underline">
+          Map
         </Link>
       }
     >
-      <div className="mb-2 hidden grid-cols-[1fr_52px_72px_1fr] gap-2 text-micro uppercase tracking-wider text-subtle sm:grid">
-        <span>Scenario</span>
-        <span>Prob</span>
-        <span>Range</span>
-        <span>Key outcomes</span>
-      </div>
-      <ul className="flex flex-col gap-1">
-        {scenarios.map((s) => {
-          const tone = s.probability >= 30 ? "warn" : s.probability >= 20 ? "primary" : "neutral";
-          return (
-            <li key={s.id}>
+      {rows.length === 0 ? (
+        <p className="text-caption text-muted">No edges yet.</p>
+      ) : (
+        <ul className="flex flex-col gap-0.5">
+          {rows.map((l) => {
+            const s = event.nodes.find((n) => n.id === l.source);
+            const d = event.nodes.find((n) => n.id === l.dest);
+            return (
+              <li key={`${l.source}-${l.dest}`}>
+                <button
+                  type="button"
+                  onClick={() => setSelected(l)}
+                  className="flex min-h-9 w-full flex-col gap-0.5 rounded-sm bg-card-2 px-1.5 py-1 text-left transition-colors hover:bg-card-3"
+                >
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="truncate text-caption font-medium">
+                      {s?.label ?? l.source} → {d?.label ?? l.dest}
+                      {d?.ticker ? ` · ${d.ticker}` : ""}
+                    </span>
+                    <span className="shrink-0 font-mono text-micro text-primary">d{l.distance}</span>
+                  </div>
+                  <p className="line-clamp-1 text-micro text-muted">{l.evidence}</p>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {selected && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:px-4">
+          <button
+            type="button"
+            className="absolute inset-0 bg-overlay"
+            aria-label="Dismiss transmission"
+            onClick={() => setSelected(null)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Transmission detail"
+            className="relative z-10 flex max-h-[85vh] w-full max-w-lg flex-col rounded-t-xl bg-card shadow-[var(--shadow-border-hover)] sm:rounded-md"
+          >
+            <div className="flex items-start justify-between gap-3 border-b border-border px-3 pb-2.5 pt-3">
+              <div className="min-w-0">
+                <div className="text-micro uppercase tracking-wider text-subtle">Transmission</div>
+                <h3 className="mt-0.5 text-base font-semibold leading-snug text-foreground">
+                  {src?.label ?? selected.source} → {dst?.label ?? selected.dest}
+                </h3>
+                {dst?.ticker ? (
+                  <Link
+                    to="/assets/$ticker"
+                    params={{ ticker: dst.ticker }}
+                    className="mt-1 inline-flex min-h-9 items-center text-sm font-medium text-primary hover:underline"
+                    onClick={() => setSelected(null)}
+                  >
+                    {dst.ticker}
+                    <ArrowUpRight className="ml-0.5 size-3.5" />
+                  </Link>
+                ) : null}
+              </div>
               <button
                 type="button"
-                onClick={() => setOpen(open === s.id ? null : s.id)}
-                className="grid w-full grid-cols-1 gap-1 rounded-md px-1.5 py-1.5 text-left hover:bg-card-2 sm:grid-cols-[1fr_52px_72px_1fr] sm:items-center"
+                onClick={() => setSelected(null)}
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-sm text-muted hover:bg-card-2 hover:text-foreground"
+                aria-label="Close"
               >
-                <div>
-                  <div className="text-caption font-medium">{s.name}</div>
-                  <div className="text-micro text-subtle">{s.detail}</div>
-                </div>
-                <Badge tone={tone}>{s.probability}%</Badge>
-                <span className="font-mono text-tiny text-muted">{s.range}</span>
-                <span className="truncate text-tiny text-muted">{s.keyOutcomes}</span>
+                <X className="size-5" />
               </button>
-              {open === s.id && (
-                <div className="mb-1 rounded-md bg-card-2 px-2.5 py-2 text-tiny text-muted">
-                  <div className="mb-1 text-micro uppercase tracking-wider text-subtle">Probability audit</div>
-                  <p>
-                    {s.audit.previous}% → {s.audit.updated}% · {s.audit.direction} weight {s.audit.weight} · {s.audit.evidence}
-                  </p>
+            </div>
+            <div className="overflow-y-auto px-3 py-3">
+              <dl className="flex flex-col gap-3">
+                <div>
+                  <dt className="text-micro uppercase tracking-wider text-subtle">Explanation</dt>
+                  <dd className="mt-1 text-sm leading-relaxed text-foreground">{selected.evidence}</dd>
                 </div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-    </Panel>
-  );
-}
-
-function GameTheoryPanel({ event }: { event: RadarEvent }) {
-  const gt = event.gameTheory;
-  const read = readMatrix(gt);
-  return (
-    <Panel
-      title="Game Theory Lens"
-      icon={<Swords className="size-3.5" />}
-      action={<span className="text-micro text-muted">({gt.actor} payoff, {gt.counterpart} payoff)</span>}
-    >
-      <p className="mb-2 text-tiny text-muted">
-        Rows = {gt.actor || "actor"}'s moves. Columns = {gt.counterpart || "counterpart"}'s. Highlight = mutual best
-        response — that cell rewrites the ripple.
-      </p>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[28rem] text-tiny">
-          <thead>
-            <tr className="text-subtle">
-              <th className="py-1 pr-2 text-left font-medium" />
-              {gt.columns.map((c) => (
-                <th key={c} className="px-1 py-1 text-left font-medium">
-                  {c}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {gt.rows.map((row) => (
-              <tr key={row.name} className="border-t border-border/70 align-top">
-                <td className="py-1.5 pr-2 font-medium text-foreground">{row.name}</td>
-                {row.cells.map((cell, i) => {
-                  const col = gt.columns[i] ?? "";
-                  const nash = isNash(read, row.name, col);
-                  return (
-                    <td key={col} className={cn("px-1 py-1.5 text-muted", nash && "bg-primary/10")}>
-                      <div>{cell.label}</div>
-                      <div className="font-mono text-micro text-primary">
-                        ({cell.a}, {cell.b})
-                      </div>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {read.likely && (
-        <p className="mt-2 text-tiny text-foreground">
-          Likely play: {gt.actor} {read.likely.row} / {gt.counterpart} {read.likely.col}.
-        </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <dt className="text-micro uppercase tracking-wider text-subtle">Lag</dt>
+                    <dd className="mt-1 text-sm text-foreground">{selected.expectedLag}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-micro uppercase tracking-wider text-subtle">Distance</dt>
+                    <dd className="mt-1 font-mono text-sm text-primary">d{selected.distance}</dd>
+                  </div>
+                </div>
+                <div>
+                  <dt className="text-micro uppercase tracking-wider text-subtle">Kill / invalidation</dt>
+                  <dd className="mt-1 text-sm leading-relaxed text-foreground">{selected.invalidation}</dd>
+                </div>
+                {typeof selected.confidence === "number" ? (
+                  <div>
+                    <dt className="text-micro uppercase tracking-wider text-subtle">Confidence</dt>
+                    <dd className="mt-1 font-mono text-sm text-foreground">
+                      {Math.round(selected.confidence * 100)}%
+                    </dd>
+                  </div>
+                ) : null}
+                {selected.historicalSupport ? (
+                  <div>
+                    <dt className="text-micro uppercase tracking-wider text-subtle">Historical support</dt>
+                    <dd className="mt-1 text-sm leading-relaxed text-muted">{selected.historicalSupport}</dd>
+                  </div>
+                ) : null}
+              </dl>
+            </div>
+          </div>
+        </div>
       )}
-      <div className="mt-2 rounded-md bg-card-2 px-2.5 py-2 text-tiny text-muted">
-        <span className="font-medium text-primary">Key insight. </span>
-        {gt.insight}
-      </div>
     </Panel>
   );
 }
@@ -675,21 +553,21 @@ function TradesPanel({ event, compact }: { event: RadarEvent; compact?: boolean 
 
   return (
     <Panel
-      title="Top Ripple Trades (Model Ranked)"
+      title="Top exposures"
       action={
         <Link to="/assets" className="text-micro text-primary hover:underline">
-          View more
+          Assets
         </Link>
       }
     >
-      <div className="mb-2 flex flex-wrap gap-1">
+      <div className="mb-1.5 flex flex-wrap gap-0.5">
         {TRADE_FILTERS.map((f) => (
           <button
             key={f}
             type="button"
             onClick={() => setFilter(f)}
             className={cn(
-              "rounded-sm px-2 py-0.5 text-micro uppercase tracking-wider",
+              "rounded-sm px-1.5 py-0.5 text-micro uppercase tracking-wider",
               filter === f ? "bg-primary/15 text-primary" : "text-muted hover:text-foreground",
             )}
           >
@@ -697,176 +575,117 @@ function TradesPanel({ event, compact }: { event: RadarEvent; compact?: boolean 
           </button>
         ))}
       </div>
-      <ul className="flex flex-col">
-        {rows.map((t) => {
-          const chg = quotes?.[t.ticker]?.changePct;
-          return (
-            <li
-              key={t.ticker}
-              className="grid grid-cols-[auto_1fr_auto] items-center gap-2 border-t border-border/70 py-1.5 first:border-t-0"
-            >
-              <Link
-                to="/assets/$ticker"
-                params={{ ticker: t.ticker }}
-                className="w-12 font-mono text-caption text-primary hover:underline"
-              >
-                {t.ticker}
-              </Link>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={cn(
-                      "font-mono text-caption tabular-nums",
-                      t.score >= 80 ? "text-up" : t.score >= 65 ? "text-warn" : "text-muted",
-                    )}
-                  >
-                    {t.score}
-                  </span>
-                  <span className="truncate text-tiny text-muted">{t.reason}</span>
-                  {(t.crowding || t.confirmation) && (
-                    <span className="hidden gap-1 sm:inline-flex">
-                      {t.crowding && <Badge tone={crowdingTone(t.crowding)}>{t.crowding}</Badge>}
-                      {t.confirmation && t.confirmation !== "none" && (
-                        <Badge tone={t.confirmation === "invalidating" || t.confirmation === "diverging" ? "core" : "primary"}>
-                          {t.confirmation}
-                        </Badge>
-                      )}
-                    </span>
-                  )}
-                </div>
-                {!compact && (
-                  <div className="text-micro uppercase tracking-wider text-subtle">
-                    {t.side} · {t.horizon}
-                    {t.distance != null && ` · d${t.distance}`}
-                    {chg != null && (
-                      <span className={cn("ml-2 normal-case", chg >= 0 ? "text-up" : "text-down")}>
-                        {formatPct(chg)}
-                      </span>
-                    )}
-                    {t.causalPath && <div className="normal-case tracking-normal text-subtle">{t.causalPath}</div>}
-                    {t.invalidation && (
-                      <div className="normal-case tracking-normal text-muted">Invalidation: {t.invalidation}</div>
-                    )}
-                  </div>
-                )}
-              </div>
-              <button
-                type="button"
-                aria-label={watched.has(t.ticker) ? "On watchlist" : "Add to watchlist"}
-                onClick={() => list && add(list.id, t.ticker)}
-                className="text-muted hover:text-primary"
-              >
-                {watched.has(t.ticker) ? (
-                  <BookmarkCheck className="size-3.5 text-primary" />
-                ) : (
-                  <Bookmark className="size-3.5" />
-                )}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </Panel>
-  );
-}
-
-function ModelPanel() {
-  const s = MODEL_STATS;
-  const series = useMemo(
-    () => s.series.map((d) => ({ ...d, brierInv: Math.round((1 - d.brier) * 100) })),
-    [s.series],
-  );
-  return (
-    <Panel title="Model Learning & Performance">
-      <div className="mb-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Stat label="Accuracy (90d)" value={`${s.accuracy}%`} delta={s.accuracyDelta} />
-        <Stat label="Brier (lower better)" value={s.brier.toFixed(2)} delta={s.brierDelta} suffix="" invert />
-        <Stat label="Lead time" value={`${s.leadDays}d`} delta={s.leadDelta} suffix="d" />
-        <Stat label="New insights" value={String(s.insights)} delta={s.insightsDelta} suffix="" />
-      </div>
-      <LearningChart data={series.map((d) => ({ date: d.date, accuracy: d.accuracy, brier: d.brierInv }))} />
-      <ul className="mt-2 flex flex-col gap-1">
-        {s.improvements.slice(0, 4).map((i) => (
-          <li key={i} className="flex gap-2 text-tiny text-muted">
-            <span className="mt-1 size-1.5 shrink-0 rounded-full bg-r2" />
-            {i}
-          </li>
-        ))}
-      </ul>
-    </Panel>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  delta,
-  suffix = "%",
-  invert,
-}: {
-  label: string;
-  value: string;
-  delta: number;
-  suffix?: string;
-  invert?: boolean;
-}) {
-  return (
-    <div>
-      <div className="text-micro uppercase tracking-wider text-subtle">{label}</div>
-      <div className="font-mono text-sm tabular-nums text-foreground">{value}</div>
-      <Delta n={delta} suffix={suffix} digits={invert ? 2 : 0} />
-    </div>
-  );
-}
-
-function EvidencePanel({ event }: { event: RadarEvent }) {
-  return (
-    <Panel title="Evidence Feed" icon={<Newspaper className="size-3.5" />} action={<span className="text-micro text-muted">Class · reliability</span>}>
-      {event.evidence.length === 0 ? (
-        <p className="text-caption text-muted">No tape items on this book yet.</p>
+      {rows.length === 0 ? (
+        <p className="text-caption text-muted">No ranked expressions yet.</p>
       ) : (
         <ul className="flex flex-col">
-          {event.evidence.slice(0, 8).map((e) => (
-            <li key={e.id} className="border-t border-border/70 py-1.5 first:border-t-0">
-              <div className="flex items-center gap-2">
-                <Badge tone={e.evidenceClass === "fundamental" ? "up" : e.evidenceClass === "market" ? "warn" : "primary"}>
-                  {e.evidenceClass.slice(0, 4)}
-                </Badge>
-                <span className="font-mono text-micro text-subtle">{e.source}</span>
-                {e.reliability && <span className="font-mono text-micro text-muted">{e.reliability}</span>}
-                {e.delayed && <span className="text-micro text-subtle">delayed</span>}
-              </div>
-              <p className="mt-0.5 line-clamp-2 text-caption text-foreground">{e.headline}</p>
-            </li>
-          ))}
+          {rows.slice(0, compact ? 8 : undefined).map((t) => {
+            const chg = quotes?.[t.ticker]?.changePct;
+            return (
+              <li
+                key={t.ticker}
+                className="grid grid-cols-[auto_1fr_auto] items-center gap-1.5 border-t border-border/60 py-1 first:border-t-0"
+              >
+                <Link
+                  to="/assets/$ticker"
+                  params={{ ticker: t.ticker }}
+                  className="w-11 font-mono text-caption text-primary hover:underline"
+                >
+                  {t.ticker}
+                </Link>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={cn(
+                        "font-mono text-caption tabular-nums",
+                        t.score >= 80 ? "text-up" : t.score >= 65 ? "text-warn" : "text-muted",
+                      )}
+                    >
+                      {t.score}
+                    </span>
+                    <span className="truncate text-micro text-muted">{t.reason}</span>
+                    {(t.crowding || (t.confirmation && t.confirmation !== "none")) && (
+                      <span className="hidden gap-0.5 lg:inline-flex">
+                        {t.crowding ? (
+                          <Badge tone={crowdingTone(t.crowding)} title="Crowding">
+                            Crowd · {t.crowding}
+                          </Badge>
+                        ) : null}
+                        {t.confirmation && t.confirmation !== "none" ? (
+                          <Badge
+                            tone={
+                              t.confirmation === "invalidating" || t.confirmation === "diverging"
+                                ? "core"
+                                : "primary"
+                            }
+                            title="Confirmation"
+                          >
+                            Conf · {t.confirmation}
+                          </Badge>
+                        ) : null}
+                      </span>
+                    )}
+                  </div>
+                  {compact && (
+                    <div className="truncate text-micro text-subtle">
+                      {t.side} · {t.horizon}
+                      {t.distance != null && ` · d${t.distance}`}
+                      {chg != null && (
+                        <span className={cn("ml-1.5", chg >= 0 ? "text-up" : "text-down")}>{formatPct(chg)}</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  aria-label={watched.has(t.ticker) ? "On watchlist" : "Add to watchlist"}
+                  onClick={() => list && add(list.id, t.ticker)}
+                  className="text-muted hover:text-primary"
+                >
+                  {watched.has(t.ticker) ? (
+                    <BookmarkCheck className="size-3.5 text-primary" />
+                  ) : (
+                    <Bookmark className="size-3.5" />
+                  )}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </Panel>
   );
 }
 
-function PortfolioPanel() {
+function EvidencePanel({ event }: { event: RadarEvent }) {
   return (
     <Panel
-      title="Balanced ripple"
-      action={
-        <Link to="/portfolio" className="text-micro text-primary hover:underline">
-          Lab
-        </Link>
-      }
+      title="Key evidence"
+      icon={<Newspaper className="size-3" />}
+      action={<span className="text-micro text-muted">tape</span>}
     >
-      <Donut data={DEFAULT_PORTFOLIO} />
-      <ul className="mt-2 flex flex-col gap-1">
-        {DEFAULT_PORTFOLIO.map((s) => (
-          <li key={s.label} className="flex items-center justify-between text-caption">
-            <span className="flex items-center gap-2 text-muted">
-              <i className="size-2 rounded-full" style={{ background: s.color }} />
-              {s.label}
-            </span>
-            <span className="font-mono tabular-nums">{s.weight}%</span>
-          </li>
-        ))}
-      </ul>
+      {event.evidence.length === 0 ? (
+        <p className="text-caption text-muted">No tape items on this book yet.</p>
+      ) : (
+        <ul className="flex flex-col">
+          {event.evidence.slice(0, 8).map((e) => (
+            <li key={e.id} className="border-t border-border/60 py-1 first:border-t-0">
+              <div className="flex items-center gap-1.5">
+                <Badge
+                  tone={
+                    e.evidenceClass === "fundamental" ? "up" : e.evidenceClass === "market" ? "warn" : "primary"
+                  }
+                >
+                  {e.evidenceClass.slice(0, 4)}
+                </Badge>
+                <span className="font-mono text-micro text-subtle">{e.source}</span>
+                {e.reliability && <span className="font-mono text-micro text-muted">{e.reliability}</span>}
+              </div>
+              <p className="mt-0.5 line-clamp-2 text-caption text-foreground">{e.headline}</p>
+            </li>
+          ))}
+        </ul>
+      )}
     </Panel>
   );
 }

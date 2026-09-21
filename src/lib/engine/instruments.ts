@@ -1,6 +1,6 @@
 import type { AssetRecord, NodeKind, RadarEvent, TradeCategory, TradeIdea } from "@/data/types";
 import type { LiveQuote } from "@/lib/live/types";
-import { TICKER_META, type Tag } from "./ontology";
+import { TICKER_META, TRANSMIT, type Tag } from "./ontology";
 
 function kindOf(ticker: string): NodeKind | "index" {
   return TICKER_META[ticker]?.kind ?? "company";
@@ -73,4 +73,64 @@ export function tickersForTag(tag: Tag, used: Set<string>, n = 3): string[] {
   }
   hits.sort((a, b) => b.rank - a.rank);
   return hits.slice(0, n).map((h) => h.ticker);
+}
+
+/** Best liquid proxy for a causal tag. Reuse allowed — for map navigation, not trade uniqueness. */
+export function proxyForTag(tag: Tag): string | undefined {
+  return tickersForTag(tag, new Set(), 1)[0];
+}
+
+/**
+ * Resolve a navigable liquid ticker for a graph node id/tag.
+ * Prefer direct ontology hit; else a TRANSMIT neighbor that already has instruments.
+ * Never invents tickers.
+ */
+export function resolveNodeTicker(tagOrId: string): string | undefined {
+  const tag = tagOrId as Tag;
+  const direct = proxyForTag(tag);
+  if (direct) return direct;
+  for (const e of TRANSMIT) {
+    if (e.from !== tag && e.to !== tag) continue;
+    const other = e.from === tag ? e.to : e.from;
+    const hit = proxyForTag(other);
+    if (hit) return hit;
+  }
+  return undefined;
+}
+
+
+export type NodeNavTarget =
+  | { kind: "ticker"; ticker: string }
+  | { kind: "filter"; q: string };
+
+/**
+ * Map / inspector navigation target for a causal node.
+ * Prefers attached ticker → core headline trade → ontology/TRANSMIT proxy → sector filter.
+ * Never invents tickers.
+ */
+export function nodeNavTarget(
+  node: { id: string; label: string; ticker?: string; level: number },
+  event: {
+    headlineTicker?: string;
+    trades: Array<{ ticker: string; headline?: boolean }>;
+    marketReaction: Array<{ ticker: string }>;
+  },
+): NodeNavTarget | null {
+  if (node.ticker) return { kind: "ticker", ticker: node.ticker };
+
+  if (node.level === 0) {
+    const head =
+      event.headlineTicker ??
+      event.trades.find((t) => t.headline)?.ticker ??
+      event.trades[0]?.ticker ??
+      event.marketReaction[0]?.ticker;
+    if (head) return { kind: "ticker", ticker: head };
+  }
+
+  const proxy = resolveNodeTicker(node.id);
+  if (proxy) return { kind: "ticker", ticker: proxy };
+
+  const q = node.id && node.id !== "core" ? node.id.replace(/-/g, " ") : node.label;
+  if (q.trim()) return { kind: "filter", q: q.trim() };
+  return null;
 }

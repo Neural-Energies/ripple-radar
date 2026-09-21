@@ -150,6 +150,8 @@ export default defineConfig(({ command, isPreview }) => ({
     host: "0.0.0.0",
     port: 8080,
     strictPort: true,
+    // Phone / Cloudflare quick tunnels hit Vite with a foreign Host header.
+    allowedHosts: [".trycloudflare.com", "localhost", "127.0.0.1"],
   },
   preview: {
     host: "127.0.0.1",

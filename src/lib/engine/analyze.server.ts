@@ -1,6 +1,12 @@
 import type { RadarEvent } from "@/data/types";
 import { composeFromText } from "./compose";
 import { tagsFromText } from "./ontology";
+import {
+  defaultBudgetGate,
+  isModelRoutingEnabled,
+  route,
+  routeContextFromEnv,
+} from "./routing";
 
 const MIN_GAP_MS = 45_000;
 let lastCall = 0;
@@ -25,45 +31,67 @@ export async function analyze(
   if (hit) return { ok: true, event: { ...hit, id: "desk-" + Date.now().toString(36) }, source: "model" };
 
   const apiKey = process.env.XAI_API_KEY;
+  const routingOn = isModelRoutingEnabled();
+
+  if (routingOn) {
+    const ctx = routeContextFromEnv({ hasXaiKey: Boolean(apiKey?.trim()) });
+    const decision = defaultBudgetGate.allow("analyze", fp, ctx);
+    if (!decision.allow) return { ok: true, event: fallback, source: "engine" };
+
+    const plan = route("analyze", { ...ctx, budgetOk: true });
+    if (!plan.model || !apiKey) return { ok: true, event: fallback, source: "engine" };
+
+    const related = relatedHeadlines(desk.headlines, q);
+    const prompt = buildAnalyzePrompt(q, related);
+
+    defaultBudgetGate.beginFlight();
+    try {
+      const res = await fetch("https://api.x.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: plan.model,
+          max_tokens: plan.maxTokens,
+          temperature: plan.temperature,
+          response_format: { type: "json_object" },
+          messages: [{ role: "user", content: prompt }],
+        }),
+        signal: AbortSignal.timeout(plan.timeoutMs || 28_000),
+      });
+
+      if (!res.ok) return { ok: true, event: fallback, source: "engine" };
+      const body = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+      const raw = body.choices?.[0]?.message?.content ?? "";
+      let parsed: Record<string, unknown>;
+      try {
+        parsed = JSON.parse(raw) as Record<string, unknown>;
+      } catch {
+        return { ok: true, event: fallback, source: "engine" };
+      }
+
+      const event = hydrate(parsed, fallback);
+      cache.set(fp, event);
+      defaultBudgetGate.markAccepted("analyze", fp);
+      return { ok: true, event, source: "model" };
+    } catch {
+      return { ok: true, event: fallback, source: "engine" };
+    } finally {
+      defaultBudgetGate.endFlight();
+    }
+  }
+
+  // Legacy path (flag OFF) — behavior unchanged, including pre-flight cooldown stamp.
   if (!apiKey) return { ok: true, event: fallback, source: "engine" };
 
   const now = Date.now();
   if (now - lastCall < MIN_GAP_MS) return { ok: true, event: fallback, source: "engine" };
   lastCall = now;
 
-  const related = desk.headlines
-    .filter((h) => {
-      const hay = h.title.toLowerCase();
-      return tagsFromText(q).some((t) => hay.includes(t)) || q.split(/\s+/).filter((w) => w.length > 4 && hay.includes(w.toLowerCase())).length >= 2;
-    })
-    .slice(0, 8);
-
-  const prompt = `You are Ripple Radar, an event-agnostic intelligence engine. You know HOW to reason about events. You do NOT know which events will happen. Construct a research object for a NEW event from the description. Do not reuse a canned Hormuz/Taiwan/Red Sea/rare-earth report. Do not default to bull/base/bear. Do not start from a stock list.
-Event: ${q}
-Live evidence (may be empty or loosely related):
-${related.map((h) => `- [${h.source}] ${h.title}`).join("\n") || "- none yet"}
-Return JSON with:
-title (short), region, theme, eventType, eventSubtype,
-summary (2 sentences; tell the user not to trade the headline),
-probability (integer 8-86) — this is NOT importance,
-importance (integer 8-99) — a 10% event can still be extremely important,
-entities, organizations, people (string arrays discovered from the event — no preloaded actor list),
-lifecycle (candidate|emerging|active|escalating|de-escalating|stabilizing),
-forecastHorizon,
-headlineTicker (liquid ticker),
-horizons: 2-3 {horizon (e.g. 7d, 30d, 12m), probability, note} — do not collapse into one probability,
-nodes: 8-12 {id,label,ticker?,level (0-4),kind,angle,impact,direction (up|down|mixed),blurb} — level 0 is the event, no ticker. Build the CAUSAL graph first (economic variable, bottleneck, industry), THEN attach real liquid tickers (CL,BWET,HO,TSM,NVDA,TLT,UUP,KRE,BTC,JPY,HG,ITA,JETS,VIX,SPX,GC,TNX,…). Invent no fake tickers.
-links: {source,dest,direction (1|-1),distance,confidence (0-1),evidence,expectedLag,invalidation,historicalSupport,scenarioDependence?}
-scenarios: 3-5 {id,name,detail,probability,range,keyOutcomes} mutually distinguishable, SUM to 100, named as futures that could actually happen for THIS event.
-players: 3-4 {name,objective,incentives,constraints,moves (string array),batna} discovered from who can change the outcome,
-actor, counterpart, insight,
-trades: 6-8 {ticker,name,score,reason,side (long|short),category (etf|stock|futures|forex|commodities|crypto),horizon,headline (bool on crowded first-order only),causalPath,invalidation,distance} each with a traceable path from the event,
-questions: 4 {q,value (critical|high|medium),unknown} ranked by information value,
-knowledge: 4-6 {kind (known|likely|uncertain|unknown|critical), text, value},
-expectedEvidence: 3 {id,scenarioId,ifTrue,observe,lag,appeared (false)},
-invalidation: 3 strings specific to this thesis,
-takeaways: 3 strings
-`;
+  const related = relatedHeadlines(desk.headlines, q);
+  const prompt = buildAnalyzePrompt(q, related);
 
   const res = await fetch("https://api.x.ai/v1/chat/completions", {
     method: "POST",
@@ -94,6 +122,50 @@ takeaways: 3 strings
   const event = hydrate(parsed, fallback);
   cache.set(fp, event);
   return { ok: true, event, source: "model" };
+}
+
+function relatedHeadlines(
+  headlines: { title: string; source: string }[],
+  q: string,
+) {
+  return headlines
+    .filter((h) => {
+      const hay = h.title.toLowerCase();
+      return (
+        tagsFromText(q).some((t) => hay.includes(t)) ||
+        q.split(/\s+/).filter((w) => w.length > 4 && hay.includes(w.toLowerCase())).length >= 2
+      );
+    })
+    .slice(0, 8);
+}
+
+function buildAnalyzePrompt(q: string, related: { title: string; source: string }[]) {
+  return `You are Ripple Radar, an event-agnostic intelligence engine. You know HOW to reason about events. You do NOT know which events will happen. Construct a research object for a NEW event from the description. Do not reuse a canned Hormuz/Taiwan/Red Sea/rare-earth report. Do not default to bull/base/bear. Do not start from a stock list.
+Event: ${q}
+Live evidence (may be empty or loosely related):
+${related.map((h) => `- [${h.source}] ${h.title}`).join("\n") || "- none yet"}
+Return JSON with:
+title (short), region, theme, eventType, eventSubtype,
+summary (2 sentences; tell the user not to trade the headline),
+probability (integer 8-86) — this is NOT importance,
+importance (integer 8-99) — a 10% event can still be extremely important,
+entities, organizations, people (string arrays discovered from the event — no preloaded actor list),
+lifecycle (candidate|emerging|active|escalating|de-escalating|stabilizing),
+forecastHorizon,
+headlineTicker (liquid ticker),
+horizons: 2-3 {horizon (e.g. 7d, 30d, 12m), probability, note} — do not collapse into one probability,
+nodes: 8-12 {id,label,ticker?,level (0-4),kind,angle,impact,direction (up|down|mixed),blurb} — level 0 is the event, no ticker. Build the CAUSAL graph first (economic variable, bottleneck, industry), THEN attach real liquid tickers (CL,BWET,HO,TSM,NVDA,TLT,UUP,KRE,BTC,JPY,HG,ITA,JETS,VIX,SPX,GC,TNX,…). Invent no fake tickers.
+links: {source,dest,direction (1|-1),distance,confidence (0-1),evidence,expectedLag,invalidation,historicalSupport,scenarioDependence?}
+scenarios: 3-5 {id,name,detail,probability,range,keyOutcomes} mutually distinguishable, SUM to 100, named as futures that could actually happen for THIS event.
+players: 3-4 {name,objective,incentives,constraints,moves (string array),batna} discovered from who can change the outcome,
+actor, counterpart, insight,
+trades: 6-8 {ticker,name,score,reason,side (long|short),category (etf|stock|futures|forex|commodities|crypto),horizon,headline (bool on crowded first-order only),causalPath,invalidation,distance} each with a traceable path from the event,
+questions: 4 {q,value (critical|high|medium),unknown} ranked by information value,
+knowledge: 4-6 {kind (known|likely|uncertain|unknown|critical), text, value},
+expectedEvidence: 3 {id,scenarioId,ifTrue,observe,lag,appeared (false)},
+invalidation: 3 strings specific to this thesis,
+takeaways: 3 strings
+`;
 }
 
 function num(v: unknown, d: number) {

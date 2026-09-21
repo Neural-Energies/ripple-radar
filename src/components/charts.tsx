@@ -10,11 +10,14 @@ import {
   Pie,
   PieChart,
   ResponsiveContainer,
+  Scatter,
+  ScatterChart,
   Tooltip,
   XAxis,
   YAxis,
+  ZAxis,
 } from "recharts";
-import type { HeatPoint, SeriesPoint } from "@/data/types";
+import type { HeatPoint, Scenario, SeriesPoint } from "@/data/types";
 import { cn } from "@/lib/utils";
 
 const tooltipStyle = {
@@ -145,6 +148,72 @@ export function Donut({
   );
 }
 
+
+export const SCENARIO_COLORS = ["#3ec8e8", "#4ade80", "#e0b35c", "#f07178", "#a78bfa", "#94a3b8"];
+
+/** Current scenario mass only — not a path-over-time / fan chart. */
+export function ScenarioDistributionBar({
+  scenarios,
+  legend = true,
+  showSum = false,
+}: {
+  scenarios: Pick<Scenario, "id" | "name" | "probability">[];
+  legend?: boolean;
+  /** Show raw Σ of displayed mass. Never labels Σ=100 as calibrated. */
+  showSum?: boolean;
+}) {
+  if (!scenarios.length) {
+    return <p className="text-caption text-muted">No scenarios on this book.</p>;
+  }
+  const rawSum = scenarios.reduce((n, s) => n + Math.max(0, s.probability), 0);
+  const total = rawSum || 1;
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex h-4 w-full overflow-hidden rounded-sm bg-card-3">
+        {scenarios.map((s, i) => {
+          const w = (Math.max(0, s.probability) / total) * 100;
+          if (w <= 0) return null;
+          return (
+            <div
+              key={s.id}
+              title={`${s.name}: ${s.probability}%`}
+              className="flex h-full items-center justify-center overflow-hidden"
+              style={{ width: `${w}%`, background: SCENARIO_COLORS[i % SCENARIO_COLORS.length] }}
+            >
+              {w >= 12 ? (
+                <span className="px-0.5 font-mono text-[9px] font-semibold tabular-nums leading-none text-primary-foreground/90">
+                  {s.probability}%
+                </span>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+      {showSum ? (
+        <div className="font-mono text-micro tabular-nums text-subtle">
+          Σ {rawSum}%{rawSum === 100 ? " · family mass" : " · not exhaustive"}
+        </div>
+      ) : null}
+      {legend ? (
+        <ul className="flex flex-col gap-1">
+          {scenarios.map((s, i) => (
+            <li key={s.id} className="flex items-center justify-between gap-2 text-caption">
+              <span className="flex min-w-0 items-center gap-1.5">
+                <i
+                  className="size-1.5 shrink-0 rounded-full"
+                  style={{ background: SCENARIO_COLORS[i % SCENARIO_COLORS.length] }}
+                />
+                <span className="truncate text-muted">{s.name}</span>
+              </span>
+              <span className="shrink-0 font-mono tabular-nums text-foreground">{s.probability}%</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
 export function ImpactBars({
   items,
 }: {
@@ -173,5 +242,119 @@ export function ImpactBars({
         </li>
       ))}
     </ul>
+  );
+}
+
+
+/** Exposure scatter: X = ripple distance, Y = score. Real AssetRecord fields only. */
+export function ExposureScatter({
+  points,
+  highlight,
+  onSelect,
+}: {
+  points: {
+    ticker: string;
+    score: number;
+    distance: number;
+    change: number;
+    causalPath?: string;
+    crowding?: string;
+    z: number;
+  }[];
+  highlight?: string | null;
+  onSelect?: (ticker: string) => void;
+}) {
+  if (!points.length) {
+    return (
+      <p className="px-3 py-6 text-center text-caption text-muted">
+        No ranked expressions for this shock.
+      </p>
+    );
+  }
+  return (
+    <div className="h-56 w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <ScatterChart margin={{ top: 12, right: 16, left: 4, bottom: 12 }}>
+          <CartesianGrid stroke="#1c2d4a" strokeDasharray="3 3" />
+          <XAxis
+            type="number"
+            dataKey="distance"
+            name="Distance"
+            domain={[-0.2, 4.2]}
+            ticks={[0, 1, 2, 3, 4]}
+            tick={{ fill: "#5a6d88", fontSize: 10 }}
+            axisLine={false}
+            tickLine={false}
+            label={{
+              value: "Ripple distance",
+              position: "insideBottom",
+              offset: -4,
+              fill: "#5a6d88",
+              fontSize: 10,
+            }}
+          />
+          <YAxis
+            type="number"
+            dataKey="score"
+            name="Score"
+            tick={{ fill: "#5a6d88", fontSize: 10 }}
+            axisLine={false}
+            tickLine={false}
+            width={40}
+            label={{
+              value: "Score",
+              angle: -90,
+              position: "insideLeft",
+              fill: "#5a6d88",
+              fontSize: 10,
+            }}
+          />
+          <ZAxis type="number" dataKey="z" range={[40, 160]} />
+          <Tooltip
+            cursor={{ strokeDasharray: "3 3" }}
+            content={({ active, payload }) => {
+              if (!active || !payload?.length) return null;
+              const p = payload[0]?.payload as {
+                ticker: string;
+                score: number;
+                distance: number;
+                change: number;
+                causalPath?: string;
+              };
+              return (
+                <div className="rounded-md border border-border bg-card px-2.5 py-2 text-caption shadow-lg">
+                  <div className="font-mono text-primary">{p.ticker}</div>
+                  <div className="text-muted">
+                    d{p.distance} · score {p.score} · {p.change >= 0 ? "+" : ""}
+                    {p.change.toFixed(1)}%
+                  </div>
+                  {p.causalPath ? (
+                    <div className="mt-1 max-w-[14rem] text-tiny text-subtle">{p.causalPath}</div>
+                  ) : null}
+                </div>
+              );
+            }}
+          />
+          <Scatter
+            data={points}
+            fill="#3ec8e8"
+            onClick={(d) => {
+              const row = d as { ticker?: string };
+              if (row?.ticker && onSelect) onSelect(row.ticker);
+            }}
+            cursor="pointer"
+          >
+            {points.map((p) => (
+              <Cell
+                key={p.ticker}
+                fill={p.change >= 0 ? "#4ade80" : "#f07178"}
+                stroke={highlight === p.ticker ? "#e8eef8" : "transparent"}
+                strokeWidth={highlight === p.ticker ? 2 : 0}
+              />
+            ))}
+          </Scatter>
+        </ScatterChart>
+      </ResponsiveContainer>
+    </div>
   );
 }

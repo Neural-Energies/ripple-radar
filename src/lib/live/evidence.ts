@@ -49,6 +49,9 @@ const EXPECTATION = [
   "consensus",
 ];
 
+/** Lag threshold: available − event ≥ 15 minutes ⇒ delayed. */
+export const DELAYED_LAG_MS = 15 * 60 * 1000;
+
 export function reliabilityOf(source: string): Reliability {
   const s = source.toLowerCase();
   if (TIER_A.some((k) => s.includes(k))) return "A";
@@ -63,6 +66,24 @@ export function classifyText(title: string): { evidenceClass: EvidenceClass; kin
   if (FUNDAMENTAL.some((k) => hay.includes(k))) return { evidenceClass: "fundamental", kind: "data" };
   if (MARKET.some((k) => hay.includes(k))) return { evidenceClass: "market", kind: "data" };
   return { evidenceClass: "narrative", kind: "news" };
+}
+
+/**
+ * Delayed evidence flag (ASOF-REPLAY-v0).
+ * true if inherently delayed source (RSS/news), OR kind in {filing, data},
+ * OR (availableTimeMs - eventTimeMs) >= 15 minutes.
+ */
+export function computeDelayedFlag(opts: {
+  eventTimeMs: number;
+  availableTimeMs: number;
+  kind: EvidenceKind;
+  /** RSS / wire / other inherently delayed ingest path. */
+  inherentlyDelayed?: boolean;
+}): boolean {
+  if (opts.inherentlyDelayed) return true;
+  if (opts.kind === "filing" || opts.kind === "data") return true;
+  if (opts.availableTimeMs - opts.eventTimeMs >= DELAYED_LAG_MS) return true;
+  return false;
 }
 
 /** Dual clocks for a tape item: pubDate → eventTime; ingest construct time → availableTime. */
@@ -85,6 +106,8 @@ export function headlineToEvidence(h: LiveHeadline, clock: (ms: number) => strin
   return {
     id: h.id,
     time: clock(eventTimeMs),
+    eventTimeMs,
+    availableTimeMs,
     source: h.source,
     evidenceClass: cls.evidenceClass,
     kind: cls.kind,
@@ -94,8 +117,6 @@ export function headlineToEvidence(h: LiveHeadline, clock: (ms: number) => strin
     reliability: reliabilityOf(h.source),
     direction: h.tone,
     strength: cls.evidenceClass === "fundamental" ? 3 : cls.evidenceClass === "expectation" ? 2 : 1,
-    eventTimeMs,
-    availableTimeMs,
   };
 }
 

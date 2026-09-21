@@ -1,9 +1,8 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalibrationChart, LearningChart } from "@/components/charts";
 import { Badge, Panel } from "@/components/ui";
-import { MODEL_STATS, PIPELINE } from "@/data/catalog";
-import { DAILY_LOOP } from "@/lib/engine/pipeline";
+import { MODEL_STATS } from "@/data/catalog";
 import { useLiveEvents } from "@/lib/live/provider";
 import { cn } from "@/lib/utils";
 
@@ -17,49 +16,58 @@ function LearningPage() {
   );
   const [replay, setReplay] = useState(2);
   const live = useLiveEvents()[0];
-  const freezeDates = live?.timeline?.length ? live.timeline : s.scoredForecasts.map((f) => ({ date: f.date, title: f.event, detail: `Predicted ${(f.predicted * 100).toFixed(0)}% · outcome ${f.outcome ? "occurred" : "did not"}` }));
+  const freezeDates = live?.timeline?.length
+    ? live.timeline
+    : s.scoredForecasts.map((f) => ({
+        date: f.date,
+        title: f.event,
+        detail: `Predicted ${(f.predicted * 100).toFixed(0)}% · outcome ${f.outcome ? "occurred" : "did not"}`,
+      }));
 
   return (
     <div className="flex flex-col gap-3">
-      <Panel title="Core pipeline">
-        <ol className="flex flex-wrap gap-1.5">
-          {PIPELINE.map((step, i) => (
-            <li key={step} className="flex items-center gap-1.5">
-              <span className="rounded-md bg-card-2 px-2 py-1 text-tiny text-foreground">{step}</span>
-              {i < PIPELINE.length - 1 && <span className="text-subtle">→</span>}
-            </li>
-          ))}
-        </ol>
-        <p className="mt-2 text-caption text-muted">
-          The engine knows how to reason about events. It does not know which events will happen. The world supplies those.
-        </p>
-      </Panel>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h1 className="text-lg font-semibold tracking-tight text-foreground">Calibration</h1>
+          <p className="mt-0.5 text-caption text-muted">
+            Frozen class-level fixture — not this desk&apos;s live Brier or skill.
+          </p>
+        </div>
+        <Link to="/docs" hash="learning" className="text-micro text-primary hover:underline">
+          Docs
+        </Link>
+      </div>
 
-      <Panel title="Daily loop" action={<span className="text-micro text-muted">Surface only material changes</span>}>
-        <ol className="grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3">
-          {DAILY_LOOP.map((step, i) => (
-            <li key={step} className="flex gap-2 rounded-md bg-card-2 px-2 py-1.5 text-tiny">
-              <span className="font-mono text-micro text-primary">{String(i + 1).padStart(2, "0")}</span>
-              <span>{step}</span>
-            </li>
-          ))}
-        </ol>
-      </Panel>
+      <div
+        role="status"
+        className="rounded-md border border-warn/30 bg-warn/10 px-3 py-2.5 text-caption text-foreground"
+      >
+        <span className="font-medium text-warn">Fixture only.</span>{" "}
+        <code className="font-mono text-tiny text-muted">MODEL_STATS</code> is a frozen class-level
+        calibration sample shipped with the app. Charts and the scored ledger below are{" "}
+        <span className="text-foreground">not</span> live accuracy, Brier, or lead-time for the
+        current tape or selected book. Do not treat them as desk performance.
+      </div>
 
       <div className="grid gap-3 lg:grid-cols-2">
-        <Panel title="Accuracy vs inverted Brier">
+        <Panel
+          title="Accuracy vs inverted Brier"
+          action={<Badge tone="warn">frozen fixture</Badge>}
+        >
           <LearningChart data={series} />
-          <p className="mt-2 text-tiny text-muted">
-            Forecast → observe → score → diagnose → recalibrate → update priors. Historical predictions
-            are never rewritten after outcomes are known.
-          </p>
         </Panel>
-        <Panel title="Calibration (predicted vs observed)">
+        <Panel
+          title="Calibration (predicted vs observed)"
+          action={<Badge tone="warn">frozen fixture</Badge>}
+        >
           <CalibrationChart data={s.calibration} />
         </Panel>
       </div>
 
-      <Panel title="Scored forecast ledger (frozen)">
+      <Panel
+        title="Scored forecast ledger (frozen)"
+        action={<Badge tone="warn">not live skill</Badge>}
+      >
         <div className="overflow-x-auto">
           <table className="w-full min-w-[40rem] text-caption">
             <thead className="text-left text-micro uppercase tracking-wider text-subtle">
@@ -88,10 +96,10 @@ function LearningPage() {
         </div>
       </Panel>
 
-      <Panel title="Historical replay · information freeze">
-        <p className="mb-3 text-caption text-muted">
-          Freeze information at time T, generate scenarios and ranked exposures using only data available by T, then
-          advance the clock. Past named episodes in the ledger are calibration cases, not the product.
+      <Panel title="Historical replay · information freeze (UX sketch)">
+        <p className="mb-2 text-tiny text-subtle">
+          Slider walks a timeline for illustration. It does not recompute the book as-of that date.
+          When the lead book has no timeline, the frozen scored-forecast list is shown instead.
         </p>
         {freezeDates.length === 0 ? (
           <p className="text-caption text-muted">No timeline on the lead book yet.</p>
@@ -108,7 +116,9 @@ function LearningPage() {
                 className="mt-2 w-full accent-primary"
               />
             </label>
-            <div className="mt-2 font-mono text-tiny text-primary">{freezeDates[Math.min(replay, freezeDates.length - 1)]?.date}</div>
+            <div className="mt-2 font-mono text-tiny text-primary">
+              {freezeDates[Math.min(replay, freezeDates.length - 1)]?.date}
+            </div>
             <ol className="mt-2 flex flex-col gap-2">
               {freezeDates.map((t, i) => (
                 <li

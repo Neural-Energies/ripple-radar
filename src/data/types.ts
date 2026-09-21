@@ -11,6 +11,7 @@ export type NodeKind =
   | "rates"
   | "policy"
   | "sentiment"
+  | "crypto"
   | "other";
 export type EvidenceClass = "narrative" | "fundamental" | "market" | "expectation";
 export type EvidenceKind = "news" | "filing" | "data" | "social";
@@ -20,6 +21,10 @@ export type EventBadge = "MAJOR EVENT" | "WATCH" | "DEVELOPING" | "CASE STUDY";
 export type EventMode = "standing" | "live" | "desk";
 export type Crowding = "low" | "emerging" | "medium" | "high" | "saturated";
 export type Confirmation = "none" | "early" | "confirming" | "strong" | "diverging" | "invalidating";
+/** Mass / probability provenance. Omit on RadarEvent until stamped — never fake. */
+export type ForecastProvenance = "heuristic" | "llm_proposal" | "calibrated" | "unchanged";
+/** Judge triage disposition. Chip only when field exists — no % on triage. */
+export type TriageDisposition = "onRadar" | "watch" | "drop" | "duplicate";
 export type Reliability = "A" | "B" | "C" | "D";
 export type Liquidity = "high" | "medium" | "thin";
 export type Lifecycle =
@@ -122,6 +127,10 @@ export interface TradeIdea {
 export interface EvidenceItem {
   id: string;
   time: string;
+  /** When the world fact / print occurred (ms UTC). */
+  eventTimeMs: number;
+  /** When this observation entered our info-set (ms UTC). */
+  availableTimeMs: number;
   source: string;
   evidenceClass: EvidenceClass;
   kind: EvidenceKind;
@@ -132,10 +141,6 @@ export interface EvidenceItem {
   direction?: "up" | "down" | "neutral";
   strength?: number;
   duplicateOf?: string;
-  /** Observation period / provider observation date (UTC ms). Required dual-clock stamp. */
-  eventTimeMs: number;
-  /** When the value entered the info set (ALFRED vintage / ingest watermark), UTC ms. */
-  availableTimeMs: number;
 }
 
 export interface SeriesPoint {
@@ -271,6 +276,12 @@ export interface RadarEvent {
   forecasts?: ForecastSnapshot[];
   claims?: Claim[];
   lineage?: { parentId?: string; mergedFrom?: string[] };
+  /** Judge triage — omit until DS/ML ships. Never invent onRadar. */
+  disposition?: TriageDisposition;
+  /** Ensemble disagreement — show muted chip only when true. */
+  modelsDisagree?: boolean;
+  /** Prob/scenario mass provenance — omit if unset; never invent heuristic badge. */
+  provenance?: ForecastProvenance;
 }
 
 export interface AssetRecord {

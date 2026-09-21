@@ -1,7 +1,7 @@
 import type { Lifecycle, RadarEvent } from "@/data/types";
 import { etParts } from "@/lib/live/clock";
 import { rankTrades } from "@/lib/live/discover";
-import { headlineToEvidence, markDuplicates, stampHeadlineClocks } from "@/lib/live/evidence";
+import { headlineToEvidence, markDuplicates } from "@/lib/live/evidence";
 import type { LiveHeadline, LiveQuote } from "@/lib/live/types";
 import type { Cluster } from "./cluster";
 import {
@@ -83,7 +83,9 @@ export function composeEvent(opts: {
     title: opts.note || opts.title,
     source: "Desk",
     url: "",
-    ...stampHeadlineClocks(undefined, Date.now()),
+    published: Date.now(),
+    eventTimeMs: Date.now(),
+    availableTimeMs: Date.now(),
     eventIds: [],
     tone,
   }], entities);
@@ -289,12 +291,15 @@ export function composeFromText(
     const keys = tokens(text).slice(0, 6);
     return keys.filter((k) => t.includes(k)).length >= 2 || (text.length > 12 && t.includes(hay.slice(0, 18)));
   });
+  const seedNow = Date.now();
   const seed: LiveHeadline = {
     id: hid(text),
     title: text,
     source: "Desk",
     url: "",
-    ...stampHeadlineClocks(undefined, Date.now()),
+    published: seedNow,
+    eventTimeMs: seedNow,
+    availableTimeMs: seedNow,
     eventIds: [],
     tone: toneOf(text),
   };

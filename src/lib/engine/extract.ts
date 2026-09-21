@@ -139,6 +139,8 @@ export function economicVarsFrom(tags: Tag[]): string[] {
     equity: "Equity risk premium",
     vol: "Implied vol",
     freight: "Freight / tonne-miles",
+    crypto: "Digital liquidity / crypto beta",
+    liquidity: "Funding / liquidity conditions",
   };
   return [...new Set(tags.map((t) => map[t]).filter(Boolean))] as string[];
 }
