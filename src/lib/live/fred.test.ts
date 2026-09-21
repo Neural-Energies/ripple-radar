@@ -208,7 +208,9 @@ describe("live-path EvidenceItem mapper", () => {
     assert.equal(item.delayed, true);
     assert.equal(item.eventTimeMs, CPI_EVENT);
     assert.equal(item.availableTimeMs, CPI_VINTAGE);
-    assert.ok((item.availableTimeMs ?? 0) >= (item.eventTimeMs ?? 0));
+    assert.equal(typeof item.eventTimeMs, "number");
+    assert.equal(typeof item.availableTimeMs, "number");
+    assert.ok(item.availableTimeMs >= item.eventTimeMs);
     assert.equal(item.headline, "CPIAUCSL: 2.5");
     assert.equal(item.time, `t-${CPI_VINTAGE}`);
   });
@@ -242,6 +244,8 @@ describe("live-path EvidenceItem mapper", () => {
       kind: "news",
       headline: "Some tape item",
       delayed: false,
+      eventTimeMs: NOW,
+      availableTimeMs: NOW,
     };
     const fred = [mapFredObservationToEvidence(obs, () => "clock")];
     const merged = attachFredEvidence([news], fred);

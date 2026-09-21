@@ -321,7 +321,7 @@ export async function buildDesk(): Promise<LiveDesk> {
     status = "degraded";
     statusDetail = "Quotes live · news feed thin.";
   } else if (fredEvidence.length > 0) {
-    statusDetail = "FRED delayed macro live · tape thin.";
+    statusDetail = "FRED delayed macro available · tape thin.";
   }
   return {
     asOf: now,

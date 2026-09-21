@@ -132,10 +132,10 @@ export interface EvidenceItem {
   direction?: "up" | "down" | "neutral";
   strength?: number;
   duplicateOf?: string;
-  /** Observation period / provider observation date (UTC ms). */
-  eventTimeMs?: number;
+  /** Observation period / provider observation date (UTC ms). Required dual-clock stamp. */
+  eventTimeMs: number;
   /** When the value entered the info set (ALFRED vintage / ingest watermark), UTC ms. */
-  availableTimeMs?: number;
+  availableTimeMs: number;
 }
 
 export interface SeriesPoint {
