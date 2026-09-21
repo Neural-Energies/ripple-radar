@@ -282,6 +282,8 @@ export interface RadarEvent {
   modelsDisagree?: boolean;
   /** Prob/scenario mass provenance — omit if unset; never invent heuristic badge. */
   provenance?: ForecastProvenance;
+  /** Mode B construction path — "model" (Grok JSON) vs "engine" (composeFromText fallback). Unset on Mode A tape events. */
+  bookSource?: "model" | "engine";
 }
 
 export interface AssetRecord {

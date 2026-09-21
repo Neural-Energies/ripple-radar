@@ -190,18 +190,19 @@ export async function runAnalyze(text: string) {
       toast("Analyze failed", { description: out.error });
       return null;
     }
+    const event = { ...out.event, bookSource: out.source };
     useApp.getState().addDeskBook({
-      id: out.event.id,
-      title: out.event.title,
-      region: out.event.region,
+      id: event.id,
+      title: event.title,
+      region: event.region,
       note: text,
       created: new Date().toLocaleString("en-GB", { timeZone: "America/New_York" }),
-      payload: out.event,
+      payload: event,
     });
     toast(out.source === "model" ? "Book constructed" : "Book constructed from the tape", {
-      description: out.event.summary,
+      description: event.summary,
     });
-    return out.event;
+    return event;
   } catch (err) {
     toast("Analyze failed", { description: err instanceof Error ? err.message : "Tape error" });
     return null;

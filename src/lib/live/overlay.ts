@@ -93,7 +93,10 @@ function openBook(book: DeskBook, desk: LiveDesk | null): RadarEvent {
       title: book.payload.title || book.title,
     };
   }
-  return composeFromText(book.title + (book.note ? " — " + book.note : ""), desk?.headlines ?? EMPTY_HEADLINES, desk?.quotes ?? EMPTY_QUOTES, book.id);
+  return {
+    ...composeFromText(book.title + (book.note ? " — " + book.note : ""), desk?.headlines ?? EMPTY_HEADLINES, desk?.quotes ?? EMPTY_QUOTES, book.id),
+    bookSource: "engine",
+  };
 }
 
 export function liveEventsList(
