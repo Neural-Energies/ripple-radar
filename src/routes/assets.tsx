@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { ExposureScatter } from "@/components/charts";
 import { Sparkline } from "@/components/sparkline";
 import { Badge, Input, Panel } from "@/components/ui";
@@ -28,6 +28,7 @@ const CROWD_Z: Record<string, number> = {
 };
 
 function AssetsPage() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { q: qParam } = Route.useSearch();
   const navigate = Route.useNavigate();
   const go = useNavigate();
@@ -82,6 +83,12 @@ function AssetsPage() {
       })),
     [rows],
   );
+
+  // "/assets/$ticker" is a child route of "/assets" in the route tree, so its
+  // content only ever mounts through this outlet — without this check the
+  // list below renders unconditionally and the ticker detail page is
+  // unreachable (URL changes, nothing else does).
+  if (pathname !== "/assets") return <Outlet />;
 
   function onQueryChange(next: string) {
     setLocalQ(next);

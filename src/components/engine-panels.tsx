@@ -1,7 +1,8 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Badge, Panel } from "@/components/ui";
 import type { KnowledgeKind, RadarEvent } from "@/data/types";
 import { ENGINE_STEPS, stageOf } from "@/lib/engine/pipeline";
+import { goToEvent } from "@/lib/hooks/use-event-param-sync";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -99,6 +100,8 @@ export function ExpectedEvidencePanel({ event }: { event: RadarEvent }) {
 
 export function RelatedEventsPanel({ event }: { event: RadarEvent }) {
   const setEvent = useApp((s) => s.setSelectedEventId);
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const rows = event.relatedEvents ?? [];
   if (!rows.length) {
     return (
@@ -114,7 +117,10 @@ export function RelatedEventsPanel({ event }: { event: RadarEvent }) {
           <li key={r.targetId}>
             <button
               type="button"
-              onClick={() => setEvent(r.targetId)}
+              onClick={() => {
+                setEvent(r.targetId);
+                goToEvent(navigate, pathname, r.targetId);
+              }}
               className="w-full rounded-md bg-card-2 px-2.5 py-2 text-left hover:bg-card-3"
             >
               <Badge tone="primary">{r.kind.replace(/_/g, " ")}</Badge>

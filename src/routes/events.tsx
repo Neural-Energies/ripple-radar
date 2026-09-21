@@ -101,10 +101,10 @@ function EventsPage() {
 
   function onHeadlineClick(h: LiveHeadline) {
     const clusterId = h.eventIds[0];
-    if (clusterId) {
-      setHighlightClusterId(clusterId);
-      setSelectedClusterId(clusterId);
-    }
+    // No cluster stamp (didn't clear the significance/relevance bar): clear
+    // the selection rather than leaving a stale, unrelated preview showing.
+    setHighlightClusterId(clusterId ?? null);
+    setSelectedClusterId(clusterId ?? null);
   }
 
   function openOnDesk(eventId: string) {

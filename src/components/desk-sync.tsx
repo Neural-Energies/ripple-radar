@@ -15,7 +15,14 @@ export function useSyncMode() {
 export function DeskHint() {
   const { user, isPending } = useCurrentUserState();
   const sync = useSyncMode();
-  if (isPending) return null;
+  // Auth session resolves at a different speed server- vs client-side (no
+  // cookie can resolve client-side before the server's session check
+  // returns), so the first client paint must match the server's `null`
+  // exactly — react to the real state only after mount, not hydration
+  // mismatch bait.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted || isPending) return null;
   if (user && sync === "cloud") {
     return <p className="text-tiny text-muted">This blotter follows the account on every device.</p>;
   }

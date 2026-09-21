@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Activity,
   Bell,
@@ -31,7 +31,7 @@ import {
   useLiveEvent,
   useLiveEvents,
 } from "@/lib/live/provider";
-import { useEventParamSync } from "@/lib/hooks/use-event-param-sync";
+import { goToEvent, useEventParamSync } from "@/lib/hooks/use-event-param-sync";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import type { RadarEvent } from "@/data/types";
@@ -269,6 +269,8 @@ function ActiveEventControl({ event }: { event: RadarEvent }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const setId = useApp((s) => s.setSelectedEventId);
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const events = useLiveEvents();
   const sorted = useMemo(
     () =>
@@ -346,6 +348,7 @@ function ActiveEventControl({ event }: { event: RadarEvent }) {
                   type="button"
                   onClick={() => {
                     setId(e.id);
+                    goToEvent(navigate, pathname, e.id);
                     setOpen(false);
                   }}
                   className={cn(

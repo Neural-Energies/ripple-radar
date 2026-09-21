@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   ArrowUpRight,
   Bookmark,
@@ -17,6 +17,7 @@ import type {
   TradeCategory,
   TriageDisposition,
 } from "@/data/types";
+import { goToEvent } from "@/lib/hooks/use-event-param-sync";
 import { runAnalyze, runRescore, useLive, useLiveEvents, useQuote } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
 import { cn, formatPct } from "@/lib/utils";
@@ -103,6 +104,8 @@ function DevelopingNowStrip({ activeId }: { activeId: string }) {
     [raw],
   );
   const setEvent = useApp((s) => s.setSelectedEventId);
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
     <section className="rounded-md border border-border bg-card px-2 py-1.5">
@@ -133,7 +136,10 @@ function DevelopingNowStrip({ activeId }: { activeId: string }) {
               <li key={e.id} className="min-w-[11rem] max-w-[13rem] shrink-0">
                 <button
                   type="button"
-                  onClick={() => setEvent(e.id)}
+                  onClick={() => {
+                    setEvent(e.id);
+                    goToEvent(navigate, pathname, e.id);
+                  }}
                   className={cn(
                     "flex h-full w-full flex-col rounded-sm border px-2 py-1.5 text-left transition-colors",
                     active

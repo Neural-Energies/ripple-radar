@@ -24,6 +24,28 @@ export function pathUsesEventParam(pathname: string): boolean {
 }
 
 /**
+ * Select an event AND keep `?event=` in sync, from anywhere off the current
+ * route (dev strip, header switcher, related-events panel, command palette).
+ * Setting the store alone is not enough: `useEventParamSync` reads the URL
+ * as authoritative and will snap the store back to the stale `?event=` on
+ * the very next render otherwise.
+ */
+export function goToEvent(
+  navigate: ReturnType<typeof useNavigate>,
+  pathname: string,
+  id: string,
+) {
+  if (pathUsesEventParam(pathname)) {
+    void navigate({
+      to: ".",
+      search: (prev: Record<string, unknown>) => ({ ...prev, event: id }),
+    });
+  } else {
+    void navigate({ to: "/", search: { event: id } });
+  }
+}
+
+/**
  * Keep `useApp.selectedEventId` and `?event=` in sync on book-view routes.
  * - URL known id → store
  * - URL missing/unknown → heal to selected or first live event, write URL (replace)
