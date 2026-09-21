@@ -6,6 +6,7 @@ import { hid } from "@/lib/engine/tokenize";
 import type { EvidenceItem, RadarEvent, Scenario } from "@/data/types";
 import { headlineToEvidence } from "./evidence";
 import { etParts, quoteState, sessionFlags } from "./clock";
+import { attachFredEvidence, fetchFredSeriesBundle, latestFredEvidence } from "./fred.server";
 import { DESK_TICKERS, fromYahoo, toYahoo } from "./symbols";
 import type { LiveBook, LiveDesk, LiveHeadline, LiveQuote } from "./types";
 
@@ -228,7 +229,21 @@ function shiftScenarios(base: Scenario[], delta: number, evidence: string): Scen
   return next;
 }
 
-function bookFromEvent(event: RadarEvent, headlines: LiveHeadline[], quotes: Record<string, LiveQuote>): LiveBook {
+async function loadFredMacroEvidence(): Promise<EvidenceItem[]> {
+  try {
+    const bundle = await fetchFredSeriesBundle();
+    return latestFredEvidence(bundle, clockOf);
+  } catch {
+    return [];
+  }
+}
+
+function bookFromEvent(
+  event: RadarEvent,
+  headlines: LiveHeadline[],
+  quotes: Record<string, LiveQuote>,
+  fredEvidence: EvidenceItem[] = [],
+): LiveBook {
   const matched = headlines.filter((h) => h.eventIds.includes(event.id));
   const use = matched.length ? matched : event.evidence.length ? matched : headlines.filter((h) => event.entities?.some((e) => h.title.toLowerCase().includes(e.toLowerCase())));
   const relatedTickers = event.marketReaction.map((m) => m.ticker);
@@ -237,9 +252,10 @@ function bookFromEvent(event: RadarEvent, headlines: LiveHeadline[], quotes: Rec
   const esc = use.filter((h) => h.tone === "up").length;
   const de = use.filter((h) => h.tone === "down").length;
   const evidenceNote = use[0] ? `${use.length} live items. Latest: ${use[0].title}` : "Holding constructed prior.";
-  const evidence: EvidenceItem[] = event.evidence.length
+  const baseEvidence: EvidenceItem[] = event.evidence.length
     ? event.evidence
     : use.slice(0, 8).map((h) => headlineToEvidence(h, clockOf));
+  const evidence = attachFredEvidence(baseEvidence, fredEvidence);
   return {
     eventId: event.id,
     probability: event.probability,
@@ -276,13 +292,18 @@ function discover(headlines: LiveHeadline[], quotes: Record<string, LiveQuote>):
 
 export async function buildDesk(): Promise<LiveDesk> {
   const now = Date.now();
-  const [quotes, rawNews] = await Promise.all([
+  const [quotes, rawNews, fredEvidence] = await Promise.all([
     loadQuotes().catch(() => quoteCache?.quotes ?? {}),
     loadNews().catch(() => newsCache?.headlines ?? []),
+    loadFredMacroEvidence(),
   ]);
   const { events, headlines } = discover(rawNews, quotes);
   const books: Record<string, LiveBook> = {};
-  for (const ev of events) books[ev.id] = bookFromEvent(ev, headlines, quotes);
+  for (const ev of events) {
+    const book = bookFromEvent(ev, headlines, quotes, fredEvidence);
+    books[ev.id] = book;
+    ev.evidence = book.evidence;
+  }
 
   const quoteCount = Object.keys(quotes).length;
   const quoteLive = Object.values(quotes).filter((q) => q.state === "live").length;
@@ -299,6 +320,8 @@ export async function buildDesk(): Promise<LiveDesk> {
   } else if (quoteCount > 0) {
     status = "degraded";
     statusDetail = "Quotes live · news feed thin.";
+  } else if (fredEvidence.length > 0) {
+    statusDetail = "FRED delayed macro live · tape thin.";
   }
   return {
     asOf: now,
@@ -312,5 +335,6 @@ export async function buildDesk(): Promise<LiveDesk> {
     liveEvents: events,
     quoteLive,
     quoteCount,
+    macroEvidence: fredEvidence,
   };
 }
