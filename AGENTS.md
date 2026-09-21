@@ -1,4 +1,4 @@
-# Ripple Radar — agent instructions
+# Alpha Recon — agent instructions
 
 Read `HANDOFF.md` and `README.md` first. They are the source of truth for architecture and product invariants.
 

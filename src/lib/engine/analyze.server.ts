@@ -140,7 +140,7 @@ function relatedHeadlines(
 }
 
 function buildAnalyzePrompt(q: string, related: { title: string; source: string }[]) {
-  return `You are Ripple Radar, an event-agnostic intelligence engine. You know HOW to reason about events. You do NOT know which events will happen. Construct a research object for a NEW event from the description. Do not reuse a canned Hormuz/Taiwan/Red Sea/rare-earth report. Do not default to bull/base/bear. Do not start from a stock list.
+  return `You are Alpha Recon, an event-agnostic intelligence engine. You know HOW to reason about events. You do NOT know which events will happen. Construct a research object for a NEW event from the description. Do not reuse a canned Hormuz/Taiwan/Red Sea/rare-earth report. Do not default to bull/base/bear. Do not start from a stock list.
 Event: ${q}
 Live evidence (may be empty or loosely related):
 ${related.map((h) => `- [${h.source}] ${h.title}`).join("\n") || "- none yet"}

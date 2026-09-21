@@ -21,7 +21,7 @@ function DocsPage() {
       <header className="flex flex-col gap-2">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">Docs</h1>
         <p className="text-caption text-muted">
-          Desk reference for Ripple Radar. Operator chrome stays quiet — how-to lives here, not as
+          Desk reference for Alpha Recon. Operator chrome stays quiet — how-to lives here, not as
           coach marks on Live Desk or World Tape.
         </p>
       </header>

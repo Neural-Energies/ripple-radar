@@ -28,7 +28,7 @@ export type FredSeriesId = (typeof FRED_SERIES_V0)[number];
 
 export const FRED_API_BASE = "https://api.stlouisfed.org/fred/";
 export const FRED_USER_AGENT =
-  "Neural-Energies RippleRadar (https://github.com/Neural-Energies/ripple-radar)";
+  "Neural-Energies AlphaRecon (https://github.com/Neural-Energies/ripple-radar)";
 export const FRED_CACHE_TTL_MS = 30 * 60 * 1000;
 const FRED_MIN_GAP_MS = 500;
 const OBS_LIMIT = 24;

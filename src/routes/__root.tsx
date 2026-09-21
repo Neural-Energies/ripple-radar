@@ -9,7 +9,7 @@ import { LiveProvider } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "Ripple Radar";
+const APP_NAME = "Alpha Recon";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -20,7 +20,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "Don't trade the headline. Trade what it causes next. Ripple Radar maps shocks into transmission chains, probabilities, and ranked second-order exposures.",
+          "Don't trade the headline. Trade what it causes next. Alpha Recon maps shocks into transmission chains, probabilities, and ranked second-order exposures.",
       },
       { name: "theme-color", content: "#060c18" },
     ],
