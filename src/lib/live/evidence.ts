@@ -65,22 +65,37 @@ export function classifyText(title: string): { evidenceClass: EvidenceClass; kin
   return { evidenceClass: "narrative", kind: "news" };
 }
 
+/** Dual clocks for a tape item: pubDate → eventTime; ingest construct time → availableTime. */
+export function stampHeadlineClocks(
+  publishedRaw: string | number | undefined | null,
+  ingestMs: number,
+): { eventTimeMs: number; availableTimeMs: number; published: number } {
+  let parsed = NaN;
+  if (typeof publishedRaw === "number") parsed = publishedRaw;
+  else if (typeof publishedRaw === "string" && publishedRaw.trim()) parsed = Date.parse(publishedRaw);
+  const eventTimeMs = Number.isFinite(parsed) ? parsed : ingestMs;
+  const availableTimeMs = Math.max(ingestMs, eventTimeMs);
+  return { eventTimeMs, availableTimeMs, published: eventTimeMs };
+}
+
 export function headlineToEvidence(h: LiveHeadline, clock: (ms: number) => string): EvidenceItem {
   const cls = classifyText(h.title);
+  const eventTimeMs = h.eventTimeMs ?? h.published;
+  const availableTimeMs = h.availableTimeMs ?? eventTimeMs;
   return {
     id: h.id,
-    time: clock(h.published),
+    time: clock(eventTimeMs),
     source: h.source,
     evidenceClass: cls.evidenceClass,
     kind: cls.kind,
     headline: h.title,
-    delayed: false,
+    delayed: availableTimeMs > eventTimeMs,
     url: h.url,
     reliability: reliabilityOf(h.source),
     direction: h.tone,
     strength: cls.evidenceClass === "fundamental" ? 3 : cls.evidenceClass === "expectation" ? 2 : 1,
-    eventTimeMs: h.published,
-    availableTimeMs: h.published,
+    eventTimeMs,
+    availableTimeMs,
   };
 }
 

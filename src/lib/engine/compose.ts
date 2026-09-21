@@ -1,7 +1,7 @@
 import type { Lifecycle, RadarEvent } from "@/data/types";
 import { etParts } from "@/lib/live/clock";
 import { rankTrades } from "@/lib/live/discover";
-import { headlineToEvidence, markDuplicates } from "@/lib/live/evidence";
+import { headlineToEvidence, markDuplicates, stampHeadlineClocks } from "@/lib/live/evidence";
 import type { LiveHeadline, LiveQuote } from "@/lib/live/types";
 import type { Cluster } from "./cluster";
 import {
@@ -83,7 +83,7 @@ export function composeEvent(opts: {
     title: opts.note || opts.title,
     source: "Desk",
     url: "",
-    published: Date.now(),
+    ...stampHeadlineClocks(undefined, Date.now()),
     eventIds: [],
     tone,
   }], entities);
@@ -294,7 +294,7 @@ export function composeFromText(
     title: text,
     source: "Desk",
     url: "",
-    published: Date.now(),
+    ...stampHeadlineClocks(undefined, Date.now()),
     eventIds: [],
     tone: toneOf(text),
   };

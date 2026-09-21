@@ -1,12 +1,11 @@
 import { composeFromCluster } from "@/lib/engine/compose";
 import { clusterHeadlines, stampHeadlineClusters } from "@/lib/engine/cluster";
 import { relateEvents } from "@/lib/engine/relate";
-import { toneOf } from "@/lib/engine/ontology";
-import { hid } from "@/lib/engine/tokenize";
 import type { EvidenceItem, RadarEvent, Scenario } from "@/data/types";
 import { headlineToEvidence } from "./evidence";
 import { etParts, quoteState, sessionFlags } from "./clock";
 import { attachFredEvidence, fetchFredSeriesBundle, latestFredEvidence } from "./fred.server";
+import { parseRss } from "./rss";
 import { DESK_TICKERS, fromYahoo, toYahoo } from "./symbols";
 import type { LiveBook, LiveDesk, LiveHeadline, LiveQuote } from "./types";
 
@@ -44,29 +43,6 @@ const FEEDS: { source: string; url: string }[] = [
   },
 ];
 
-function decode(raw: string) {
-  const amp = "\u0026";
-  return raw
-    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
-    .replace(/<[^>]+>/g, "")
-    .replace(new RegExp(amp + "amp;", "g"), amp)
-    .replace(new RegExp(amp + "lt;", "g"), "<")
-    .replace(new RegExp(amp + "gt;", "g"), ">")
-    .replace(new RegExp(amp + "quot;", "g"), '"')
-    .replace(new RegExp(amp + "#39;", "g"), "'")
-    .replace(new RegExp(amp + "apos;", "g"), "'")
-    .replace(new RegExp(amp + "#(\\d+);", "g"), (_, n) => String.fromCharCode(Number(n)))
-    .replace(new RegExp(amp + "nbsp;", "g"), " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function tag(block: string, name: string) {
-  const re = new RegExp(`<${name}[^>]*>([\\s\\S]*?)</${name}>`, "i");
-  const m = block.match(re);
-  return m ? decode(m[1]) : "";
-}
-
 function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
 }
@@ -80,37 +56,13 @@ async function fetchText(url: string, ms = 7000) {
   return res.text();
 }
 
-function parseRss(xml: string, fallbackSource: string): LiveHeadline[] {
-  const chunks = xml.split(/<item[\s>]/i).slice(1);
-  const out: LiveHeadline[] = [];
-  for (const block of chunks.slice(0, 20)) {
-    let title = tag(block, "title");
-    const link = tag(block, "link") || tag(block, "guid");
-    const pub = tag(block, "pubDate") || tag(block, "published") || tag(block, "updated");
-    if (!title) continue;
-    let source = fallbackSource;
-    const dash = title.lastIndexOf(" - ");
-    if (fallbackSource === "Google News" && dash > 12) {
-      source = title.slice(dash + 3).trim() || source;
-      title = title.slice(0, dash).trim();
-    }
-    const published = pub ? Date.parse(pub) : Date.now();
-    out.push({
-      id: hid(title + source + String(published) + link),
-      title,
-      source,
-      url: link,
-      published: Number.isFinite(published) ? published : Date.now(),
-      eventIds: [],
-      tone: toneOf(title),
-    });
-  }
-  return out;
-}
-
 async function loadNews(): Promise<LiveHeadline[]> {
   if (newsCache && Date.now() - newsCache.at < NEWS_TTL) return newsCache.headlines;
-  const results = await Promise.allSettled(FEEDS.map((f) => fetchText(f.url).then((xml) => parseRss(xml, f.source))));
+  const ingestMs = Date.now();
+  const priorAvailable = new Map((newsCache?.headlines ?? []).map((h) => [h.id, h.availableTimeMs]));
+  const results = await Promise.allSettled(
+    FEEDS.map((f) => fetchText(f.url).then((xml) => parseRss(xml, f.source, ingestMs))),
+  );
   const seen = new Set<string>();
   const headlines: LiveHeadline[] = [];
   for (const r of results) {
@@ -119,6 +71,8 @@ async function loadNews(): Promise<LiveHeadline[]> {
       const key = h.title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
       if (seen.has(key) || key.length < 18) continue;
       seen.add(key);
+      const first = priorAvailable.get(h.id);
+      if (first !== undefined) h.availableTimeMs = Math.max(first, h.eventTimeMs);
       headlines.push(h);
     }
   }

@@ -25,6 +25,8 @@ export interface LiveHeadline {
   source: string;
   url: string;
   published: number;
+  eventTimeMs: number;
+  availableTimeMs: number;
   eventIds: string[];
   tone: "up" | "down" | "neutral";
 }
