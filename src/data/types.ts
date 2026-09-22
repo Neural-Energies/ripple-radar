@@ -205,13 +205,42 @@ export interface HorizonProbability {
   note: string;
 }
 
+/**
+ * The structured, machine-checkable half of an expected-evidence row.
+ *
+ * `observe` is prose for a human; this is what the monitor actually tests, so
+ * "did the thing we said to watch for happen" is answered by matching a
+ * declared observable — not by running a regex over the thesis and hoping.
+ */
+export interface EvidenceWatch {
+  /** Instruments whose print would satisfy this expectation. */
+  tickers: string[];
+  /** Observable content terms — the thing to see, not the thesis. */
+  terms: string[];
+  /** Classes that may satisfy it. A narrative echo cannot settle a data watch. */
+  classes: EvidenceClass[];
+  /** Direction the observation must carry to count as confirming. */
+  direction: "up" | "down" | "any";
+  /** Distinct term/ticker hits required. >1 guards against one coincidence. */
+  minHits: number;
+}
+
 export interface ExpectedEvidence {
   id: string;
   scenarioId: string;
   ifTrue: string;
   observe: string;
   lag: string;
+  /** Set by the monitor against the live information set — never authored true. */
   appeared: boolean;
+  /** What the monitor tests. Rows without one can never flip; they stay awaiting. */
+  watch?: EvidenceWatch;
+  /** `EvidenceItem.id` that satisfied it — the drill-down target. */
+  matchedBy?: string;
+  /** The satisfying item's headline, kept so the claim survives the render. */
+  matchedHeadline?: string;
+  /** When the satisfying observation entered our info-set (ms UTC). */
+  observedAt?: number;
 }
 
 export type KnowledgeKind = "known" | "likely" | "uncertain" | "unknown" | "critical";

@@ -310,7 +310,10 @@ function ProbabilityReadout({ event }: { event: RadarEvent }) {
 }
 
 function NextEvidencePanel({ event }: { event: RadarEvent }) {
-  const next = event.expectedEvidence?.[0];
+  // Lead with something still outstanding: a row already satisfied is not
+  // "next evidence". Only fall back to a satisfied row if all of them are.
+  const rows = event.expectedEvidence ?? [];
+  const next = rows.find((e) => !e.appeared) ?? rows[0];
   const kills = event.invalidation ?? [];
   return (
     <Panel title="Next evidence / invalidation">
@@ -323,6 +326,11 @@ function NextEvidencePanel({ event }: { event: RadarEvent }) {
           <div className="mt-1">
             <Badge tone={next.appeared ? "up" : "neutral"}>{next.appeared ? "observed" : "awaiting"}</Badge>
           </div>
+          {next.appeared && next.matchedHeadline && (
+            <p className="mt-1 text-micro text-muted">
+              Satisfied by: <span className="text-foreground">{next.matchedHeadline}</span>
+            </p>
+          )}
         </div>
       ) : (
         <p className="text-caption text-muted">No expected evidence on this book yet.</p>
@@ -687,7 +695,19 @@ function EvidencePanel({ event }: { event: RadarEvent }) {
                 <span className="font-mono text-micro text-subtle">{e.source}</span>
                 {e.reliability && <span className="font-mono text-micro text-muted">{e.reliability}</span>}
               </div>
-              <p className="mt-0.5 line-clamp-2 text-caption text-foreground">{e.headline}</p>
+              {e.url ? (
+                <a
+                  href={e.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-0.5 block line-clamp-2 text-caption text-foreground underline-offset-2 hover:text-primary hover:underline"
+                  title={`Open at ${e.source}`}
+                >
+                  {e.headline}
+                </a>
+              ) : (
+                <p className="mt-0.5 line-clamp-2 text-caption text-foreground">{e.headline}</p>
+              )}
             </li>
           ))}
         </ul>

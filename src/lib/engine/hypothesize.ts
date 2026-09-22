@@ -290,21 +290,96 @@ export function horizonsFor(family: EventFamily, probability: number, scenarios:
   ];
 }
 
-export function expectedEvidenceFor(scenarios: Scenario[], headlineTicker: string, family: EventFamily): ExpectedEvidence[] {
+/**
+ * Second-order observables per family — the confirmations a desk would
+ * actually go looking for, rather than restatements of the headline.
+ */
+const CONFIRMING_TERMS: Record<EventFamily, string[]> = {
+  weather: ["outage", "landfall", "refinery", "port", "evacuation", "shut", "closure"],
+  physical: ["backlog", "freight", "throughput", "shortage", "shipment", "closure", "outage"],
+  commodity: ["crack", "inventory", "throughput", "cargo", "OPEC", "drawdown", "spread"],
+  policy: ["tariff", "sanction", "ruling", "guidance", "statement", "vote"],
+  credit: ["spread", "downgrade", "default", "funding", "facility", "covenant"],
+  fx: ["intervention", "yield", "swap", "reserve", "peg", "basis"],
+  tech: ["license", "export", "fab", "capex", "ban", "order"],
+  kinetic: ["strike", "mobilize", "ceasefire", "airspace", "casualties", "deploy"],
+  corporate: ["filing", "guidance", "earnings", "buyback", "downgrade", "8-K"],
+  other: ["filing", "statement", "data", "report"],
+};
+
+/** Terms that mark a thesis coming apart rather than coming true. */
+const FADING_TERMS = [
+  "resume",
+  "reopen",
+  "restart",
+  "eased",
+  "lifted",
+  "weaker than expected",
+  "revised down",
+  "withdrawn",
+  "downgraded",
+  "recurve",
+  "spared",
+];
+
+/**
+ * Falsifiable expectations per scenario.
+ *
+ * Each row carries both prose (for the analyst) and a structured `watch`
+ * (for the monitor in ace/expected-evidence). `appeared` is authored false
+ * without exception — only the monitor, running against real evidence, may
+ * ever set it true.
+ */
+export function expectedEvidenceFor(
+  scenarios: Scenario[],
+  headlineTicker: string,
+  family: EventFamily,
+  nodeTickers: string[] = [],
+): ExpectedEvidence[] {
   const lag = family === "policy" || family === "fx" ? "minutes–hours" : family === "weather" ? "hours–days" : "1–10 sessions";
-  return scenarios.slice(0, 4).map((s, i) => ({
-    id: `ee-${s.id}`,
-    scenarioId: s.id,
-    ifTrue: s.name,
-    observe:
-      i === 0
-        ? `${headlineTicker} holds the move AND a second-order node confirms (freight, cracks, funding, or licenses).`
-        : i === 1
-          ? `Spreads/vol move more than the headline ticker; physical or policy throughput mostly holds.`
-          : `The first print mean-reverts; AIS, inventories, filings, or the next official print contradict the thesis.`,
-    lag,
-    appeared: false,
-  }));
+  const confirming = CONFIRMING_TERMS[family] ?? CONFIRMING_TERMS.other;
+  const secondOrder = nodeTickers.filter((t) => t && t !== headlineTicker).slice(0, 4);
+  const last = scenarios.length - 1;
+
+  return scenarios.slice(0, 4).map((s, i) => {
+    // Scenarios are ordered materialization → fade (see ace/probability), so
+    // the LAST row is the thesis failing and wants the opposite observation.
+    const fading = i === last && scenarios.length > 1;
+    const observe = fading
+      ? `The first print mean-reverts; AIS, inventories, filings, or the next official print contradict the thesis.`
+      : i === 0
+        ? `${headlineTicker} holds the move AND a second-order node confirms (${confirming.slice(0, 3).join(", ")}).`
+        : `Spreads/vol move more than the headline ticker; physical or policy throughput mostly holds.`;
+
+    return {
+      id: `ee-${s.id}`,
+      scenarioId: s.id,
+      ifTrue: s.name,
+      observe,
+      lag,
+      appeared: false,
+      watch: fading
+        ? {
+            tickers: [],
+            terms: FADING_TERMS,
+            classes: ["fundamental", "market", "expectation"],
+            direction: "down" as const,
+            minHits: 1,
+          }
+        : {
+            tickers: i === 0 ? [headlineTicker, ...secondOrder] : secondOrder,
+            terms: confirming,
+            classes:
+              i === 0
+                ? (["fundamental", "market", "expectation"] as const).slice()
+                : (["market", "expectation"] as const).slice(),
+            direction: "up" as const,
+            // The lead row demands corroboration: the instrument AND a
+            // second-order observable, so a single headline cannot settle it.
+            minHits: i === 0 ? 2 : 1,
+          },
+    };
+  });
 }
 
 export function knowledgeFor(opts: {

@@ -149,7 +149,14 @@ export function composeEvent(opts: {
     invalidation: links[0]?.invalidation ?? "The constraint eases.",
   });
   const horizons = horizonsFor(family, probability, scenarios);
-  const expectedEvidence = expectedEvidenceFor(scenarios, headlineTicker, family);
+  // Second-order watch targets come from the causal graph this book actually
+  // built, so an expectation names instruments the thesis depends on.
+  const expectedEvidence = expectedEvidenceFor(
+    scenarios,
+    headlineTicker,
+    family,
+    nodes.map((n) => n.ticker).filter((t): t is string => Boolean(t)),
+  );
   const knowledge = knowledgeFor({ claims, entity, headlineTicker, family, hits });
   const snapshot = snapshotOf(
     Math.round(probability),

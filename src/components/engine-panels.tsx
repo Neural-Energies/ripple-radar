@@ -1,6 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Badge, Panel } from "@/components/ui";
 import type { KnowledgeKind, RadarEvent } from "@/data/types";
+import { observedShare } from "@/lib/ace/expected-evidence";
 import { ENGINE_STEPS, stageOf } from "@/lib/engine/pipeline";
 import { goToEvent } from "@/lib/hooks/use-event-param-sync";
 import { useApp } from "@/lib/store";
@@ -80,19 +81,60 @@ export function KnowledgePanel({ event }: { event: RadarEvent }) {
 
 export function ExpectedEvidencePanel({ event }: { event: RadarEvent }) {
   const rows = event.expectedEvidence ?? [];
+  const byId = new Map(event.evidence.map((e) => [e.id, e]));
   if (!rows.length) return null;
+  const { observed, total } = observedShare(rows);
   return (
-    <Panel title="Expected evidence">
+    <Panel
+      title="Expected evidence"
+      action={
+        total > 0 ? (
+          <span className="font-mono text-micro text-muted">
+            {observed}/{total} observed
+          </span>
+        ) : (
+          <span className="font-mono text-micro text-subtle">not testable</span>
+        )
+      }
+    >
       <ul className="flex flex-col gap-2">
-        {rows.map((e) => (
-          <li key={e.id} className="min-w-0 rounded-md bg-card-2 px-2.5 py-2">
-            <div className="text-micro uppercase tracking-wider text-subtle">If {e.ifTrue}</div>
-            <p className="mt-1 break-words text-caption">Then within {e.lag}: {e.observe}</p>
-            <div className="mt-1">
-              <Badge tone={e.appeared ? "up" : "neutral"}>{e.appeared ? "observed" : "awaiting"}</Badge>
-            </div>
-          </li>
-        ))}
+        {rows.map((e) => {
+          const source = e.matchedBy ? byId.get(e.matchedBy) : undefined;
+          return (
+            <li key={e.id} className="min-w-0 rounded-md bg-card-2 px-2.5 py-2">
+              <div className="text-micro uppercase tracking-wider text-subtle">If {e.ifTrue}</div>
+              <p className="mt-1 break-words text-caption">Then within {e.lag}: {e.observe}</p>
+              <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                <Badge tone={e.appeared ? "up" : e.watch ? "neutral" : "warn"}>
+                  {e.appeared ? "observed" : e.watch ? "awaiting" : "no test defined"}
+                </Badge>
+                {e.watch && !e.appeared && (
+                  <span className="font-mono text-micro text-subtle">
+                    watching {[...e.watch.tickers, ...e.watch.terms].slice(0, 4).join(" · ")}
+                  </span>
+                )}
+              </div>
+              {/* The claim is only as good as the item behind it — always show it. */}
+              {e.appeared && e.matchedHeadline && (
+                <p className="mt-1 break-words text-micro text-muted">
+                  Satisfied by{source ? ` ${source.source}` : ""}:{" "}
+                  {source?.url ? (
+                    <a
+                      href={source.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-foreground underline-offset-2 hover:text-primary hover:underline"
+                    >
+                      {e.matchedHeadline}
+                    </a>
+                  ) : (
+                    <span className="text-foreground">{e.matchedHeadline}</span>
+                  )}
+                </p>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </Panel>
   );

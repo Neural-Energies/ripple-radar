@@ -189,9 +189,9 @@ function bookFromEvent(
       change: quotes[m.ticker]?.changePct ?? m.change,
     })),
     // Left as the composed prior — buildDesk applies the evidence-driven
-    // Dirichlet update (engine/update-scenarios) against the last frozen
-    // snapshot and writes the posterior back onto both the event and this
-    // book. Tilting here too would double-count the same tape.
+    // Dirichlet update (ace/probability) against the last frozen snapshot and
+    // writes the posterior back onto both the event and this book. Tilting
+    // here too would double-count the same tape.
     scenarios: event.scenarios,
     heatPoint: event.narrativeHeat[event.narrativeHeat.length - 1] ?? { date: "Now", news: 40, social: 20, search: 18 },
     sentiment: event.sentiment,
@@ -247,6 +247,21 @@ export async function buildDesk(): Promise<LiveDesk> {
     const book = bookFromEvent(ev, headlines, quotes, fredEvidence);
     books[ev.id] = book;
     ev.evidence = book.evidence;
+  }
+
+  // Expected evidence is a falsifiable promise, so check it on every cycle —
+  // independent of the ledger, because a ledger outage must not quietly turn
+  // the check off and leave every row reading "awaiting". Authored `appeared`
+  // is always false; only this pass may set it true, and only by naming the
+  // item that did it.
+  try {
+    const { monitorExpectedEvidence } = await import("@/lib/ace/expected-evidence");
+    for (const ev of events) {
+      if (!ev.expectedEvidence?.length) continue;
+      ev.expectedEvidence = monitorExpectedEvidence(ev.expectedEvidence, ev.evidence);
+    }
+  } catch (err) {
+    console.error("[build] expected-evidence monitor skipped:", err);
   }
 
   // ACE forecast lifecycle: prior → gate → posterior → bands → provenance.
