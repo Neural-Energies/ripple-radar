@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { NodeNavLink } from "@/components/desk-nav";
 import { ResearchHeader } from "@/components/research-header";
 import { RippleMap } from "@/components/ripple-map";
 import { Badge, Panel } from "@/components/ui";
@@ -87,38 +88,11 @@ function MapsPage() {
                       if (n) setSelectedId(n.id);
                     }}
                   >
-                    <td className="px-2 py-1">{src?.label}</td>
-                    <td className="px-2 py-1">
-                      {dst ? (
-                        (() => {
-                          const t = nodeNavTarget(dst, event);
-                          if (t?.kind === "ticker") {
-                            return (
-                              <Link
-                                to="/assets/$ticker"
-                                params={{ ticker: t.ticker }}
-                                className="text-primary hover:underline"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                {dst.label}
-                              </Link>
-                            );
-                          }
-                          if (t?.kind === "filter") {
-                            return (
-                              <Link
-                                to="/assets"
-                                search={{ q: t.q }}
-                                className="text-primary hover:underline"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                {dst.label}
-                              </Link>
-                            );
-                          }
-                          return dst.label;
-                        })()
-                      ) : null}
+                    <td className="px-2 py-1" onClick={(e) => e.stopPropagation()}>
+                      {src ? <NodeNavLink node={src} event={event} /> : null}
+                    </td>
+                    <td className="px-2 py-1" onClick={(e) => e.stopPropagation()}>
+                      {dst ? <NodeNavLink node={dst} event={event} /> : null}
                     </td>
                     <td className="px-2 py-1 font-mono">{l.direction > 0 ? "+" : "−"}</td>
                     <td className="px-2 py-1 font-mono tabular-nums">{l.distance}</td>
@@ -216,7 +190,7 @@ function NodeInspector({ event, node }: { event: RadarEvent; node: RippleNode | 
               return (
                 <li key={`in-${l.source}`} className="text-caption text-muted">
                   <span className="text-subtle">← </span>
-                  {src?.label ?? l.source}
+                  {src ? <NodeNavLink node={src} event={event} /> : l.source}
                   <span className="ml-1 font-mono text-micro tabular-nums">
                     d{l.distance} · {Math.round(l.confidence * 100)}%
                   </span>
@@ -228,7 +202,7 @@ function NodeInspector({ event, node }: { event: RadarEvent; node: RippleNode | 
               return (
                 <li key={`out-${l.dest}`} className="text-caption text-muted">
                   <span className="text-subtle">→ </span>
-                  {dst?.label ?? l.dest}
+                  {dst ? <NodeNavLink node={dst} event={event} /> : l.dest}
                   <span className="ml-1 font-mono text-micro tabular-nums">
                     d{l.distance} · {Math.round(l.confidence * 100)}%
                   </span>
