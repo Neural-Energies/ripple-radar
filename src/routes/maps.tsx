@@ -2,7 +2,12 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ResearchHeader } from "@/components/research-header";
 import { RippleMap } from "@/components/ripple-map";
-import { KnowledgePanel, PipelineStrip, RelatedEventsPanel } from "@/components/engine-panels";
+import {
+  ActorsPanel,
+  KnowledgePanel,
+  PipelineStrip,
+  RelatedEventsPanel,
+} from "@/components/engine-panels";
 import { Badge, Panel } from "@/components/ui";
 import { LEVEL_META } from "@/data/catalog";
 import type { RadarEvent, RippleNode } from "@/data/types";
@@ -57,6 +62,7 @@ function MapsPage() {
           <NodeInspector event={event} node={selected} onSelect={setSelectedId} />
         </Panel>
         <PipelineStrip lifecycle={event.lifecycle} />
+        <ActorsPanel event={event} />
         <RelatedEventsPanel event={event} />
         <KnowledgePanel event={event} />
       </div>

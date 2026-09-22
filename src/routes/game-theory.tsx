@@ -3,6 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ScenarioDistributionBar } from "@/components/charts";
 import { ResearchHeader } from "@/components/research-header";
 import { Badge, Delta, Panel } from "@/components/ui";
+import { ImportanceMeter } from "@/components/engine-panels";
 import { intervene } from "@/lib/ace/intervene";
 import { isNash, readMatrix } from "@/lib/engine/game";
 import { goToScenario, validateEventSearch } from "@/lib/hooks/use-event-param-sync";
@@ -247,6 +248,9 @@ function GameTheoryPage() {
                 </p>
               </div>
             )}
+          </Panel>
+          <Panel title="Book standing">
+            <ImportanceMeter event={event} />
           </Panel>
           <p className="px-0.5 text-tiny text-subtle">
             <Link to="/" className="text-primary hover:underline">

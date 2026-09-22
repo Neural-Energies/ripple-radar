@@ -1,4 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { FilterLink, TickerLink } from "@/components/desk-nav";
 import { Badge, Panel } from "@/components/ui";
 import type { KnowledgeKind, RadarEvent } from "@/data/types";
 import { observedShare } from "@/lib/ace/expected-evidence";
@@ -6,6 +7,20 @@ import { ENGINE_STEPS, stageOf } from "@/lib/engine/pipeline";
 import { goToEvent } from "@/lib/hooks/use-event-param-sync";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
+
+const STEP_HREF: Record<string, "/events" | "/scenarios" | "/game-theory" | "/maps" | "/assets" | "/learning" | "/"> = {
+  detect: "/events",
+  understand: "/events",
+  hypothesize: "/scenarios",
+  probability: "/scenarios",
+  players: "/game-theory",
+  graph: "/maps",
+  exposures: "/assets",
+  markets: "/assets",
+  update: "/",
+  invalidate: "/",
+  learn: "/learning",
+};
 
 const KIND_TONE: Record<KnowledgeKind, "up" | "primary" | "warn" | "neutral" | "core"> = {
   known: "up",
@@ -23,14 +38,15 @@ export function PipelineStrip({ lifecycle }: { lifecycle?: string }) {
       <ol className="flex flex-wrap gap-1">
         {ENGINE_STEPS.map((s, i) => (
           <li key={s.id} className="flex items-center gap-1">
-            <span
+            <Link
+              to={STEP_HREF[s.id] ?? "/"}
               className={cn(
-                "rounded-sm px-2 py-1 text-micro uppercase tracking-wider",
+                "rounded-sm px-2 py-1 text-micro uppercase tracking-wider hover:underline",
                 i === idx ? "bg-primary/15 text-primary" : i < idx ? "bg-card-3 text-foreground" : "text-subtle",
               )}
             >
               {s.label}
-            </span>
+            </Link>
             {i < ENGINE_STEPS.length - 1 && <span className="text-subtle">→</span>}
           </li>
         ))}
@@ -110,11 +126,22 @@ export function ExpectedEvidencePanel({ event }: { event: RadarEvent }) {
                 </Badge>
                 {e.watch && !e.appeared && (
                   <span className="font-mono text-micro text-subtle">
-                    watching {[...e.watch.tickers, ...e.watch.terms].slice(0, 4).join(" · ")}
+                    watching{" "}
+                    {e.watch.tickers.slice(0, 4).map((t, i) => (
+                      <span key={t}>
+                        {i > 0 ? " · " : null}
+                        <TickerLink ticker={t} className="text-micro" />
+                      </span>
+                    ))}
+                    {e.watch.terms.slice(0, 3).map((term) => (
+                      <span key={term}>
+                        {" · "}
+                        <FilterLink q={term} className="font-sans text-micro" />
+                      </span>
+                    ))}
                   </span>
                 )}
               </div>
-              {/* The claim is only as good as the item behind it — always show it. */}
               {e.appeared && e.matchedHeadline && (
                 <p className="mt-1 break-words text-micro text-muted">
                   Satisfied by{source ? ` ${source.source}` : ""}:{" "}
@@ -176,3 +203,90 @@ export function RelatedEventsPanel({ event }: { event: RadarEvent }) {
   );
 }
 
+export function ActorsPanel({ event }: { event: RadarEvent }) {
+  const orgs = event.organizations ?? [];
+  const people = event.people ?? [];
+  const entities = event.entities ?? [];
+  if (!orgs.length && !people.length && !entities.length) return null;
+  return (
+    <Panel title="Discovered actors">
+      <div className="flex flex-wrap gap-1">
+        {orgs.map((n) => (
+          <FilterLink key={n} q={n} className="no-underline">
+            <Badge tone="primary">{n}</Badge>
+          </FilterLink>
+        ))}
+        {people.map((n) => (
+          <FilterLink key={n} q={n} className="no-underline">
+            <Badge tone="warn">{n}</Badge>
+          </FilterLink>
+        ))}
+        {entities
+          .filter((e) => !orgs.includes(e) && !people.includes(e))
+          .slice(0, 8)
+          .map((n) => (
+            <FilterLink key={n} q={n} className="no-underline">
+              <Badge tone="neutral">{n}</Badge>
+            </FilterLink>
+          ))}
+      </div>
+      <div className="mt-2 grid grid-cols-2 gap-2 text-micro text-muted">
+        <div>
+          Industries:{" "}
+          {(event.industries ?? []).length
+            ? event.industries!.map((n, i) => (
+                <span key={n}>
+                  {i > 0 ? ", " : null}
+                  <FilterLink q={n} />
+                </span>
+              ))
+            : "—"}
+        </div>
+        <div>
+          Commodities:{" "}
+          {(event.commodities ?? []).length
+            ? event.commodities!.map((n, i) => (
+                <span key={n}>
+                  {i > 0 ? ", " : null}
+                  <FilterLink q={n} />
+                </span>
+              ))
+            : "—"}
+        </div>
+        <div className="col-span-2">
+          Macro:{" "}
+          {(event.economicVariables ?? []).length
+            ? event.economicVariables!.map((n, i) => (
+                <span key={n}>
+                  {i > 0 ? ", " : null}
+                  <FilterLink q={n} />
+                </span>
+              ))
+            : "—"}
+        </div>
+      </div>
+      <Link to="/game-theory" className="mt-2 inline-block text-micro text-primary hover:underline">
+        Open game theory →
+      </Link>
+    </Panel>
+  );
+}
+
+export function ImportanceMeter({ event }: { event: RadarEvent }) {
+  const imp = event.importance ?? 0;
+  const p = event.probability;
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <Link to="/events" className="block hover:bg-card-2/60 rounded-sm px-0.5">
+        <div className="text-micro uppercase tracking-wider text-subtle">Importance</div>
+        <div className="font-mono text-lg tabular-nums text-foreground">{imp}</div>
+        <p className="text-micro text-muted">≠ probability · World Tape</p>
+      </Link>
+      <Link to="/scenarios" className="block hover:bg-card-2/60 rounded-sm px-0.5">
+        <div className="text-micro uppercase tracking-wider text-subtle">Scenario mass</div>
+        <div className="font-mono text-lg tabular-nums text-primary">{p}%</div>
+        <p className="text-micro text-muted">Leading family · Scenarios</p>
+      </Link>
+    </div>
+  );
+}
