@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { etParts } from "@/lib/live/clock";
 import type { LiveQuote } from "@/lib/live/types";
 import { useLive, useLiveEvent } from "@/lib/live/provider";
@@ -50,7 +51,13 @@ export function LiveTape() {
           <div className="flex w-max animate-tape gap-4 px-2 py-1">
             {doubled.map((q, i) => (
               <div key={q.ticker + i} className="flex items-baseline gap-1 font-mono text-micro">
-                <span className="text-muted">{q.ticker}</span>
+                <Link
+                  to="/assets/$ticker"
+                  params={{ ticker: q.ticker }}
+                  className="text-muted hover:text-primary hover:underline"
+                >
+                  {q.ticker}
+                </Link>
                 <span className="tabular-nums text-foreground">{formatPrice(q.last)}</span>
                 <span className={cn("tabular-nums", q.changePct >= 0 ? "text-up" : "text-down")}>
                   {formatPct(q.changePct)}
