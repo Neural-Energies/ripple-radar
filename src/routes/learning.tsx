@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalibrationChart, LearningChart } from "@/components/charts";
+import { FrozenBadge } from "@/components/desk-nav";
 import { Badge, Button, Panel } from "@/components/ui";
 import { MODEL_STATS } from "@/data/catalog";
 import { getLiveCalibration, runForecastResolution } from "@/lib/live/desk";
@@ -111,8 +112,9 @@ function LearningPage() {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-lg font-semibold tracking-tight text-foreground">Calibration</h1>
-          <p className="mt-0.5 text-caption text-muted">
-            Frozen class-level fixture — not this desk&apos;s live Brier or skill.
+          <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-caption text-muted">
+            <FrozenBadge title="MODEL_STATS is a class-level fixture. Not this desk's live Brier." />
+            Not this desk&apos;s live Brier or skill.
           </p>
         </div>
         <Link to="/docs" hash="learning" className="text-micro text-primary hover:underline">

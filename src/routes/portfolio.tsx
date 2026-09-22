@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
+import { FrozenBadge } from "@/components/desk-nav";
 import { Badge, Button, Panel } from "@/components/ui";
 import { useLive, useLiveEvent } from "@/lib/live/provider";
 import { validateEventSearch } from "@/lib/hooks/use-event-param-sync";
@@ -27,7 +28,10 @@ function PortfolioPage() {
 
   return (
     <div className="grid gap-3 lg:grid-cols-[18rem_1fr]">
-      <Panel title="Book context">
+      <Panel
+        title="Book context"
+        action={<FrozenBadge title="Not a capital blotter — no AUM, NAV, or strategy P&L." />}
+      >
         <p className="text-caption text-muted">
           Ranked expressions for{" "}
           <span className="text-foreground">{event.title?.trim() || "the selected shock"}</span>
