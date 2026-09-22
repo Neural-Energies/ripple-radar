@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ScenarioDistributionBar } from "@/components/charts";
 import { ResearchHeader } from "@/components/research-header";
 import { Badge, Delta, Panel } from "@/components/ui";
 import { intervene } from "@/lib/ace/intervene";
 import { isNash, readMatrix } from "@/lib/engine/game";
-import { validateEventSearch } from "@/lib/hooks/use-event-param-sync";
+import { goToScenario, validateEventSearch } from "@/lib/hooks/use-event-param-sync";
 import { useLiveEvent } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -26,6 +26,7 @@ function GameTheoryPage() {
   const id = useApp((s) => s.selectedEventId);
   const event = useLiveEvent(id);
   const gt = event.gameTheory;
+  const navigate = useNavigate();
   const read = readMatrix(gt);
   const scenarios = event.scenarios ?? [];
 
@@ -193,7 +194,11 @@ function GameTheoryPage() {
                     </span>
                   )}
                 </div>
-                <ScenarioDistributionBar scenarios={scenarios} showSum />
+                <ScenarioDistributionBar
+                  scenarios={scenarios}
+                  showSum
+                  onSelect={(sid) => goToScenario(navigate, event.id, sid)}
+                />
                 {conditional && (
                   <ul className="mt-1.5 flex flex-col gap-0.5">
                     {conditional.scenarios.map((s) => (

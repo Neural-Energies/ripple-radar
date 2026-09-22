@@ -13,10 +13,13 @@ export const EVENT_PARAM_PATHS = [
   "/portfolio",
 ] as const;
 
-export type EventSearch = { event?: string };
+export type EventSearch = { event?: string; scenario?: string };
 
 export function validateEventSearch(raw: Record<string, unknown>): EventSearch {
-  return { event: typeof raw.event === "string" ? raw.event : undefined };
+  return {
+    event: typeof raw.event === "string" ? raw.event : undefined,
+    scenario: typeof raw.scenario === "string" ? raw.scenario : undefined,
+  };
 }
 
 export function pathUsesEventParam(pathname: string): boolean {
@@ -85,4 +88,19 @@ export function useEventParamSync() {
       });
     }
   }, [enabled, events, navigate, selected, setSelected, urlEvent]);
+}
+
+/**
+ * Drill from any scenario reference straight to that row in the book.
+ *
+ * Carrying the scenario id in the URL means the destination can focus it, and
+ * the link stays shareable — a scenario someone points at is the same scenario
+ * when the page reopens.
+ */
+export function goToScenario(
+  navigate: ReturnType<typeof useNavigate>,
+  eventId: string,
+  scenarioId: string,
+) {
+  void navigate({ to: "/scenarios", search: { event: eventId, scenario: scenarioId } });
 }

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ResearchHeader } from "@/components/research-header";
 import { RippleMap } from "@/components/ripple-map";
+import { KnowledgePanel, PipelineStrip, RelatedEventsPanel } from "@/components/engine-panels";
 import { Badge, Panel } from "@/components/ui";
 import { LEVEL_META } from "@/data/catalog";
 import type { RadarEvent, RippleNode } from "@/data/types";
@@ -34,7 +35,7 @@ function MapsPage() {
   return (
     <div className="flex min-h-0 flex-col gap-1.5">
       <ResearchHeader subtitle="Ripple Map" showTabs={false} />
-      <div className="grid min-h-[calc(100vh-10rem)] grid-cols-1 gap-1.5 xl:grid-cols-[minmax(0,1fr)_17rem]">
+      <div className="grid min-h-[calc(100vh-10rem)] grid-cols-1 items-start gap-1.5 xl:grid-cols-[minmax(0,1fr)_17rem]">
         <Panel
           title="Causal map"
           className="min-h-[26rem]"
@@ -53,8 +54,11 @@ function MapsPage() {
           }
           className="min-h-[16rem]"
         >
-          <NodeInspector event={event} node={selected} />
+          <NodeInspector event={event} node={selected} onSelect={setSelectedId} />
         </Panel>
+        <PipelineStrip lifecycle={event.lifecycle} />
+        <RelatedEventsPanel event={event} />
+        <KnowledgePanel event={event} />
       </div>
       <Panel title="Causal links" padded={false}>
         <div className="overflow-x-auto">
@@ -143,7 +147,15 @@ function MapsPage() {
   );
 }
 
-function NodeInspector({ event, node }: { event: RadarEvent; node: RippleNode | null }) {
+function NodeInspector({
+  event,
+  node,
+  onSelect,
+}: {
+  event: RadarEvent;
+  node: RippleNode | null;
+  onSelect: (id: string) => void;
+}) {
   if (!node) {
     return <p className="text-caption text-muted">Click a node to inspect transmission.</p>;
   }
@@ -211,28 +223,34 @@ function NodeInspector({ event, node }: { event: RadarEvent; node: RippleNode | 
         <div>
           <div className="text-micro uppercase tracking-wider text-subtle">Links</div>
           <ul className="mt-1 flex flex-col gap-1">
+            {/* Walking the chain is the point of a causal map: each link steps
+                the inspector to the node on the other end of it. */}
             {incoming.map((l) => {
               const src = event.nodes.find((n) => n.id === l.source);
               return (
-                <li key={`in-${l.source}`} className="text-caption text-muted">
-                  <span className="text-subtle">← </span>
-                  {src?.label ?? l.source}
-                  <span className="ml-1 font-mono text-micro tabular-nums">
-                    d{l.distance} · {Math.round(l.confidence * 100)}%
-                  </span>
-                </li>
+                <LinkStep
+                  key={`in-${l.source}`}
+                  arrow="←"
+                  label={src?.label ?? l.source}
+                  distance={l.distance}
+                  confidence={l.confidence}
+                  disabled={!src}
+                  onSelect={() => src && onSelect(src.id)}
+                />
               );
             })}
             {outgoing.map((l) => {
               const dst = event.nodes.find((n) => n.id === l.dest);
               return (
-                <li key={`out-${l.dest}`} className="text-caption text-muted">
-                  <span className="text-subtle">→ </span>
-                  {dst?.label ?? l.dest}
-                  <span className="ml-1 font-mono text-micro tabular-nums">
-                    d{l.distance} · {Math.round(l.confidence * 100)}%
-                  </span>
-                </li>
+                <LinkStep
+                  key={`out-${l.dest}`}
+                  arrow="→"
+                  label={dst?.label ?? l.dest}
+                  distance={l.distance}
+                  confidence={l.confidence}
+                  disabled={!dst}
+                  onSelect={() => dst && onSelect(dst.id)}
+                />
               );
             })}
           </ul>
@@ -244,5 +262,43 @@ function NodeInspector({ event, node }: { event: RadarEvent; node: RippleNode | 
         <p className="text-micro text-subtle">Kill: {outgoing[0].invalidation}</p>
       ) : null}
     </div>
+  );
+}
+
+/** One hop of the causal chain — click or Enter to step the inspector there. */
+function LinkStep({
+  arrow,
+  label,
+  distance,
+  confidence,
+  disabled,
+  onSelect,
+}: {
+  arrow: string;
+  label: string;
+  distance: number;
+  confidence: number;
+  disabled?: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <li>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={onSelect}
+        title={disabled ? "This node is not on the current graph" : `Inspect ${label}`}
+        className={cn(
+          "flex w-full items-baseline gap-1 rounded-sm px-1 py-0.5 text-left text-caption text-muted",
+          disabled ? "cursor-default" : "hover:bg-card-2 hover:text-foreground",
+        )}
+      >
+        <span className="text-subtle">{arrow}</span>
+        <span className="min-w-0 flex-1 truncate">{label}</span>
+        <span className="shrink-0 font-mono text-micro tabular-nums">
+          d{distance} · {Math.round(confidence * 100)}%
+        </span>
+      </button>
+    </li>
   );
 }

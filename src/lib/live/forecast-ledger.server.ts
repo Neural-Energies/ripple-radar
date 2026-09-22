@@ -280,3 +280,176 @@ export async function getCalibration(): Promise<LiveCalibration> {
     buckets,
   };
 }
+
+export interface ScoredForecast {
+  snapshotId: string;
+  eventId: string;
+  eventTitle: string;
+  /** When the forecast was frozen — the T in freeze-at-T. */
+  frozenAt: string;
+  resolvedAt: string;
+  /** The scenario the desk ranked highest at T, and the mass it carried. */
+  topScenario: string;
+  topProbability: number;
+  /** What the judge concluded actually happened. */
+  resolvedScenario: string;
+  /** 1 when the top-ranked scenario is the one that occurred. */
+  hit: boolean;
+  /** Multi-class Brier over the whole frozen scenario set. */
+  brier: number;
+  method: string;
+  confidence: string | null;
+  rationale: string;
+}
+
+/** Multi-class Brier for one frozen set against the scenario that occurred. */
+function brierOf(scenarios: ScenarioRow[], resolvedId: string): number {
+  if (scenarios.length === 0) return 0;
+  const sumSq = scenarios.reduce((a, s) => {
+    const outcome = s.id === resolvedId ? 1 : 0;
+    return a + (s.probability / 100 - outcome) ** 2;
+  }, 0);
+  return Math.round((sumSq / scenarios.length) * 10000) / 10000;
+}
+
+/**
+ * The real scored ledger: forecasts this desk actually froze, later graded.
+ *
+ * Every row here is something the desk committed to before the outcome was
+ * known. Nothing is seeded and nothing is back-filled — an empty list means
+ * no forecast has passed its horizon and been resolved yet, which is the
+ * honest state of a young ledger rather than a reason to show a sample.
+ */
+export async function getScoredForecasts(limit = 50): Promise<ScoredForecast[]> {
+  const { getSql } = await import("@/lib/db");
+  const sql = await getSql();
+  const rows = await sql<{
+    snapshot_id: string;
+    event_id: string;
+    event_title: string;
+    as_of: string;
+    resolved_at: string;
+    scenarios: string;
+    resolved_scenario: string;
+    method: string;
+    confidence: string | null;
+    rationale: string;
+  }>`
+    select s.id as snapshot_id, s.event_id, s.event_title, s.as_of, s.scenarios,
+           r.resolved_at, r.resolved_scenario, r.method, r.confidence, r.rationale
+    from forecast_snapshots s
+    join forecast_resolutions r on r.snapshot_id = s.id
+    where r.resolved_scenario is not null
+    order by r.resolved_at desc
+    limit ${limit}
+  `;
+
+  return rows.map((row) => {
+    const scenarios = JSON.parse(row.scenarios) as ScenarioRow[];
+    const top = scenarios.reduce(
+      (best, s) => (s.probability > best.probability ? s : best),
+      scenarios[0] ?? { id: "", name: "—", probability: 0 },
+    );
+    const resolved = scenarios.find((s) => s.id === row.resolved_scenario);
+    return {
+      snapshotId: row.snapshot_id,
+      eventId: row.event_id,
+      eventTitle: row.event_title,
+      frozenAt: new Date(row.as_of).toISOString(),
+      resolvedAt: new Date(row.resolved_at).toISOString(),
+      topScenario: top.name,
+      topProbability: top.probability,
+      resolvedScenario: resolved?.name ?? row.resolved_scenario,
+      hit: top.id === row.resolved_scenario,
+      brier: brierOf(scenarios, row.resolved_scenario),
+      method: row.method,
+      confidence: row.confidence,
+      rationale: row.rationale,
+    };
+  });
+}
+
+export interface SkillPoint {
+  date: string;
+  /** Share of that day's resolutions where the top-ranked scenario occurred. */
+  accuracy: number;
+  /** Mean multi-class Brier for that day. */
+  brier: number;
+  n: number;
+}
+
+/**
+ * Skill over time, from resolved rows only.
+ *
+ * Grouped by resolution date because that is when a score becomes knowable.
+ * A short series is a young ledger, not a broken chart — it is never padded.
+ */
+export async function getSkillSeries(): Promise<SkillPoint[]> {
+  const scored = await getScoredForecasts(500);
+  if (scored.length === 0) return [];
+  const byDay = new Map<string, { hits: number; brier: number; n: number }>();
+  for (const f of scored) {
+    const day = f.resolvedAt.slice(0, 10);
+    const acc = byDay.get(day) ?? { hits: 0, brier: 0, n: 0 };
+    acc.hits += f.hit ? 1 : 0;
+    acc.brier += f.brier;
+    acc.n += 1;
+    byDay.set(day, acc);
+  }
+  return [...byDay.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([date, a]) => ({
+      date,
+      accuracy: Math.round((a.hits / a.n) * 100),
+      brier: Math.round((a.brier / a.n) * 1000) / 1000,
+      n: a.n,
+    }));
+}
+
+export interface ReplayFrame {
+  snapshotId: string;
+  asOf: string;
+  provenance: string;
+  scenarios: ScenarioRow[];
+  /** True once a judge has graded this frame. */
+  resolved: boolean;
+  resolvedScenario: string | null;
+}
+
+/**
+ * Real as-of replay for one book: the forecasts this desk actually froze,
+ * in order.
+ *
+ * This is not a recomputation and does not claim to be one — it is the
+ * append-only record of what the desk believed at each T, which is the only
+ * version of "replay" that cannot peek past T. Walking it shows how the book
+ * actually moved, not how it would look if rebuilt with today's information.
+ */
+export async function getReplayFrames(eventId: string, limit = 40): Promise<ReplayFrame[]> {
+  const { getSql } = await import("@/lib/db");
+  const sql = await getSql();
+  const rows = await sql<{
+    id: string;
+    as_of: string;
+    provenance: string;
+    scenarios: string;
+    resolved_scenario: string | null;
+    resolution_id: string | null;
+  }>`
+    select s.id, s.as_of, s.provenance, s.scenarios,
+           r.resolved_scenario, r.id as resolution_id
+    from forecast_snapshots s
+    left join forecast_resolutions r on r.snapshot_id = s.id
+    where s.event_id = ${eventId}
+    order by s.as_of asc
+    limit ${limit}
+  `;
+  return rows.map((row) => ({
+    snapshotId: row.id,
+    asOf: new Date(row.as_of).toISOString(),
+    provenance: row.provenance,
+    scenarios: JSON.parse(row.scenarios) as ScenarioRow[],
+    resolved: Boolean(row.resolution_id),
+    resolvedScenario: row.resolved_scenario,
+  }));
+}

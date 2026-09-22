@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { SCENARIO_COLORS, ScenarioDistributionBar } from "@/components/charts";
+import { ExpectedEvidencePanel, HorizonPanel } from "@/components/engine-panels";
 import { ResearchHeader } from "@/components/research-header";
 import { Button, Delta, Input, Panel } from "@/components/ui";
 import type { ForecastBand } from "@/data/types";
 import { validateEventSearch } from "@/lib/hooks/use-event-param-sync";
 import { useLiveEvent } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/scenarios")({
   validateSearch: validateEventSearch,
@@ -49,13 +51,17 @@ function ProbabilityBands({
         <ul className="flex flex-col gap-1">
           {rows.map(({ scenario, band }, i) => (
             <li key={scenario.id} className="grid grid-cols-[minmax(0,10rem)_1fr_auto] items-center gap-2">
-              <span className="flex items-center gap-1.5 truncate text-caption text-muted">
+              <a
+                href={`#scenario-${scenario.id}`}
+                title={`Jump to ${scenario.name}`}
+                className="flex items-center gap-1.5 truncate text-caption text-muted hover:text-foreground"
+              >
                 <i
                   className="size-1.5 shrink-0 rounded-full"
                   style={{ background: SCENARIO_COLORS[i % SCENARIO_COLORS.length] }}
                 />
                 <span className="truncate">{scenario.name}</span>
-              </span>
+              </a>
               {band ? (
                 <span className="relative block h-3 rounded-sm bg-card-2/60" title={`P10 ${band.p10}% · P50 ${band.p50}% · P90 ${band.p90}%`}>
                   <span
@@ -93,6 +99,9 @@ function ProbabilityBands({
 }
 
 function ScenariosPage() {
+  // A scenario arrived in the URL from wherever the reader clicked it; focus
+  // that row so the drill-through lands on the thing they pointed at.
+  const focused = Route.useSearch().scenario;
   const eventId = useApp((s) => s.selectedEventId);
   const event = useLiveEvent(eventId);
   const extras = useApp((s) => s.customScenarios).filter((s) => s.eventId === event.id);
@@ -147,13 +156,19 @@ function ScenariosPage() {
         <ScenarioDistributionBar scenarios={all} legend={false} showSum />
         <ul className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5">
           {all.map((s, i) => (
-            <li key={s.id} className="flex items-center gap-1.5 text-caption">
-              <i
-                className="size-1.5 shrink-0 rounded-full"
-                style={{ background: SCENARIO_COLORS[i % SCENARIO_COLORS.length] }}
-              />
-              <span className="truncate text-muted">{s.name}</span>
-              <span className="font-mono tabular-nums">{s.probability}%</span>
+            <li key={s.id} className="text-caption">
+              <a
+                href={`#scenario-${s.id}`}
+                className="flex items-center gap-1.5 rounded-sm px-1 py-0.5 hover:bg-card-2"
+                title={`Jump to ${s.name}`}
+              >
+                <i
+                  className="size-1.5 shrink-0 rounded-full"
+                  style={{ background: SCENARIO_COLORS[i % SCENARIO_COLORS.length] }}
+                />
+                <span className="truncate text-muted">{s.name}</span>
+                <span className="font-mono tabular-nums">{s.probability}%</span>
+              </a>
             </li>
           ))}
         </ul>
@@ -172,7 +187,11 @@ function ScenariosPage() {
                 return (
                   <li
                     key={s.id}
-                    className="rounded-md bg-card-2 px-2.5 py-2"
+                    id={`scenario-${s.id}`}
+                    className={cn(
+                      "scroll-mt-20 rounded-md bg-card-2 px-2.5 py-2 transition-shadow",
+                      focused === s.id && "ring-1 ring-primary",
+                    )}
                     style={{ borderLeft: `3px solid ${color}` }}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -238,6 +257,10 @@ function ScenariosPage() {
             </p>
           </form>
         </Panel>
+      </div>
+      <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-2">
+        <HorizonPanel event={event} />
+        <ExpectedEvidencePanel event={event} />
       </div>
     </div>
   );

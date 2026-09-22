@@ -17,7 +17,7 @@ import type {
   TradeCategory,
   TriageDisposition,
 } from "@/data/types";
-import { goToEvent } from "@/lib/hooks/use-event-param-sync";
+import { goToEvent, goToScenario } from "@/lib/hooks/use-event-param-sync";
 import { runAnalyze, runRescore, useLive, useLiveEvents, useQuote } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
 import { cn, formatPct } from "@/lib/utils";
@@ -25,6 +25,7 @@ import { cn, formatPct } from "@/lib/utils";
 const TRADE_FILTERS: Array<"All" | TradeCategory> = ["All", "etf", "stock", "futures", "forex", "commodities", "crypto"];
 
 export function Dashboard({ event }: { event: RadarEvent }) {
+  const navigate = useNavigate();
   const custom = useApp((s) => s.customScenarios).filter((s) => s.eventId === event.id);
   const scenarios = [...event.scenarios, ...custom];
 
@@ -61,7 +62,11 @@ export function Dashboard({ event }: { event: RadarEvent }) {
               </Link>
             }
           >
-            <ScenarioDistributionBar scenarios={scenarios} showSum />
+            <ScenarioDistributionBar
+              scenarios={scenarios}
+              showSum
+              onSelect={(sid) => goToScenario(navigate, event.id, sid)}
+            />
           </Panel>
           <Panel title="Market reaction">
             {event.marketReaction.length === 0 ? (

@@ -156,11 +156,15 @@ export function ScenarioDistributionBar({
   scenarios,
   legend = true,
   showSum = false,
+  onSelect,
 }: {
   scenarios: Pick<Scenario, "id" | "name" | "probability">[];
   legend?: boolean;
   /** Show raw Σ of displayed mass. Never labels Σ=100 as calibrated. */
   showSum?: boolean;
+  /** When given, legend rows drill into the scenario. Omitted for historical
+   *  frames, where there is no current row to open. */
+  onSelect?: (scenarioId: string) => void;
 }) {
   if (!scenarios.length) {
     return <p className="text-caption text-muted">No scenarios on this book.</p>;
@@ -196,18 +200,38 @@ export function ScenarioDistributionBar({
       ) : null}
       {legend ? (
         <ul className="flex flex-col gap-1">
-          {scenarios.map((s, i) => (
-            <li key={s.id} className="flex items-center justify-between gap-2 text-caption">
-              <span className="flex min-w-0 items-center gap-1.5">
-                <i
-                  className="size-1.5 shrink-0 rounded-full"
-                  style={{ background: SCENARIO_COLORS[i % SCENARIO_COLORS.length] }}
-                />
-                <span className="truncate text-muted">{s.name}</span>
-              </span>
-              <span className="shrink-0 font-mono tabular-nums text-foreground">{s.probability}%</span>
-            </li>
-          ))}
+          {scenarios.map((s, i) => {
+            const body = (
+              <>
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <i
+                    className="size-1.5 shrink-0 rounded-full"
+                    style={{ background: SCENARIO_COLORS[i % SCENARIO_COLORS.length] }}
+                  />
+                  <span className="truncate text-muted">{s.name}</span>
+                </span>
+                <span className="shrink-0 font-mono tabular-nums text-foreground">
+                  {s.probability}%
+                </span>
+              </>
+            );
+            return (
+              <li key={s.id} className="text-caption">
+                {onSelect ? (
+                  <button
+                    type="button"
+                    onClick={() => onSelect(s.id)}
+                    title={`Open ${s.name} in the scenario book`}
+                    className="flex w-full items-center justify-between gap-2 rounded-sm px-1 py-0.5 text-left hover:bg-card-2"
+                  >
+                    {body}
+                  </button>
+                ) : (
+                  <span className="flex items-center justify-between gap-2 px-1 py-0.5">{body}</span>
+                )}
+              </li>
+            );
+          })}
         </ul>
       ) : null}
     </div>

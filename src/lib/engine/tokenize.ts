@@ -69,18 +69,18 @@ export function properPhrases(title: string): string[] {
   const flush = () => {
     const clean = buf.filter((w) => !PROPER_SKIP.has(w));
     if (clean.length >= 1) {
-      const p = clean.join(" ").replace(/[^A-Za-z0-9 .\-]/g, "").trim();
+      const p = clean.join(" ").replace(/[^A-Za-z0-9 .-]/g, "").trim();
       if (p.length >= 3) phrases.push(p);
     }
     buf = [];
   };
   for (const w of words) {
-    const core = w.replace(/[^A-Za-z0-9.\-]/g, "");
+    const core = w.replace(/[^A-Za-z0-9.-]/g, "");
     if (!core) {
       flush();
       continue;
     }
-    const isProper = /^[A-Z][A-Za-z0-9.\-]+$/.test(core) || /^[A-Z]{2,5}$/.test(core);
+    const isProper = /^[A-Z][A-Za-z0-9.-]+$/.test(core) || /^[A-Z]{2,5}$/.test(core);
     if (isProper) buf.push(core);
     else flush();
   }

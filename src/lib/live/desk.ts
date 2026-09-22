@@ -32,3 +32,23 @@ export const runForecastResolution = createServerFn({ method: "POST" }).handler(
   const { runResolutionPass } = await import("./forecast-ledger.server");
   return runResolutionPass();
 });
+
+/** The real scored ledger — forecasts frozen before the outcome, graded after. */
+export const getScoredLedger = createServerFn({ method: "GET" }).handler(async () => {
+  const { getScoredForecasts } = await import("./forecast-ledger.server");
+  return getScoredForecasts();
+});
+
+/** Skill over time from resolved rows only. Short series = young ledger. */
+export const getSkillOverTime = createServerFn({ method: "GET" }).handler(async () => {
+  const { getSkillSeries } = await import("./forecast-ledger.server");
+  return getSkillSeries();
+});
+
+/** Append-only as-of replay for one book: what the desk believed at each T. */
+export const getReplay = createServerFn({ method: "GET" })
+  .inputValidator((eventId: string) => eventId)
+  .handler(async ({ data }) => {
+    const { getReplayFrames } = await import("./forecast-ledger.server");
+    return getReplayFrames(data);
+  });

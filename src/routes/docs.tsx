@@ -78,7 +78,8 @@ function DocsPage() {
             </DocStep>
             <DocStep n="05" title="Monitor & model">
               Assets / Watchlists / Alerts / Portfolio are monitor surfaces. Learning and Docs sit
-              under Model — calibration on Learning is a frozen fixture, not live desk skill.
+              under Model — calibration on Learning is this desk&apos;s own scored record, and is
+              empty until forecasts resolve.
             </DocStep>
           </ol>
         </Panel>
@@ -236,11 +237,12 @@ function DocsPage() {
             <Link to="/learning" className="text-primary hover:underline">
               Learning
             </Link>{" "}
-            shows frozen class-level <code className="font-mono text-tiny">MODEL_STATS</code>{" "}
-            (accuracy / Brier / calibration / scored ledger). That is{" "}
-            <span className="text-foreground">not</span> this desk&apos;s live skill. Use it to
-            understand the calibration concept — not as live performance or onboarding chrome on Live
-            Desk.
+            scores this desk against its own append-only freeze ledger: every forecast is frozen
+            before the outcome is known, becomes eligible 72h later, and is then graded by a model
+            judge reading headlines archived after the fact. Accuracy, Brier, the calibration curve
+            and the scored ledger are all computed from those resolved rows and nothing else — so
+            the page is <span className="text-foreground">empty</span> until forecasts resolve,
+            rather than filled with a sample. Model-graded, not human-verified.
           </p>
         </Panel>
       </section>
