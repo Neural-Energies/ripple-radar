@@ -17,3 +17,5 @@ import {
 import type { LiveCluster, LiveHeadline } from "@/lib/live/types";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
+
+export const Route = createFileRoute("/events")({ component: EventsPage });
