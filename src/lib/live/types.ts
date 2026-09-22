@@ -1,5 +1,6 @@
 import type {
   EvidenceItem,
+  ForecastBand,
   ForecastProvenance,
   HeatPoint,
   RadarEvent,
@@ -70,6 +71,10 @@ export interface LiveBook {
   scenarios: Scenario[];
   heatPoint: HeatPoint;
   sentiment: { source: string; score: number; label: string }[];
+  /** ACE credible bands from the posterior. Absent until an update produces one. */
+  bands?: ForecastBand[];
+  /** What this book's scenario mass may honestly claim. Absent = unstamped. */
+  provenance?: ForecastProvenance;
 }
 
 export interface LiveSessions {

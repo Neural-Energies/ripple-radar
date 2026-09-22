@@ -21,8 +21,22 @@ export type EventBadge = "MAJOR EVENT" | "WATCH" | "DEVELOPING" | "CASE STUDY";
 export type EventMode = "standing" | "live" | "desk";
 export type Crowding = "low" | "emerging" | "medium" | "high" | "saturated";
 export type Confirmation = "none" | "early" | "confirming" | "strong" | "diverging" | "invalidating";
-/** Mass / probability provenance. Omit on RadarEvent until stamped — never fake. */
-export type ForecastProvenance = "heuristic" | "llm_proposal" | "calibrated" | "unchanged";
+/**
+ * Mass / probability provenance, weakest to strongest claim:
+ *   heuristic    — rules or structured reasoning, no validated calibration
+ *   llm_proposal — a model proposed it; never promoted automatically
+ *   model_based  — a documented statistical model (see ace/probability),
+ *                  reproducible but not yet proven calibrated
+ *   calibrated   — earned only once the freeze ledger has enough scored
+ *                  resolutions to demonstrate calibration. Never set by hand.
+ *   unchanged    — a rescore path ran but declined to move the prior
+ */
+export type ForecastProvenance =
+  | "heuristic"
+  | "llm_proposal"
+  | "model_based"
+  | "calibrated"
+  | "unchanged";
 /** Judge triage disposition. Chip only when field exists — no % on triage. */
 export type TriageDisposition = "onRadar" | "watch" | "drop" | "duplicate";
 export type Reliability = "A" | "B" | "C" | "D";
@@ -208,6 +222,16 @@ export interface KnowledgeItem {
   value: "critical" | "high" | "medium";
 }
 
+/** Credible interval on one scenario's probability, in percent. */
+export interface ForecastBand {
+  scenarioId: string;
+  p10: number;
+  p50: number;
+  p90: number;
+  /** p90 − p10, in points. Wide means thin evidence, not a broken band. */
+  width: number;
+}
+
 export interface ForecastSnapshot {
   at: string;
   probability: number;
@@ -282,6 +306,8 @@ export interface RadarEvent {
   modelsDisagree?: boolean;
   /** Prob/scenario mass provenance — omit if unset; never invent heuristic badge. */
   provenance?: ForecastProvenance;
+  /** ACE credible bands, parallel to `scenarios`. Omitted when the posterior cannot support one. */
+  bands?: ForecastBand[];
   /** Mode B construction path — "model" (Grok JSON) vs "engine" (composeFromText fallback). Unset on Mode A tape events. */
   bookSource?: "model" | "engine";
 }

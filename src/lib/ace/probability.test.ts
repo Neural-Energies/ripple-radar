@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { EvidenceItem, RippleNode, Scenario, TradeIdea } from "../../data/types.ts";
-import { PRIOR_STRENGTH, evidenceWeight, updateScenarios } from "./update-scenarios.ts";
+import { PRIOR_STRENGTH, evidenceWeight, updateScenarios } from "./probability.ts";
 
 /** Materialization → fade, the order every family in scenariosFor emits. */
 function priorBook(probs = [30, 40, 30]): Scenario[] {

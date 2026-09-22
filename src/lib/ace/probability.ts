@@ -21,7 +21,14 @@
  * evidence shifts it toward the last index. Neutral evidence sharpens the
  * prior without moving it, which is what a Dirichlet update should do.
  */
-import type { EvidenceItem, ProbabilityAudit, RippleNode, Scenario, TradeIdea } from "@/data/types";
+import type {
+  EvidenceItem,
+  ForecastProvenance,
+  ProbabilityAudit,
+  RippleNode,
+  Scenario,
+  TradeIdea,
+} from "@/data/types";
 
 /**
  * How many observations the heuristic prior is worth. Low enough that real
@@ -99,6 +106,14 @@ export interface ScenarioUpdate {
   audits: ProbabilityAudit[];
   /** Total evidence mass actually applied, after the burst cap. */
   appliedMass: number;
+  /**
+   * Posterior Dirichlet concentration, parallel to `scenarios`. Forecast
+   * bands must be derived from this, never from the rounded display
+   * percentages — rounding would invent precision the model never had.
+   */
+  alpha: number[];
+  /** What this mass may honestly claim to be. Never `calibrated` here. */
+  provenance: ForecastProvenance;
 }
 
 /**
@@ -117,7 +132,8 @@ export function updateScenarios(opts: {
   trades?: TradeIdea[];
 }): ScenarioUpdate {
   const { current, evidence, nodes = [], trades = [] } = opts;
-  if (current.length === 0) return { scenarios: [], audits: [], appliedMass: 0 };
+  if (current.length === 0)
+    return { scenarios: [], audits: [], appliedMass: 0, alpha: [], provenance: "heuristic" };
 
   const priorById = new Map((opts.prior ?? []).map((p) => [p.id, p.probability]));
   const priorProbs = current.map((s) => priorById.get(s.id) ?? s.probability);
@@ -194,5 +210,13 @@ export function updateScenarios(opts: {
     return { ...s, probability: updated, prevProbability: previous, audit };
   });
 
-  return { scenarios, audits: scenarios.map((s) => s.audit), appliedMass: applied };
+  return {
+    scenarios,
+    audits: scenarios.map((s) => s.audit),
+    appliedMass: applied,
+    alpha,
+    // A documented, reproducible statistical update — but nothing here has
+    // been checked against realized outcomes, so it stops at model_based.
+    provenance: applied > 0 ? "model_based" : "heuristic",
+  };
 }

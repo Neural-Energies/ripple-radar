@@ -249,28 +249,42 @@ export async function buildDesk(): Promise<LiveDesk> {
     ev.evidence = book.evidence;
   }
 
-  // Prior → evidence → posterior. The last frozen snapshot is the prior; the
-  // evidence that entered the info-set since that freeze is what moves it.
-  // Awaited, because it changes the probabilities the desk actually shows —
+  // ACE forecast lifecycle: prior → gate → posterior → bands → provenance.
+  // The last frozen snapshot is the prior; only evidence that entered the
+  // info-set since that freeze, survived the materiality gate, and is neither
+  // stale nor a syndicated re-run of a fact already counted is allowed to move
+  // it. Awaited, because it changes the probabilities the desk actually shows —
   // but batched into one query, and non-fatal if the ledger is unreachable.
   // Written to the book as well as the event: overlay reads the book's copy.
   try {
     const { latestSnapshots } = await import("./forecast-ledger.server");
-    const { updateScenarios } = await import("@/lib/engine/update-scenarios");
+    const { updateScenarios } = await import("@/lib/ace/probability");
+    const { gateEvidence } = await import("@/lib/ace/materiality");
+    const { forecastBands } = await import("@/lib/ace/bands");
     const priors = await latestSnapshots(events.map((e) => e.id));
     for (const ev of events) {
       const prior = priors.get(ev.id);
       if (!prior) continue; // first sighting: the composed book IS the prior
-      const { scenarios } = updateScenarios({
+      const gate = gateEvidence(ev.evidence, { sinceMs: prior.asOfMs, nowMs: now });
+      const { scenarios, alpha, provenance } = updateScenarios({
         current: ev.scenarios,
         prior: prior.scenarios,
-        evidence: ev.evidence.filter((e) => e.availableTimeMs > prior.asOfMs),
+        evidence: gate.admitted,
         nodes: ev.nodes,
         trades: ev.trades,
       });
+      // Bands come from the posterior concentration, never from the rounded
+      // display percentages — rounding would invent precision we do not have.
+      const bands = forecastBands(scenarios.map((s) => s.id), alpha);
       ev.scenarios = scenarios;
+      ev.bands = bands.length ? bands : undefined;
+      ev.provenance = provenance;
       const book = books[ev.id];
-      if (book) book.scenarios = scenarios;
+      if (book) {
+        book.scenarios = scenarios;
+        book.bands = bands.length ? bands : undefined;
+        book.provenance = provenance;
+      }
     }
   } catch (err) {
     console.error("[build] scenario update skipped:", err);

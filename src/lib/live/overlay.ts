@@ -1,11 +1,19 @@
 import { EMPTY_EVENT } from "@/lib/engine/placeholder";
 import { composeFromText } from "@/lib/engine/compose";
 import { allInstruments, instrumentOf, tradeToAsset } from "@/lib/engine/instruments";
-import type { AssetRecord, DeskBook, RadarEvent, Scenario, TradeIdea } from "@/data/types";
+import type {
+  AssetRecord,
+  DeskBook,
+  ForecastBand,
+  ForecastProvenance,
+  RadarEvent,
+  Scenario,
+  TradeIdea,
+} from "@/data/types";
 import { rankTrades, scoreAsset } from "./discover";
 import { markDuplicates } from "./evidence";
 import { EMPTY_BOOKS, EMPTY_HEADLINES, EMPTY_QUOTES } from "./empty";
-import type { LiveDesk, LiveQuote, RescoreResult } from "./types";
+import type { LiveBook, LiveDesk, LiveQuote, RescoreResult } from "./types";
 
 export function overlayScenarios(base: Scenario[], live: Scenario[] | undefined, rescore?: RescoreResult) {
   const next = (live ?? base).map((s) => ({ ...s }));
@@ -24,6 +32,29 @@ export function overlayScenarios(base: Scenario[], live: Scenario[] | undefined,
     };
   }
   return next;
+}
+
+/**
+ * Decide what the displayed forecast may honestly claim to be.
+ *
+ * Bands describe the Dirichlet posterior the probability engine produced. A
+ * rescore that actually moved mass replaced those numbers with an LLM
+ * proposal, so the stored band no longer brackets what is on screen — drop it
+ * rather than draw an interval around a different number, and let the
+ * rescore's own (weaker) provenance stand. Nothing here ever promotes a claim.
+ */
+export function overlayForecastClaim(
+  base: Pick<RadarEvent, "bands" | "provenance">,
+  book: Pick<LiveBook, "bands" | "provenance"> | undefined,
+  rescore?: RescoreResult,
+): { bands: ForecastBand[] | undefined; provenance: ForecastProvenance | undefined } {
+  const shifted = Boolean(rescore?.scenarioShifts?.length);
+  return {
+    bands: shifted ? undefined : (book?.bands ?? base.bands),
+    provenance: shifted
+      ? (rescore?.provenance ?? base.provenance)
+      : (book?.provenance ?? base.provenance),
+  };
 }
 
 export function overlayEvent(base: RadarEvent, desk: LiveDesk | null, rescore?: RescoreResult): RadarEvent {
@@ -51,6 +82,8 @@ export function overlayEvent(base: RadarEvent, desk: LiveDesk | null, rescore?: 
     ? [rescore.takeaway, ...base.takeaways.filter((t) => t !== rescore.takeaway)]
     : base.takeaways;
 
+  const { bands, provenance } = overlayForecastClaim(base, book, rescore);
+
   const next: RadarEvent = {
     ...base,
     timestamp: desk.asOfLabel,
@@ -62,6 +95,8 @@ export function overlayEvent(base: RadarEvent, desk: LiveDesk | null, rescore?: 
     sources: book?.sources?.length ? book.sources : base.sources,
     marketReaction,
     scenarios: overlayScenarios(base.scenarios, book?.scenarios, rescore),
+    bands,
+    provenance,
     narrativeHeat,
     probabilityHistory: history,
     sentiment: book?.sentiment ?? base.sentiment,

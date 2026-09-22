@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SCENARIO_COLORS, ScenarioDistributionBar } from "@/components/charts";
 import { ResearchHeader } from "@/components/research-header";
 import { Button, Delta, Input, Panel } from "@/components/ui";
+import type { ForecastBand } from "@/data/types";
 import { validateEventSearch } from "@/lib/hooks/use-event-param-sync";
 import { useLiveEvent } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
@@ -11,6 +12,85 @@ export const Route = createFileRoute("/scenarios")({
   validateSearch: validateEventSearch,
   component: ScenariosPage,
 });
+
+/**
+ * Credible intervals on scenario probability, straight off the Dirichlet
+ * posterior the probability engine used (ace/bands). The width is the message:
+ * a wide band means the posterior rests on thin evidence, which is the honest
+ * answer to "how sure are you" — not a fan chart and not a path envelope.
+ */
+function ProbabilityBands({
+  scenarios,
+  bands,
+}: {
+  scenarios: { id: string; name: string; probability: number }[];
+  bands?: ForecastBand[];
+}) {
+  const byId = new Map((bands ?? []).map((b) => [b.scenarioId, b]));
+  const rows = scenarios.map((s) => ({ scenario: s, band: byId.get(s.id) }));
+  const covered = rows.filter((r) => r.band);
+
+  return (
+    <Panel
+      title="Probability bands"
+      action={
+        <span className="font-mono text-micro text-subtle">
+          {covered.length > 0 ? "P10 · P50 · P90 — Dirichlet posterior" : "no posterior yet"}
+        </span>
+      }
+    >
+      {covered.length === 0 ? (
+        <p className="py-3 text-center text-caption text-muted">
+          No band on this book yet. Bands are derived from the posterior the update engine
+          produced, so they appear once a prior has been frozen and evidence has moved it — never
+          drawn around a number the model did not compute.
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-1">
+          {rows.map(({ scenario, band }, i) => (
+            <li key={scenario.id} className="grid grid-cols-[minmax(0,10rem)_1fr_auto] items-center gap-2">
+              <span className="flex items-center gap-1.5 truncate text-caption text-muted">
+                <i
+                  className="size-1.5 shrink-0 rounded-full"
+                  style={{ background: SCENARIO_COLORS[i % SCENARIO_COLORS.length] }}
+                />
+                <span className="truncate">{scenario.name}</span>
+              </span>
+              {band ? (
+                <span className="relative block h-3 rounded-sm bg-card-2/60" title={`P10 ${band.p10}% · P50 ${band.p50}% · P90 ${band.p90}%`}>
+                  <span
+                    className="absolute inset-y-0 rounded-sm opacity-40"
+                    style={{
+                      left: `${band.p10}%`,
+                      width: `${Math.max(band.p90 - band.p10, 0.6)}%`,
+                      background: SCENARIO_COLORS[i % SCENARIO_COLORS.length],
+                    }}
+                  />
+                  <span
+                    className="absolute inset-y-0 w-px"
+                    style={{
+                      left: `${band.p50}%`,
+                      background: SCENARIO_COLORS[i % SCENARIO_COLORS.length],
+                    }}
+                  />
+                </span>
+              ) : (
+                <span className="text-micro text-subtle">desk entry — no posterior</span>
+              )}
+              <span className="font-mono text-micro tabular-nums text-subtle">
+                {band ? `${band.p10}–${band.p90} · ±${(band.width / 2).toFixed(1)}` : "—"}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="mt-1.5 text-micro text-subtle">
+        Marginal Beta(αᵢ, α₀−αᵢ) of the scenario Dirichlet. Width reflects how much evidence the
+        posterior rests on — it is not a claim of calibration against realized outcomes.
+      </p>
+    </Panel>
+  );
+}
 
 function ScenariosPage() {
   const eventId = useApp((s) => s.selectedEventId);
@@ -78,25 +158,8 @@ function ScenariosPage() {
           ))}
         </ul>
       </Panel>
-      <Panel
-        title="Probability bands"
-        action={<span className="font-mono text-micro text-subtle">reserved</span>}
-      >
-        <div className="grid grid-cols-3 gap-1.5">
-          {(["p10", "p50", "p90"] as const).map((band) => (
-            <div
-              key={band}
-              className="rounded-sm border border-dashed border-border/80 bg-card-2/40 px-2 py-2 text-center"
-            >
-              <div className="font-mono text-micro uppercase tracking-wider text-subtle">{band}</div>
-              <div className="mt-1 font-mono text-lg tabular-nums text-subtle/60">—</div>
-            </div>
-          ))}
-        </div>
-        <p className="mt-1.5 text-micro text-subtle">
-          Empty until FinEng ships scenario bands. Not painted as fake fans or path envelopes.
-        </p>
-      </Panel>
+      <ProbabilityBands scenarios={all} bands={event.bands} />
+
       <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-[minmax(0,1fr)_16.5rem]">
         <Panel title="Scenario book" padded={false}>
           {all.length === 0 ? (
