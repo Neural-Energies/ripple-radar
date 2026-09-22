@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { SCENARIO_COLORS, ScenarioDistributionBar } from "@/components/charts";
+import { FrozenBadge, TickerLink } from "@/components/desk-nav";
 import { ResearchHeader } from "@/components/research-header";
 import { Button, Delta, Input, Panel } from "@/components/ui";
 import type { ForecastBand } from "@/data/types";
@@ -13,12 +14,6 @@ export const Route = createFileRoute("/scenarios")({
   component: ScenariosPage,
 });
 
-/**
- * Credible intervals on scenario probability, straight off the Dirichlet
- * posterior the probability engine used (ace/bands). The width is the message:
- * a wide band means the posterior rests on thin evidence, which is the honest
- * answer to "how sure are you" — not a fan chart and not a path envelope.
- */
 function ProbabilityBands({
   scenarios,
   bands,
@@ -35,7 +30,14 @@ function ProbabilityBands({
       title="Probability bands"
       action={
         <span className="font-mono text-micro text-subtle">
-          {covered.length > 0 ? "P10 · P50 · P90 — Dirichlet posterior" : "no posterior yet"}
+          {covered.length > 0 ? (
+            "P10 · P50 · P90 — Dirichlet posterior"
+          ) : (
+            <span className="inline-flex items-center gap-1.5">
+              <FrozenBadge title="Bands appear only after a frozen prior + evidence update. Empty is honest." />
+              no posterior
+            </span>
+          )}
         </span>
       }
     >
@@ -198,6 +200,18 @@ function ScenariosPage() {
                     </div>
                     {s.audit.evidence ? (
                       <p className="mt-1 text-micro text-subtle line-clamp-2">{s.audit.evidence}</p>
+                    ) : null}
+                    {s.audit.rescoredAssets?.length ? (
+                      <p className="mt-1 flex flex-wrap gap-x-1.5 text-micro">
+                        {s.audit.rescoredAssets.slice(0, 6).map((t) => (
+                          <TickerLink key={t} ticker={t} className="text-micro" />
+                        ))}
+                      </p>
+                    ) : null}
+                    {"custom" in s && (s as { custom?: boolean }).custom ? (
+                      <div className="mt-1">
+                        <FrozenBadge title="Desk-entered scenario. Not a calibrated model output." />
+                      </div>
                     ) : null}
                   </li>
                 );
