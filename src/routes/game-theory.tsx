@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ScenarioDistributionBar } from "@/components/charts";
+import { FilterLink, NodeNavLink } from "@/components/desk-nav";
 import { ResearchHeader } from "@/components/research-header";
 import { Badge, Delta, Panel } from "@/components/ui";
 import { ImportanceMeter } from "@/components/engine-panels";
@@ -31,9 +32,6 @@ function GameTheoryPage() {
   const read = readMatrix(gt);
   const scenarios = event.scenarios ?? [];
 
-  // Selecting a cell asks the counterfactual the matrix primer has always
-  // promised: what does the book look like if THIS play happens? It is a view
-  // over the book, never written back to it.
   const [picked, setPicked] = useState<{ row: string; col: string } | null>(null);
   const conditional = picked
     ? intervene({
@@ -58,7 +56,9 @@ function GameTheoryPage() {
             <div className="grid gap-1.5 md:grid-cols-2">
               {gt.players.map((p) => (
                 <article key={p.name} className="rounded-sm bg-card-2 px-2.5 py-1.5">
-                  <h3 className="text-caption font-medium">{p.name}</h3>
+                  <h3 className="text-caption font-medium">
+                    <FilterLink q={p.name}>{p.name}</FilterLink>
+                  </h3>
                   <dl className="mt-1 grid grid-cols-[4.5rem_minmax(0,1fr)] gap-x-2 gap-y-0.5 text-caption">
                     <Row k="Objective" v={p.objective} />
                     <Row k="Incentives" v={p.incentives} />
@@ -225,17 +225,24 @@ function GameTheoryPage() {
                 <ul className="flex flex-col gap-0.5">
                   {conditional.nodes.slice(0, 5).map((n) => (
                     <li key={n.id} className="flex items-baseline justify-between gap-2 text-caption">
-                      {n.ticker ? (
-                        <Link
-                          to="/assets/$ticker"
-                          params={{ ticker: n.ticker }}
-                          className="truncate text-primary hover:underline"
-                        >
-                          {n.label}
-                        </Link>
-                      ) : (
-                        <span className="truncate text-muted">{n.label}</span>
-                      )}
+                      {(() => {
+                        const full = event.nodes.find((x) => x.id === n.id);
+                        if (full) {
+                          return <NodeNavLink node={full} event={event} className="truncate" />;
+                        }
+                        if (n.ticker) {
+                          return (
+                            <Link
+                              to="/assets/$ticker"
+                              params={{ ticker: n.ticker }}
+                              className="truncate text-primary hover:underline"
+                            >
+                              {n.label}
+                            </Link>
+                          );
+                        }
+                        return <span className="truncate text-muted">{n.label}</span>;
+                      })()}
                       <span className="shrink-0 font-mono tabular-nums text-subtle">
                         {n.base} → {n.conditional}
                       </span>

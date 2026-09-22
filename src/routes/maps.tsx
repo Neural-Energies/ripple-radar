@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { NodeNavLink } from "@/components/desk-nav";
 import { ResearchHeader } from "@/components/research-header";
 import { RippleMap } from "@/components/ripple-map";
 import {
@@ -97,38 +98,11 @@ function MapsPage() {
                       if (n) setSelectedId(n.id);
                     }}
                   >
-                    <td className="px-2 py-1">{src?.label}</td>
-                    <td className="px-2 py-1">
-                      {dst ? (
-                        (() => {
-                          const t = nodeNavTarget(dst, event);
-                          if (t?.kind === "ticker") {
-                            return (
-                              <Link
-                                to="/assets/$ticker"
-                                params={{ ticker: t.ticker }}
-                                className="text-primary hover:underline"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                {dst.label}
-                              </Link>
-                            );
-                          }
-                          if (t?.kind === "filter") {
-                            return (
-                              <Link
-                                to="/assets"
-                                search={{ q: t.q }}
-                                className="text-primary hover:underline"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                {dst.label}
-                              </Link>
-                            );
-                          }
-                          return dst.label;
-                        })()
-                      ) : null}
+                    <td className="px-2 py-1" onClick={(e) => e.stopPropagation()}>
+                      {src ? <NodeNavLink node={src} event={event} /> : null}
+                    </td>
+                    <td className="px-2 py-1" onClick={(e) => e.stopPropagation()}>
+                      {dst ? <NodeNavLink node={dst} event={event} /> : null}
                     </td>
                     <td className="px-2 py-1 font-mono">{l.direction > 0 ? "+" : "−"}</td>
                     <td className="px-2 py-1 font-mono tabular-nums">{l.distance}</td>
@@ -237,10 +211,11 @@ function NodeInspector({
                 <LinkStep
                   key={`in-${l.source}`}
                   arrow="←"
-                  label={src?.label ?? l.source}
+                  node={src}
+                  fallback={l.source}
+                  event={event}
                   distance={l.distance}
                   confidence={l.confidence}
-                  disabled={!src}
                   onSelect={() => src && onSelect(src.id)}
                 />
               );
@@ -251,10 +226,11 @@ function NodeInspector({
                 <LinkStep
                   key={`out-${l.dest}`}
                   arrow="→"
-                  label={dst?.label ?? l.dest}
+                  node={dst}
+                  fallback={l.dest}
+                  event={event}
                   distance={l.distance}
                   confidence={l.confidence}
-                  disabled={!dst}
                   onSelect={() => dst && onSelect(dst.id)}
                 />
               );
@@ -271,39 +247,49 @@ function NodeInspector({
   );
 }
 
-/** One hop of the causal chain — click or Enter to step the inspector there. */
+/**
+ * One hop of the causal chain, with both drill-downs a reader wants here.
+ *
+ * The label navigates to the instrument or filter the node resolves to, so a
+ * hop can be taken out of the graph and into the asset. The metric chip steps
+ * the inspector along the chain instead, so the graph can be walked without
+ * leaving the map. They are separate controls because an anchor nested inside
+ * a button is neither valid nor operable.
+ */
 function LinkStep({
   arrow,
-  label,
+  node,
+  fallback,
+  event,
   distance,
   confidence,
-  disabled,
   onSelect,
 }: {
   arrow: string;
-  label: string;
+  node: RippleNode | undefined;
+  fallback: string;
+  event: RadarEvent;
   distance: number;
   confidence: number;
-  disabled?: boolean;
   onSelect: () => void;
 }) {
   return (
-    <li>
+    <li className="flex items-baseline gap-1 text-caption text-muted">
+      <span className="text-subtle">{arrow}</span>
+      <span className="min-w-0 flex-1 truncate">
+        {node ? <NodeNavLink node={node} event={event} /> : fallback}
+      </span>
       <button
         type="button"
-        disabled={disabled}
+        disabled={!node}
         onClick={onSelect}
-        title={disabled ? "This node is not on the current graph" : `Inspect ${label}`}
+        title={node ? `Inspect ${node.label} on the map` : "This node is not on the current graph"}
         className={cn(
-          "flex w-full items-baseline gap-1 rounded-sm px-1 py-0.5 text-left text-caption text-muted",
-          disabled ? "cursor-default" : "hover:bg-card-2 hover:text-foreground",
+          "shrink-0 rounded-sm px-1 font-mono text-micro tabular-nums",
+          node ? "hover:bg-card-2 hover:text-foreground" : "cursor-default",
         )}
       >
-        <span className="text-subtle">{arrow}</span>
-        <span className="min-w-0 flex-1 truncate">{label}</span>
-        <span className="shrink-0 font-mono text-micro tabular-nums">
-          d{distance} · {Math.round(confidence * 100)}%
-        </span>
+        d{distance} · {Math.round(confidence * 100)}%
       </button>
     </li>
   );
