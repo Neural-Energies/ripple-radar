@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Badge } from "@/components/ui";
+import { nodeNavTarget } from "@/lib/engine/instruments";
 import { cn } from "@/lib/utils";
 
 /** Liquid ticker → single-asset book. Never invents a symbol. */
@@ -46,6 +47,45 @@ export function FilterLink({
       {children ?? query}
     </Link>
   );
+}
+
+/** Causal node → ticker book or assets filter. Never invents a symbol. */
+export function NodeNavLink({
+  node,
+  event,
+  className,
+  children,
+}: {
+  node: { id: string; label: string; ticker?: string; level: number };
+  event: {
+    headlineTicker?: string;
+    trades: Array<{ ticker: string; headline?: boolean }>;
+    marketReaction: Array<{ ticker: string }>;
+  };
+  className?: string;
+  children?: React.ReactNode;
+}) {
+  const nav = nodeNavTarget(node, event);
+  const label = children ?? node.label;
+  if (nav?.kind === "ticker") {
+    return (
+      <Link
+        to="/assets/$ticker"
+        params={{ ticker: nav.ticker }}
+        className={cn("text-primary hover:underline", className)}
+      >
+        {label}
+      </Link>
+    );
+  }
+  if (nav?.kind === "filter") {
+    return (
+      <Link to="/assets" search={{ q: nav.q }} className={cn("text-primary hover:underline", className)}>
+        {label}
+      </Link>
+    );
+  }
+  return <span className={className}>{label}</span>;
 }
 
 /** Honest marker for surfaces that are not live engine output. */
