@@ -175,3 +175,25 @@ test("an empty book is handled without inventing scenarios", () => {
   assert.deepEqual(out.scenarios, []);
   assert.deepEqual(out.audits, []);
 });
+
+test("every family's prior closes to exactly 100 — mass over exclusive outcomes must sum", async () => {
+  const { scenariosFor } = await import("../engine/hypothesize.ts");
+  const families = [
+    "physical", "policy", "credit", "tech", "fx",
+    "weather", "corporate", "kinetic", "commodity", "other",
+  ] as const;
+  // Sweep the inputs that drive the raw weights, including the corners that
+  // hit the clamps — that is where the old per-element rounding drifted.
+  for (const family of families) {
+    for (const hits of [0, 3, 9, 20]) {
+      for (const esc of [0, 2, 6]) {
+        for (const de of [0, 2, 6]) {
+          const rows = scenariosFor({ entity: "X", tags: [], family, tone: "neutral", hits, esc, de });
+          const sum = rows.reduce((a, s) => a + s.probability, 0);
+          assert.equal(sum, 100, `${family} h${hits} e${esc} d${de} summed to ${sum}`);
+          assert.ok(rows.every((s) => s.probability >= 0), `${family} produced negative mass`);
+        }
+      }
+    }
+  }
+});

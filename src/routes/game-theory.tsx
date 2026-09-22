@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ScenarioDistributionBar } from "@/components/charts";
 import { ResearchHeader } from "@/components/research-header";
-import { Badge, Panel } from "@/components/ui";
+import { Badge, Delta, Panel } from "@/components/ui";
+import { intervene } from "@/lib/ace/intervene";
 import { isNash, readMatrix } from "@/lib/engine/game";
 import { validateEventSearch } from "@/lib/hooks/use-event-param-sync";
 import { useLiveEvent } from "@/lib/live/provider";
@@ -26,6 +28,24 @@ function GameTheoryPage() {
   const gt = event.gameTheory;
   const read = readMatrix(gt);
   const scenarios = event.scenarios ?? [];
+
+  // Selecting a cell asks the counterfactual the matrix primer has always
+  // promised: what does the book look like if THIS play happens? It is a view
+  // over the book, never written back to it.
+  const [picked, setPicked] = useState<{ row: string; col: string } | null>(null);
+  const conditional = picked
+    ? intervene({
+        gameTheory: gt,
+        scenarios,
+        nodes: event.nodes,
+        links: event.links,
+        play: picked,
+      })
+    : null;
+
+  function togglePick(row: string, col: string) {
+    setPicked((p) => (p?.row === row && p?.col === col ? null : { row, col }));
+  }
 
   return (
     <div className="flex min-h-0 flex-col gap-1.5">
@@ -75,10 +95,26 @@ function GameTheoryPage() {
                           const col = gt.columns[i] ?? "";
                           const nash = isNash(read, row.name, col);
                           const likely = read.likely?.row === row.name && read.likely?.col === col;
+                          const isPicked = picked?.row === row.name && picked?.col === col;
                           return (
                             <td
                               key={col}
-                              className={cn("px-2 py-1.5", likely && "ring-1 ring-inset ring-primary")}
+                              role="button"
+                              tabIndex={0}
+                              aria-pressed={isPicked}
+                              title={`Condition the book on ${row.name} vs ${col}`}
+                              onClick={() => togglePick(row.name, col)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  togglePick(row.name, col);
+                                }
+                              }}
+                              className={cn(
+                                "cursor-pointer px-2 py-1.5 transition-colors hover:brightness-125",
+                                likely && "ring-1 ring-inset ring-primary",
+                                isPicked && "ring-2 ring-inset ring-foreground",
+                              )}
                               style={{ background: cellBg(cell.a) }}
                             >
                               <div className={cn("text-micro leading-snug", nash && "text-foreground")}>{cell.label}</div>
@@ -106,8 +142,30 @@ function GameTheoryPage() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <Panel title="What this does to the book">
-            {read.likely ? (
+          <Panel
+            title="What this does to the book"
+            action={
+              conditional ? (
+                <button
+                  type="button"
+                  onClick={() => setPicked(null)}
+                  className="font-mono text-micro text-primary hover:underline"
+                >
+                  clear cell
+                </button>
+              ) : (
+                <span className="font-mono text-micro text-subtle">pick a cell</span>
+              )
+            }
+          >
+            {conditional ? (
+              <div className="rounded-sm bg-card-2 px-2 py-1.5">
+                <div className="text-micro uppercase tracking-wider text-subtle">
+                  Conditional on {conditional.play.row} vs {conditional.play.col}
+                </div>
+                <p className="mt-0.5 text-caption leading-snug text-muted">{conditional.note}</p>
+              </div>
+            ) : read.likely ? (
               <div className="rounded-sm bg-card-2 px-2 py-1.5">
                 <div className="text-micro uppercase tracking-wider text-subtle">Likely cell</div>
                 <p className="mt-0.5 text-caption leading-snug">
@@ -124,10 +182,66 @@ function GameTheoryPage() {
             <p className="mt-1.5 text-caption leading-snug text-muted">{gt.insight}</p>
             {scenarios.length > 0 ? (
               <div className="mt-2">
-                <div className="mb-1 text-micro uppercase tracking-wider text-subtle">Scenario mix</div>
+                <div className="mb-1 flex items-baseline justify-between gap-2">
+                  <span className="text-micro uppercase tracking-wider text-subtle">
+                    {conditional ? "Scenario mix · conditional" : "Scenario mix"}
+                  </span>
+                  {conditional && (
+                    <span className="font-mono text-micro text-subtle">
+                      severity {conditional.severity > 0 ? "+" : ""}
+                      {conditional.severity}
+                    </span>
+                  )}
+                </div>
                 <ScenarioDistributionBar scenarios={scenarios} showSum />
+                {conditional && (
+                  <ul className="mt-1.5 flex flex-col gap-0.5">
+                    {conditional.scenarios.map((s) => (
+                      <li key={s.id} className="flex items-baseline justify-between gap-2 text-caption">
+                        <span className="truncate text-muted">{s.name}</span>
+                        <span className="shrink-0 font-mono tabular-nums">
+                          {s.base}% <span className="text-subtle">→</span> {s.conditional}%
+                          <span className="ml-1">
+                            <Delta n={s.delta} digits={0} />
+                          </span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ) : null}
+            {conditional && conditional.nodes.length > 0 && (
+              <div className="mt-2">
+                <div className="mb-1 text-micro uppercase tracking-wider text-subtle">
+                  Transmission rescored
+                </div>
+                <ul className="flex flex-col gap-0.5">
+                  {conditional.nodes.slice(0, 5).map((n) => (
+                    <li key={n.id} className="flex items-baseline justify-between gap-2 text-caption">
+                      {n.ticker ? (
+                        <Link
+                          to="/assets/$ticker"
+                          params={{ ticker: n.ticker }}
+                          className="truncate text-primary hover:underline"
+                        >
+                          {n.label}
+                        </Link>
+                      ) : (
+                        <span className="truncate text-muted">{n.label}</span>
+                      )}
+                      <span className="shrink-0 font-mono tabular-nums text-subtle">
+                        {n.base} → {n.conditional}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-1 text-micro text-subtle">
+                  Conditional view over this book — the desk keeps the probabilities the evidence
+                  supports. Nothing here is written back.
+                </p>
+              </div>
+            )}
           </Panel>
           <p className="px-0.5 text-tiny text-subtle">
             <Link to="/" className="text-primary hover:underline">

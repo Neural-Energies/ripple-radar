@@ -63,13 +63,18 @@ export function evidenceWeight(e: EvidenceItem): number {
   return cls * rel * (e.duplicateOf ? DUPLICATE_DISCOUNT : 1);
 }
 
-/** 0 = most escalatory scenario, 1 = most fade-ward. */
-function axisPosition(index: number, count: number): number {
+/**
+ * 0 = most escalatory scenario, 1 = most fade-ward.
+ *
+ * Exported because the intervention kernel conditions on the same axis. Two
+ * implementations of "which way does this push the book" would drift apart.
+ */
+export function axisPosition(index: number, count: number): number {
   return count <= 1 ? 0 : index / (count - 1);
 }
 
 /** Round to integers that still sum to exactly 100 (largest remainder). */
-function roundTo100(weights: number[]): number[] {
+export function roundTo100(weights: number[]): number[] {
   const total = weights.reduce((a, w) => a + w, 0) || 1;
   const exact = weights.map((w) => (w / total) * 100);
   const floors = exact.map((x) => Math.floor(x));

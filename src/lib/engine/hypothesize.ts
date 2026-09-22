@@ -7,6 +7,7 @@ import type {
   ResearchQuestion,
   Scenario,
 } from "@/data/types";
+import { roundTo100 } from "@/lib/ace/probability";
 import type { EventFamily } from "./extract";
 import type { Tag } from "./ontology";
 
@@ -32,10 +33,22 @@ function auditOf(p: number, evidence: string, tone: TapeTone): Scenario["audit"]
   };
 }
 
+/**
+ * Close a family's scenario mass to exactly 100.
+ *
+ * This used to round each row independently, which does not close: a weather
+ * book of 31.7 / 44.6 / 23.7 rounded to 32 / 45 / 24 and the desk printed
+ * "Σ 101%". Mass over mutually exclusive, exhaustive outcomes has to sum to
+ * 100, so this uses the same largest-remainder rounding as the probability
+ * kernel rather than a second, subtly different one.
+ *
+ * (The raw weights need renormalizing regardless: `fade` is derived as the
+ * residual after `noise`, but three-scenario families never emit `noise`.)
+ */
 function normalize(rows: Omit<Scenario, "audit" | "prevProbability">[], tone: TapeTone, evidence: string): Scenario[] {
-  const sum = rows.reduce((a, s) => a + s.probability, 0) || 1;
-  return rows.map((s) => {
-    const p = Math.round((s.probability / sum) * 100);
+  const closed = roundTo100(rows.map((s) => s.probability));
+  return rows.map((s, i) => {
+    const p = closed[i] ?? 0;
     return { ...s, probability: p, prevProbability: p, audit: auditOf(p, evidence, tone) };
   });
 }
