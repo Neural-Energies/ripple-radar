@@ -34,3 +34,11 @@ thumbs.db
 # logs
 *.log
 npm-debug.log*
+
+# ACE quantitative stack — local state, all reproducible from source
+artifacts/cache/
+artifacts/models/
+artifacts/registry.json
+__pycache__/
+*.pyc
+.pytest_cache/

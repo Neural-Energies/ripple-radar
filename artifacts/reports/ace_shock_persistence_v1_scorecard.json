@@ -1,0 +1,174 @@
+{
+  "model_id": "ace_shock_persistence",
+  "version": "v1",
+  "status": "FAILED",
+  "dataset": {
+    "n": 3980,
+    "span": [
+      "2010-10-19",
+      "2026-09-08"
+    ],
+    "base_rate": 0.4937,
+    "features": [
+      "shock_z",
+      "vol_20d",
+      "vol_60d",
+      "vol_ratio_20_60",
+      "vol_of_vol",
+      "mom_5d",
+      "mom_20d",
+      "mom_60d",
+      "mom_120d",
+      "px_vs_ma50_z",
+      "px_vs_ma200_z",
+      "ma50_vs_ma200",
+      "drawdown_60d",
+      "shocks_20d",
+      "autocorr_20d",
+      "ctx_vix",
+      "ctx_vix_chg_5d",
+      "ctx_curve_10_2",
+      "ctx_curve_chg_20d",
+      "ctx_usd_mom_20d",
+      "ctx_ust10y_chg_20d",
+      "ctx_breakeven_5y5y"
+    ]
+  },
+  "feature_provenance": {
+    "shock_z": "day's log return / trailing 60d daily vol; the standardized shock itself",
+    "vol_20d": "annualized realized vol, 20 sessions to t",
+    "vol_60d": "annualized realized vol, 60 sessions to t",
+    "vol_ratio_20_60": "short vs long realized vol; >1 is vol expansion",
+    "vol_of_vol": "60d std of the 20d vol series; instability of the vol regime",
+    "mom_5d": "5-session price change to t",
+    "mom_20d": "20-session price change to t",
+    "mom_60d": "60-session price change to t",
+    "mom_120d": "120-session price change to t",
+    "px_vs_ma50_z": "distance from 50d mean in daily-vol units",
+    "px_vs_ma200_z": "distance from 200d mean in daily-vol units",
+    "ma50_vs_ma200": "50d/200d mean ratio minus 1; trend regime",
+    "drawdown_60d": "close vs 60d high",
+    "shocks_20d": "count of |shock_z|>1.5 days in the trailing 20",
+    "autocorr_20d": "lag-1 autocorrelation of returns over the trailing 20",
+    "ctx_vix": "cross-asset context at t",
+    "ctx_vix_chg_5d": "cross-asset context at t",
+    "ctx_curve_10_2": "cross-asset context at t",
+    "ctx_curve_chg_20d": "cross-asset context at t",
+    "ctx_usd_mom_20d": "cross-asset context at t",
+    "ctx_ust10y_chg_20d": "cross-asset context at t",
+    "ctx_breakeven_5y5y": "cross-asset context at t"
+  },
+  "walk_forward": {
+    "base_rate": {
+      "n": 2640,
+      "base_rate": 0.511518,
+      "brier": 0.250233,
+      "brier_baseline": 0.250403,
+      "brier_skill_score": 0.000681,
+      "log_loss": 0.693612,
+      "log_loss_baseline": 0.693954,
+      "roc_auc": 0.515463,
+      "pr_auc": 0.499198,
+      "pr_auc_baseline": 0.488258,
+      "ece": 0.02326,
+      "calibration_slope": 1.377724,
+      "calibration_intercept": -0.216473,
+      "accuracy": 0.495833,
+      "accuracy_baseline": 0.511742
+    },
+    "momentum": {
+      "n": 2640,
+      "base_rate": 0.511518,
+      "brier": 0.250286,
+      "brier_baseline": 0.250403,
+      "brier_skill_score": 0.000469,
+      "log_loss": 0.693719,
+      "log_loss_baseline": 0.693954,
+      "roc_auc": 0.51422,
+      "pr_auc": 0.497836,
+      "pr_auc_baseline": 0.488258,
+      "ece": 0.023442,
+      "calibration_slope": 0.97866,
+      "calibration_intercept": -0.012522,
+      "accuracy": 0.506061,
+      "accuracy_baseline": 0.511742
+    },
+    "logistic": {
+      "n": 2640,
+      "base_rate": 0.511518,
+      "brier": 0.255996,
+      "brier_baseline": 0.250403,
+      "brier_skill_score": -0.022336,
+      "log_loss": 0.708401,
+      "log_loss_baseline": 0.693954,
+      "roc_auc": 0.52999,
+      "pr_auc": 0.519953,
+      "pr_auc_baseline": 0.488258,
+      "ece": 0.064731,
+      "calibration_slope": 0.252175,
+      "calibration_intercept": 0.370639,
+      "accuracy": 0.52197,
+      "accuracy_baseline": 0.511742
+    },
+    "lightgbm": {
+      "n": 2640,
+      "base_rate": 0.511518,
+      "brier": 0.258712,
+      "brier_baseline": 0.250403,
+      "brier_skill_score": -0.03318,
+      "log_loss": 0.712904,
+      "log_loss_baseline": 0.693954,
+      "roc_auc": 0.531881,
+      "pr_auc": 0.516396,
+      "pr_auc_baseline": 0.488258,
+      "ece": 0.07363,
+      "calibration_slope": 0.223371,
+      "calibration_intercept": 0.385819,
+      "accuracy": 0.529545,
+      "accuracy_baseline": 0.511742
+    }
+  },
+  "holdout": {
+    "n": 796,
+    "base_rate": 0.494474,
+    "brier": 0.250843,
+    "brier_baseline": 0.249919,
+    "brier_skill_score": -0.003694,
+    "log_loss": 0.694839,
+    "log_loss_baseline": 0.692986,
+    "roc_auc": 0.48759,
+    "pr_auc": 0.483992,
+    "pr_auc_baseline": 0.48995,
+    "ece": 0.021286,
+    "calibration_slope": -1.06008,
+    "calibration_intercept": 0.986771,
+    "accuracy": 0.51005,
+    "accuracy_baseline": 0.51005
+  },
+  "reliability": [
+    {
+      "bucket": "0%-50%",
+      "n": 796,
+      "mean_forecast": 0.4687,
+      "realized_frequency": 0.4899
+    }
+  ],
+  "confidence_intervals": {
+    "auc": {
+      "point": 0.48759,
+      "lo": 0.44006,
+      "hi": 0.532095,
+      "n_boot": 600
+    },
+    "bss": {
+      "point": -0.003694,
+      "lo": -0.015795,
+      "hi": 0.006139,
+      "n_boot": 600
+    }
+  },
+  "calibration": {
+    "method": "isotonic",
+    "note": "selected isotonic (brier 0.24957); candidates: isotonic=0.24957 | platt=0.24974 | identity=0.25029"
+  }
+}
