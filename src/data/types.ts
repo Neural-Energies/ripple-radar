@@ -64,14 +64,63 @@ export interface RippleNode {
   blurb: string;
 }
 
+/**
+ * How much of a causal edge is measured and how much is asserted.
+ *
+ * The Ripple graph's structure is domain ontology — crude really does feed
+ * refined-product cracks, and encoding that is legitimate. What was NOT
+ * legitimate was rendering a hand-authored 0.82 next to it as "confidence".
+ *
+ * Measured on the 16-channel FRED panel, 6 of 42 asserted edges can be
+ * measured at all; the mean gap between the authored number and the measured
+ * one is 0.372. So an edge now states which it is, and an unmeasured edge
+ * carries no confidence number rather than an invented one.
+ */
+export type EdgeSupport =
+  /** Both ends have a daily market proxy; coupling clears the floor. */
+  | "measured"
+  /** Proxies exist and the relationship is indistinguishable from zero. */
+  | "no_material_coupling"
+  /** No daily proxy for at least one end. Asserted mechanism, not measurement. */
+  | "asserted"
+  /** Both ends proxy to the same series — it restates one series against itself. */
+  | "degenerate"
+  /** Structural edge the engine inferred (event → tag), never measured. */
+  | "inferred";
+
 export interface CausalLink {
   source: string;
   dest: string;
   direction: 1 | -1;
   distance: number;
-  confidence: number;
+  /**
+   * Sign stability out of sample when `support` is "measured": the fraction of
+   * block-bootstrap resamples of a held-out period keeping the training sign.
+   * NOT a strength — see `coupling`. Null when the edge is not measured, and
+   * the UI must render that absence rather than substitute a number.
+   */
+  confidence: number | null;
+  /** Holdout |correlation| — the strength. Null unless measured. */
+  coupling?: number | null;
+  support: EdgeSupport;
+  /** Market series standing in for each end, when one exists. */
+  proxies?: { from: string | null; to: string | null };
+  /** True when the two proxies are not independent by construction. */
+  constructionOverlap?: boolean;
+  /** What the ontology asserted before measurement, kept so the gap stays visible. */
+  assertedConfidence?: number;
   evidence: string;
+  /**
+   * Expected lag, as asserted by the ontology.
+   *
+   * No edge tested has a lagged horizon surviving multiplicity correction, and
+   * two independent methods agree that cross-market transmission in liquid
+   * macro is a same-day repricing. Treat this as a mechanism description, not
+   * a timing claim.
+   */
   expectedLag: string;
+  /** Lagged horizons that actually survived correction. Empty everywhere so far. */
+  laggedHorizons?: number[] | null;
   invalidation: string;
   historicalSupport: string;
   scenarioDependence?: string;

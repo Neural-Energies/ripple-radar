@@ -181,7 +181,14 @@ export function RippleMap({
               x2={b.x}
               y2={b.y}
               stroke={l.direction < 0 ? "var(--color-down)" : "var(--color-primary)"}
-              strokeOpacity={active ? 0.45 * l.confidence : 0.08}
+              // Opacity tracks measured sign stability where it exists. An
+              // asserted edge draws at a fixed, dimmer weight — it is still a
+              // real mechanism, it just has no measurement behind it, and
+              // scaling it by an invented number would say otherwise.
+              strokeOpacity={
+                active ? 0.45 * (typeof l.confidence === "number" ? l.confidence : 0.55) : 0.08
+              }
+              strokeDasharray={l.support === "measured" ? undefined : "3 2"}
               strokeWidth={active ? 1.4 : 0.8}
             />
           );

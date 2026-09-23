@@ -68,8 +68,19 @@ export interface InterventionResult {
   scenarios: ConditionalScenario[];
   /** Nodes whose transmission the play changes most, strongest first. */
   nodes: ConditionalNode[];
-  /** Links that carry the play, with the confidence that earns them the weight. */
-  links: { source: string; dest: string; confidence: number; invalidation: string }[];
+  /**
+   * Links that carry the play. `confidence` is null on an edge the panel
+   * cannot measure; `weight` is what the analysis actually used, so the two
+   * never get confused for each other.
+   */
+  links: {
+    source: string;
+    dest: string;
+    confidence: number | null;
+    weight: number;
+    support: CausalLink["support"];
+    invalidation: string;
+  }[];
   note: string;
   /** A conditional view, never a calibrated claim. */
   provenance: "heuristic";
@@ -102,6 +113,23 @@ export function severityOf(gt: GameTheory, colName: string): number {
  * Returns null when the play is not in the matrix — callers render the
  * engine's own read instead of an invented one.
  */
+/**
+ * How much a causal edge may amplify a shock.
+ *
+ * A measured edge weights by its out-of-sample sign stability. An edge the
+ * panel cannot measure gets `ASSERTED_WEIGHT` — deliberately below any
+ * measured edge that cleared the coupling floor, and deliberately not zero,
+ * because "we have no market proxy for shipping insurance" is not the same
+ * claim as "shipping insurance transmits nothing".
+ */
+export const ASSERTED_WEIGHT = 0.3;
+
+export function linkWeight(l: Pick<CausalLink, "confidence" | "support">): number {
+  if (l.support === "measured" && typeof l.confidence === "number") return l.confidence;
+  if (l.support === "no_material_coupling" || l.support === "degenerate") return 0;
+  return ASSERTED_WEIGHT;
+}
+
 export function intervene(opts: {
   gameTheory: GameTheory;
   scenarios: Scenario[];
@@ -144,11 +172,18 @@ export function intervene(opts: {
 
   // Transmission scales with severity, weighted by how well evidenced the path
   // into a node is. A speculative link should not amplify as confidently as a
-  // documented one — that is what `confidence` is for.
+  // measured one.
+  //
+  // Most edges (34 of 42) have no daily market proxy and so carry no measured
+  // confidence at all. Treating those as zero would silently delete most of
+  // the graph from this analysis; treating them as measured would launder an
+  // assertion into a number. They get a named, discounted weight instead, and
+  // measured edges outrank them.
   const confByDest = new Map<string, number>();
   for (const l of links) {
     const prev = confByDest.get(l.dest) ?? 0;
-    if (l.confidence > prev) confByDest.set(l.dest, l.confidence);
+    const w = linkWeight(l);
+    if (w > prev) confByDest.set(l.dest, w);
   }
   const conditionalNodes: ConditionalNode[] = nodes
     .filter((n) => n.level > 0) // level 0 is the event itself; the play is not evidence about it
@@ -169,12 +204,20 @@ export function intervene(opts: {
 
   const carrying = links
     .filter((l) => (severity > 0 ? l.direction === 1 : l.direction === -1))
-    .sort((a, b) => b.confidence - a.confidence)
+    // Measured edges first, then by weight — an asserted edge never outranks a
+    // measured one regardless of what the ontology claimed for it.
+    .sort((a, b) => {
+      const ma = a.support === "measured" ? 1 : 0;
+      const mb = b.support === "measured" ? 1 : 0;
+      return mb - ma || linkWeight(b) - linkWeight(a);
+    })
     .slice(0, 5)
     .map((l) => ({
       source: l.source,
       dest: l.dest,
       confidence: l.confidence,
+      weight: linkWeight(l),
+      support: l.support,
       invalidation: l.invalidation,
     }));
 

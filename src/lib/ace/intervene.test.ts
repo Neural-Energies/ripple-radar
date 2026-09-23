@@ -6,7 +6,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { CausalLink, GameTheory, RippleNode, Scenario } from "../../data/types.ts";
-import { intervene, playAt, severityOf } from "./intervene.ts";
+import { ASSERTED_WEIGHT, intervene, linkWeight, playAt, severityOf } from "./intervene.ts";
 
 const GT: GameTheory = {
   actor: "Storm",
@@ -65,9 +65,15 @@ const NODES: RippleNode[] = [
 ];
 
 const LINKS: CausalLink[] = [
-  { source: "n0", dest: "n1", direction: 1, distance: 1, confidence: 0.9, evidence: "", expectedLag: "", invalidation: "Spare capacity absorbs", historicalSupport: "" },
-  { source: "n1", dest: "n2", direction: 1, distance: 1, confidence: 0.3, evidence: "", expectedLag: "", invalidation: "Freight reroutes", historicalSupport: "" },
+  { source: "n0", dest: "n1", direction: 1, distance: 1, confidence: 0.9, support: "measured", evidence: "", expectedLag: "", invalidation: "Spare capacity absorbs", historicalSupport: "" },
+  { source: "n1", dest: "n2", direction: 1, distance: 1, confidence: 0.3, support: "measured", evidence: "", expectedLag: "", invalidation: "Freight reroutes", historicalSupport: "" },
 ];
+
+/** An edge the panel cannot measure: no proxy, so no confidence to report. */
+const ASSERTED_LINK: CausalLink = {
+  source: "n0", dest: "n2", direction: 1, distance: 2, confidence: null,
+  support: "asserted", evidence: "", expectedLag: "", invalidation: "", historicalSupport: "",
+};
 
 const base = { gameTheory: GT, scenarios: SCENARIOS, nodes: NODES, links: LINKS };
 
@@ -150,4 +156,49 @@ test("intervening is deterministic", () => {
   const a = intervene({ ...base, play: { row: "Landfall cat", col: "Regional halt" } });
   const b = intervene({ ...base, play: { row: "Landfall cat", col: "Regional halt" } });
   assert.deepEqual(a, b);
+});
+
+
+// --------------------------------------------------- measured vs asserted
+
+test("an unmeasured edge is weighted below a measured one, and above nothing", () => {
+  // 34 of the graph's 42 edges have no market proxy. Treating them as zero
+  // would silently delete most of the graph from this analysis; treating them
+  // as measured would launder an assertion into a number.
+  assert.equal(linkWeight(LINKS[0]!), 0.9);
+  assert.equal(linkWeight(ASSERTED_LINK), ASSERTED_WEIGHT);
+  assert.ok(ASSERTED_WEIGHT > 0, "'no proxy for shipping insurance' is not 'it transmits nothing'");
+  assert.ok(ASSERTED_WEIGHT < linkWeight(LINKS[0]!));
+});
+
+test("an edge with no material coupling carries no weight at all", () => {
+  const dead: CausalLink = { ...ASSERTED_LINK, support: "no_material_coupling" };
+  const self: CausalLink = { ...ASSERTED_LINK, support: "degenerate" };
+  assert.equal(linkWeight(dead), 0, "measured to be indistinguishable from zero");
+  assert.equal(linkWeight(self), 0, "a series against itself transmits nothing new");
+});
+
+test("a measured edge outranks an asserted one whatever the ontology claimed", () => {
+  const weakMeasured: CausalLink = { ...LINKS[0]!, confidence: 0.1, support: "measured" };
+  const strongAsserted: CausalLink = { ...ASSERTED_LINK, assertedConfidence: 0.95 };
+  const out = intervene({
+    ...base,
+    links: [weakMeasured, { ...strongAsserted, dest: "n1" }],
+    play: { row: "Landfall cat", col: "Regional halt" },
+  })!;
+  const carried = out.links.map((l) => l.support);
+  assert.equal(carried[0], "measured", `measured must lead, got ${carried.join(",")}`);
+});
+
+test("the result reports both the confidence and the weight it actually used", () => {
+  const out = intervene({
+    ...base,
+    links: [ASSERTED_LINK],
+    play: { row: "Landfall cat", col: "Regional halt" },
+  })!;
+  if (out.links.length) {
+    assert.equal(out.links[0]!.confidence, null, "no measurement means no number");
+    assert.equal(out.links[0]!.weight, ASSERTED_WEIGHT, "but the weight used is explicit");
+    assert.equal(out.links[0]!.support, "asserted");
+  }
 });

@@ -140,3 +140,103 @@ poll` — it freezes a snapshot under poll 1's id, then runs the exact query
   block.
 - The materiality gate keys off `sinceMs` (time) rather than the registry's
   exact new-headline set, which is now strictly better provenance.
+
+---
+
+# Measured transmission edges
+
+## The defect
+
+The Ripple graph's 42 transmission edges each carried a hand-authored
+`confidence` (`0.82`, `0.74`, …) and a lag label (`"hours–days"`). The graph
+rendered those numbers to the user as confidence. They were not measurements.
+
+## What was measured
+
+`ace/ripple/edge_calibration.py`, run against the 16-channel FRED panel from
+2010, 30% chronological holdout:
+
+| status | edges | meaning |
+|---|---|---|
+| `unmeasured` | **34** | no daily market proxy for at least one end |
+| `measured` | 6 | both ends proxy; holdout coupling clears the floor |
+| `no_material_coupling` | 1 | proxies exist; relationship indistinguishable from zero |
+| `degenerate` | 1 | both ends proxy to the same series |
+
+**Mean |asserted − measured| confidence on the 6 measurable edges: 0.372.**
+
+Specifics worth stating:
+
+- `rates→equity` shipped at `0.62`. Its sign holds in **17%** of holdout
+  bootstrap resamples. That edge is close to noise.
+- `inflation→fx` shipped at `0.55`. Holdout |r| = 0.047 — below the floor.
+- `rates→duration` both proxy to UST10Y. Unguarded this returns r = 1.0 and
+  renders as the strongest link in the graph. The calibrator refuses it.
+- **Zero** sign flips. Where the data can speak, the ontology's *directions*
+  are right. It is the magnitudes that were invented.
+- **Zero** edges have a lagged horizon surviving multiplicity correction. Every
+  lag label in the graph is unsupported by this data, which is consistent with
+  the transmission-edge study (72.1% of edges survive out of sample, none with
+  a stable non-zero lag) and the local-projection study (no horizon beyond h=0
+  survives Holm correction on any pair).
+
+## What "confidence" now means
+
+**Sign stability out of sample**: the fraction of block-bootstrap resamples of
+the held-out period in which the contemporaneous relationship keeps the sign it
+had in training. It answers "if I rely on this arrow, how often does it point
+the way the graph says?"
+
+It is **not a strength**. `coupling` (holdout |r|) carries strength, and the two
+must be shown together — a weak relationship can have a perfectly stable sign.
+`energy→inflation` has coupling 0.124 and sign stability 1.00; displaying only
+the second would be worse than displaying neither.
+
+Confidence is reported **only** when status is `measured`. An unmeasured edge
+carries `null`, and the UI renders the label (`asserted`, `inferred`,
+`no coupling`, `self-edge`) instead of a number.
+
+## Where it flows
+
+```
+ontology.ts (structure)
+   → scripts/export-transmit-edges.mjs
+   → ace/ripple/edge_calibration.py        measurement
+   → artifacts/reports/transmission_edges.json
+   → scripts/generate-transmission-evidence.mjs
+   → src/lib/engine/transmission-evidence.ts   (GENERATED — do not hand-edit)
+   → graph.ts   attaches support/coupling/confidence to every CausalLink
+   → ripple-map.tsx (dashed stroke when not measured), maps.tsx (label, not %)
+   → intervene.ts   weights measured edges above asserted ones
+```
+
+`npm run edges:measure` re-runs the whole chain.
+
+## Unmeasured edges are not deleted
+
+34 edges stay in the graph. "No daily market proxy for shipping insurance" is
+not the same claim as "shipping insurance transmits nothing", and deleting them
+would make the graph *less* true. In `intervene.ts` they carry
+`ASSERTED_WEIGHT = 0.3` — explicitly below any measured edge that cleared the
+floor, explicitly above zero, and named so nobody mistakes it for a measurement.
+
+## Tests
+
+`transmission-evidence.test.ts` (11) pins the invariants that stop drift:
+every ontology edge has a verdict; no stale verdicts survive an ontology change;
+only measured edges carry a number; a measured edge cleared the floor it was
+measured against; degenerate edges are caught, not measured; no edge claims a
+lag it did not earn.
+
+`intervene.test.ts` gains 4 covering the weighting: asserted below measured,
+above zero; `no_material_coupling` and `degenerate` weigh nothing; a measured
+edge outranks an asserted one whatever the ontology claimed.
+
+## Limits
+
+Six measurable edges is a small base, and it is small because the panel is
+small. The honest way to grow it is more daily series with real history — not a
+looser floor. FRED licenses its index series for ten years and its credit
+spreads for two, which is why several natural proxies are absent. CoinGecko's
+free tier caps at 365 days, too shallow for a holdout split, so every crypto
+edge stays unmeasured.
