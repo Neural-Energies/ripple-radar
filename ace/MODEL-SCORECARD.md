@@ -32,6 +32,7 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | News → volatility increment | **FAILED — 6/6 channels** | No — subsumed by VIX. |
 | Dynamic Bayesian Network | **FAILED — 0/6 channels** | No. |
 | Causal impact (SCM + local projections) | **Estimators validated; no forecastable effect** | Yes for same-day co-movement, labelled predictive. No forward claim. |
+| Ensemble (stacking / BMA) | **FAILED under multiplicity correction** | No. |
 | Prophet (news attention) | **FAILED** | No — loses to a trailing mean. |
 
 **Nothing is wired into the application.** `ace/` is standalone; the UI still
@@ -462,6 +463,56 @@ which.
 
 ---
 
+## 11. ace_event_ensemble v1 — FAILED (and the correction that flipped it)
+
+The capstone question: does combining the engines beat the best single engine?
+Not "beat the average" — that is true whenever one member is bad and says
+nothing.
+
+One target, so the members are commensurable: **P(at least one |move| ≥ 2σ in
+the next 5 sessions)**. Four members, each an engine validated separately, each
+calibrated on walk-forward out-of-fold predictions before the weights see it.
+Weights fitted on those same out-of-fold rows. Sealed holdout scored once.
+
+Pooled over four channels, 4,101 holdout rows:
+
+| Member | BSS | log loss | AUC |
+|---|---|---|---|
+| base rate | +0.0018 | 0.5188 | 0.519 |
+| markov | +0.0022 | 0.5186 | 0.502 |
+| hawkes (cascade intensity) | +0.0194 | 0.5152 | 0.606 |
+| volatility (HAR→FHS crossing) | +0.0343 | 0.5228 | 0.627 |
+| **ensemble** (stacking, log pool) | **+0.0410** | **0.5141** | **0.638** |
+
+The ensemble is the best configuration, and it beats the best single member by
++0.0066, CI [+0.0001, +0.0144]. On an uncorrected reading it also beats the
+base rate: BSS +0.0410, 95% CI **[+0.0031, +0.0824]**.
+
+**It does not survive the correction.** Five candidates were compared against
+the same base rate on the same holdout; at 5% each that is a one-in-four
+chance of a spurious winner. The Bonferroni-corrected 99% interval is
+**[−0.0047, +0.0930]** — it includes zero. Registered FAILED.
+
+This is the result the gate exists to produce. A lower bound of +0.0031 on the
+fifth of five comparisons is exactly what noise looks like when you go
+looking, and the uncorrected version of this table would have shipped a
+forecaster whose advantage over "the base rate, every day" is not established.
+
+Two further readings worth keeping:
+
+- The **volatility member carries real information** — AUC 0.627 pooled, 0.695
+  on NASDAQ, from a HAR volatility forecast converted to a crossing
+  probability through the empirical residual distribution. Its BSS is
+  +0.0343 and its corrected interval still spans zero, so it does not ship
+  either; but it is the member the stacking weights load onto (0.65–0.94
+  across channels), and it is where a future attempt should start.
+- **Persistence is worth nothing here.** The markov member scores +0.0022,
+  and the base rate +0.0018. Whether a 2σ move happened today tells you
+  almost nothing about the next five sessions — the same conclusion the DBN
+  run reached from the other direction.
+
+---
+
 ## A silent sample-destroying defect — rolling windows over a gappy panel
 
 A cross-asset panel is a union of trading calendars. SP500 has no value on a
@@ -536,7 +587,10 @@ magnitude, news→volatility increment, Prophet, and the Dynamic Bayesian
 Network on market states. **Descriptive only:** regime labelling, historical
 analogs, transmission structure. **Validated machinery with nothing to
 forecast:** the causal engine — its estimators recover planted effects, and
-no market pair produced a response that outlives the day it happened.
+no market pair produced a response that outlives the day it happened; and the
+ensemble — the combination is the best configuration tested and still cannot
+be distinguished from the base rate once its five comparisons are corrected
+for.
 
 The failures are the evidence that the gate works. A leaky setup does not
 return AUC 0.49 — it returns 0.65 and looks fundable. And the passes are
@@ -574,6 +628,7 @@ python3 ace/models/cascade_model.py
 python3 ace/models/competing_risks_model.py
 python3 ace/models/dbn_model.py
 python3 ace/models/causal_impact_model.py
+python3 ace/models/ensemble_model.py
 python3 ace/models/shock_persistence_model.py
 python3 ace/models/macro_impact_model.py
 python3 ace/ripple/validate_edges.py
