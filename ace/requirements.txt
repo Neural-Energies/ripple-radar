@@ -10,4 +10,7 @@ scikit-learn>=1.5
 lightgbm>=4.5
 nashpy>=0.0.40
 joblib>=1.4
+pgmpy>=1.1
+scikit-survival>=0.23
+pyarrow>=15.0
 pytest>=8.0
