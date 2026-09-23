@@ -19,7 +19,10 @@ export function TickerLink({
     <Link
       to="/assets/$ticker"
       params={{ ticker: t }}
-      className={cn("font-mono text-primary hover:underline", className)}
+      className={cn(
+        "font-mono text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+        className,
+      )}
     >
       {children ?? t}
     </Link>
@@ -42,7 +45,10 @@ export function FilterLink({
     <Link
       to="/assets"
       search={{ q: query }}
-      className={cn("text-primary hover:underline", className)}
+      className={cn(
+        "text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+        className,
+      )}
     >
       {children ?? query}
     </Link>
@@ -72,7 +78,10 @@ export function NodeNavLink({
       <Link
         to="/assets/$ticker"
         params={{ ticker: nav.ticker }}
-        className={cn("text-primary hover:underline", className)}
+        className={cn(
+          "text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+          className,
+        )}
       >
         {label}
       </Link>
@@ -80,7 +89,14 @@ export function NodeNavLink({
   }
   if (nav?.kind === "filter") {
     return (
-      <Link to="/assets" search={{ q: nav.q }} className={cn("text-primary hover:underline", className)}>
+      <Link
+        to="/assets"
+        search={{ q: nav.q }}
+        className={cn(
+          "text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+          className,
+        )}
+      >
         {label}
       </Link>
     );

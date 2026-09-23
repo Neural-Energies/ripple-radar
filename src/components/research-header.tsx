@@ -12,8 +12,10 @@ import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 export const RESEARCH_TABS = [
+  { to: "/maps", label: "Map" },
   { to: "/scenarios", label: "Scenarios" },
   { to: "/game-theory", label: "Game Theory" },
+  { to: "/assets", label: "Assets" },
 ] as const;
 
 function crowdingTone(c?: Crowding): "up" | "warn" | "core" | "neutral" | "primary" {
@@ -154,8 +156,10 @@ export function ResearchHeader({
                 key={t.to}
                 to={t.to}
                 className={cn(
-                  "rounded-sm px-2 py-1 text-micro uppercase tracking-wider",
-                  pathname === t.to ? "bg-primary/15 text-primary" : "text-muted hover:bg-card-2 hover:text-foreground",
+                  "rounded-sm px-2 py-1 text-micro uppercase tracking-wider focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                  pathname === t.to || (t.to !== "/" && pathname.startsWith(t.to + "/"))
+                    ? "bg-primary/15 text-primary"
+                    : "text-muted hover:bg-card-2 hover:text-foreground",
                 )}
               >
                 {t.label}
