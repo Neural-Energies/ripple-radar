@@ -1,0 +1,40 @@
+{
+  "channel": "SP500",
+  "forward_days": 20,
+  "n_eval": 1491,
+  "refits": 14,
+  "results": {
+    "historical_mean": {
+      "r2": -0.2995,
+      "mae": 0.00407
+    },
+    "trailing_vol": {
+      "r2": -0.0177,
+      "mae": 0.002988
+    },
+    "regime_only": {
+      "r2": -0.2327,
+      "mae": 0.003981
+    },
+    "trailing_plus_regime": {
+      "r2": -0.0026,
+      "mae": 0.00324
+    }
+  },
+  "incremental_r2": 0.0151,
+  "combined_r2_ci": {
+    "point": -0.002631,
+    "lo": -0.570555,
+    "hi": 0.230216,
+    "n_boot": 500
+  },
+  "separation": {
+    "n_stressed": 625,
+    "n_calm": 866,
+    "fwd_vol_when_stressed": 0.011112,
+    "fwd_vol_when_calm": 0.008437,
+    "ratio": 1.317
+  },
+  "adds_value_beyond_trailing_vol": false,
+  "basis": "filtered probabilities only; expanding window; forward window after fit"
+}

@@ -1,0 +1,1530 @@
+{
+  "split": "2020-01-01",
+  "train": {
+    "start": "2010-01-05",
+    "end": "2019-12-31",
+    "n": 2560
+  },
+  "test": {
+    "start": "2020-01-02",
+    "end": "2026-09-22",
+    "n": 1742
+  },
+  "edges_significant_train": 154,
+  "survived": 111,
+  "faded": 17,
+  "flipped": 26,
+  "survival_rate": 0.7208,
+  "granger_train": 29,
+  "granger_survived": 16,
+  "surviving_edges": [
+    {
+      "source": "SP500",
+      "dest": "NASDAQ",
+      "train_corr": 0.9486,
+      "test_corr": 0.9493,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1689
+    },
+    {
+      "source": "NASDAQ",
+      "dest": "SP500",
+      "train_corr": 0.9486,
+      "test_corr": 0.9493,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1689
+    },
+    {
+      "source": "SP500",
+      "dest": "DJIA",
+      "train_corr": 0.9589,
+      "test_corr": 0.9416,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1689
+    },
+    {
+      "source": "DJIA",
+      "dest": "SP500",
+      "train_corr": 0.9589,
+      "test_corr": 0.9416,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1689
+    },
+    {
+      "source": "USD_BROAD",
+      "dest": "EURUSD",
+      "train_corr": -0.7874,
+      "test_corr": -0.8431,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1679
+    },
+    {
+      "source": "EURUSD",
+      "dest": "USD_BROAD",
+      "train_corr": -0.7874,
+      "test_corr": -0.8431,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1679
+    },
+    {
+      "source": "NASDAQ",
+      "dest": "DJIA",
+      "train_corr": 0.8619,
+      "test_corr": 0.8148,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1689
+    },
+    {
+      "source": "DJIA",
+      "dest": "NASDAQ",
+      "train_corr": 0.8619,
+      "test_corr": 0.8148,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1689
+    },
+    {
+      "source": "SP500",
+      "dest": "VIX",
+      "train_corr": -0.8111,
+      "test_corr": -0.785,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1688
+    },
+    {
+      "source": "VIX",
+      "dest": "SP500",
+      "train_corr": -0.8111,
+      "test_corr": -0.785,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1688
+    },
+    {
+      "source": "UST2Y",
+      "dest": "UST10Y",
+      "train_corr": 0.6973,
+      "test_corr": 0.7653,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1681
+    },
+    {
+      "source": "UST10Y",
+      "dest": "UST2Y",
+      "train_corr": 0.6973,
+      "test_corr": 0.7653,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1681
+    },
+    {
+      "source": "NASDAQ",
+      "dest": "VIX",
+      "train_corr": -0.7987,
+      "test_corr": -0.7492,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1688
+    },
+    {
+      "source": "VIX",
+      "dest": "NASDAQ",
+      "train_corr": -0.7987,
+      "test_corr": -0.7492,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1688
+    },
+    {
+      "source": "DJIA",
+      "dest": "VIX",
+      "train_corr": -0.7836,
+      "test_corr": -0.7434,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1688
+    },
+    {
+      "source": "VIX",
+      "dest": "DJIA",
+      "train_corr": -0.7836,
+      "test_corr": -0.7434,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1688
+    },
+    {
+      "source": "WTI",
+      "dest": "BRENT",
+      "train_corr": 0.6367,
+      "test_corr": 0.6989,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1644
+    },
+    {
+      "source": "BRENT",
+      "dest": "WTI",
+      "train_corr": 0.6367,
+      "test_corr": 0.6989,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1644
+    },
+    {
+      "source": "USD_BROAD",
+      "dest": "USDJPY",
+      "train_corr": 0.2798,
+      "test_corr": 0.4885,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1679
+    },
+    {
+      "source": "USDJPY",
+      "dest": "USD_BROAD",
+      "train_corr": 0.2798,
+      "test_corr": 0.4885,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1679
+    },
+    {
+      "source": "EURUSD",
+      "dest": "USDJPY",
+      "train_corr": -0.2897,
+      "test_corr": -0.4803,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1679
+    },
+    {
+      "source": "USDJPY",
+      "dest": "EURUSD",
+      "train_corr": -0.2897,
+      "test_corr": -0.4803,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1679
+    },
+    {
+      "source": "UST2Y",
+      "dest": "USDJPY",
+      "train_corr": 0.349,
+      "test_corr": 0.4405,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1675
+    },
+    {
+      "source": "USDJPY",
+      "dest": "UST2Y",
+      "train_corr": 0.349,
+      "test_corr": 0.4405,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1675
+    },
+    {
+      "source": "UST10Y",
+      "dest": "USDJPY",
+      "train_corr": 0.388,
+      "test_corr": 0.429,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1675
+    },
+    {
+      "source": "USDJPY",
+      "dest": "UST10Y",
+      "train_corr": 0.388,
+      "test_corr": 0.429,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1675
+    },
+    {
+      "source": "UST10Y",
+      "dest": "BREAKEVEN_5Y5Y",
+      "train_corr": 0.3724,
+      "test_corr": 0.3222,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1681
+    },
+    {
+      "source": "BREAKEVEN_5Y5Y",
+      "dest": "UST10Y",
+      "train_corr": 0.3724,
+      "test_corr": 0.3222,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1681
+    },
+    {
+      "source": "SP500",
+      "dest": "USD_BROAD",
+      "train_corr": -0.1624,
+      "test_corr": -0.3117,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1671
+    },
+    {
+      "source": "USD_BROAD",
+      "dest": "SP500",
+      "train_corr": -0.1624,
+      "test_corr": -0.3117,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1671
+    },
+    {
+      "source": "DJIA",
+      "dest": "USD_BROAD",
+      "train_corr": -0.16,
+      "test_corr": -0.3061,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1671
+    },
+    {
+      "source": "USD_BROAD",
+      "dest": "DJIA",
+      "train_corr": -0.16,
+      "test_corr": -0.3061,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1671
+    },
+    {
+      "source": "UST10Y",
+      "dest": "CURVE_10_2",
+      "train_corr": 0.7839,
+      "test_corr": 0.2873,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1681
+    },
+    {
+      "source": "CURVE_10_2",
+      "dest": "UST10Y",
+      "train_corr": 0.7839,
+      "test_corr": 0.2873,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1681
+    },
+    {
+      "source": "NASDAQ",
+      "dest": "USD_BROAD",
+      "train_corr": -0.2971,
+      "test_corr": -0.2807,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1671
+    },
+    {
+      "source": "USD_BROAD",
+      "dest": "NASDAQ",
+      "train_corr": -0.2971,
+      "test_corr": -0.2807,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1671
+    },
+    {
+      "source": "UST2Y",
+      "dest": "EURUSD",
+      "train_corr": -0.0612,
+      "test_corr": -0.2502,
+      "train_lag": 1,
+      "test_lag": 0,
+      "n_test": 1675
+    },
+    {
+      "source": "EURUSD",
+      "dest": "UST2Y",
+      "train_corr": -0.0499,
+      "test_corr": -0.2502,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1675
+    },
+    {
+      "source": "UST2Y",
+      "dest": "USD_BROAD",
+      "train_corr": 0.072,
+      "test_corr": 0.2313,
+      "train_lag": 1,
+      "test_lag": 0,
+      "n_test": 1675
+    },
+    {
+      "source": "VIX",
+      "dest": "USD_BROAD",
+      "train_corr": 0.2598,
+      "test_corr": 0.2098,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1672
+    },
+    {
+      "source": "USD_BROAD",
+      "dest": "VIX",
+      "train_corr": 0.2598,
+      "test_corr": 0.2098,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1672
+    },
+    {
+      "source": "CURVE_10_2",
+      "dest": "BREAKEVEN_5Y5Y",
+      "train_corr": 0.3411,
+      "test_corr": 0.204,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1682
+    },
+    {
+      "source": "BREAKEVEN_5Y5Y",
+      "dest": "CURVE_10_2",
+      "train_corr": 0.3411,
+      "test_corr": 0.204,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1682
+    },
+    {
+      "source": "DJIA",
+      "dest": "BREAKEVEN_5Y5Y",
+      "train_corr": 0.2682,
+      "test_corr": 0.1906,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1678
+    },
+    {
+      "source": "BREAKEVEN_5Y5Y",
+      "dest": "DJIA",
+      "train_corr": 0.2682,
+      "test_corr": 0.1906,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1678
+    },
+    {
+      "source": "SP500",
+      "dest": "BRENT",
+      "train_corr": 0.1672,
+      "test_corr": 0.1894,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1654
+    },
+    {
+      "source": "BRENT",
+      "dest": "SP500",
+      "train_corr": 0.1672,
+      "test_corr": 0.1894,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1654
+    },
+    {
+      "source": "DJIA",
+      "dest": "BRENT",
+      "train_corr": 0.1729,
+      "test_corr": 0.1884,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1654
+    },
+    {
+      "source": "BRENT",
+      "dest": "DJIA",
+      "train_corr": 0.1729,
+      "test_corr": 0.1884,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1654
+    },
+    {
+      "source": "SP500",
+      "dest": "BREAKEVEN_5Y5Y",
+      "train_corr": 0.2612,
+      "test_corr": 0.1825,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1678
+    },
+    {
+      "source": "BREAKEVEN_5Y5Y",
+      "dest": "SP500",
+      "train_corr": 0.2612,
+      "test_corr": 0.1825,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1678
+    },
+    {
+      "source": "BRENT",
+      "dest": "BREAKEVEN_5Y5Y",
+      "train_corr": 0.153,
+      "test_corr": 0.1804,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1644
+    },
+    {
+      "source": "BREAKEVEN_5Y5Y",
+      "dest": "BRENT",
+      "train_corr": 0.153,
+      "test_corr": 0.1804,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1644
+    },
+    {
+      "source": "UST10Y",
+      "dest": "BRENT",
+      "train_corr": 0.2244,
+      "test_corr": 0.1771,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1644
+    },
+    {
+      "source": "BRENT",
+      "dest": "UST10Y",
+      "train_corr": 0.2244,
+      "test_corr": 0.1771,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1644
+    },
+    {
+      "source": "VIX",
+      "dest": "BREAKEVEN_5Y5Y",
+      "train_corr": -0.2582,
+      "test_corr": -0.1765,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1678
+    },
+    {
+      "source": "BREAKEVEN_5Y5Y",
+      "dest": "VIX",
+      "train_corr": -0.2582,
+      "test_corr": -0.1765,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1678
+    },
+    {
+      "source": "NASDAQ",
+      "dest": "EURUSD",
+      "train_corr": 0.1384,
+      "test_corr": 0.1749,
+      "train_lag": 0,
+      "test_lag": 1,
+      "n_test": 1671
+    },
+    {
+      "source": "UST2Y",
+      "dest": "BREAKEVEN_5Y5Y",
+      "train_corr": 0.2029,
+      "test_corr": 0.1715,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1681
+    },
+    {
+      "source": "BREAKEVEN_5Y5Y",
+      "dest": "UST2Y",
+      "train_corr": 0.2029,
+      "test_corr": 0.1715,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1681
+    },
+    {
+      "source": "VIX",
+      "dest": "BRENT",
+      "train_corr": -0.227,
+      "test_corr": -0.1654,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1683
+    },
+    {
+      "source": "BRENT",
+      "dest": "VIX",
+      "train_corr": -0.227,
+      "test_corr": -0.1654,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1683
+    },
+    {
+      "source": "DJIA",
+      "dest": "WTI",
+      "train_corr": 0.2042,
+      "test_corr": 0.1464,
+      "train_lag": 0,
+      "test_lag": 4,
+      "n_test": 1674
+    },
+    {
+      "source": "UST10Y",
+      "dest": "WTI",
+      "train_corr": 0.2438,
+      "test_corr": 0.1464,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1668
+    },
+    {
+      "source": "WTI",
+      "dest": "UST10Y",
+      "train_corr": 0.2438,
+      "test_corr": 0.1464,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1668
+    },
+    {
+      "source": "SP500",
+      "dest": "WTI",
+      "train_corr": 0.1983,
+      "test_corr": 0.1444,
+      "train_lag": 0,
+      "test_lag": 4,
+      "n_test": 1674
+    },
+    {
+      "source": "EURUSD",
+      "dest": "NASDAQ",
+      "train_corr": 0.1384,
+      "test_corr": 0.1434,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1671
+    },
+    {
+      "source": "NASDAQ",
+      "dest": "BRENT",
+      "train_corr": 0.2439,
+      "test_corr": 0.1428,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1654
+    },
+    {
+      "source": "BRENT",
+      "dest": "NASDAQ",
+      "train_corr": 0.2439,
+      "test_corr": 0.1428,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1654
+    },
+    {
+      "source": "WTI",
+      "dest": "BREAKEVEN_5Y5Y",
+      "train_corr": 0.1935,
+      "test_corr": 0.14,
+      "train_lag": 0,
+      "test_lag": 1,
+      "n_test": 1668
+    },
+    {
+      "source": "USDJPY",
+      "dest": "BREAKEVEN_5Y5Y",
+      "train_corr": 0.144,
+      "test_corr": 0.139,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1675
+    },
+    {
+      "source": "BREAKEVEN_5Y5Y",
+      "dest": "USDJPY",
+      "train_corr": 0.144,
+      "test_corr": 0.139,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1675
+    },
+    {
+      "source": "VIX",
+      "dest": "EURUSD",
+      "train_corr": -0.1062,
+      "test_corr": -0.1383,
+      "train_lag": 0,
+      "test_lag": 1,
+      "n_test": 1672
+    },
+    {
+      "source": "NASDAQ",
+      "dest": "BREAKEVEN_5Y5Y",
+      "train_corr": 0.2812,
+      "test_corr": 0.1374,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1678
+    },
+    {
+      "source": "BREAKEVEN_5Y5Y",
+      "dest": "NASDAQ",
+      "train_corr": 0.2812,
+      "test_corr": 0.1374,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1678
+    },
+    {
+      "source": "WTI",
+      "dest": "VIX",
+      "train_corr": -0.2677,
+      "test_corr": -0.1346,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1674
+    },
+    {
+      "source": "UST2Y",
+      "dest": "BRENT",
+      "train_corr": 0.166,
+      "test_corr": 0.122,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1644
+    },
+    {
+      "source": "BRENT",
+      "dest": "UST2Y",
+      "train_corr": 0.166,
+      "test_corr": 0.122,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1644
+    },
+    {
+      "source": "NASDAQ",
+      "dest": "WTI",
+      "train_corr": 0.2837,
+      "test_corr": 0.1212,
+      "train_lag": 0,
+      "test_lag": 4,
+      "n_test": 1674
+    },
+    {
+      "source": "WTI",
+      "dest": "SP500",
+      "train_corr": 0.1983,
+      "test_corr": 0.1146,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1674
+    },
+    {
+      "source": "WTI",
+      "dest": "DJIA",
+      "train_corr": 0.2042,
+      "test_corr": 0.1125,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1674
+    },
+    {
+      "source": "UST2Y",
+      "dest": "WTI",
+      "train_corr": 0.1563,
+      "test_corr": 0.1091,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1668
+    },
+    {
+      "source": "WTI",
+      "dest": "UST2Y",
+      "train_corr": 0.1563,
+      "test_corr": 0.1091,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1668
+    },
+    {
+      "source": "USDJPY",
+      "dest": "BRENT",
+      "train_corr": 0.1138,
+      "test_corr": 0.1062,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1639
+    },
+    {
+      "source": "BRENT",
+      "dest": "USDJPY",
+      "train_corr": 0.1138,
+      "test_corr": 0.1062,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1639
+    },
+    {
+      "source": "VIX",
+      "dest": "USDJPY",
+      "train_corr": -0.2216,
+      "test_corr": -0.1052,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1672
+    },
+    {
+      "source": "USDJPY",
+      "dest": "VIX",
+      "train_corr": -0.2216,
+      "test_corr": -0.1052,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1672
+    },
+    {
+      "source": "WTI",
+      "dest": "NASDAQ",
+      "train_corr": 0.2837,
+      "test_corr": 0.0936,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1674
+    },
+    {
+      "source": "USDJPY",
+      "dest": "WTI",
+      "train_corr": 0.0867,
+      "test_corr": 0.0894,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1665
+    },
+    {
+      "source": "WTI",
+      "dest": "USDJPY",
+      "train_corr": 0.0867,
+      "test_corr": 0.0894,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1665
+    },
+    {
+      "source": "VIX",
+      "dest": "UST2Y",
+      "train_corr": -0.2602,
+      "test_corr": -0.0875,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1678
+    },
+    {
+      "source": "UST2Y",
+      "dest": "VIX",
+      "train_corr": -0.2602,
+      "test_corr": -0.0875,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1678
+    },
+    {
+      "source": "UST10Y",
+      "dest": "VIX",
+      "train_corr": -0.3686,
+      "test_corr": -0.0836,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1678
+    },
+    {
+      "source": "DJIA",
+      "dest": "UST10Y",
+      "train_corr": 0.3996,
+      "test_corr": 0.0822,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1677
+    },
+    {
+      "source": "UST10Y",
+      "dest": "DJIA",
+      "train_corr": 0.3996,
+      "test_corr": 0.0822,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1677
+    },
+    {
+      "source": "USD_BROAD",
+      "dest": "BRENT",
+      "train_corr": -0.3404,
+      "test_corr": -0.0809,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1639
+    },
+    {
+      "source": "BRENT",
+      "dest": "USD_BROAD",
+      "train_corr": -0.3404,
+      "test_corr": -0.0809,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1639
+    },
+    {
+      "source": "USDJPY",
+      "dest": "CURVE_10_2",
+      "train_corr": 0.2367,
+      "test_corr": 0.0756,
+      "train_lag": 0,
+      "test_lag": 3,
+      "n_test": 1675
+    },
+    {
+      "source": "WTI",
+      "dest": "USD_BROAD",
+      "train_corr": -0.3401,
+      "test_corr": -0.0711,
+      "train_lag": 0,
+      "test_lag": 3,
+      "n_test": 1665
+    },
+    {
+      "source": "CURVE_10_2",
+      "dest": "BRENT",
+      "train_corr": 0.1677,
+      "test_corr": 0.0709,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1644
+    },
+    {
+      "source": "BRENT",
+      "dest": "CURVE_10_2",
+      "train_corr": 0.1677,
+      "test_corr": 0.0709,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1644
+    },
+    {
+      "source": "BREAKEVEN_5Y5Y",
+      "dest": "EURUSD",
+      "train_corr": 0.0763,
+      "test_corr": 0.0626,
+      "train_lag": 0,
+      "test_lag": 1,
+      "n_test": 1675
+    },
+    {
+      "source": "BRENT",
+      "dest": "EURUSD",
+      "train_corr": 0.1499,
+      "test_corr": 0.0615,
+      "train_lag": 0,
+      "test_lag": 1,
+      "n_test": 1639
+    },
+    {
+      "source": "BREAKEVEN_5Y5Y",
+      "dest": "USD_BROAD",
+      "train_corr": -0.1601,
+      "test_corr": -0.0615,
+      "train_lag": 0,
+      "test_lag": 2,
+      "n_test": 1675
+    },
+    {
+      "source": "USDJPY",
+      "dest": "DJIA",
+      "train_corr": 0.2746,
+      "test_corr": 0.0595,
+      "train_lag": 0,
+      "test_lag": 5,
+      "n_test": 1671
+    },
+    {
+      "source": "UST10Y",
+      "dest": "SP500",
+      "train_corr": 0.3701,
+      "test_corr": 0.0572,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1677
+    },
+    {
+      "source": "USDJPY",
+      "dest": "SP500",
+      "train_corr": 0.2592,
+      "test_corr": 0.0529,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1671
+    },
+    {
+      "source": "CURVE_10_2",
+      "dest": "USD_BROAD",
+      "train_corr": -0.1527,
+      "test_corr": -0.0521,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1675
+    },
+    {
+      "source": "CURVE_10_2",
+      "dest": "EURUSD",
+      "train_corr": 0.1297,
+      "test_corr": 0.0513,
+      "train_lag": 0,
+      "test_lag": 0,
+      "n_test": 1675
+    },
+    {
+      "source": "EURUSD",
+      "dest": "WTI",
+      "train_corr": 0.163,
+      "test_corr": 0.0506,
+      "train_lag": 0,
+      "test_lag": 3,
+      "n_test": 1665
+    },
+    {
+      "source": "USD_BROAD",
+      "dest": "WTI",
+      "train_corr": -0.3401,
+      "test_corr": -0.0482,
+      "train_lag": 0,
+      "test_lag": 3,
+      "n_test": 1665
+    }
+  ],
+  "flipped_edges": [
+    {
+      "source": "SP500",
+      "dest": "UST10Y",
+      "train_corr": 0.3701,
+      "test_corr": -0.0777
+    },
+    {
+      "source": "SP500",
+      "dest": "USDJPY",
+      "train_corr": 0.2592,
+      "test_corr": -0.0859
+    },
+    {
+      "source": "NASDAQ",
+      "dest": "UST10Y",
+      "train_corr": 0.4155,
+      "test_corr": -0.0684
+    },
+    {
+      "source": "NASDAQ",
+      "dest": "CURVE_10_2",
+      "train_corr": 0.3269,
+      "test_corr": -0.0722
+    },
+    {
+      "source": "NASDAQ",
+      "dest": "USDJPY",
+      "train_corr": 0.2364,
+      "test_corr": -0.0815
+    },
+    {
+      "source": "DJIA",
+      "dest": "USDJPY",
+      "train_corr": 0.2746,
+      "test_corr": -0.0835
+    },
+    {
+      "source": "VIX",
+      "dest": "UST10Y",
+      "train_corr": -0.3686,
+      "test_corr": 0.0871
+    },
+    {
+      "source": "VIX",
+      "dest": "CURVE_10_2",
+      "train_corr": -0.286,
+      "test_corr": 0.0765
+    },
+    {
+      "source": "VIX",
+      "dest": "WTI",
+      "train_corr": -0.2677,
+      "test_corr": 0.1486
+    },
+    {
+      "source": "UST2Y",
+      "dest": "SP500",
+      "train_corr": 0.3933,
+      "test_corr": -0.0486
+    },
+    {
+      "source": "UST2Y",
+      "dest": "DJIA",
+      "train_corr": 0.4088,
+      "test_corr": -0.0537
+    },
+    {
+      "source": "UST2Y",
+      "dest": "CURVE_10_2",
+      "train_corr": 0.1015,
+      "test_corr": -0.3966
+    },
+    {
+      "source": "UST10Y",
+      "dest": "USD_BROAD",
+      "train_corr": -0.1032,
+      "test_corr": 0.205
+    },
+    {
+      "source": "UST10Y",
+      "dest": "EURUSD",
+      "train_corr": 0.0624,
+      "test_corr": -0.2253
+    },
+    {
+      "source": "CURVE_10_2",
+      "dest": "UST2Y",
+      "train_corr": 0.1015,
+      "test_corr": -0.3966
+    },
+    {
+      "source": "CURVE_10_2",
+      "dest": "USDJPY",
+      "train_corr": 0.2367,
+      "test_corr": -0.0548
+    },
+    {
+      "source": "USD_BROAD",
+      "dest": "UST2Y",
+      "train_corr": -0.0435,
+      "test_corr": 0.2313
+    },
+    {
+      "source": "USD_BROAD",
+      "dest": "UST10Y",
+      "train_corr": -0.1032,
+      "test_corr": 0.205
+    },
+    {
+      "source": "USD_BROAD",
+      "dest": "CURVE_10_2",
+      "train_corr": -0.1527,
+      "test_corr": 0.0686
+    },
+    {
+      "source": "USD_BROAD",
+      "dest": "BREAKEVEN_5Y5Y",
+      "train_corr": -0.1601,
+      "test_corr": 0.068
+    },
+    {
+      "source": "EURUSD",
+      "dest": "VIX",
+      "train_corr": -0.1062,
+      "test_corr": 0.0759
+    },
+    {
+      "source": "EURUSD",
+      "dest": "UST10Y",
+      "train_corr": 0.0624,
+      "test_corr": -0.2253
+    },
+    {
+      "source": "EURUSD",
+      "dest": "CURVE_10_2",
+      "train_corr": 0.1297,
+      "test_corr": -0.0528
+    },
+    {
+      "source": "EURUSD",
+      "dest": "BRENT",
+      "train_corr": 0.1499,
+      "test_corr": -0.0496
+    },
+    {
+      "source": "EURUSD",
+      "dest": "BREAKEVEN_5Y5Y",
+      "train_corr": 0.0763,
+      "test_corr": -0.0674
+    },
+    {
+      "source": "BREAKEVEN_5Y5Y",
+      "dest": "WTI",
+      "train_corr": 0.1935,
+      "test_corr": -0.0841
+    }
+  ],
+  "impulse_responses": {
+    "available": true,
+    "lags": 10,
+    "horizon": 10,
+    "channels": [
+      "SP500",
+      "UST10Y",
+      "WTI",
+      "USD_BROAD",
+      "VIX"
+    ],
+    "n_obs": 2468,
+    "stable": true,
+    "responses": {
+      "SP500": {
+        "SP500": [
+          0.01088243,
+          -0.00113692,
+          0.00074453,
+          -0.00027942,
+          -0.00049456,
+          0.00057785,
+          -0.00081215,
+          0.00119491,
+          -0.00123664,
+          0.00148685,
+          -0.00024498
+        ],
+        "UST10Y": [
+          0.00417319,
+          -0.00249706,
+          0.00055866,
+          -0.00204064,
+          -0.00101943,
+          0.00257577,
+          0.00200277,
+          0.00186915,
+          -0.0022756,
+          0.00289185,
+          -0.00057652
+        ],
+        "WTI": [
+          0.00454517,
+          0.00049818,
+          0.00231312,
+          -0.00090065,
+          0.00304835,
+          -0.00127145,
+          0.00383989,
+          0.00249226,
+          -0.00012939,
+          0.00081367,
+          -0.00033466
+        ],
+        "USD_BROAD": [
+          -0.00088669,
+          -0.00063313,
+          4.645e-05,
+          -0.00010501,
+          7.247e-05,
+          -3.528e-05,
+          0.00020299,
+          -0.0001143,
+          5.339e-05,
+          -5.99e-05,
+          -1.331e-05
+        ],
+        "VIX": [
+          -1.52194497,
+          0.26751987,
+          -0.02817892,
+          0.00404099,
+          0.11763532,
+          -0.03477974,
+          0.10028141,
+          -0.04784909,
+          0.15065623,
+          -0.12515963,
+          0.08668034
+        ]
+      },
+      "UST10Y": {
+        "SP500": [
+          0.0,
+          -0.00029241,
+          -2.301e-05,
+          -0.00040514,
+          -0.00051339,
+          0.00020481,
+          0.00016672,
+          -0.00013475,
+          8.58e-06,
+          0.00051336,
+          -0.00024183
+        ],
+        "UST10Y": [
+          0.05298695,
+          0.00038836,
+          -0.00289702,
+          0.00020796,
+          -0.00079109,
+          0.00104872,
+          0.00048955,
+          -0.00098538,
+          0.00071896,
+          0.00088194,
+          0.0012422
+        ],
+        "WTI": [
+          0.00414231,
+          0.00049471,
+          0.00042477,
+          -0.00067174,
+          9.696e-05,
+          0.00046052,
+          -9.495e-05,
+          0.00046623,
+          -0.00021664,
+          0.00053865,
+          -9.404e-05
+        ],
+        "USD_BROAD": [
+          0.00064754,
+          0.00031833,
+          -0.00011473,
+          2.418e-05,
+          8.288e-05,
+          -5.866e-05,
+          -3.468e-05,
+          8.877e-05,
+          4.728e-05,
+          5.032e-05,
+          4.156e-05
+        ],
+        "VIX": [
+          -0.07108843,
+          -0.00116773,
+          -0.02970595,
+          -0.04367011,
+          0.06430484,
+          -0.02540883,
+          -0.0368706,
+          0.03746893,
+          -0.00172163,
+          -0.08881121,
+          0.04640202
+        ]
+      },
+      "WTI": {
+        "SP500": [
+          0.0,
+          -0.00024592,
+          0.00019195,
+          0.00067999,
+          -0.00034824,
+          -0.00020304,
+          -0.00024907,
+          -0.00022425,
+          -4.4e-06,
+          -9.924e-05,
+          0.00051767
+        ],
+        "UST10Y": [
+          0.0,
+          0.00069323,
+          0.00168749,
+          0.00096162,
+          -0.00108095,
+          0.00031831,
+          0.00166283,
+          -0.00066704,
+          3.208e-05,
+          0.00066108,
+          -0.00042003
+        ],
+        "WTI": [
+          0.02951289,
+          -0.00065816,
+          0.00085234,
+          -0.00357931,
+          0.00142899,
+          -0.0008639,
+          0.00089928,
+          -0.00040644,
+          0.00133835,
+          -0.00027933,
+          -0.0010556
+        ],
+        "USD_BROAD": [
+          -0.00022892,
+          -4.291e-05,
+          3.978e-05,
+          -8.705e-05,
+          -5.785e-05,
+          -5.067e-05,
+          -7.687e-05,
+          0.00010178,
+          -4.842e-05,
+          -2.518e-05,
+          1.936e-05
+        ],
+        "VIX": [
+          -0.08753583,
+          0.0318736,
+          -0.06037483,
+          -0.10626587,
+          0.10844739,
+          -0.00562417,
+          0.02425335,
+          0.05717649,
+          -0.00438926,
+          0.0723599,
+          0.03165395
+        ]
+      },
+      "USD_BROAD": {
+        "SP500": [
+          0.0,
+          0.00018683,
+          -0.00055491,
+          0.0003099,
+          -0.00043506,
+          0.00016651,
+          9.191e-05,
+          0.00012767,
+          0.00011745,
+          -3.944e-05,
+          0.00029784
+        ],
+        "UST10Y": [
+          0.0,
+          0.00055898,
+          -0.00096691,
+          0.00035573,
+          0.00078165,
+          -0.00097161,
+          -0.00113895,
+          0.00073978,
+          0.00036764,
+          -8.754e-05,
+          0.00049895
+        ],
+        "WTI": [
+          0.0,
+          -8.918e-05,
+          0.0003493,
+          -0.00066359,
+          0.00053086,
+          -0.00012066,
+          -0.00177672,
+          0.00072983,
+          4.922e-05,
+          0.0003894,
+          8.72e-05
+        ],
+        "USD_BROAD": [
+          0.00278057,
+          -7.496e-05,
+          3.843e-05,
+          -1.69e-05,
+          3.937e-05,
+          0.00012062,
+          -0.0002267,
+          5.836e-05,
+          1.613e-05,
+          -1.888e-05,
+          -0.00015044
+        ],
+        "VIX": [
+          -0.00622295,
+          -0.03645929,
+          0.03840205,
+          -0.0848405,
+          0.10420632,
+          0.02812536,
+          0.00489042,
+          -0.07087067,
+          -0.02186325,
+          0.00847307,
+          -0.02068261
+        ]
+      },
+      "VIX": {
+        "SP500": [
+          0.0,
+          0.00038117,
+          -0.00096561,
+          -0.00066829,
+          -0.00048642,
+          -0.00050051,
+          -0.00023157,
+          0.00011698,
+          0.00053242,
+          7.486e-05,
+          -7.927e-05
+        ],
+        "UST10Y": [
+          0.0,
+          0.00199746,
+          -0.00209567,
+          0.00059146,
+          0.00090109,
+          0.00050841,
+          -0.00011067,
+          6.487e-05,
+          0.00230589,
+          0.00201383,
+          0.00123917
+        ],
+        "WTI": [
+          0.0,
+          -0.00096888,
+          -0.00210007,
+          -0.00037995,
+          5.307e-05,
+          0.00362026,
+          -0.00147051,
+          -0.00124397,
+          -0.00054958,
+          -0.00105249,
+          -0.00154367
+        ],
+        "USD_BROAD": [
+          0.0,
+          -5.589e-05,
+          2.674e-05,
+          0.00015352,
+          0.00020376,
+          0.00012066,
+          5.553e-05,
+          4.941e-05,
+          -0.00013598,
+          -3.069e-05,
+          -6.642e-05
+        ],
+        "VIX": [
+          1.14060366,
+          -0.16732622,
+          0.09021231,
+          0.03036674,
+          -0.11895718,
+          0.03274491,
+          0.02083678,
+          -0.07777562,
+          -0.00108173,
+          0.0309138,
+          0.05689591
+        ]
+      }
+    }
+  }
+}

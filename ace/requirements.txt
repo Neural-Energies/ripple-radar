@@ -1,6 +1,8 @@
 # ACE quantitative stack. Deliberately lean: added when a model needs it,
 # not because a library sounds advanced (§5).
 numpy>=2.0
+statsmodels>=0.15
+networkx>=3.4
 pandas>=2.2
 scipy>=1.14
 scikit-learn>=1.5
