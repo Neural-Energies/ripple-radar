@@ -23,6 +23,8 @@ from dataclasses import asdict, dataclass
 import numpy as np
 import pandas as pd
 
+from ace.data.series import rolling_std, rolling_sum
+
 
 @dataclass(frozen=True)
 class Analog:
@@ -38,10 +40,33 @@ def _state_matrix(returns: pd.DataFrame, channels: list[str], window: int = 20) 
     """Rolling state description: recent move and recent volatility per channel."""
     parts: dict[str, pd.Series] = {}
     for ch in channels:
+        # Each channel has its own trading calendar; rolling over the panel's
+        # union index would return NaN for every window spanning another
+        # market's holiday. See ace/data/series.py.
         s = returns[ch]
-        parts[f"{ch}_mom"] = s.rolling(window, min_periods=window).sum()
-        parts[f"{ch}_vol"] = s.rolling(window, min_periods=window).std()
+        parts[f"{ch}_mom"] = rolling_sum(s, window)
+        parts[f"{ch}_vol"] = rolling_std(s, window)
     return pd.DataFrame(parts).dropna()
+
+
+# FRED licenses SP500 and DJIA for a rolling ten years; NASDAQ goes back to
+# 2010. For an engine whose whole product is "what happened after states like
+# this one", that is the difference between an analog pool that contains 2011
+# and 2015 and one that does not — 4,060 usable states against 2,450. The
+# equity leg therefore prefers whichever index carries the most history.
+EQUITY_PREFERENCE = ("NASDAQ", "SP500", "DJIA")
+OTHER_LEGS = ("UST10Y", "WTI", "USD_BROAD", "VIX")
+
+
+def default_channels(returns: pd.DataFrame) -> list[str]:
+    """Longest-history equity leg available, plus the macro legs."""
+    equity = max(
+        (c for c in EQUITY_PREFERENCE if c in returns.columns),
+        key=lambda c: int(returns[c].notna().sum()),
+        default=None,
+    )
+    legs = [c for c in OTHER_LEGS if c in returns.columns]
+    return ([equity] if equity else []) + legs
 
 
 def find_analogs(
@@ -59,7 +84,7 @@ def find_analogs(
     Returns the analog list plus the distribution of their forward outcomes —
     never a single "expected" number, because the spread is the information.
     """
-    channels = channels or [c for c in ("SP500", "UST10Y", "WTI", "USD_BROAD", "VIX") if c in returns.columns]
+    channels = channels or default_channels(returns)
     as_of = pd.Timestamp(as_of)
     if as_of.tzinfo is None:
         as_of = as_of.tz_localize("UTC")
@@ -71,7 +96,8 @@ def find_analogs(
             return {"available": False, "reason": "no state history before as_of"}
         as_of = prior[-1]
 
-    fwd = returns[target_channel].shift(-forward).rolling(forward).sum().shift(-1)
+    # Forward window, computed by reversing the series so the sum at t covers
+    # t+1..t+forward and never t itself.
     fwd = returns[target_channel][::-1].rolling(forward).sum()[::-1].shift(-1)
 
     # Candidates: strictly before as_of, and whose own forward window has closed.

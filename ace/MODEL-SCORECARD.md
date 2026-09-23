@@ -31,6 +31,7 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | Event impact (macro) | **FAILED** | No. |
 | News → volatility increment | **FAILED — 6/6 channels** | No — subsumed by VIX. |
 | Dynamic Bayesian Network | **FAILED — 0/6 channels** | No. |
+| Causal impact (SCM + local projections) | **Estimators validated; no forecastable effect** | Yes for same-day co-movement, labelled predictive. No forward claim. |
 | Prophet (news attention) | **FAILED** | No — loses to a trailing mean. |
 
 **Nothing is wired into the application.** `ace/` is standalone; the UI still
@@ -400,6 +401,107 @@ follow-up.
 
 ---
 
+## 10. Causal impact (SCM + local projections) — machinery validated, nothing to forecast
+
+Two parts, because a causal estimator never announces when it is wrong. A
+mis-specified adjustment returns a confident number in exactly the shape of a
+correct one.
+
+**Part 1 — recover an effect planted on purpose.** Confounded synthetic data
+where the naive treated-minus-untreated contrast says **+3.80** and the truth
+is **+2.00**:
+
+| Estimator | ATE | error | 95% CI |
+|---|---|---|---|
+| regression adjustment | +2.0381 | +0.0381 | — |
+| inverse propensity weighting | +2.0701 | +0.0701 | — |
+| **cross-fitted doubly robust (AIPW)** | **+2.0054** | **+0.0054** | [+1.9314, +2.0794] |
+
+All three refutations pass — a permuted treatment gives −0.010 against +2.038,
+an irrelevant covariate moves the estimate 0.0%, and 70% subsets drift 0.4%.
+Local projections recover a planted impulse response (1.0 decaying at 0.7)
+within 0.12 at every horizon.
+
+The pre-trend test was checked in **both** directions, because a placebo that
+cannot fail is worse than no placebo: it passes on an unanticipated shock and
+fails on one the market learns about three days early.
+
+**Part 2 — the real question.** For each (shock market → S&P) pair: state the
+graph, derive the adjustment set from it, estimate with Newey-West errors, run
+the pre-trend test, and correct the eleven horizons for multiplicity.
+
+| Pair | shock days | pre-trend | raw significant | Holm-corrected | beyond same day |
+|---|---|---|---|---|---|
+| WTI → SP500 | 142 | ok | [0] | [0] | no |
+| USD_BROAD → SP500 | 130 | **violated at h=−1** | [0] | [0] | withheld |
+| UST10Y → SP500 | 120 | ok | [0, 9] | [0] | no |
+| VIX → SP500 | 138 | ok | [0, 6] | [0] | no (h=0 is mechanical) |
+
+**Nothing survives beyond the day of the shock.** The isolated h=6 and h=9
+"significances" are what eleven tests at 5% produce — a 43% chance of at least
+one false positive per pair — and Holm removes both. VIX → S&P at h=0 is
+arithmetic, not a finding: VIX is priced off S&P options.
+
+This is the same answer the transmission engine reached from lagged
+correlations (72.1% of edges survive out of sample, **zero** hold the same
+non-zero lag in both periods). Two methods, one conclusion: cross-market impact
+in liquid macro is a same-day repricing.
+
+**Claim tier: predictive, not causal — 0 of 4 pairs.** The graph ACE actually
+believes has a latent common driver (markets share news nobody observes), and
+under it no observed adjustment set blocks the backdoor paths. The module says
+`NOT IDENTIFIED` and reports what it can honestly deliver: an impulse response
+with correct standard errors and a placebo test. Upgrading that to a causal
+claim needs an exogenous event feed, an instrument or a discontinuity — not a
+better estimator. This is the concrete reason the GDELT event database is
+being built.
+
+Registered **VALIDATING**, not promoted: validated infrastructure that found
+nothing to forecast is not a forecasting model, and the registry has to say
+which.
+
+---
+
+## A silent sample-destroying defect — rolling windows over a gappy panel
+
+A cross-asset panel is a union of trading calendars. SP500 has no value on a
+US market holiday, WTI none when the NYMEX is shut, and FRED licenses the
+index series for only a rolling ten years. `rolling(60, min_periods=60)` over
+that panel returns NaN for every window containing a hole — silently, with no
+warning and no error.
+
+Measured on the real panel:
+
+| Series | 60-day vol, usable values | 2σ days found |
+|---|---|---|
+| SP500 naive | **21** | **0** |
+| SP500 on its own calendar | 2,452 | 142 |
+| NASDAQ naive | 852 | 48 |
+| NASDAQ on its own calendar | 4,146 | 253 |
+
+A model reading the naive column would conclude the S&P has no stress days at
+all, from a series that has one every eighteen sessions.
+
+Every rolling call in `ace/` was audited. The model runners were already safe
+— `volatility_model`, `scenario_probability_model` and `cascade_model` all
+call `.dropna()` before rolling, which is why their published results stand.
+Two places were not: the new causal module, and the **historical analogs
+engine**, whose state matrix had 812 usable rows where it should have had
+2,450.
+
+`ace/data/series.py` now makes the correct behaviour explicit and named
+(`rolling_std`, `shock_series` — roll on the dates a series was observed, then
+reindex), the two call sites use it, and three tests pin it.
+
+While fixing it: the analogs engine's equity leg now prefers whichever index
+carries the most history. FRED's ten-year licence on SP500 had been truncating
+the analog pool to 2,450 states from 2016; NASDAQ reaches back to 2010 for
+**4,060**, so the pool now contains 2011 and 2015 — episodes an engine whose
+entire product is "what happened after states like this one" should not be
+blind to.
+
+---
+
 ## Registry integrity — a defect found and fixed
 
 `register()` replaces the row for a given `model_id:version`. Models that take
@@ -432,7 +534,9 @@ volatility (HAR, 3/6 channels), event cascade (Hawkes, 2/3 channels),
 competing risks. **Failing:** shock persistence, macro impact direction and
 magnitude, news→volatility increment, Prophet, and the Dynamic Bayesian
 Network on market states. **Descriptive only:** regime labelling, historical
-analogs, transmission structure.
+analogs, transmission structure. **Validated machinery with nothing to
+forecast:** the causal engine — its estimators recover planted effects, and
+no market pair produced a response that outlives the day it happened.
 
 The failures are the evidence that the gate works. A leaky setup does not
 return AUC 0.49 — it returns 0.65 and looks fundable. And the passes are
@@ -447,8 +551,16 @@ genuine historical analogs with honest dispersion; exact game equilibria under
 payoff uncertainty; and which markets move together contemporaneously.
 
 **What it cannot claim:** that it forecasts direction, that any lead-lag
-relationship is tradeable, or that cross-variable state improves a
-day-ahead event probability.
+relationship is tradeable, that cross-variable state improves a day-ahead
+event probability, or that any cross-market impact it measures is causal
+rather than contemporaneous co-movement.
+
+Two independent methods now say the same thing about the ripple thesis in
+liquid macro: the transmission engine finds no lag that holds across periods,
+and local projections find no horizon beyond h=0 that survives multiplicity
+correction. Markets reprice together, the same day. Whatever ACE forecasts
+that is worth forecasting is therefore not in the price series — it is in the
+event stream, which is what the GDELT and feed work is for.
 
 ## Reproducing
 
@@ -461,6 +573,7 @@ python3 ace/models/news_volatility_model.py --channel SP500
 python3 ace/models/cascade_model.py
 python3 ace/models/competing_risks_model.py
 python3 ace/models/dbn_model.py
+python3 ace/models/causal_impact_model.py
 python3 ace/models/shock_persistence_model.py
 python3 ace/models/macro_impact_model.py
 python3 ace/ripple/validate_edges.py
