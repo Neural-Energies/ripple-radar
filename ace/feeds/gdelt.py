@@ -73,6 +73,23 @@ class FeedUnavailable(RuntimeError):
     pass
 
 
+# A cache write that fails silently turns a "resumable" job into one that
+# re-downloads everything forever. This warns once per process instead, so a
+# missing parquet engine is visible rather than costing hours of refetching.
+_cache_warned = False
+
+
+def _write_cache(df: pd.DataFrame, path: Path) -> None:
+    global _cache_warned
+    try:
+        df.to_parquet(path, index=False)
+    except Exception as e:
+        if not _cache_warned:
+            print(f"[gdelt] CACHE DISABLED: cannot write parquet ({e}). "
+                  f"Install pyarrow — without it every fetch re-downloads.", flush=True)
+            _cache_warned = True
+
+
 def _throttle() -> None:
     global _last
     wait = _MIN_GAP_S - (time.monotonic() - _last)
@@ -138,10 +155,7 @@ def fetch_export(url: str) -> pd.DataFrame:
         df[c] = pd.to_numeric(df[c], errors="coerce").astype("Int64")
     df["event_time"] = pd.to_datetime(df["date_added"], format="%Y%m%d%H%M%S", utc=True, errors="coerce")
     df = df.dropna(subset=["event_time"])
-    try:
-        df.to_parquet(cached, index=False)
-    except Exception:
-        pass
+    _write_cache(df, cached)
     return df
 
 
@@ -264,8 +278,5 @@ def fetch_daily(day: str, *, min_mentions: int = 0, quad_classes: tuple[int, ...
         df = df[df["quad_class"].isin(quad_classes)]
 
     df = df.reset_index(drop=True)
-    try:
-        df.to_parquet(cached, index=False)
-    except Exception:
-        pass
+    _write_cache(df, cached)
     return df
