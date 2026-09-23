@@ -5,6 +5,7 @@ statsmodels>=0.15
 networkx>=3.4
 pandas>=2.2
 scipy>=1.14
+prophet>=1.1  # evaluated as a candidate; see MODEL-SCORECARD
 scikit-learn>=1.5
 lightgbm>=4.5
 nashpy>=0.0.40
