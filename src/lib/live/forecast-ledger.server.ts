@@ -25,6 +25,60 @@ function snapshotId(eventId: string, atMs: number) {
 
 /** Freeze a new snapshot only when this event's scenario mix actually moved
  * (first sighting, or a material rescore) — never on an unchanged poll. */
+/**
+ * How long to wait before this book can be graded.
+ *
+ * A flat 72h was wrong in both directions: a weather book is knowable inside a
+ * day, and a licensing or capex book is not settled in three. Grading too
+ * early produces an inconclusive verdict that is really just "nothing has
+ * happened yet", and those verdicts are what keep calibration empty.
+ *
+ * The engine already states each book's own horizons (`horizons[].horizon`,
+ * e.g. 24h / 7d / 30d / 2q / 12m). Grade at the SHORTEST one — the first
+ * checkpoint the book itself claims is meaningful — clamped so a malformed or
+ * absurd horizon cannot make a forecast ungradeable or instantly due.
+ */
+export const MIN_HORIZON_HOURS = 12;
+export const MAX_HORIZON_HOURS = 24 * 30;
+
+export function parseHorizonHours(label: string): number | null {
+  const m = /^\s*(\d+(?:\.\d+)?)\s*(h|hr|hrs|hour|hours|d|day|days|w|wk|week|weeks|m|mo|month|months|q|quarter|quarters|y|yr|year|years)\s*$/i.exec(
+    label,
+  );
+  if (!m) return null;
+  const n = Number(m[1]);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  const unit = m[2]!.toLowerCase();
+  const perUnit = unit.startsWith("h")
+    ? 1
+    : unit.startsWith("d")
+      ? 24
+      : unit.startsWith("w")
+        ? 24 * 7
+        : unit.startsWith("q")
+          ? 24 * 91
+          : unit.startsWith("y")
+            ? 24 * 365
+            : 24 * 30; // m / mo / month
+  return n * perUnit;
+}
+
+export function horizonHoursFor(event: {
+  horizons?: { horizon: string }[];
+  forecastHorizon?: string;
+}): number {
+  const labels = [
+    ...(event.horizons ?? []).map((h) => h.horizon),
+    ...(event.forecastHorizon ? event.forecastHorizon.split(/[\s/·,]+/) : []),
+  ];
+  const parsed = labels
+    .map(parseHorizonHours)
+    .filter((n): n is number => n != null && n > 0);
+  if (parsed.length === 0) return 72; // no stated horizon: the previous default
+  const shortest = Math.min(...parsed);
+  return Math.round(Math.min(MAX_HORIZON_HOURS, Math.max(MIN_HORIZON_HOURS, shortest)));
+}
+
 export async function freezeIfChanged(event: RadarEvent): Promise<void> {
   try {
     if (!event.id || !event.scenarios?.length) return;
@@ -48,7 +102,7 @@ export async function freezeIfChanged(event: RadarEvent): Promise<void> {
     const id = snapshotId(event.id, Date.now());
     await sql`
       insert into forecast_snapshots (id, event_id, event_title, scenarios, provenance, horizon_hours)
-      values (${id}, ${event.id}, ${event.title}, ${nextJson}, ${event.provenance ?? "heuristic"}, 72)
+      values (${id}, ${event.id}, ${event.title}, ${nextJson}, ${event.provenance ?? "heuristic"}, ${horizonHoursFor(event)})
       on conflict (id) do nothing
     `;
   } catch (err) {
@@ -98,10 +152,13 @@ export async function archiveHeadlines(headlines: LiveHeadline[]): Promise<void>
     const { getSql } = await import("@/lib/db");
     const sql = await getSql();
     for (const h of headlines.slice(0, 40)) {
+      // The cluster match is the whole point of archiving: without it the
+      // resolution pass cannot tell which headlines are about which book.
+      const eventIds = JSON.stringify(h.eventIds ?? []);
       await sql`
-        insert into headline_archive (id, title, source, published)
-        values (${h.id}, ${h.title}, ${h.source}, to_timestamp(${h.eventTimeMs} / 1000.0))
-        on conflict (id) do nothing
+        insert into headline_archive (id, title, source, published, event_ids)
+        values (${h.id}, ${h.title}, ${h.source}, to_timestamp(${h.eventTimeMs} / 1000.0), ${eventIds})
+        on conflict (id) do update set event_ids = excluded.event_ids
       `;
     }
   } catch (err) {
@@ -195,10 +252,16 @@ export async function runResolutionPass(limit = 10): Promise<{ checked: number; 
   for (const row of due) {
     const scenarios = JSON.parse(row.scenarios) as ScenarioRow[];
     const asOfMs = new Date(row.as_of).getTime();
+    // Only headlines the desk matched to THIS book, and newest first: the
+    // outcome shows up at the end of the horizon, not in the minutes right
+    // after the freeze. A global, oldest-first slice made every grading
+    // inconclusive, which is why calibration never filled.
     const later = await sql<{ title: string }>`
       select title from headline_archive
       where published > to_timestamp(${asOfMs} / 1000.0)
-      order by published asc
+        and event_ids is not null
+        and event_ids like ${"%\"" + row.event_id + "\"%"}
+      order by published desc
       limit 15
     `;
     const judged = await judgeResolution(apiKey, row.event_title, scenarios, later);
