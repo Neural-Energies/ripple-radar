@@ -19,12 +19,111 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 
 | Engine | Status | May it drive a user-facing number? |
 |---|---|---|
+| **Scenario probability (FHS)** | **PASSES — calibrated 4/4 channels** | **Yes.** PIT uniform out of sample. |
+| **Volatility forecast (HAR+VIX)** | **PASSES — SP500** | **Yes**, for SP500. Withheld elsewhere. |
+| Game theory (Nash + Monte Carlo) | **Exact** | Yes — equilibria computed and verified. Payoffs remain an assumption. |
 | Regime (Markov switching) | **Validated, descriptive** | Yes — to label the environment. Not as a forecast. |
-| Game theory (Nash + Monte Carlo) | **Exact** | Yes — equilibria are computed and verified. Payoffs remain an assumption. |
 | Historical analogs | **Validated, descriptive** | Yes — as a distribution of what followed similar states. |
 | Transmission / Ripple | **Partly validated** | Contemporaneous structure only. No tradeable lag exists in this data. |
-| Scenario probability | **FAILED** | No. |
-| Event impact | **FAILED** | No. |
+| Shock persistence | **FAILED** | No. |
+| Event impact (macro) | **FAILED** | No. |
+| News → volatility increment | **FAILED** | No — subsumed by VIX. |
+| Prophet (news attention) | **FAILED** | No — loses to a trailing mean. |
+
+**Nothing is wired into the application.** `ace/` is standalone; the UI still
+runs its original heuristics. A PRODUCTION status in the registry is a
+registry label, not a deployment.
+
+---
+
+## 0. The two that pass
+
+### Scenario probability — calibrated on every channel tested
+
+The engine ACE actually needs. Given a channel and horizon it returns the
+probability distribution of the move, and those probabilities are calibrated.
+
+| Channel | Worst interval miss | PIT uniformity (KS) |
+|---|---|---|
+| SP500 | 4.8% (t-dist: 16.0%) | p = 0.543 ✓ |
+| NASDAQ | 5.2% (t-dist: 6.9%) | p = 0.689 ✓ |
+| WTI | 4.9% (t-dist: 12.9%) | p = 0.830 ✓ |
+| USD_BROAD | 3.1% (t-dist: 8.7%) | p = 0.223 ✓ |
+
+Uniform PIT means the forecast distribution is correctly specified, which
+validates every probability read off it at once.
+
+Three defects were found and fixed to get here, each of which had made the
+result look worse than the truth: the tail parameter was standardized by
+*realized* rather than *forecast* volatility (pinning it at its ceiling);
+calibration was tested on 20-day windows sampled daily, which overlap 19/20
+and break the independence KS assumes; and bands were centred at zero,
+ignoring drift.
+
+Even corrected, a parametric Student-t mis-shaped the centre — 90%/95%
+intervals near nominal while the 50% covered only 34–43%. Forecast-vol error
+inflates apparent kurtosis, dragging df down and squeezing the middle.
+**Filtered Historical Simulation** — rescaling the empirical residual
+distribution instead of assuming a shape — fixed it. That is standard practice
+in production VaR systems for exactly this reason.
+
+### Volatility forecast — HAR-RV + VIX, SP500
+
+| Model | Sealed-holdout R²(log) |
+|---|---|
+| random walk (scaled naive) | −0.0386 |
+| EWMA scaled | −0.0751 |
+| HAR-RV | +0.0038 |
+| **HAR-RV + VIX** | **+0.1721** |
+| LightGBM | +0.1642 |
+
+Lift over the scaled naive model **+0.2107**, block-bootstrap 95% CI
+**[+0.0951, +0.4617]**.
+
+On NASDAQ, WTI and USD_BROAD the same model posts holdout R² of 0.21–0.41 and
+still beats naive, but the CI on the *gap* spans zero, so the gate withholds.
+VIX is SP500's own implied volatility; it only adds decisively there.
+
+**A correction that mattered.** An earlier pass reported trailing vol scoring
+R² −0.018 against forward vol and concluded volatility was unforecastable.
+Volatility clustering is among the most replicated facts in finance, so that
+number meant the setup was wrong — and it was. corr(trailing, forward) is
+0.512, but trailing vol's *slope* against forward vol is 0.512, not 1.0. It is
+a biased estimator; using it as a point forecast destroys the R². Fit the
+scaling and it is 0.26.
+
+### News text — real signal, no incremental value
+
+FRED carries daily news-text-derived indices back to 1985 (Baker/Bloom/Davis
+policy-uncertainty and equity-market-uncertainty series). They correlate
+0.19–0.29 with forward volatility, which is real.
+
+| Comparison | Holdout R² gap | 95% CI | |
+|---|---|---|---|
+| VIX over HAR | +0.1313 | [+0.0186, +0.3796] | **passes** |
+| news over HAR | +0.0478 | [−0.1385, +0.1463] | not significant |
+| news over HAR+VIX | −0.0048 | [−0.2184, +0.1878] | not significant |
+
+The newspapers and the options market are describing the same uncertainty, and
+the options market prices it first. News is not additive here.
+
+### Prophet — tested on its home ground, failed
+
+Prophet decomposes trend and seasonality, so applying it to returns would be
+misapplication. It was tested on news-attention levels instead, where weekly
+and yearly structure genuinely exists. Rolling-origin, 24 out-of-sample
+forecasts, 5 days ahead:
+
+| Model | MAE | R² |
+|---|---|---|
+| trailing mean | **0.6661** | −0.1493 |
+| random walk | 0.7128 | −0.3873 |
+| **Prophet** | 0.7717 | −0.8495 |
+| seasonal naive | 0.9900 | −1.5372 |
+
+MAE difference vs best naive +0.1055, CI [−0.1624, +0.4206]. Recorded, not
+used. (24 origins is a thin evaluation; the direction is clear but this rules
+out a large effect rather than any effect.)
 
 ---
 

@@ -1,0 +1,125 @@
+{
+  "reports": {
+    "har": {
+      "dev": {
+        "model": "har",
+        "n": 1180,
+        "r2_log": 0.3577,
+        "r2_level": 0.2508,
+        "mae_level": 0.003466,
+        "qlike": 0.658804,
+        "bias_slope": 1.3804
+      },
+      "holdout": {
+        "model": "har",
+        "n": 560,
+        "r2_log": 0.0302,
+        "r2_level": 0.0991,
+        "mae_level": 0.002969,
+        "qlike": 0.385605,
+        "bias_slope": 0.735
+      }
+    },
+    "har_vix": {
+      "dev": {
+        "model": "har_vix",
+        "n": 1180,
+        "r2_log": 0.4657,
+        "r2_level": 0.3967,
+        "mae_level": 0.00328,
+        "qlike": 0.459566,
+        "bias_slope": 0.8785
+      },
+      "holdout": {
+        "model": "har_vix",
+        "n": 560,
+        "r2_log": 0.1615,
+        "r2_level": 0.1585,
+        "mae_level": 0.002643,
+        "qlike": 0.361489,
+        "bias_slope": 0.7899
+      }
+    },
+    "har_news": {
+      "dev": {
+        "model": "har_news",
+        "n": 1180,
+        "r2_log": 0.3494,
+        "r2_level": 0.4364,
+        "mae_level": 0.003727,
+        "qlike": 0.369276,
+        "bias_slope": 1.0404
+      },
+      "holdout": {
+        "model": "har_news",
+        "n": 560,
+        "r2_log": 0.078,
+        "r2_level": 0.1624,
+        "mae_level": 0.002972,
+        "qlike": 0.323295,
+        "bias_slope": 0.7516
+      }
+    },
+    "har_vix_news": {
+      "dev": {
+        "model": "har_vix_news",
+        "n": 1180,
+        "r2_log": 0.5072,
+        "r2_level": 0.5678,
+        "mae_level": 0.003153,
+        "qlike": 0.311403,
+        "bias_slope": 0.9066
+      },
+      "holdout": {
+        "model": "har_vix_news",
+        "n": 560,
+        "r2_log": 0.1567,
+        "r2_level": 0.1248,
+        "mae_level": 0.002644,
+        "qlike": 0.392935,
+        "bias_slope": 0.7262
+      }
+    }
+  },
+  "comparisons": {
+    "news over har (no VIX)": {
+      "gap": 0.0478,
+      "ci": [
+        -0.1385,
+        0.1463
+      ],
+      "significant": false
+    },
+    "news over har+VIX": {
+      "gap": -0.0048,
+      "ci": [
+        -0.2184,
+        0.1878
+      ],
+      "significant": false
+    },
+    "VIX over har": {
+      "gap": 0.1313,
+      "ci": [
+        0.0186,
+        0.3796
+      ],
+      "significant": true
+    }
+  },
+  "news_features": [
+    "news_policy_uncertainty_log",
+    "news_policy_uncertainty_chg5",
+    "news_policy_uncertainty_chg20",
+    "news_policy_uncertainty_z",
+    "news_equity_uncertainty_log",
+    "news_equity_uncertainty_chg5",
+    "news_equity_uncertainty_chg20",
+    "news_equity_uncertainty_z",
+    "news_infectious_disease_emv_log",
+    "news_infectious_disease_emv_chg5",
+    "news_infectious_disease_emv_chg20",
+    "news_infectious_disease_emv_z"
+  ],
+  "n": 2240
+}
