@@ -1,0 +1,164 @@
+{
+  "NASDAQ": {
+    "n_events": 253,
+    "n_train": 148,
+    "n_test": 105,
+    "fit": {
+      "mu": 0.02838662,
+      "alpha": 0.348763,
+      "beta": 0.121825,
+      "log_likelihood": -596.9,
+      "poisson_log_likelihood": -612.245,
+      "lr_statistic": 30.689,
+      "lr_p_value": 2.2e-07,
+      "beats_poisson": true,
+      "branching_ratio": 0.348763,
+      "stationary": true,
+      "mean_excitation_life": 8.2085,
+      "n_events": 148,
+      "horizon": 3408.405,
+      "converged": true
+    },
+    "gof_train": {
+      "available": true,
+      "n": 147,
+      "ks_stat": 0.0661,
+      "ks_p_value": 0.520263,
+      "exponential_by_ks": true,
+      "mean": 1.0049,
+      "expected_mean": 1.0,
+      "note": "iid Exp(1) residuals => the fitted intensity is correctly specified"
+    },
+    "gof_test": {
+      "available": true,
+      "n": 104,
+      "ks_stat": 0.10169,
+      "ks_p_value": 0.217141,
+      "exponential_by_ks": true,
+      "mean": 1.0081,
+      "expected_mean": 1.0,
+      "note": "iid Exp(1) residuals => the fitted intensity is correctly specified"
+    },
+    "oos_loglik_hawkes": -417.997,
+    "oos_loglik_poisson": -436.07,
+    "oos_gain": 18.073,
+    "cascade": {
+      "available": true,
+      "direct_offspring_within_horizon": 0.2456,
+      "total_offspring_all_generations": 0.5355,
+      "cascade_multiplier": 1.5355,
+      "excitation_half_life": 5.6897
+    },
+    "passes": true,
+    "first_event": "2010-04-27",
+    "last_event": "2026-09-21"
+  },
+  "WTI": {
+    "n_events": 233,
+    "n_train": 130,
+    "n_test": 103,
+    "fit": {
+      "mu": 0.02756501,
+      "alpha": 0.276287,
+      "beta": 0.105886,
+      "log_likelihood": -546.783,
+      "poisson_log_likelihood": -555.326,
+      "lr_statistic": 17.085,
+      "lr_p_value": 0.00019501,
+      "beats_poisson": true,
+      "branching_ratio": 0.276287,
+      "stationary": true,
+      "mean_excitation_life": 9.4441,
+      "n_events": 130,
+      "horizon": 3426.423,
+      "converged": true
+    },
+    "gof_train": {
+      "available": true,
+      "n": 129,
+      "ks_stat": 0.05382,
+      "ks_p_value": 0.829247,
+      "exponential_by_ks": true,
+      "mean": 1.0058,
+      "expected_mean": 1.0,
+      "note": "iid Exp(1) residuals => the fitted intensity is correctly specified"
+    },
+    "gof_test": {
+      "available": true,
+      "n": 102,
+      "ks_stat": 0.06643,
+      "ks_p_value": 0.733385,
+      "exponential_by_ks": true,
+      "mean": 1.008,
+      "expected_mean": 1.0,
+      "note": "iid Exp(1) residuals => the fitted intensity is correctly specified"
+    },
+    "oos_loglik_hawkes": -410.711,
+    "oos_loglik_poisson": -428.558,
+    "oos_gain": 17.847,
+    "cascade": {
+      "available": true,
+      "direct_offspring_within_horizon": 0.1805,
+      "total_offspring_all_generations": 0.3818,
+      "cascade_multiplier": 1.3818,
+      "excitation_half_life": 6.5462
+    },
+    "passes": true,
+    "first_event": "2010-05-04",
+    "last_event": "2026-07-27"
+  },
+  "USD_BROAD": {
+    "n_events": 216,
+    "n_train": 119,
+    "n_test": 97,
+    "fit": {
+      "mu": 0.02990722,
+      "alpha": 0.114745,
+      "beta": 0.059288,
+      "log_likelihood": -521.571,
+      "poisson_log_likelihood": -522.251,
+      "lr_statistic": 1.358,
+      "lr_p_value": 0.50705787,
+      "beats_poisson": false,
+      "branching_ratio": 0.114745,
+      "stationary": true,
+      "mean_excitation_life": 16.8667,
+      "n_events": 119,
+      "horizon": 3525.522,
+      "converged": true
+    },
+    "gof_train": {
+      "available": true,
+      "n": 118,
+      "ks_stat": 0.0389,
+      "ks_p_value": 0.991119,
+      "exponential_by_ks": true,
+      "mean": 1.0074,
+      "expected_mean": 1.0,
+      "note": "iid Exp(1) residuals => the fitted intensity is correctly specified"
+    },
+    "gof_test": {
+      "available": true,
+      "n": 96,
+      "ks_stat": 0.05598,
+      "ks_p_value": 0.90773,
+      "exponential_by_ks": true,
+      "mean": 1.009,
+      "expected_mean": 1.0,
+      "note": "iid Exp(1) residuals => the fitted intensity is correctly specified"
+    },
+    "oos_loglik_hawkes": -408.381,
+    "oos_loglik_poisson": -411.092,
+    "oos_gain": 2.711,
+    "cascade": {
+      "available": true,
+      "direct_offspring_within_horizon": 0.0513,
+      "total_offspring_all_generations": 0.1296,
+      "cascade_multiplier": 1.1296,
+      "excitation_half_life": 11.6912
+    },
+    "passes": false,
+    "first_event": "2010-05-06",
+    "last_event": "2026-08-19"
+  }
+}
