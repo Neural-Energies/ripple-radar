@@ -40,7 +40,7 @@ function MapsPage() {
 
   return (
     <div className="flex min-h-0 flex-col gap-1.5">
-      <ResearchHeader subtitle="Ripple Map" showTabs={false} />
+      <ResearchHeader subtitle="Ripple Map" />
       <div className="grid min-h-[calc(100vh-10rem)] grid-cols-1 items-start gap-1.5 xl:grid-cols-[minmax(0,1fr)_17rem]">
         <Panel
           title="Causal map"
@@ -203,8 +203,6 @@ function NodeInspector({
         <div>
           <div className="text-micro uppercase tracking-wider text-subtle">Links</div>
           <ul className="mt-1 flex flex-col gap-1">
-            {/* Walking the chain is the point of a causal map: each link steps
-                the inspector to the node on the other end of it. */}
             {incoming.map((l) => {
               const src = event.nodes.find((n) => n.id === l.source);
               return (
@@ -247,15 +245,6 @@ function NodeInspector({
   );
 }
 
-/**
- * One hop of the causal chain, with both drill-downs a reader wants here.
- *
- * The label navigates to the instrument or filter the node resolves to, so a
- * hop can be taken out of the graph and into the asset. The metric chip steps
- * the inspector along the chain instead, so the graph can be walked without
- * leaving the map. They are separate controls because an anchor nested inside
- * a button is neither valid nor operable.
- */
 function LinkStep({
   arrow,
   node,
