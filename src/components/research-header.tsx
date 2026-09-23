@@ -157,7 +157,9 @@ export function ResearchHeader({
                 to={t.to}
                 className={cn(
                   "rounded-sm px-2 py-1 text-micro uppercase tracking-wider focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-                  pathname === t.to || (t.to !== "/" && pathname.startsWith(t.to + "/"))
+                  // No RESEARCH_TABS entry is "/", so the child-route check
+                  // needs no root guard — `/assets/AAPL` still lights `/assets`.
+                  pathname === t.to || pathname.startsWith(t.to + "/")
                     ? "bg-primary/15 text-primary"
                     : "text-muted hover:bg-card-2 hover:text-foreground",
                 )}
