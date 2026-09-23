@@ -339,6 +339,26 @@ export interface RadarEvent {
   bands?: ForecastBand[];
   /** Mode B construction path — "model" (Grok JSON) vs "engine" (composeFromText fallback). Unset on Mode A tape events. */
   bookSource?: "model" | "engine";
+  /**
+   * Identity provenance from the event registry: how this poll's cluster was
+   * matched onto a persistent event, and how much of its evidence is new.
+   *
+   * `newEvidence` is a counted fact, not an estimate — the registry knows
+   * which headline ids this event did not already hold. It is what a
+   * probability-change alert must be built on, because "the story moved" and
+   * "the same three wires re-syndicated" look identical from a headline total.
+   */
+  identity?: {
+    /** 'fingerprint' = exact structural match, 'similarity' = drifted match, 'new' = first sighting. */
+    method: "fingerprint" | "similarity" | "new";
+    /** 1 for an exact match, the similarity score for a drifted one, 0 for new. */
+    score: number;
+    /** Entities that drove the match. Asserted by the matcher, not observed. */
+    matchedOn: string[];
+    /** Headlines on this poll that the event did not already hold. */
+    newEvidence: number;
+    firstSeenMs: number;
+  };
 }
 
 export interface AssetRecord {

@@ -1,5 +1,6 @@
 import { composeFromCluster } from "@/lib/engine/compose";
 import { clusterHeadlines, stampHeadlineClusters, type Cluster } from "@/lib/engine/cluster";
+import { resolveAndRecord } from "./event-registry.server";
 import { filterMarketRelevantHeadlines } from "@/lib/engine/relevance";
 import { relateEvents } from "@/lib/engine/relate";
 import type { EvidenceItem, RadarEvent } from "@/data/types";
@@ -214,11 +215,20 @@ function toLiveCluster(c: Cluster, eventIds: Set<string>): LiveCluster {
   };
 }
 
+/**
+ * Clusters in, events out.
+ *
+ * Clustering happens in `buildDesk` rather than here, because the clusters
+ * have to pass through the event registry first: a cluster's id is per-poll
+ * and content-derived, an event's id is persistent. Everything downstream --
+ * the book, the headline stamps, the forecast prior lookup -- keys off the
+ * event id, so the registry rewrites it before any of them see it.
+ */
 function discover(
   headlines: LiveHeadline[],
   quotes: Record<string, LiveQuote>,
+  clusters: Cluster[],
 ): { events: RadarEvent[]; headlines: LiveHeadline[]; clusters: LiveCluster[] } {
-  const clusters = clusterHeadlines(headlines);
   const stamped = stampHeadlineClusters(headlines, clusters);
   // Desk tape: only market-relevant headlines (or ones stamped to a surviving cluster).
   const deskHeadlines = filterMarketRelevantHeadlines(stamped);
@@ -241,9 +251,39 @@ export async function buildDesk(): Promise<LiveDesk> {
     loadNews().catch(() => newsCache?.headlines ?? []),
     loadFredMacroEvidence(),
   ]);
-  const { events, headlines, clusters } = discover(rawNews, quotes);
+  // Identity before anything else. `clusterHeadlines` gives per-poll clusters
+  // whose ids change whenever their newest headline does; the registry maps
+  // each onto a persistent event -- or opens a new one -- and records how it
+  // decided. Rewriting the id here is what makes the prior lookup below able
+  // to find anything at all.
+  const rawClusters = clusterHeadlines(rawNews);
+  const registry = await resolveAndRecord(rawClusters, now);
+  const identified: Cluster[] = registry.resolved.map((r) => ({
+    ...r.cluster,
+    id: r.resolution.eventId,
+  }));
+  const identityByEvent = new Map(
+    registry.resolved.map((r) => [
+      r.resolution.eventId,
+      {
+        method: r.resolution.method,
+        score: r.resolution.score,
+        matchedOn: r.resolution.matchedOn,
+        newEvidence: r.newHeadlineIds.length,
+        firstSeenMs: r.cluster.oldest,
+      },
+    ]),
+  );
+  if (registry.degraded) {
+    console.warn("[build] event registry unavailable — identity is per-poll this cycle");
+  }
+  const { events, headlines, clusters } = discover(rawNews, quotes, identified);
   const books: Record<string, LiveBook> = {};
   for (const ev of events) {
+    // How this event was identified, and how much of its evidence is actually
+    // new — both counted, neither inferred.
+    const identity = identityByEvent.get(ev.id);
+    if (identity) ev.identity = identity;
     const book = bookFromEvent(ev, headlines, quotes, fredEvidence);
     books[ev.id] = book;
     ev.evidence = book.evidence;
@@ -317,8 +357,15 @@ export async function buildDesk(): Promise<LiveDesk> {
   // Freeze-at-T ledger: best-effort, never blocks the poll response. Archives
   // this cycle's relevance-filtered headlines and freezes a new snapshot per
   // event only when its scenario mix actually moved (see forecast-ledger.server).
+  //
+  // Skipped entirely on a degraded cycle. With the registry unreachable the ids
+  // are per-poll again, so every freeze would land under an id no later poll
+  // can resolve: rows that can never be matched to an outcome, can never be
+  // scored, and would sit in the calibration set as permanent unresolved
+  // noise. Archiving headlines is still safe and still useful.
   void import("./forecast-ledger.server").then(({ freezeIfChanged, archiveHeadlines }) => {
     void archiveHeadlines(headlines);
+    if (registry.degraded) return;
     for (const ev of events) void freezeIfChanged(ev);
   });
 
