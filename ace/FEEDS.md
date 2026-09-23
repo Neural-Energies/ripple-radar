@@ -31,15 +31,32 @@ against the domain it was designed for. Result on 2,290 M6.0+ events
 residuals Exp(1) with KS p = 0.187, excitation half-life 43 minutes. The
 engine is correct.
 
-## Probed, reachable, not yet wired
+## Also wired (`ace/feeds/public.py`)
 
-| Feed | Key | Returned | Candidate use |
+| Feed | Key | Verified | Use |
 |---|---|---|---|
-| NWS / weather.gov alerts | no | 200, 55 KB | Live US weather warnings as typed events |
-| SEC EDGAR full-index | no | 200 | Corporate filing events (8-K as a material-event stream) |
-| Treasury FiscalData | no | 200 | Issuance, rates, debt operations |
-| World Bank indicators | no | 200 | Country macro context for hierarchical pooling |
-| CoinGecko | no | 200 | Crypto price history |
+| **SEC EDGAR** | no | 16,997 8-K filings, 2024Q1 | Corporate material-event stream with exact filing timestamps |
+| **NWS / weather.gov** | no | 444 active alerts | Live US weather warnings as typed events. **Live only** — no deep history from this API |
+| **Treasury FiscalData** | no | 1,000 rows | Rates, issuance, debt operations |
+| **World Bank** | no | annual series | Country context for hierarchical pooling |
+| **CoinGecko** | no | 366 daily prices | Crypto history. Free tier caps the window |
+
+### GDELT ingestion: use the DAILY export, not the 15-minute one
+
+The 2.0 feed publishes every 15 minutes — ~35,000 files a year, which at
+GDELT's requested 5s pacing is two days of fetching per year. The 1.0 **daily**
+export carries a full day in one file of ~100,000 events, so a decade is ~4,000
+files rather than ~350,000. Same CAMEO coding, same actors, same tone.
+
+The two schemas are **not interchangeable**. The 1.0 daily file has 58 columns
+and puts `DATEADDED` and `SOURCEURL` at 56/57, where 2.0 puts geography.
+Reading 2.0's positions against a 1.0 file silently places a source URL in the
+latitude field — a pipeline that runs fine and produces wrong data. Verified
+against real files and pinned by a test.
+
+`ace/feeds/backfill_gdelt.py` is resumable (each day caches under its own
+filter tag) and filters at ingest, since an unfiltered day is ~8 MB of mostly
+low-mention routine coverage.
 
 ## Probed and rejected
 
