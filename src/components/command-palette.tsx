@@ -157,13 +157,19 @@ export function CommandPalette() {
                 type="button"
                 onMouseEnter={() => setIdx(i)}
                 onClick={() => go(item)}
+                aria-selected={i === idx}
                 className={cn(
                   "flex w-full flex-col items-start px-4 py-2 text-left",
-                  i === idx ? "bg-card-2" : "",
+                  i === idx ? "bg-card-2" : "hover:bg-card-2/60",
                 )}
               >
-                <span className="text-caption text-foreground">{item.label}</span>
-                <span className="truncate text-tiny text-subtle">{item.sub}</span>
+                <span className="flex w-full items-center gap-2">
+                  <span className="w-10 shrink-0 font-mono text-micro uppercase tracking-wider text-subtle">
+                    {item.kind === "event" ? "book" : item.kind === "asset" ? "name" : "page"}
+                  </span>
+                  <span className="min-w-0 truncate text-caption text-foreground">{item.label}</span>
+                </span>
+                <span className="truncate pl-12 text-tiny text-subtle">{item.sub}</span>
               </button>
             </li>
           ))}
