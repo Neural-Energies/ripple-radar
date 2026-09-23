@@ -161,7 +161,8 @@ def main() -> int:
 
     register(
         ModelRecord(
-            model_id=MODEL_ID, model_family="ols nested specifications", model_version=MODEL_VERSION,
+            model_id=f"{MODEL_ID}_{args.channel}", model_family="ols nested specifications",
+            model_version=MODEL_VERSION,
             analysis_type="news_volatility_increment",
             target_variable=f"log realized vol of {args.channel} over {args.horizon} sessions",
             feature_schema=har_cols + ["log_vix"] + news_cols,

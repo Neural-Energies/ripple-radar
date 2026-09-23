@@ -20,14 +20,17 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | Engine | Status | May it drive a user-facing number? |
 |---|---|---|
 | **Scenario probability (FHS)** | **PASSES — calibrated 4/4 channels** | **Yes.** PIT uniform out of sample. |
-| **Volatility forecast (HAR+VIX)** | **PASSES — SP500** | **Yes**, for SP500. Withheld elsewhere. |
+| **Volatility forecast (HAR)** | **PASSES — 3/6 channels** | **Yes**, for SP500, DJIA, UST10Y. Withheld elsewhere. |
+| **Event cascade (Hawkes)** | **PASSES — 2/3 channels** | **Yes**, for NASDAQ and WTI. |
+| **Competing risks (Aalen-Johansen)** | **PASSES** | **Yes** — cumulative incidence by horizon. |
 | Game theory (Nash + Monte Carlo) | **Exact** | Yes — equilibria computed and verified. Payoffs remain an assumption. |
 | Regime (Markov switching) | **Validated, descriptive** | Yes — to label the environment. Not as a forecast. |
 | Historical analogs | **Validated, descriptive** | Yes — as a distribution of what followed similar states. |
 | Transmission / Ripple | **Partly validated** | Contemporaneous structure only. No tradeable lag exists in this data. |
 | Shock persistence | **FAILED** | No. |
 | Event impact (macro) | **FAILED** | No. |
-| News → volatility increment | **FAILED** | No — subsumed by VIX. |
+| News → volatility increment | **FAILED — 6/6 channels** | No — subsumed by VIX. |
+| Dynamic Bayesian Network | **FAILED — 0/6 channels** | No. |
 | Prophet (news attention) | **FAILED** | No — loses to a trailing mean. |
 
 **Nothing is wired into the application.** `ace/` is standalone; the UI still
@@ -36,7 +39,7 @@ registry label, not a deployment.
 
 ---
 
-## 0. The two that pass
+## 0. What passes
 
 ### Scenario probability — calibrated on every channel tested
 
@@ -67,7 +70,21 @@ inflates apparent kurtosis, dragging df down and squeezing the middle.
 distribution instead of assuming a shape — fixed it. That is standard practice
 in production VaR systems for exactly this reason.
 
-### Volatility forecast — HAR-RV + VIX, SP500
+### Volatility forecast — HAR-RV, three of six channels
+
+Run on all six channels, each with its own sealed holdout and its own
+block-bootstrap CI on the gap against a *properly scaled* naive forecast.
+
+| Channel | Champion | Holdout R²(log) | Scaled naive | Lift | 95% CI | |
+|---|---|---|---|---|---|---|
+| SP500 | HAR-RV + VIX | +0.1721 | −0.0386 | **+0.2107** | [+0.0951, +0.4617] | **passes** |
+| DJIA | HAR-RV + VIX | +0.1571 | −0.0931 | **+0.2502** | [+0.1222, +0.5194] | **passes** |
+| UST10Y | HAR-RV | +0.4661 | +0.3181 | **+0.1480** | [+0.0789, +0.2598] | **passes** |
+| NASDAQ | HAR-RV + VIX | +0.2144 | +0.1691 | +0.0453 | [−0.1138, +0.2117] | withheld |
+| WTI | HAR-RV + VIX | +0.4077 | +0.3675 | +0.0402 | [−0.0071, +0.0991] | withheld |
+| USD_BROAD | HAR-RV + VIX | +0.3198 | +0.2612 | +0.0586 | [−0.0200, +0.1306] | withheld |
+
+On SP500 the model selection ran in full:
 
 | Model | Sealed-holdout R²(log) |
 |---|---|
@@ -77,12 +94,13 @@ in production VaR systems for exactly this reason.
 | **HAR-RV + VIX** | **+0.1721** |
 | LightGBM | +0.1642 |
 
-Lift over the scaled naive model **+0.2107**, block-bootstrap 95% CI
-**[+0.0951, +0.4617]**.
-
-On NASDAQ, WTI and USD_BROAD the same model posts holdout R² of 0.21–0.41 and
-still beats naive, but the CI on the *gap* spans zero, so the gate withholds.
-VIX is SP500's own implied volatility; it only adds decisively there.
+Two things the six-channel run shows that the single-channel run could not.
+VIX earns its place only where it *is* the instrument's implied volatility:
+UST10Y's champion is plain HAR-RV, and adding equity implied vol there does
+not help. And the three withheld channels are withheld for a specific reason —
+each beats naive on the point estimate, but their naive baselines are already
+strong (R² 0.17–0.37), so the *gap* CI spans zero. A model that cannot be
+distinguished from the cheap alternative does not ship.
 
 **A correction that mattered.** An earlier pass reported trailing vol scoring
 R² −0.018 against forward vol and concluded volatility was unforecastable.
@@ -98,14 +116,31 @@ FRED carries daily news-text-derived indices back to 1985 (Baker/Bloom/Davis
 policy-uncertainty and equity-market-uncertainty series). They correlate
 0.19–0.29 with forward volatility, which is real.
 
+On SP500:
+
 | Comparison | Holdout R² gap | 95% CI | |
 |---|---|---|---|
 | VIX over HAR | +0.1313 | [+0.0186, +0.3796] | **passes** |
 | news over HAR | +0.0478 | [−0.1385, +0.1463] | not significant |
 | news over HAR+VIX | −0.0048 | [−0.2184, +0.1878] | not significant |
 
+Re-run on all six channels, news adds nothing beyond implied volatility on
+**every one of them** — and on WTI its increment is significantly *negative*
+(−0.2432, CI [−0.3778, −0.0828]): the equity-uncertainty indices actively
+mislead about crude.
+
+| Channel | news over HAR+VIX | 95% CI |
+|---|---|---|
+| SP500 | −0.0048 | [−0.2184, +0.1878] |
+| NASDAQ | +0.0275 | [−0.0197, +0.1000] |
+| DJIA | −0.0576 | [−0.4265, +0.0774] |
+| WTI | −0.2432 | [−0.3778, −0.0828] |
+| UST10Y | +0.0346 | [−0.0622, +0.1083] |
+| USD_BROAD | −0.0377 | [−0.2247, +0.0807] |
+
 The newspapers and the options market are describing the same uncertainty, and
-the options market prices it first. News is not additive here.
+the options market prices it first. News is not additive here. Six channels
+turn a single-channel null into a robust one.
 
 ### Prophet — tested on its home ground, failed
 
@@ -248,27 +283,184 @@ reports rather than calling a direction.
 
 ---
 
+## 7. Event cascade (Hawkes) — PASSES on 2 of 3 channels
+
+The ripple thesis stated as a testable claim: does a shock raise the intensity
+of the next shock? A self-exciting point process answers it with a number —
+the branching ratio α, the expected offspring per event.
+
+| Channel | events | α | half-life | LR vs Poisson | OOS log-lik gain | Ogata KS (test) | cascade multiplier | |
+|---|---|---|---|---|---|---|---|---|
+| NASDAQ | 253 | 0.349 | 5.7d | p = 2.2e-07 | **+18.1** | p = 0.217 ✓ | 1.54× | **passes** |
+| WTI | 233 | 0.276 | 6.5d | p = 0.0002 | **+17.8** | p = 0.733 ✓ | 1.38× | **passes** |
+| USD_BROAD | 216 | 0.115 | 11.7d | p = 0.51 | +2.7 | p = 0.908 | 1.13× | withheld |
+
+Three separate checks had to agree, which is why this is trustworthy. The
+likelihood-ratio test says the excitation term is real. The **out-of-sample**
+log-likelihood gain says it still is on data the fit never saw. And Ogata's
+time-rescaling residuals say the fitted intensity is correctly specified: if
+it is, the rescaled inter-event times are iid Exp(1), and the KS test does not
+reject that on either channel.
+
+α < 1 on every channel, so the process is stationary — shocks amplify and die
+out, they do not run away. NASDAQ's 1.54× multiplier means: for every 100
+shocks that arrive on their own, 54 more follow as offspring.
+
+USD_BROAD is withheld because its excitation is indistinguishable from a plain
+Poisson process. The dollar's shocks arrive; they do not breed.
+
+Validated first on **earthquakes** (USGS, M≥4.5), where the ground truth is
+known: α = 0.107, LR = 454.5, Ogata p = 0.187. A Hawkes process that cannot
+recover aftershock clustering is not a Hawkes process.
+
+---
+
+## 8. Competing risks (Aalen-Johansen) — PASSES
+
+After a shock, three things can happen: it escalates, it merely continues, or
+nothing further happens. These compete — the first one to occur forecloses the
+others — and treating a competing event as censoring is the classic error. It
+answers "what is P(escalation) in a world where continuation cannot happen",
+which is always too high.
+
+4,633 mainshocks, 3,837 train / 796 sealed holdout.
+
+| Horizon | Cause | Predicted | Realized | Error |
+|---|---|---|---|---|
+| 1d | escalation | 0.0300 | 0.0226 | 0.0074 |
+| 1d | continuation | 0.2294 | 0.2236 | 0.0058 |
+| 7d | escalation | 0.0469 | 0.0364 | 0.0105 |
+| 7d | continuation | 0.3287 | 0.3191 | 0.0096 |
+| 14d | continuation | 0.4155 | 0.3844 | 0.0311 |
+| 30d | escalation | 0.0753 | 0.0641 | 0.0112 |
+
+**Worst out-of-sample error 3.5%**, against **28.8%** for the naive
+Kaplan-Meier treatment that censors the competing cause. That gap is the
+entire point of the method.
+
+---
+
+## 9. ace_dbn_event v1 — FAILED on 6 of 6 channels
+
+**The claim.** Tomorrow's probability of a material event (|return| ≥ 2σ)
+depends on today's state *across* variables — realized vol, implied vol, news
+attention, the curve — not only on whether an event happened today.
+
+**The baseline that matters.** A first-order Markov chain on the target alone.
+Beating the base rate would prove nothing here: persistence alone does that,
+and it is not what a Bayesian network is for.
+
+States are discretized on an **expanding window** — the threshold that calls a
+day "high volatility" is computed only from days before it — and conditional
+tables use a Dirichlet prior so an unobserved configuration falls back to the
+marginal rather than to a confident zero.
+
+Pooled over six channels, 4,300 sealed-holdout rows:
+
+| Model | parents | configs | BSS | log loss | AUC |
+|---|---|---|---|---|---|
+| base rate | 0 | 1 | −0.0001 | 0.2068 | 0.509 |
+| markov | 1 | 2 | +0.0000 | 0.2063 | 0.531 |
+| dbn_core | 3 | 12 | −0.0036 | 0.2397 | **0.550** |
+| dbn_full | 5 | 72 | −0.0044 | 0.2281 | 0.535 |
+
+Pooled BSS lift over Markov **−0.0036**, CI **[−0.0105, +0.0028]**. Channels
+where the DBN beats Markov with a CI excluding zero: **0 of 6**.
+
+**Why it was not dismissed on the first result.** A single-channel run showed
+dbn_core with the best AUC (0.586) and the worst Brier — a model that orders
+days correctly and states the wrong number. That is a calibration verdict, not
+a structural one. So every arm, the baseline included, was given a calibrator
+fitted on walk-forward out-of-fold predictions from the training window and
+applied to the sealed holdout. The DBN still keeps its AUC edge (0.550 vs
+0.531) and still loses on Brier.
+
+The reliability table says why:
+
+| bucket | n | mean forecast | realized |
+|---|---|---|---|
+| 0–2% | 382 | 0.000 | **0.039** |
+| 4–6% | 3,482 | 0.045 | 0.052 |
+| 12–20% | 125 | 0.148 | 0.128 |
+| 20–100% | 19 | 0.271 | **0.105** |
+
+Four rows in five, the calibrated DBN just restates the base rate. Where it
+does deviate it is wrong in both directions: isotonic maps 382 days to
+*exactly zero* and 3.9% of them were stress days, and the confident tail
+forecasts 27% where 10.5% occurred.
+
+**What this result is not.** It is not a verdict on Dynamic Bayesian Networks
+for ACE's actual purpose. The spec frames the DBN over *event* states —
+"hurricane intensifies → P(port closure) → P(logistics disruption)" — and this
+run fitted it to *market* states because the GDELT event database was still
+backfilling. Daily market state may simply be the wrong substrate: a 2σ day is
+close to memoryless, which is why even the Markov baseline barely clears the
+base rate (BSS +0.0000). The re-run on GDELT event states is the direct
+follow-up.
+
+---
+
+## Registry integrity — a defect found and fixed
+
+`register()` replaces the row for a given `model_id:version`. Models that take
+a `--channel` argument but register under one constant id therefore overwrote
+each other, and the survivor was whichever channel ran last.
+
+The concrete damage: `ace_volatility_har:v1` read **FAILED** in the registry.
+That was USD_BROAD's result, sitting on top of SP500's, DJIA's and UST10Y's
+passes. Three validated models were invisible, and had one been promoted, a
+later re-run on a worse channel would have taken it out of PRODUCTION with no
+retire event and no reason recorded.
+
+Fixed three ways: `register()` now refuses to overwrite a PRODUCTION row and
+points at the new explicit `retire()`; `volatility_model` and
+`news_volatility_model` register one row per channel, as the cascade and
+scenario models already did; and the registry was rebuilt by re-running both
+models on all six channels. A stale `t:v0` record marked PRODUCTION — debris
+from a test that once wrote to the live registry — was removed.
+
+---
+
 ## What this means
 
-Three predictive targets were tested against real data with purged
-walk-forward, sealed holdouts and out-of-sample calibration. **All three
-failed.** Two descriptive engines and one exact solver passed.
+Thirteen model families have now been put through the same gate: purged
+walk-forward, a sealed holdout read once, out-of-sample calibration, and a
+comparison against the *right* baseline rather than a convenient one.
 
-That is not a defect in the pipeline; it is the pipeline working. A leaky
-setup does not return AUC 0.49 — it returns 0.65 and looks fundable.
+**Passing, with the scope stated:** scenario distribution (FHS, 4/4 channels),
+volatility (HAR, 3/6 channels), event cascade (Hawkes, 2/3 channels),
+competing risks. **Failing:** shock persistence, macro impact direction and
+magnitude, news→volatility increment, Prophet, and the Dynamic Bayesian
+Network on market states. **Descriptive only:** regime labelling, historical
+analogs, transmission structure.
 
-**ACE's defensible claim today** is structural: it labels the volatility
-regime, retrieves genuine historical analogs with honest dispersion, solves
-games exactly under payoff uncertainty, and maps which markets move together.
-It has **no validated ability to forecast direction, magnitude, or scenario
-outcome**, and nothing in the product may imply otherwise until a model passes
-the gate.
+The failures are the evidence that the gate works. A leaky setup does not
+return AUC 0.49 — it returns 0.65 and looks fundable. And the passes are
+narrow on purpose: HAR ships on three channels and is withheld on three where
+it beats naive on the point estimate but not with a CI that excludes zero.
+
+**What ACE can defensibly claim today:** a calibrated distribution of the move
+for a given channel and horizon; a volatility forecast on SP500, DJIA and
+UST10Y; a measured cascade multiplier on NASDAQ and WTI; cumulative incidence
+of escalation vs continuation by horizon; a labelled volatility regime;
+genuine historical analogs with honest dispersion; exact game equilibria under
+payoff uncertainty; and which markets move together contemporaneously.
+
+**What it cannot claim:** that it forecasts direction, that any lead-lag
+relationship is tradeable, or that cross-variable state improves a
+day-ahead event probability.
 
 ## Reproducing
 
 ```bash
 pip install -r ace/requirements.txt
 export FRED_API_KEY=...
+python3 ace/models/scenario_probability_model.py
+python3 ace/models/volatility_model.py --channel SP500
+python3 ace/models/news_volatility_model.py --channel SP500
+python3 ace/models/cascade_model.py
+python3 ace/models/competing_risks_model.py
+python3 ace/models/dbn_model.py
 python3 ace/models/shock_persistence_model.py
 python3 ace/models/macro_impact_model.py
 python3 ace/ripple/validate_edges.py

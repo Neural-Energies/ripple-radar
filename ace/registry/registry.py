@@ -98,11 +98,30 @@ def register(record: ModelRecord, artifact: Any | None = None) -> ModelRecord:
         raise ValueError(f"unknown status {record.production_status}")
     if record.production_status == "PRODUCTION":
         raise ValueError("register() cannot mint PRODUCTION; use promote() after the gates pass")
+    rows = _load()
+    incumbent = next(
+        (r for r in rows
+         if r["model_id"] == record.model_id and r["model_version"] == record.model_version),
+        None,
+    )
+    # Re-registering the same id:version replaces the row. If that row is the
+    # live champion, the replacement is a silent demotion -- a re-run on a
+    # different channel or a worse seed would quietly take a PRODUCTION model
+    # out of production with no retire event and no reason recorded. Promotion
+    # is explicit (§41), so demotion is too.
+    if incumbent is not None and incumbent["production_status"] == "PRODUCTION":
+        raise ValueError(
+            f"{record.model_id}:{record.model_version} is in PRODUCTION; "
+            "re-registering would silently demote it. Retire it first, or "
+            "register under a new version. If this is a per-channel model, "
+            "give each channel its own model_id."
+        )
     if artifact is not None:
         path = MODELS / f"{record.model_id}_{record.model_version}.joblib"
         joblib.dump(artifact, path)
         record.model_artifact_path = str(path.relative_to(Path(MODELS).parent.parent))
-    rows = [r for r in _load() if not (r["model_id"] == record.model_id and r["model_version"] == record.model_version)]
+    rows = [r for r in rows
+            if not (r["model_id"] == record.model_id and r["model_version"] == record.model_version)]
     rows.append(record.to_dict())
     _save(rows)
     return record
@@ -122,6 +141,29 @@ def promote(model_id: str, version: str, *, reason: str) -> dict:
             r["notes"] = (r.get("notes", "") + f" | retired by {version}: {reason}").strip(" |")
     target["production_status"] = "PRODUCTION"
     target["notes"] = (target.get("notes", "") + f" | promoted: {reason}").strip(" |")
+    _save(rows)
+    return target
+
+
+def retire(model_id: str, version: str, *, reason: str) -> dict:
+    """Take a model out of production, on the record.
+
+    The counterpart to promote(). Retiring is a decision with a reason
+    attached, not something that happens because a script was re-run.
+    """
+    rows = _load()
+    target = next(
+        (r for r in rows if r["model_id"] == model_id and r["model_version"] == version), None
+    )
+    if target is None:
+        raise KeyError(f"{model_id}:{version} not registered")
+    if target["production_status"] != "PRODUCTION":
+        raise ValueError(
+            f"only a PRODUCTION model can be retired; {model_id}:{version} "
+            f"is {target['production_status']}"
+        )
+    target["production_status"] = "RETIRED"
+    target["notes"] = (target.get("notes", "") + f" | retired: {reason}").strip(" |")
     _save(rows)
     return target
 

@@ -196,7 +196,7 @@ def main() -> int:
 
     status = "CANDIDATE" if passes else "FAILED"
     record = ModelRecord(
-        model_id=MODEL_ID, model_family=champion, model_version=MODEL_VERSION,
+        model_id=f"{MODEL_ID}_{args.channel}", model_family=champion, model_version=MODEL_VERSION,
         analysis_type="volatility_forecast",
         target_variable=f"log realized vol of {args.channel} over next {args.horizon} sessions",
         feature_schema=[c for c in d.columns if c != "y"],
@@ -217,7 +217,7 @@ def main() -> int:
     )
     register(record, artifact={"champion": champion, "features": [c for c in d.columns if c != "y"]})
     if passes:
-        promote(MODEL_ID, MODEL_VERSION,
+        promote(f"{MODEL_ID}_{args.channel}", MODEL_VERSION,
                 reason=f"{champion} R2(log)={hold_reports[champion].r2_log:+.4f} vs naive "
                        f"{hold_reports[naive].r2_log:+.4f}, gap CI [{lo:+.4f},{hi:+.4f}]")
         print(f"\nregistry: PROMOTED to PRODUCTION")
