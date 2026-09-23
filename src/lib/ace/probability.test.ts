@@ -197,3 +197,61 @@ test("every family's prior closes to exactly 100 — mass over exclusive outcome
     }
   }
 });
+
+test("a book's headline probability IS its materialization mass — never a separate number", async () => {
+  const { composeEvent } = await import("../engine/compose.ts");
+  const { probabilityFromScenarios } = await import("./probability.ts");
+  const mk = (n: number, tone: "up" | "down" | "neutral") =>
+    Array.from({ length: n }, (_, i) => ({
+      id: `h${i}`,
+      title:
+        tone === "up"
+          ? `Strike escalates as sanctions widen on refinery ${i}`
+          : tone === "down" ? `Talks ease as output resumes at plant ${i}`
+          : `Officials review shipping schedules at terminal ${i}`,
+      source: "Wire",
+      url: "",
+      published: Date.now(),
+      eventTimeMs: Date.now(),
+      availableTimeMs: Date.now(),
+      eventIds: [],
+      tone,
+    }));
+
+  for (const n of [1, 3, 8, 20]) {
+    for (const tone of ["up", "down", "neutral"] as const) {
+      const ev = composeEvent({ id: `e-${n}-${tone}`, title: "Refinery outage", headlines: mk(n, tone) });
+      assert.equal(
+        ev.probability,
+        probabilityFromScenarios(ev.scenarios),
+        `n=${n} tone=${tone}: headline probability must equal the top scenario's mass`,
+      );
+      assert.equal(ev.scenarios.reduce((a, s) => a + s.probability, 0), 100, "mix must still close");
+      assert.ok(ev.probability >= 0 && ev.probability <= 100);
+    }
+  }
+});
+
+test("probability no longer climbs just because a story is covered more", async () => {
+  const { composeEvent } = await import("../engine/compose.ts");
+  const neutral = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({
+      id: `h${i}`,
+      title: `Officials review shipping schedules at terminal ${i}`,
+      source: "Wire",
+      url: "",
+      published: Date.now(),
+      eventTimeMs: Date.now(),
+      availableTimeMs: Date.now(),
+      eventIds: [],
+      tone: "neutral" as const,
+    }));
+  const thin = composeEvent({ id: "thin", title: "Port congestion", headlines: neutral(2) });
+  const heavy = composeEvent({ id: "heavy", title: "Port congestion", headlines: neutral(20) });
+  // The old formula was 16 + hits*4, so 2 -> 24% and 20 -> 82% on identical,
+  // directionally neutral coverage. Volume alone must not do that any more.
+  assert.ok(
+    Math.abs(heavy.probability - thin.probability) < 25,
+    `coverage volume alone moved probability ${thin.probability}% -> ${heavy.probability}%`,
+  );
+});

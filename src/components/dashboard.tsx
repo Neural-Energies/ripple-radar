@@ -614,13 +614,14 @@ function TradesPanel({ event, compact }: { event: RadarEvent; compact?: boolean 
                 </Link>
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
+                    {/* Rank, not conviction. It is causal distance and graph
+                        position adjusted for crowding/confirmation — colouring
+                        it like a signal strength invited exactly the wrong read. */}
                     <span
-                      className={cn(
-                        "font-mono text-caption tabular-nums",
-                        t.score >= 80 ? "text-up" : t.score >= 65 ? "text-warn" : "text-muted",
-                      )}
+                      className="font-mono text-caption tabular-nums text-muted"
+                      title="Research rank, not conviction or expected return: causal distance and graph position, adjusted for crowding and confirmation. Not calibrated against outcomes."
                     >
-                      {t.score}
+                      #{t.score}
                     </span>
                     <span className="truncate text-micro text-muted">{t.reason}</span>
                     {(t.crowding || (t.confirmation && t.confirmation !== "none")) && (

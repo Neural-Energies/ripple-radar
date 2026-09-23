@@ -291,14 +291,23 @@ export async function buildDesk(): Promise<LiveDesk> {
       // Bands come from the posterior concentration, never from the rounded
       // display percentages — rounding would invent precision we do not have.
       const bands = forecastBands(scenarios.map((s) => s.id), alpha);
+      // The headline probability IS the materialization mass, so it has to
+      // move with the posterior — otherwise the desk shows a number the model
+      // no longer holds, next to the mix that superseded it.
+      const { probabilityFromScenarios } = await import("@/lib/ace/probability");
+      const posteriorProbability = probabilityFromScenarios(scenarios);
       ev.scenarios = scenarios;
       ev.bands = bands.length ? bands : undefined;
       ev.provenance = provenance;
+      ev.probabilityDelta = posteriorProbability - ev.probability;
+      ev.probability = posteriorProbability;
       const book = books[ev.id];
       if (book) {
         book.scenarios = scenarios;
         book.bands = bands.length ? bands : undefined;
         book.provenance = provenance;
+        book.probabilityDelta = posteriorProbability - book.probability;
+        book.probability = posteriorProbability;
       }
     }
   } catch (err) {

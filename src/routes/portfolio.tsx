@@ -71,7 +71,7 @@ function PortfolioPage() {
                 <th className="px-3 py-2 font-medium">Ticker</th>
                 <th className="px-3 py-2 font-medium">Side</th>
                 <th className="px-3 py-2 font-medium">Dist</th>
-                <th className="px-3 py-2 font-medium">Score</th>
+                <th className="px-3 py-2 font-medium" title="Research rank, not conviction or expected return: causal distance and graph position, adjusted for crowding and confirmation. Not calibrated against outcomes.">Rank</th>
                 <th className="px-3 py-2 font-medium">Last</th>
                 <th className="px-3 py-2 font-medium">Session</th>
                 <th className="px-3 py-2 font-medium">Horizon</th>

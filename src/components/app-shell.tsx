@@ -189,7 +189,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </aside>
 
         <main id="main" className="min-w-0 flex-1 overflow-x-hidden">
-          <div className="px-2 py-1.5 lg:px-2.5 lg:py-2">{children}</div>
+          <div className="px-2 py-1.5 lg:px-2.5 lg:py-2">
+            {children}
+            <RiskDisclosure />
+          </div>
         </main>
       </div>
 
@@ -409,5 +412,36 @@ function SideNav({ pathname, collapsed }: { pathname: string; collapsed: boolean
         </div>
       ))}
     </nav>
+  );
+}
+
+/**
+ * What this desk is, and is not, stated where the numbers are.
+ *
+ * Every figure on these screens is research output from documented but
+ * unvalidated rules. Nothing here has been fit to data or scored against
+ * realized outcomes, so none of it is a recommendation and none of it carries
+ * demonstrated skill. That has to be visible next to the numbers rather than
+ * buried a route away, because the numbers look like signals whether or not
+ * they are.
+ */
+function RiskDisclosure() {
+  return (
+    <aside
+      role="note"
+      aria-label="Risk disclosure"
+      className="mt-2 rounded-md border border-border/70 bg-card-2/40 px-2.5 py-2"
+    >
+      <p className="text-micro leading-relaxed text-subtle">
+        <span className="font-medium text-muted">Research tooling — not investment advice.</span>{" "}
+        Alpha Recon maps what an event plausibly causes. Probabilities are model output from
+        documented rules that have <span className="text-muted">not</span> been fit to data or
+        validated against realized outcomes; the calibration ledger states the desk&apos;s actual
+        scored record, and until it fills there is no demonstrated skill to cite. Ranked
+        expressions order research attention by causal distance and graph position — they are not
+        conviction, expected return, position sizing, or a recommendation to buy or sell anything.
+        Market data is delayed. You are responsible for your own decisions and your own risk.
+      </p>
+    </aside>
   );
 }

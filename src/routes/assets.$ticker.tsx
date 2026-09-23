@@ -62,7 +62,7 @@ function AssetDetail() {
           </div>
         </div>
         <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Field k="Discovery score" v={String(asset.score)} />
+          <Field k="Research rank" v={String(asset.score)} />
           <Field k="Crowding" v={asset.crowding ?? "—"} />
           <Field k="Confirmation" v={asset.confirmation ?? "—"} />
           <Field k="Expected lag" v={asset.lag} />

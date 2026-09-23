@@ -225,3 +225,20 @@ export function updateScenarios(opts: {
     provenance: applied > 0 ? "model_based" : "heuristic",
   };
 }
+
+/**
+ * A book's headline probability: the mass on the materialization scenario.
+ *
+ * `scenariosFor` orders every family along a materialization → fade axis, so
+ * index 0 is "the causal thesis actually materializes". That is a defined,
+ * falsifiable claim the freeze ledger can later grade, which a count of news
+ * articles is not.
+ *
+ * Returns 0 for an empty book rather than a floor, because there is no thesis
+ * to assign mass to.
+ */
+export function probabilityFromScenarios(scenarios: { probability: number }[]): number {
+  const top = scenarios[0];
+  if (!top || !Number.isFinite(top.probability)) return 0;
+  return Math.round(Math.min(100, Math.max(0, top.probability)));
+}

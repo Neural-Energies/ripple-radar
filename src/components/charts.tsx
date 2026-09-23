@@ -270,7 +270,8 @@ export function ImpactBars({
 }
 
 
-/** Exposure scatter: X = ripple distance, Y = score. Real AssetRecord fields only. */
+/** Exposure scatter: X = ripple distance, Y = research rank (ordering, not
+ *  conviction or expected return). Real AssetRecord fields only. */
 export function ExposureScatter({
   points,
   highlight,
@@ -320,13 +321,13 @@ export function ExposureScatter({
           <YAxis
             type="number"
             dataKey="score"
-            name="Score"
+            name="Research rank"
             tick={{ fill: "#5a6d88", fontSize: 10 }}
             axisLine={false}
             tickLine={false}
             width={40}
             label={{
-              value: "Score",
+              value: "Research rank",
               angle: -90,
               position: "insideLeft",
               fill: "#5a6d88",
@@ -349,7 +350,7 @@ export function ExposureScatter({
                 <div className="rounded-md border border-border bg-card px-2.5 py-2 text-caption shadow-lg">
                   <div className="font-mono text-primary">{p.ticker}</div>
                   <div className="text-muted">
-                    d{p.distance} · score {p.score} · {p.change >= 0 ? "+" : ""}
+                    d{p.distance} · rank {p.score} · {p.change >= 0 ? "+" : ""}
                     {p.change.toFixed(1)}%
                   </div>
                   {p.causalPath ? (

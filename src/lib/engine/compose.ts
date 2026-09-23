@@ -1,4 +1,5 @@
 import type { Lifecycle, RadarEvent } from "@/data/types";
+import { probabilityFromScenarios } from "@/lib/ace/probability";
 import { etParts } from "@/lib/live/clock";
 import { rankTrades } from "@/lib/live/discover";
 import { headlineToEvidence, markDuplicates } from "@/lib/live/evidence";
@@ -121,13 +122,30 @@ export function composeEvent(opts: {
     .slice(0, 8)
     .map(([name, v]) => ({ name, count: v.count, latest: clockOf(v.latest) }));
 
-  const probability = clamp(16 + hits * 4 + esc * 4 - de * 3, 8, 82);
   const life = lifecycleOf({ headlines, tone, significance: opts.significance ?? hits * 8 });
   const region = regionFromText(blob, tags);
   const theme = themeFromTags(tags);
   const players = playersFor(entities, tags, family);
   const gt = gameTheoryFor({ family, players });
   const scenarios = scenariosFor({ entity, tags, family, tone, hits, esc, de });
+
+  // The book's headline probability is P(the causal thesis materializes) —
+  // the mass on the materialization end of the scenario axis, which is where
+  // `scenariosFor` always puts its first row.
+  //
+  // It used to be `clamp(16 + hits*4 + esc*4 - de*3, 8, 82)`: a count of
+  // matched articles plus a count of articles containing escalation keywords.
+  // That measured how heavily a story was being covered, not how likely it
+  // was — and coverage follows events that have already happened, so the
+  // number peaked exactly when a move was most priced in. Worse, it could
+  // disagree with the scenario mix displayed beside it, because the two were
+  // computed by different rules.
+  //
+  // Deriving it from the scenario distribution makes it one number from one
+  // model: it moves when the Dirichlet posterior moves (see ace/probability),
+  // it cannot contradict the mix, and it carries that model's provenance
+  // rather than implying a calibration nothing here has earned.
+  const probability = probabilityFromScenarios(scenarios);
   const mkt = marketReaction[0]?.change ?? 0;
   const importance = importanceOf({
     significance: opts.significance ?? hits * 8,

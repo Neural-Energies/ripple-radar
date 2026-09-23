@@ -203,7 +203,7 @@ function AssetsPage() {
                   <th className="px-2 py-1 font-medium">Ticker</th>
                   <th className="px-2 py-1 font-medium">Name</th>
                   <th className="px-2 py-1 font-medium">Dist</th>
-                  <th className="px-2 py-1 font-medium">Score</th>
+                  <th className="px-2 py-1 font-medium" title="Research rank, not conviction or expected return: causal distance and graph position, adjusted for crowding and confirmation. Not calibrated against outcomes.">Rank</th>
                   <th className="px-2 py-1 font-medium">Crowd</th>
                   <th className="px-2 py-1 font-medium">Tape</th>
                   <th className="px-2 py-1 font-medium">Last</th>
