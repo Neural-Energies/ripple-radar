@@ -156,7 +156,7 @@ export function ResearchHeader({
                 key={t.to}
                 to={t.to}
                 className={cn(
-                  "rounded-sm px-2 py-1 text-micro uppercase tracking-wider",
+                  "rounded-sm px-2 py-1 text-micro uppercase tracking-wider focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                   pathname === t.to || (t.to !== "/" && pathname.startsWith(t.to + "/"))
                     ? "bg-primary/15 text-primary"
                     : "text-muted hover:bg-card-2 hover:text-foreground",
