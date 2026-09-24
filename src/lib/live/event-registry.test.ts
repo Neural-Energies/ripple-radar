@@ -303,3 +303,100 @@ test("a busy poll writes a bounded number of statements", async () => {
     where headline_id like 'bulk-%'`;
   assert.equal(Number(rows[0]!.n), 200, "batching must not drop rows");
 });
+
+// ------------------------------------------------ real probability history
+
+test("probability history comes from the ledger, not from a formula", async () => {
+  // compose.ts used to emit `probability - 8 / -4 / -2` as "history": a
+  // synthetic ramp that would show a trend whatever had actually happened.
+  const { probabilityHistoryWith } = await import("./forecast-ledger.server.ts");
+  const eventId = "ev-history-test";
+  const mix = (top: number) =>
+    JSON.stringify([
+      { id: "s1", name: "Materializes", probability: top },
+      { id: "s2", name: "Fades", probability: 100 - top },
+    ]);
+
+  // Three freezes, deliberately inserted out of order.
+  for (const [n, top, hours] of [
+    ["b", 27, 2],
+    ["a", 18, 8],
+    ["c", 31, 0],
+  ] as const) {
+    await sql`
+      insert into forecast_snapshots (id, event_id, event_title, as_of, scenarios, provenance, horizon_hours)
+      values (${"snap-" + n}, ${eventId}, ${"History"},
+              ${new Date(T0 - hours * HOUR).toISOString()}, ${mix(top)}, ${"heuristic"}, ${24})
+    `;
+  }
+
+  const got = await probabilityHistoryWith(sql, [eventId]);
+  const series = got.get(eventId)!;
+  assert.equal(series.length, 3);
+  assert.deepEqual(
+    series.map((p) => p.value),
+    [18, 27, 31],
+    "oldest first — a delta read off this must point the right way",
+  );
+  for (let i = 1; i < series.length; i++) {
+    assert.ok(
+      Date.parse(series[i]!.date) > Date.parse(series[i - 1]!.date),
+      "timestamps must be strictly increasing",
+    );
+  }
+});
+
+test("an event with no freezes gets no history, not an invented one", async () => {
+  const { probabilityHistoryWith } = await import("./forecast-ledger.server.ts");
+  const got = await probabilityHistoryWith(sql, ["ev-never-frozen"]);
+  assert.equal(got.get("ev-never-frozen"), undefined);
+});
+
+test("history is fetched for every event in one query, not one per event", async () => {
+  const { probabilityHistoryWith } = await import("./forecast-ledger.server.ts");
+  let queries = 0;
+  const counting = (async (strings: TemplateStringsArray, ...values: unknown[]) => {
+    queries += 1;
+    const text = strings.reduce((a, s2, i) => a + s2 + (i < values.length ? `$${i + 1}` : ""), "");
+    return (await db.query(text, values as never[])).rows;
+  }) as Sql;
+  counting.query = async (text: string, params?: unknown[]) => {
+    queries += 1;
+    return (await db.query(text, (params ?? []) as never[])).rows as never;
+  };
+  await probabilityHistoryWith(counting, ["a", "b", "c", "d", "e"]);
+  assert.equal(queries, 1, `five events cost ${queries} round-trips on the live poll path`);
+});
+
+test("the window keeps the most recent freezes, not the oldest", async () => {
+  const { probabilityHistoryWith } = await import("./forecast-ledger.server.ts");
+  const eventId = "ev-window";
+  for (let i = 0; i < 6; i++) {
+    await sql`
+      insert into forecast_snapshots (id, event_id, event_title, as_of, scenarios, provenance, horizon_hours)
+      values (${`snap-w${i}`}, ${eventId}, ${"Window"},
+              ${new Date(T0 - (6 - i) * HOUR).toISOString()},
+              ${JSON.stringify([{ id: "s1", name: "x", probability: 10 + i }])},
+              ${"heuristic"}, ${24})
+    `;
+  }
+  const got = await probabilityHistoryWith(sql, [eventId], 3);
+  assert.deepEqual(got.get(eventId)!.map((p) => p.value), [13, 14, 15]);
+});
+
+test("a malformed snapshot is skipped rather than breaking the series", async () => {
+  const { probabilityHistoryWith } = await import("./forecast-ledger.server.ts");
+  const eventId = "ev-malformed";
+  await sql`
+    insert into forecast_snapshots (id, event_id, event_title, as_of, scenarios, provenance, horizon_hours)
+    values (${"snap-bad"}, ${eventId}, ${"Bad"}, ${new Date(T0 - HOUR).toISOString()},
+            ${"{not json"}, ${"heuristic"}, ${24})
+  `;
+  await sql`
+    insert into forecast_snapshots (id, event_id, event_title, as_of, scenarios, provenance, horizon_hours)
+    values (${"snap-good"}, ${eventId}, ${"Good"}, ${new Date(T0).toISOString()},
+            ${JSON.stringify([{ id: "s1", name: "x", probability: 44 }])}, ${"heuristic"}, ${24})
+  `;
+  const got = await probabilityHistoryWith(sql, [eventId]);
+  assert.deepEqual(got.get(eventId)!.map((p) => p.value), [44]);
+});

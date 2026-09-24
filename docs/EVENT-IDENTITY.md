@@ -606,3 +606,52 @@ beats Poisson in and out of sample; every branching ratio stationary; the
 cascade multiplier is consistent with `1/(1−α)`; the caveat travels with the
 numbers; entity matching hits the right country and **nothing** for an
 unmeasured one.
+
+---
+
+# Probability history is real now
+
+`compose.ts` emitted this as an event's forecast history:
+
+```ts
+{ date: "T-3", value: probability - 8 },
+{ date: "T-2", value: probability - 4 },
+{ date: "T-1", value: probability - 2 },
+```
+
+A synthetic ramp. It would have shown a rising trend whatever had actually
+happened. It was **never rendered**, which is the only reason it never misled
+anyone — and it would have, the moment someone plotted it.
+
+It is now read from the frozen forecast ledger: one append-only row per freeze,
+each carrying the scenario mix as it stood. Stable event ids are what make that
+accumulate against a single event instead of scattering — which is why this fix
+had to wait for the registry.
+
+An event on its first sighting gets an **empty** series. One point is not a
+trend and three invented ones are not history.
+
+This is the substrate Forecast Delta needs: "18% → 27%, +9 points, last 6
+hours" is now answerable from data rather than from a subtraction.
+
+## Tests
+
+Five, against a live PGLite instance (`probabilityHistoryWith` takes an
+injectable connection, as the registry does — the query and its ordering *are*
+the behaviour):
+
+- rows come back **oldest-first** with strictly increasing timestamps, so a
+  delta read off the series points the right way — inserted deliberately out of
+  order to prove the ordering is the query's, not the insert's
+- an event with no freezes gets **no** history
+- five events cost **one** round-trip, not five — this runs on the live poll
+- the window keeps the most **recent** freezes, not the oldest
+- a malformed snapshot is skipped rather than breaking the whole series
+
+## Also: `load_events` no longer takes the machine down with it
+
+It holds every row of every cached day — ~13M at full coverage — and was killed
+by the OOM reaper, taking the GDELT backfill sharing the machine with it. It now
+raises past a 400-day guard, naming `daily_counts_by()` as the fix, and accepts
+`start`/`end` to narrow the window by filename before reading. Being killed
+tells the caller nothing; raising tells them what to do.

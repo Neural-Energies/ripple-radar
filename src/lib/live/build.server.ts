@@ -315,11 +315,22 @@ export async function buildDesk(): Promise<LiveDesk> {
   // but batched into one query, and non-fatal if the ledger is unreachable.
   // Written to the book as well as the event: overlay reads the book's copy.
   try {
-    const { latestSnapshots } = await import("./forecast-ledger.server");
+    const { latestSnapshots, probabilityHistoryFor } = await import("./forecast-ledger.server");
     const { updateScenarios } = await import("@/lib/ace/probability");
     const { gateEvidence } = await import("@/lib/ace/materiality");
     const { forecastBands } = await import("@/lib/ace/bands");
-    const priors = await latestSnapshots(events.map((e) => e.id));
+    const ids = events.map((e) => e.id);
+    const [priors, histories] = await Promise.all([
+      latestSnapshots(ids),
+      // Real forecast history, replacing the synthetic `probability - 8/-4/-2`
+      // ramp compose used to emit. An event on its first sighting has none,
+      // and gets none.
+      probabilityHistoryFor(ids),
+    ]);
+    for (const ev of events) {
+      const series = histories.get(ev.id);
+      if (series?.length) ev.probabilityHistory = series;
+    }
     for (const ev of events) {
       const prior = priors.get(ev.id);
       if (!prior) continue; // first sighting: the composed book IS the prior

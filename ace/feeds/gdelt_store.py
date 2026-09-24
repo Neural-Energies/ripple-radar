@@ -44,6 +44,12 @@ QUAD_CLASS = {1: "verbal cooperation", 2: "material cooperation",
 
 CLOCKS = {"observed": "observed_at", "event": "event_date"}
 
+# Past this many days, load_events holds more rows than the machine has memory
+# for. The guard raises rather than letting the OOM reaper decide, because the
+# reaper also kills whatever else is running -- which is how the backfill kept
+# dying unattended.
+MAX_FULL_LOAD_DAYS = 400
+
 
 def cached_files(min_mentions: int = 10, quad: tuple[int, ...] = (3, 4)) -> list[Path]:
     tag = f"m{min_mentions}_q{''.join(str(q) for q in quad)}" if quad else f"m{min_mentions}_qall"
@@ -71,6 +77,27 @@ def load_events(
         raise FileNotFoundError(
             f"no cached GDELT days for min_mentions={min_mentions} quad={quad}. "
             "Run ace/feeds/backfill_gdelt.py first."
+        )
+    # This function holds every row of every cached day at once. At full
+    # coverage that is ~13M rows of mostly-text columns, and it was killed by
+    # the OOM reaper mid-run -- taking the backfill sharing the machine with
+    # it. Narrow the window, or use daily_counts_by(), which reduces each file
+    # and drops it.
+    if start or end:
+        wanted = [
+            f for f in files
+            if (not start or f.name.split("_")[2] >= pd.Timestamp(start).strftime("%Y%m%d"))
+            and (not end or f.name.split("_")[2] <= pd.Timestamp(end).strftime("%Y%m%d"))
+        ]
+        # Filtering by filename before reading is the whole point; filtering
+        # after the concat would not have saved the memory.
+        files = wanted or files
+    if len(files) > MAX_FULL_LOAD_DAYS:
+        raise MemoryError(
+            f"load_events would hold {len(files)} cached days at once, above the "
+            f"{MAX_FULL_LOAD_DAYS}-day guard. This is what ran the machine out of memory. "
+            "Pass start=/end= to narrow the window, or use daily_counts_by() if you only "
+            "need counts — which is true of every daily model here."
         )
     frames = [pd.read_parquet(f) for f in files]
     df = pd.concat(frames, ignore_index=True)

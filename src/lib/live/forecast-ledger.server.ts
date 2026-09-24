@@ -488,6 +488,85 @@ export interface ReplayFrame {
  * version of "replay" that cannot peek past T. Walking it shows how the book
  * actually moved, not how it would look if rebuilt with today's information.
  */
+/**
+ * Real probability history per event, from the frozen snapshots.
+ *
+ * This replaces a fabrication. `compose.ts` used to emit
+ *
+ *   { date: "T-3", value: probability - 8 },
+ *   { date: "T-2", value: probability - 4 },
+ *   { date: "T-1", value: probability - 2 },
+ *
+ * — a synthetic ramp, so a chart of "how the forecast moved" would show a
+ * trend whatever had actually happened. It was never rendered, which is the
+ * only reason it never misled anyone, and it would have the moment someone
+ * plotted it.
+ *
+ * The ledger holds the real series: one append-only row per freeze, each with
+ * the scenario mix as it stood. Stable event ids are what make it accumulate
+ * against a single event rather than scattering.
+ *
+ * An event with no history yet returns an EMPTY series. One point is not a
+ * trend and three invented ones are not history.
+ */
+export async function probabilityHistoryFor(
+  eventIds: string[],
+  perEvent = 24,
+): Promise<Map<string, { date: string; value: number }[]>> {
+  if (eventIds.length === 0) return new Map();
+  try {
+    const { getSql } = await import("@/lib/db");
+    return await probabilityHistoryWith(await getSql(), eventIds, perEvent);
+  } catch (err) {
+    console.error("[forecast-ledger] probability history lookup failed:", err);
+    return new Map();
+  }
+}
+
+/**
+ * The query itself, against a caller-supplied connection.
+ *
+ * Split out so an integration test can drive real SQL rather than mock the
+ * database module — the query and its ordering ARE the behaviour here.
+ */
+export async function probabilityHistoryWith(
+  sql: import("@/lib/db").Sql,
+  eventIds: string[],
+  perEvent = 24,
+): Promise<Map<string, { date: string; value: number }[]>> {
+  const out = new Map<string, { date: string; value: number }[]>();
+  if (eventIds.length === 0) return out;
+  try {
+    // One query for every event on the desk — this runs on the live poll.
+    const rows = await sql<{ event_id: string; as_of: string; scenarios: string }>`
+      select event_id, as_of, scenarios
+      from forecast_snapshots
+      where event_id = any(${eventIds})
+      order by event_id, as_of asc
+    `;
+    const { probabilityFromScenarios } = await import("@/lib/ace/probability");
+    for (const r of rows) {
+      const list = out.get(r.event_id) ?? [];
+      let scenarios: { id: string; name: string; probability: number }[];
+      try {
+        scenarios = JSON.parse(r.scenarios);
+      } catch {
+        continue;
+      }
+      list.push({
+        date: new Date(r.as_of).toISOString(),
+        value: probabilityFromScenarios(scenarios),
+      });
+      out.set(r.event_id, list);
+    }
+    // Keep the most recent window; the series is ordered oldest-first.
+    for (const [k, v] of out) if (v.length > perEvent) out.set(k, v.slice(-perEvent));
+  } catch (err) {
+    console.error("[forecast-ledger] probability history lookup failed:", err);
+  }
+  return out;
+}
+
 export async function getReplayFrames(eventId: string, limit = 40): Promise<ReplayFrame[]> {
   const { getSql } = await import("@/lib/db");
   const sql = await getSql();

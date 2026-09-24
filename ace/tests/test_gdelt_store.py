@@ -188,3 +188,31 @@ def test_streaming_counts_keep_the_zero_versus_gap_distinction():
         assert row_all_nan == (day not in have), (
             f"{day.date()}: fetched-and-empty must be 0, never-fetched must be NaN"
         )
+
+
+def test_load_events_refuses_a_window_that_would_exhaust_memory():
+    """The guard exists because the OOM reaper does not only kill the caller.
+
+    load_events holds every row of every cached day. At full coverage that was
+    ~13M rows and the kernel killed the process -- along with the backfill
+    sharing the machine. Raising names the fix; being killed does not.
+    """
+    from ace.feeds.gdelt_store import MAX_FULL_LOAD_DAYS, cached_files, load_events
+
+    if len(cached_files()) <= MAX_FULL_LOAD_DAYS:
+        pytest.skip(f"cache holds {len(cached_files())} days, under the guard")
+    with pytest.raises(MemoryError, match="daily_counts_by"):
+        load_events()
+
+
+def test_a_narrow_window_still_loads():
+    from ace.feeds.gdelt_store import cached_days, load_events
+
+    days = cached_days()
+    if len(days) < 5:
+        pytest.skip("needs a populated GDELT cache")
+    start = days[0].strftime("%Y-%m-%d")
+    end = days[2].strftime("%Y-%m-%d")
+    df = load_events(start=start, end=end)
+    assert len(df) > 0
+    assert df.index.min() >= pd.Timestamp(start, tz="UTC")

@@ -228,10 +228,12 @@ export function composeEvent(opts: {
       .filter((n) => n.level > 0)
       .slice(0, 8)
       .map((n) => ({ label: n.label, value: n.impact, direction: n.direction === "down" ? "down" : "up" })),
+    // Empty by construction. This used to be `probability - 8 / -4 / -2`: a
+    // synthetic ramp that would show a trend whatever had actually happened.
+    // Real history comes from the frozen forecast ledger, which buildDesk
+    // attaches; an event seen for the first time genuinely has none, and one
+    // point is not a trend.
     probabilityHistory: [
-      { date: "T-3", value: clamp(probability - 8, 6, 90) },
-      { date: "T-2", value: clamp(probability - 4, 6, 90) },
-      { date: "T-1", value: clamp(probability - 2, 6, 90) },
       { date: "Now", value: Math.round(probability) },
     ],
     marketReaction,
