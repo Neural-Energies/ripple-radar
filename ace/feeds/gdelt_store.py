@@ -99,6 +99,76 @@ def load_events(
     return df
 
 
+# Columns a daily aggregation actually needs. Reading 25 columns of 11M rows to
+# produce a count per country per day is how the loader ran the machine out of
+# memory; parquet lets us read three.
+AGG_COLUMNS = ["observed_at", "quad_class", "event_root_code", "action_geo_country",
+               "num_mentions"]
+
+
+def daily_counts_by(
+    column: str,
+    *,
+    quad_classes: tuple[int, ...] | None = None,
+    min_mentions: int = 10,
+    quad: tuple[int, ...] = (3, 4),
+    min_mentions_filter: int | None = None,
+) -> pd.DataFrame:
+    """Daily counts per `column` value, accumulated one cached day at a time.
+
+    `load_events` concatenates every cached file into a single frame. At 1,400
+    days and 11M rows that is ~2GB of mostly-unneeded text columns, and it was
+    killed by the OOM reaper mid-run -- taking the backfill sharing the machine
+    with it.
+
+    Nothing downstream of a daily model needs the rows. It needs counts. So
+    each file is read with only the columns the aggregation touches, reduced
+    immediately, and dropped. Peak memory becomes one day's file plus the
+    result grid rather than the whole corpus.
+
+    A day that was fetched and had nothing qualifying is a real 0; a day never
+    fetched stays NaN, exactly as `daily_series` does it.
+    """
+    files = cached_files(min_mentions, quad)
+    if not files:
+        raise FileNotFoundError(
+            f"no cached GDELT days for min_mentions={min_mentions} quad={quad}"
+        )
+    want = [c for c in AGG_COLUMNS if c != "observed_at"]
+    frames: list[pd.Series] = []
+    days: list[pd.Timestamp] = []
+    for f in files:
+        cols = ["observed_at", *want] if column in want or column == "observed_at" else \
+            ["observed_at", *want, column]
+        try:
+            df = pd.read_parquet(f, columns=list(dict.fromkeys(cols)))
+        except Exception:
+            df = pd.read_parquet(f)
+        if quad_classes is not None and "quad_class" in df.columns:
+            df = df[df["quad_class"].isin(quad_classes)]
+        if min_mentions_filter and "num_mentions" in df.columns:
+            df = df[df["num_mentions"] >= min_mentions_filter]
+        day = pd.Timestamp(f.name.split("_")[2], tz="UTC")
+        days.append(day)
+        if df.empty or column not in df.columns:
+            frames.append(pd.Series(dtype="int64", name=day))
+            continue
+        counts = df[column].astype(str).value_counts()
+        counts.name = day
+        frames.append(counts)
+        del df
+
+    wide = pd.DataFrame(frames).fillna(0.0)
+    wide.index = pd.DatetimeIndex(days)
+    wide = wide.sort_index()
+    # Re-expand to a full calendar so never-fetched days read NaN, not 0.
+    full = pd.date_range(wide.index.min(), wide.index.max(), freq="D", tz="UTC")
+    present = full.isin(wide.index)
+    wide = wide.reindex(full)
+    wide[~present] = np.nan
+    return wide
+
+
 def coverage(events: pd.DataFrame) -> dict:
     """What the store actually holds — stated, not assumed."""
     idx = events.index

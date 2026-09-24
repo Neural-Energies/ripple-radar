@@ -583,7 +583,7 @@ ratio 0.49: **for every 100 escalations arriving on their own, ~114 more follow
 as offspring.** Excitation half-life is close to a day everywhere — conflict
 escalation begets escalation *fast*.
 
-### The kernel shape is rejected, and that is the headline
+### The shape is unverified — and it is NOT the kernel
 
 The Ogata time-rescaling test needs ~50 residuals; no country has half that in
 its holdout. Passing a check that never ran is worse than admitting it cannot
@@ -596,15 +596,42 @@ several untestable samples into one testable one.
 | train | 189 | **0.0003** | 1.023 | rejected |
 | holdout | 83 | **0.0415** | 1.116 | rejected |
 
-**Both reject the exponential kernel.** The self-excitation is real — the
-likelihood-ratio test clears 0.0017 on every passing country and every one
-gains out of sample against Poisson — but exponential decay is the wrong
-functional form. This is the same discovery seismology made before adopting
-Omori's power law.
+Both reject a **continuous** Exp(1) null. The first reading — "the decay is not
+exponential, as seismology found before Omori" — was **wrong**, and chasing a
+power-law kernel on it would have been wasted work. The residuals say where the
+mismatch is:
 
-So the branching ratio is an **approximation of how much one escalation
-breeds, not an estimate to quote to three digits**, and every country is
-registered `CANDIDATE`. None is promoted.
+| quantile | empirical | Exp(1) | ratio |
+|---|---|---|---|
+| q0.10 | 0.239 | 0.105 | **2.27** |
+| q0.25 | 0.335 | 0.288 | 1.17 |
+| q0.50 | 0.637 | 0.693 | 0.92 |
+| q0.75 | 1.436 | 1.386 | 1.04 |
+| q0.95 | 3.174 | 2.996 | 1.06 |
+
+Everything from q0.25 up matches within a few percent. The failure is **entirely
+in the lower tail**: Exp(1) expects 9.5% of residuals below 0.1 and **0.0%** are
+observed.
+
+That is the daily grid, not the kernel. **47% of inter-event gaps are exactly
+one day** — the minimum the calendar allows. The smallest rescaled time is
+0.146, and a continuous process would place **13.6%** of its mass below that.
+None is reachable here by construction.
+
+A power-law (Omori) kernel would fit this **worse**: it concentrates *more*
+mass immediately after a parent event, producing *more* short gaps, when the
+data has *too few*.
+
+Correcting crudely for the floor — exponential memorylessness means
+`(τ − c) | τ ≥ c` is exactly Exp(1) — does not restore the fit either
+(conditional KS p = 1.2e-05, mean 0.876). So **discretization and kernel shape
+are confounded at daily resolution and neither is established as the culprit.**
+
+Consequence: the branching ratio is an **approximation of how much one
+escalation breeds, not an estimate to quote to three digits**. Every country
+registers `CANDIDATE`; none is promoted. Separating the two causes needs
+**sub-daily event timestamps** — GDELT 2.0 publishes at 15-minute granularity —
+not a different kernel.
 
 ### A conservative event definition, stated
 
@@ -627,6 +654,14 @@ for six that worked.
 written `gof.get("exponential_by_ks") is not False`, which waves through a
 test that returned "unavailable" — while the verdict printed "with correctly
 specified intensity". Now tracked separately and tested on the pool.
+
+**The loader ran the machine out of memory.** `load_events` concatenates every
+cached day into one frame — ~11M rows of mostly-unneeded text columns at current
+coverage — and the OOM reaper killed the run, very likely taking the backfill
+sharing the machine with it. Nothing downstream of a daily model needs the rows,
+only counts, so `daily_counts_by` reduces each file and drops it: **0.20 GB peak
+instead of OOM**, 11 seconds. A test pins that it returns the same numbers as the
+frame-based path and keeps the zero-versus-gap distinction.
 
 **A model that stopped qualifying kept its PRODUCTION status.** Retiring only
 the models being *replaced* left Pakistan in PRODUCTION on the strength of an

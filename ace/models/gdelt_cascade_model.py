@@ -66,7 +66,7 @@ from ace.cascade.hawkes import (
     rescaled_times,
 )
 from ace.config import RANDOM_SEED, REPORTS
-from ace.feeds.gdelt_store import daily_series, event_times, load_events, spike_days
+from ace.feeds.gdelt_store import daily_counts_by, event_times, spike_days
 from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
 
 MODEL_ID = "ace_gdelt_cascade"
@@ -95,6 +95,50 @@ FIPS = {
 
 
 MIN_POOLED_RESIDUALS = 50
+
+
+def discretization_floor(residual_sets: list[list[float]]) -> dict:
+    """How much of the residual mismatch is the daily grid, not the kernel.
+
+    Spike days live on a calendar grid, so two events can never be closer than
+    one day. That puts a hard floor under the rescaled inter-event times, and a
+    KS test against a CONTINUOUS Exp(1) will reject any well-specified
+    continuous model fitted to gridded data purely for that reason.
+
+    Measured here: 47% of inter-event gaps are exactly one day, the smallest
+    rescaled time is ~0.16, and a continuous process would place ~15% of its
+    residuals below that. Observed below it: none, by construction.
+
+    Reported so the rejection is not misread as evidence about the kernel's
+    SHAPE. It is not: a power-law (Omori) kernel concentrates MORE mass
+    immediately after a parent event and would produce more short gaps, fitting
+    this particular mismatch worse rather than better.
+    """
+    tau = (
+        np.concatenate([np.asarray(r, dtype=float) for r in residual_sets])
+        if residual_sets
+        else np.array([])
+    )
+    tau = tau[np.isfinite(tau) & (tau >= 0)]
+    if len(tau) < MIN_POOLED_RESIDUALS:
+        return {"available": False, "n": int(len(tau))}
+    floor = float(tau.min())
+    # Under a continuous Exp(1) this share would fall below the observed floor.
+    unreachable = float(1 - np.exp(-floor))
+    # Memorylessness: conditional on tau >= c, (tau - c) is exactly Exp(1).
+    # A crude single-floor correction, because each residual's true floor
+    # depends on the intensity at its own moment.
+    shifted = tau[tau >= floor] - floor
+    ks_p = float(stats.kstest(shifted, "expon", args=(0, 1))[1]) if len(shifted) >= MIN_POOLED_RESIDUALS else float("nan")
+    return {
+        "available": True, "n": int(len(tau)),
+        "residual_floor": round(floor, 4),
+        "mass_unreachable_on_a_daily_grid": round(unreachable, 4),
+        "observed_below_floor": 0.0,
+        "variance": round(float(tau.var()), 4),
+        "conditional_ks_p": round(ks_p, 6) if np.isfinite(ks_p) else None,
+        "conditional_mean": round(float(shifted.mean()), 4) if len(shifted) else None,
+    }
 
 
 def pooled_specification(residual_sets: list[list[float]]) -> dict:
@@ -214,12 +258,16 @@ def main() -> int:
     print("ACE conflict cascade :: does one material escalation make the next more likely?")
     print("=" * 92)
 
-    events = load_events()
-    material = events[events["quad_class"] == QUAD_MATERIAL]
-    print(f"\n{len(events):,} events, {len(material):,} material (CAMEO quad {QUAD_MATERIAL})")
-    print(f"{events.index.min().date()} -> {events.index.max().date()}, on the observation clock")
-
-    by_country = daily_series(material, by="action_geo_country")
+    # Streamed, not concatenated. Loading every cached day into one frame is
+    # ~11M rows of mostly-unneeded text columns; it was killed by the OOM
+    # reaper mid-run, taking the backfill sharing the machine with it. Nothing
+    # here needs the rows -- only counts per country per day.
+    by_country = daily_counts_by("action_geo_country", quad_classes=(QUAD_MATERIAL,))
+    total = float(np.nansum(by_country.to_numpy()))
+    print(f"\n{total:,.0f} material events (CAMEO quad {QUAD_MATERIAL}) across "
+          f"{by_country.shape[1]} countries")
+    print(f"{by_country.index.min().date()} -> {by_country.index.max().date()}, "
+          "on the observation clock")
     results: list[dict] = []
     for code in by_country.columns:
         s = by_country[code]
@@ -248,6 +296,7 @@ def main() -> int:
 
     spec_train = pooled_specification([r["_tau_train"] for r in passing])
     spec_test = pooled_specification([r["_tau_test"] for r in passing])
+    grid = discretization_floor([r["_tau_train"] for r in passing])
 
     print(f"\n{len(passing)}/{len(fitted)} countries clear the three per-country checks")
     print("\nOgata time-rescaling — POOLED, because no single country has the ~50")
@@ -260,6 +309,20 @@ def main() -> int:
                   f"mean={spec['mean']:.3f} (expect 1.000)  {verdict}")
         else:
             print(f"  {label:<8} not testable — {spec.get('reason')}")
+
+    if grid.get("available"):
+        print("\n  Before reading that as a verdict on the KERNEL: these events live on a")
+        print("  daily grid, so no two can be closer than one day. That truncates the")
+        print("  lower tail of the rescaled times and a continuous-time null rejects it")
+        print("  for that reason alone.")
+        print(f"    smallest residual            {grid['residual_floor']:.3f}")
+        print(f"    a continuous Exp(1) puts     {grid['mass_unreachable_on_a_daily_grid']:.1%}"
+              " of its mass below that — unreachable here")
+        print(f"    conditional KS above floor   p={grid['conditional_ks_p']}"
+              f"  mean={grid['conditional_mean']} (expect 1.000)")
+        print("  The crude correction does not restore the fit either, so discretization")
+        print("  and kernel shape are CONFOUNDED at this resolution and neither can be")
+        print("  blamed. Separating them needs sub-daily timestamps, not a new kernel.")
     if passing:
         a = np.mean([r["fit"]["alpha"] for r in passing])
         m = np.mean([r["cascade"]["cascade_multiplier"] for r in passing])
@@ -289,19 +352,24 @@ def main() -> int:
         print("         pooled Ogata residuals do not reject the exponential kernel.")
         print("         The ripple the price tape does not show, the event stream does.")
     elif excitation_real:
-        print("VERDICT: SELF-EXCITATION YES, KERNEL SHAPE NO.")
+        print("VERDICT: SELF-EXCITATION YES, INTENSITY SHAPE UNVERIFIED.")
         print(f"         The excitation is real: likelihood-ratio p at or below "
               f"{max(r['fit']['lr_p_value'] for r in passing):.3g} on every passing country,")
         print("         and every one gains out of sample against a Poisson process. That is")
-        print("         the ripple the price tape does not show.")
+        print("         the ripple the price tape does not show, and it does not depend on")
+        print("         the intensity's exact shape.")
         print("")
-        print(f"         But the pooled Ogata residuals REJECT the exponential kernel "
-              f"(KS p={spec_primary.get('ks_p_value')}, n={spec_primary.get('n')}).")
-        print("         The decay is not exponential, which is the same thing seismology")
-        print("         found before adopting Omori's power law. So the branching ratio is")
-        print("         an APPROXIMATION of how much one escalation breeds, not an estimate")
-        print("         to quote to three digits, and these are registered CANDIDATE rather")
-        print("         than promoted.")
+        print(f"         The pooled Ogata residuals reject a continuous Exp(1) null "
+              f"(KS p={spec_primary.get('ks_p_value')}, n={spec_primary.get('n')}) — but the")
+        print("         daily grid alone would cause that, and correcting for it crudely")
+        print("         does not restore the fit. Discretization and kernel shape are")
+        print("         confounded here, so NEITHER is established as the culprit.")
+        print("")
+        print("         Consequence: the branching ratio is an APPROXIMATION of how much one")
+        print("         escalation breeds, not an estimate to quote to three digits. These")
+        print("         register CANDIDATE, not promoted. Resolving it needs sub-daily event")
+        print("         timestamps, which removes the confound — not a different kernel,")
+        print("         which would not address the mismatch that is actually visible.")
     elif passing:
         print(f"VERDICT: PARTIAL — {len(passing)} of {len(fitted)} countries clear the gate.")
         print("         Promoted individually; the rest are not.")
@@ -313,11 +381,12 @@ def main() -> int:
     promotable = bool(passing and spec_ok)
     status = ("CANDIDATE" if passing else "FAILED")
     scorecard = {
-        "n_events": int(len(events)), "n_material": int(len(material)),
+        "n_material": int(total),
         "sigma": SIGMA, "window": WINDOW, "test_frac": TEST_FRAC,
         "countries": [{k: v for k, v in r.items() if not k.startswith("_")} for r in results],
         "n_passing": len(passing), "n_fitted": len(fitted),
         "pooled_specification": {"train": spec_train, "holdout": spec_test},
+        "discretization": grid,
         "selection": {"fitted": len(fitted), "excluded_holdout_size": len(near),
                       "excluded_too_few_spikes": len(thin),
                       "basis": "sample size, not result"},
@@ -366,9 +435,10 @@ def main() -> int:
                 production_status="CANDIDATE",
                 notes="GDELT material conflict, observation clock. The trailing-z spike "
                       "definition is conservative and understates excitation. Pooled Ogata "
-                      f"residuals {'accept' if spec_ok else 'REJECT'} the exponential kernel "
-                      f"(KS p={spec_primary.get('ks_p_value')}), so the branching ratio is "
-                      "approximate.",
+                      f"residuals {'accept' if spec_ok else 'reject'} a continuous Exp(1) "
+                      f"null (KS p={spec_primary.get('ks_p_value')}), but daily discretization "
+                      "alone would cause that and is confounded with kernel shape, so the "
+                      "branching ratio is approximate and the shape is unverified.",
             ),
             artifact={"alpha": r["fit"]["alpha"], "beta": r["fit"]["beta"], "mu": r["fit"]["mu"]},
         )
@@ -379,7 +449,7 @@ def main() -> int:
                            f"{spec_primary.get('ks_p_value')}")
     if passing and not promotable:
         print("\nregistry: CANDIDATE, not promoted — the excitation is real but the "
-              "kernel shape is rejected.")
+              "intensity's shape is unverified at daily resolution.")
 
     out = REPORTS / f"{MODEL_ID}_{MODEL_VERSION}_scorecard.json"
     out.write_text(json.dumps(scorecard, indent=2, default=str))

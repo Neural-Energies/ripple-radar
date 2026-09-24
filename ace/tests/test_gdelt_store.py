@@ -132,3 +132,59 @@ def test_cameo_root_codes_are_complete_and_zero_padded():
     assert len(CAMEO_ROOT) == 20
     assert all(len(k) == 2 and k.isdigit() for k in CAMEO_ROOT)
     assert CAMEO_ROOT["19"] == "fight"
+
+
+# ------------------------------------------- streaming aggregation (OOM fix)
+
+def test_streaming_counts_agree_with_the_frame_based_path():
+    """The memory fix must not change the answer.
+
+    `load_events` concatenates every cached day into one frame -- ~11M rows at
+    current coverage, which the OOM reaper killed mid-run. `daily_counts_by`
+    reduces each file and drops it, so peak memory is one day rather than the
+    corpus. Same numbers or it is not a fix.
+    """
+    pytest.importorskip("pyarrow")
+    from ace.feeds.gdelt_store import cached_files, daily_counts_by, daily_series, load_events
+
+    files = cached_files()
+    if len(files) < 20:
+        pytest.skip("needs a populated GDELT cache")
+
+    # A slice small enough to hold both ways.
+    sample = files[:20]
+    frames = [pd.read_parquet(f) for f in sample]
+    small = pd.concat(frames, ignore_index=True)
+    small["observed_at"] = pd.to_datetime(small["observed_at"], utc=True)
+    small = small.set_index("observed_at").sort_index()
+    material = small[small["quad_class"] == 4]
+    by_frame = daily_series(material, by="action_geo_country")
+
+    streamed = daily_counts_by("action_geo_country", quad_classes=(4,))
+    overlap = by_frame.index.intersection(streamed.index)
+    assert len(overlap) >= 10, "not enough overlapping days to compare"
+
+    shared = [c for c in by_frame.columns if c in streamed.columns][:12]
+    assert shared, "no shared country columns"
+    for day in overlap[:10]:
+        for col in shared:
+            a = by_frame.loc[day, col]
+            b = streamed.loc[day, col]
+            if np.isnan(a) and np.isnan(b):
+                continue
+            assert a == b, f"{col} on {day.date()}: frame {a} vs streamed {b}"
+
+
+def test_streaming_counts_keep_the_zero_versus_gap_distinction():
+    from ace.feeds.gdelt_store import cached_days, daily_counts_by
+
+    pytest.importorskip("pyarrow")
+    if len(cached_days()) < 20:
+        pytest.skip("needs a populated GDELT cache")
+    w = daily_counts_by("action_geo_country", quad_classes=(4,))
+    have = set(cached_days())
+    for day in w.index[:60]:
+        row_all_nan = bool(w.loc[day].isna().all())
+        assert row_all_nan == (day not in have), (
+            f"{day.date()}: fetched-and-empty must be 0, never-fetched must be NaN"
+        )
