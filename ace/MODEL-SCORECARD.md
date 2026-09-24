@@ -23,7 +23,7 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | **Volatility forecast (HAR)** | **PASSES — 3/6 channels** | **Yes**, for SP500, DJIA, UST10Y. Withheld elsewhere. |
 | **Event cascade (Hawkes)** | **PASSES — 2/3 channels** | **Yes**, for NASDAQ and WTI. |
 | **Competing risks (Aalen-Johansen)** | **PASSES** | **Yes** — cumulative incidence by horizon. |
-| **Conflict cascade (GDELT Hawkes)** | **Excitation yes, kernel shape no** | Partly — that escalation clusters, yes. Not the branching ratio to three digits. |
+| **Conflict cascade (GDELT Hawkes)** | **PASSES — 15/20 countries, shape unverified** | Partly — that escalation clusters, yes. Not the branching ratio to three digits. |
 | Game theory (Nash + Monte Carlo) | **Exact** | Yes — equilibria computed and verified. Payoffs remain an assumption. |
 | Regime (Markov switching) | **Validated, descriptive** | Yes — to label the environment. Not as a forecast. |
 | Historical analogs | **Validated, descriptive** | Yes — as a distribution of what followed similar states. |
@@ -571,17 +571,43 @@ yields five spikes in three years.
 
 | country | spikes | α | half-life | LR p | OOS gain | multiplier |
 |---|---|---|---|---|---|---|
-| Syria | 44 | 0.488 | 1.2d | ~0 | **+16.4** | 1.95× |
-| Lebanon | 44 | 0.582 | 1.2d | ~0 | +7.4 | 2.40× |
-| Gaza Strip | 55 | 0.321 | 1.4d | 0.0017 | +7.0 | 1.47× |
-| El Salvador | 44 | 0.305 | 1.2d | 0.0007 | +7.0 | 1.44× |
-| Iran | 52 | 0.577 | 1.2d | ~0 | +4.4 | 2.36× |
-| Israel | 45 | 0.673 | 1.1d | ~0 | +0.8 | 3.06× |
+| Lebanon | 52 | 0.566 | 1.2d | ~0 | **+17.1** | 2.31× |
+| Iran | 78 | 0.515 | 1.2d | ~0 | +16.3 | 2.06× |
+| Syria | 52 | 0.540 | 1.2d | ~0 | +12.7 | 2.18× |
+| Pakistan | 62 | 0.261 | 1.0d | 0.0007 | +10.6 | 1.35× |
+| Cuba | 52 | 0.385 | 0.9d | 9e-08 | +10.3 | 1.63× |
+| West Bank | 54 | 0.401 | 1.3d | 3.3e-07 | +7.6 | 1.67× |
+| Nepal | 48 | 0.461 | 1.0d | ~0 | +6.3 | 1.86× |
+| Greece | 43 | 0.403 | 1.6d | 2.3e-05 | +4.6 | 1.67× |
+| Rwanda | 44 | 0.390 | 1.1d | 8.1e-07 | +3.8 | 1.64× |
+| Afghanistan | 49 | 0.332 | 1.1d | 1.2e-05 | +3.8 | 1.50× |
+| India | 45 | 0.483 | 1.5d | ~0 | +3.7 | 1.93× |
+| Israel | 56 | 0.636 | 1.3d | ~0 | +3.4 | 2.75× |
+| Turkey | 50 | 0.434 | 1.7d | 3.8e-07 | +2.9 | 1.77× |
+| Niger | 43 | 0.505 | 1.7d | ~0 | +2.4 | 2.02× |
+| Brazil | 43 | 0.269 | 1.1d | 0.0019 | +1.7 | 1.37× |
 
-6 of 7 fitted countries clear the three per-country checks. Mean branching
-ratio 0.49: **for every 100 escalations arriving on their own, ~114 more follow
-as offspring.** Excitation half-life is close to a day everywhere — conflict
-escalation begets escalation *fast*.
+**15 of 20 fitted countries** clear the three per-country checks, on the
+complete backfill: 1,685 cached days, 2022-01 to 2026-09, 6.47M material
+events across 254 countries. Mean branching ratio **0.439** — for every 100
+escalations arriving on their own, ~85 more follow as offspring. Excitation
+half-life is near one day everywhere: conflict escalation begets escalation
+*fast*.
+
+The branching ratio has been strikingly stable as the sample grew: 0.429 at
+four countries, 0.436 at six, 0.491 at eight, **0.439 at fifteen**. A number
+that holds while the sample triples is behaving like a real effect.
+
+### Gaza: the gate working, and worth more than the fifteen passes
+
+Gaza passed on partial data and **dropped out on the full window**. It still
+fits strongly in sample — LR p = 2.6e-05, α = 0.399, stationary — but its
+out-of-sample gain is **−13.8**: it loses badly to Poisson on the holdout.
+Extending the window through 2026 put a structural break inside the test
+period, and parameters fitted before it do not transfer across it.
+
+A model with only the in-sample test would have shipped Gaza with a confident
+1.66× multiplier.
 
 ### The shape is unverified — and it is NOT the kernel
 
