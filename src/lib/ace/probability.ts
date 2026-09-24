@@ -75,7 +75,14 @@ export function axisPosition(index: number, count: number): number {
 
 /** Round to integers that still sum to exactly 100 (largest remainder). */
 export function roundTo100(weights: number[]): number[] {
-  const total = weights.reduce((a, w) => a + w, 0) || 1;
+  // Zero total mass is not a distribution to close, it is the absence of one.
+  // Falling through to `|| 1` here distributed an arbitrary point to each row —
+  // four zero-weight scenarios came back as 1/1/1/1 and summed to 4. A kernel
+  // that invents mass from nothing is exactly what the rest of this file is
+  // built to prevent, and the posterior update calls it too.
+  const sum = weights.reduce((a, w) => a + w, 0);
+  if (!(sum > 0)) return weights.map(() => 0);
+  const total = sum;
   const exact = weights.map((w) => (w / total) * 100);
   const floors = exact.map((x) => Math.floor(x));
   let remaining = 100 - floors.reduce((a, n) => a + n, 0);

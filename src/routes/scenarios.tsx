@@ -5,7 +5,7 @@ import { FrozenBadge, TickerLink } from "@/components/desk-nav";
 import { ExpectedEvidencePanel, HorizonPanel } from "@/components/engine-panels";
 import { ResearchHeader } from "@/components/research-header";
 import { Button, Delta, Input, Panel } from "@/components/ui";
-import type { ForecastBand } from "@/data/types";
+import type { ForecastBand, Scenario } from "@/data/types";
 import { validateEventSearch } from "@/lib/hooks/use-event-param-sync";
 import { useLiveEvent } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
@@ -15,6 +15,20 @@ export const Route = createFileRoute("/scenarios")({
   validateSearch: validateEventSearch,
   component: ScenariosPage,
 });
+
+/**
+ * Where a scenario's prior came from, in one word.
+ *
+ * Hovering gives the full basis — which model, what sample, what holdout error,
+ * and the reference-class caveat. The point is that a reader can always get
+ * from a number to its source without leaving the row.
+ */
+const PRIOR_LABEL: Record<NonNullable<Scenario["prior"]>["source"], string> = {
+  reference_class: "base rate",
+  empirical_ledger: "our ledger",
+  residual: "residual",
+  insufficient: "no prior",
+};
 
 function ProbabilityBands({
   scenarios,
@@ -217,6 +231,22 @@ function ScenariosPage() {
                       <div>Range: {s.range}</div>
                       <div className="line-clamp-2">{s.keyOutcomes}</div>
                     </div>
+                    {s.prior ? (
+                      <p className="mt-1 flex items-center gap-1 text-micro">
+                        <span
+                          className={cn(
+                            "rounded-sm px-1 py-px font-mono text-micro",
+                            s.prior.source === "reference_class"
+                              ? "bg-card-3 text-muted"
+                              : "bg-card-3 text-subtle",
+                          )}
+                          title={s.prior.basis}
+                        >
+                          {PRIOR_LABEL[s.prior.source]}
+                        </span>
+                        <span className="text-subtle">prior {s.prior.probability}%</span>
+                      </p>
+                    ) : null}
                     {s.audit.evidence ? (
                       <p className="mt-1 text-micro text-subtle line-clamp-2">{s.audit.evidence}</p>
                     ) : null}

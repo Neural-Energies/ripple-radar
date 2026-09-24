@@ -240,3 +240,121 @@ looser floor. FRED licenses its index series for ten years and its credit
 spreads for two, which is why several natural proxies are absent. CoinGecko's
 free tier caps at 365 days, too shallow for a holdout split, so every crypto
 edge stays unmeasured.
+
+---
+
+# The scenario prior
+
+## The defect
+
+Every probability the product displayed traced back to `hypothesize.ts`:
+
+```ts
+const material = clamp(16 + esc * 6 + hits * 2 - de * 4, 8, 42);
+const partial  = clamp(26 + hits * 2, 14, 44);
+const noise    = clamp(24 - esc * 3 + de * 4, 8, 40);
+```
+
+`hits` is a count of headlines. `esc` and `de` are counts of keywords. The
+constants — 16, 6, 2, 4, 26, 24, 3 — were authored. The Dirichlet update
+downstream is real and correct; it was updating an invented prior.
+
+Two specific problems beyond "the numbers are made up":
+
+1. **Coverage volume is not probability.** The formula added 2 points of
+   materialization mass per headline, so a heavily covered story looked more
+   likely purely for being heavily covered — and coverage peaks *after* a move
+   is already priced.
+2. **It ignored the horizon.** A 24-hour book and a 30-day book got the same
+   prior. Those are different questions.
+
+## The replacement
+
+An Aalen-Johansen competing-risks fit on **4,633 market shocks**, scored once on
+a sealed holdout: worst out-of-sample error **3.5%** against **28.8%** for the
+naive Kaplan-Meier treatment that censors the competing cause. It answers
+exactly what ACE's families ask — after a shock, does this escalate, merely
+continue, or neither — and it answers it **by horizon**.
+
+| horizon | escalation | continuation | neither |
+|---|---|---|---|
+| 1d | 3.0% | 22.9% | 74.1% |
+| 7d | 4.9% | 34.3% | 60.8% |
+| 30d | 7.5% | 51.1% | 41.4% |
+
+Mapped to the book: `material` ← escalation, `partial` ← continuation, and
+`noise`/`fade` share the residual.
+
+**The behavioural change is large and in the honest direction.** `material` now
+runs 3–7% inside a week where the authored formula had a floor of 16% and a
+ceiling of 42%. The old prior was systematically overconfident about things
+materializing.
+
+## What is still not measured, and says so
+
+The fit distinguishes **three** outcomes. Books have **four** families, and the
+split of the residual between "narrative premium only" and "actively eases" is
+not something this model speaks to. Those rows are tagged `residual`: the *size*
+of their shared mass is empirical, the *split* is the legacy ratio, and the
+basis string says exactly that.
+
+The reference class is a transfer too — the curves were measured on market
+shocks (|return| ≥ 2σ), not news events. Every prior carries that sentence
+rather than burying it.
+
+## Source ranking
+
+| source | meaning |
+|---|---|
+| `empirical_ledger` | resolved forecasts for this class in our own ledger — not yet available |
+| `reference_class` | the validated competing-risks curves at this horizon |
+| `residual` | empirically sized mass on a split the model does not make |
+| `insufficient` | nothing qualifies; **no probability is offered** |
+
+`weakestSource` reports the book's real standing rather than its best part.
+Below the 0.5-day floor the curves were fit over, the engine returns
+`insufficient` with zero probabilities — reading the curve there would be
+extrapolation dressed as data.
+
+## A latent kernel bug this surfaced
+
+Writing the insufficient path exposed `roundTo100([0,0,0,0])` returning
+`[1,1,1,1]` — it fell through `total || 1` and handed an arbitrary point to
+each row. The **posterior update calls the same kernel**, so a degenerate weight
+vector anywhere would have had mass invented for it. Fixed at the root: zero
+total mass returns zeros, because that is the absence of a distribution, not a
+distribution to close.
+
+## Dead parameters removed
+
+`esc` and `de` no longer drive anything, so they are gone from `scenariosFor`'s
+signature. A parameter that does nothing is a lie about what produces the
+number.
+
+## Where it flows
+
+```
+artifacts/reports/ace_competing_risks_v1_scorecard.json   (validated run)
+  → scripts/generate-base-rates.mjs
+  → src/lib/ace/base-rates.ts        (GENERATED — refuses a model that failed its gate)
+  → src/lib/ace/prior.ts             ranked sources, provenance, insufficient
+  → hypothesize.ts                   scenariosFor
+  → Scenario.prior                   { source, basis, probability }
+  → scenarios.tsx                    source chip; hover gives the full basis
+```
+
+`npm run baserates:generate` regenerates. The generator **refuses to emit** if
+`passes` is false on the source run.
+
+## Tests
+
+`prior.test.ts` (17): curves monotone and inside the simplex; interpolation
+between knots; clamping instead of extrapolation outside the grid; mass closes
+to 100 for 3- and 4-row books; the prior moves with horizon; modelled rows cite
+the model; residual rows are flagged; the reference-class transfer is stated;
+`insufficient` offers nothing to display.
+
+`probability.test.ts`: the 360-case sweep was re-pointed from `esc`/`de` — which
+no longer drive anything — onto the horizon, which does. Plus: the prior does
+**not** move with article count, it **does** move with horizon, every row states
+its source, and `roundTo100` no longer invents mass.

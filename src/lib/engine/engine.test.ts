@@ -52,7 +52,7 @@ function book(text: string) {
   const graph = buildCausalGraph({ title: text, tags, tone });
   const players = playersFor(["Primary actor"], tags, family);
   const gt = gameTheoryFor({ family, players });
-  const scenarios = scenariosFor({ entity: tags[0] ?? "the development", tags, family, tone, hits: 3, esc: 2, de: 0 });
+  const scenarios = scenariosFor({ entity: tags[0] ?? "the development", tags, family, tone, hits: 3 });
   const questions = questionsFor({
     entity: tags[0] ?? "the development",
     actor: gt.actor,

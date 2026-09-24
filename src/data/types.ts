@@ -145,6 +145,21 @@ export interface Scenario {
   range: string;
   keyOutcomes: string;
   audit: ProbabilityAudit;
+  /**
+   * Where this row's PRIOR came from, before any evidence update.
+   *
+   * It used to come from `clamp(16 + esc*6 + hits*2 - de*4, 8, 42)` — a
+   * count of headlines and keywords behind authored constants. It now comes
+   * from a validated competing-risks fit read at the book's horizon, except
+   * for the families that fit does not distinguish, which say so.
+   */
+  prior?: {
+    source: "empirical_ledger" | "reference_class" | "residual" | "insufficient";
+    /** Plain-language account of the source, shown on drill-down. */
+    basis: string;
+    /** The prior before evidence moved it. */
+    probability: number;
+  };
 }
 
 export interface GameCell {

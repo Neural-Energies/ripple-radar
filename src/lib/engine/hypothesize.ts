@@ -7,6 +7,7 @@ import type {
   ResearchQuestion,
   Scenario,
 } from "@/data/types";
+import { priorFor, type PriorRole } from "@/lib/ace/prior";
 import { roundTo100 } from "@/lib/ace/probability";
 import type { EventFamily } from "./extract";
 import type { Tag } from "./ontology";
@@ -45,28 +46,81 @@ function auditOf(p: number, evidence: string, tone: TapeTone): Scenario["audit"]
  * (The raw weights need renormalizing regardless: `fade` is derived as the
  * residual after `noise`, but three-scenario families never emit `noise`.)
  */
-function normalize(rows: Omit<Scenario, "audit" | "prevProbability">[], tone: TapeTone, evidence: string): Scenario[] {
-  const closed = roundTo100(rows.map((s) => s.probability));
+function normalize(
+  rows: Omit<Scenario, "audit" | "prevProbability">[],
+  tone: TapeTone,
+  evidence: string,
+  prior?: ReturnType<typeof priorFor>,
+): Scenario[] {
+  // An insufficient prior has no distribution to close. Rounding it would
+  // manufacture the very number the engine just declined to give.
+  const insufficient = prior?.weakestSource === "insufficient";
+  const closed = insufficient
+    ? rows.map(() => 0)
+    : roundTo100(rows.map((s) => s.probability));
   return rows.map((s, i) => {
     const p = closed[i] ?? 0;
-    return { ...s, probability: p, prevProbability: p, audit: auditOf(p, evidence, tone) };
+    const c = prior?.components[i];
+    return {
+      ...s,
+      probability: p,
+      prevProbability: p,
+      audit: auditOf(p, c ? `${evidence} Prior: ${c.basis}` : evidence, tone),
+      ...(c ? { prior: { source: c.source, basis: c.basis, probability: c.probability } } : {}),
+    };
   });
 }
+
+/**
+ * The near-term horizon a book's prior is read at.
+ *
+ * Reuses the horizons `horizonsFor` already declares per family rather than
+ * inventing a second convention: a policy or FX book resolves inside a day, a
+ * weather book inside a week. The prior curve is horizon-dependent — escalation
+ * incidence runs 3.0% at one day and 7.5% at thirty — so this choice is load
+ * bearing, and it has to be the same choice the rest of the book makes.
+ */
+export function nearTermHorizonHours(family: EventFamily): number {
+  // Mirrors horizonsFor's first row exactly: "24h" for policy and FX, "7d" for
+  // everything else. If that ever diverges the book would price its prior at
+  // one horizon and report another.
+  return family === "policy" || family === "fx" ? 24 : 24 * 7;
+}
+
+/** Role of each row on the materialization -> fade axis, by position. */
+const ROLES_4: PriorRole[] = ["material", "partial", "noise", "fade"];
+const ROLES_3: PriorRole[] = ["material", "partial", "fade"];
 
 export function scenariosFor(opts: {
   entity: string;
   tags: Tag[];
   family: EventFamily;
   tone: TapeTone;
+  /** Item count — used for the evidence line, NOT for the prior. */
   hits: number;
-  esc: number;
-  de: number;
+  /** Book horizon. Defaults to the family's near-term horizon. */
+  horizonHours?: number;
 }): Scenario[] {
   const label = opts.entity || opts.tags[0] || "the development";
-  const material = clamp(16 + opts.esc * 6 + opts.hits * 2 - opts.de * 4, 8, 42);
-  const partial = clamp(26 + opts.hits * 2, 14, 44);
-  const noise = clamp(24 - opts.esc * 3 + opts.de * 4, 8, 40);
-  const fade = clamp(100 - material - partial - noise, 6, 36);
+
+  // The prior used to be authored constants over headline and keyword counts:
+  //   material = clamp(16 + esc*6 + hits*2 - de*4, 8, 42)
+  // Coverage volume is not probability, and those constants were invented. The
+  // prior now comes from a competing-risks fit on 4,633 shocks, read at this
+  // book's own horizon. Families the fit does not distinguish say so on the row.
+  const horizonHours = opts.horizonHours ?? nearTermHorizonHours(opts.family);
+  const fourRow = opts.family === "physical" || opts.family === "policy" ||
+    opts.family === "credit" || opts.family === "tech" || opts.family === "commodity";
+  const roles = fourRow ? ROLES_4 : ROLES_3;
+  const prior = priorFor({ horizonHours, roles });
+  const [material, partial, noise, fade] = fourRow
+    ? prior.components.map((c) => c.probability)
+    : [
+        prior.components[0]!.probability,
+        prior.components[1]!.probability,
+        0,
+        prior.components[2]!.probability,
+      ];
   const evidence = `${opts.hits} live items. Tone ${opts.tone}.`;
   const first = opts.tags[0] ?? "the first-order print";
 
@@ -128,7 +182,7 @@ export function scenariosFor(opts: {
     ],
   };
 
-  return normalize(byFamily[opts.family] ?? byFamily.other, opts.tone, evidence);
+  return normalize(byFamily[opts.family] ?? byFamily.other, opts.tone, evidence, prior);
 }
 
 export function gameTheoryFor(opts: {

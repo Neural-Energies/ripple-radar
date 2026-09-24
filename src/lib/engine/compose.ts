@@ -127,7 +127,10 @@ export function composeEvent(opts: {
   const theme = themeFromTags(tags);
   const players = playersFor(entities, tags, family);
   const gt = gameTheoryFor({ family, players });
-  const scenarios = scenariosFor({ entity, tags, family, tone, hits, esc, de });
+  // esc/de are deliberately NOT passed: escalation and de-escalation keyword
+  // counts used to drive the prior through authored constants, and they no
+  // longer drive anything. They remain in scope for the evidence copy below.
+  const scenarios = scenariosFor({ entity, tags, family, tone, hits });
 
   // The book's headline probability is P(the causal thesis materializes) —
   // the mass on the materialization end of the scenario axis, which is where

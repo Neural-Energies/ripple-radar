@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { EvidenceItem, RippleNode, Scenario, TradeIdea } from "../../data/types.ts";
-import { PRIOR_STRENGTH, evidenceWeight, updateScenarios } from "./probability.ts";
+import { PRIOR_STRENGTH, evidenceWeight, roundTo100, updateScenarios } from "./probability.ts";
 
 /** Materialization → fade, the order every family in scenariosFor emits. */
 function priorBook(probs = [30, 40, 30]): Scenario[] {
@@ -182,19 +182,68 @@ test("every family's prior closes to exactly 100 — mass over exclusive outcome
     "physical", "policy", "credit", "tech", "fx",
     "weather", "corporate", "kinetic", "commodity", "other",
   ] as const;
-  // Sweep the inputs that drive the raw weights, including the corners that
-  // hit the clamps — that is where the old per-element rounding drifted.
+  // Sweep what actually drives the weights. It used to be escalation and
+  // de-escalation keyword counts feeding authored constants; the prior now
+  // comes from a competing-risks curve read at the book's HORIZON, so the
+  // horizon is the axis that has to close at every point — including the two
+  // ends of the grid and the sub-floor case that returns no prior at all.
+  const horizons = [1, 12, 24, 72, 168, 720, 24 * 365];
   for (const family of families) {
     for (const hits of [0, 3, 9, 20]) {
-      for (const esc of [0, 2, 6]) {
-        for (const de of [0, 2, 6]) {
-          const rows = scenariosFor({ entity: "X", tags: [], family, tone: "neutral", hits, esc, de });
-          const sum = rows.reduce((a, s) => a + s.probability, 0);
-          assert.equal(sum, 100, `${family} h${hits} e${esc} d${de} summed to ${sum}`);
-          assert.ok(rows.every((s) => s.probability >= 0), `${family} produced negative mass`);
+      for (const horizonHours of horizons) {
+        const rows = scenariosFor({
+          entity: "X", tags: [], family, tone: "neutral", hits, horizonHours,
+        });
+        const sum = rows.reduce((a, s) => a + s.probability, 0);
+        const label = `${family} h${hits} ${horizonHours}h`;
+        assert.ok(rows.every((s) => s.probability >= 0), `${label} produced negative mass`);
+        if (horizonHours < 12) {
+          // Below the modelled floor the engine offers no prior rather than
+          // extrapolating; a book of zeros is the honest output, not a bug.
+          assert.ok(sum === 0 || sum === 100, `${label} summed to ${sum}`);
+        } else {
+          assert.equal(sum, 100, `${label} summed to ${sum}`);
         }
       }
     }
+  }
+});
+
+test("the prior no longer moves with how many articles were written", async () => {
+  const { scenariosFor } = await import("../engine/hypothesize.ts");
+  // Coverage volume is not probability. The old formula added 2 points of
+  // materialization mass per headline, so a heavily covered story looked more
+  // likely purely for being heavily covered — and coverage peaks after the
+  // move is already priced.
+  const quiet = scenariosFor({ entity: "X", tags: [], family: "physical", tone: "neutral", hits: 1 });
+  const loud = scenariosFor({ entity: "X", tags: [], family: "physical", tone: "neutral", hits: 40 });
+  assert.deepEqual(
+    quiet.map((s) => s.probability),
+    loud.map((s) => s.probability),
+    "forty articles about a thing does not make the thing more likely",
+  );
+});
+
+test("the prior DOES move with the horizon", async () => {
+  const { scenariosFor } = await import("../engine/hypothesize.ts");
+  const day = scenariosFor({ entity: "X", tags: [], family: "physical", tone: "neutral", hits: 3, horizonHours: 24 });
+  const month = scenariosFor({ entity: "X", tags: [], family: "physical", tone: "neutral", hits: 3, horizonHours: 24 * 30 });
+  assert.ok(
+    month[0]!.probability > day[0]!.probability,
+    "escalation incidence accumulates with time and the book must reflect it",
+  );
+});
+
+test("every row states where its prior came from", async () => {
+  const { scenariosFor } = await import("../engine/hypothesize.ts");
+  const rows = scenariosFor({ entity: "X", tags: [], family: "physical", tone: "neutral", hits: 3 });
+  for (const r of rows) {
+    assert.ok(r.prior, `${r.id} has no prior provenance`);
+    assert.ok(
+      ["reference_class", "residual", "insufficient", "empirical_ledger"].includes(r.prior!.source),
+      `${r.id} has an unknown prior source`,
+    );
+    assert.ok(r.prior!.basis.length > 40);
   }
 });
 
@@ -254,4 +303,23 @@ test("probability no longer climbs just because a story is covered more", async 
     Math.abs(heavy.probability - thin.probability) < 25,
     `coverage volume alone moved probability ${thin.probability}% -> ${heavy.probability}%`,
   );
+});
+
+test("roundTo100 returns zeros for zero mass instead of inventing points", () => {
+  // It used to fall through `total || 1` and hand a point to each row: four
+  // zero-weight scenarios came back 1/1/1/1 and summed to 4. The posterior
+  // update calls this too, so a kernel that invents mass from nothing is not
+  // a display bug.
+  assert.deepEqual(roundTo100([0, 0, 0, 0]), [0, 0, 0, 0]);
+  assert.deepEqual(roundTo100([0, 0]), [0, 0]);
+  assert.deepEqual(roundTo100([]), []);
+  assert.deepEqual(roundTo100([0, -0]), [0, 0]);
+});
+
+test("roundTo100 still closes a real distribution to exactly 100", () => {
+  for (const w of [[31.7, 44.6, 23.7], [1, 1, 1], [99, 0.5, 0.5], [5, 5, 5, 5, 5]]) {
+    const out = roundTo100(w);
+    assert.equal(out.reduce((a, b) => a + b, 0), 100, `${w} did not close`);
+    assert.ok(out.every((n) => n >= 0));
+  }
 });
