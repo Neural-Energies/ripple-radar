@@ -1,4 +1,5 @@
 import type { Lifecycle, RadarEvent } from "@/data/types";
+import { gameSensitivity } from "@/lib/ace/game-sensitivity";
 import { probabilityFromScenarios } from "@/lib/ace/probability";
 import { etParts } from "@/lib/live/clock";
 import { rankTrades } from "@/lib/live/discover";
@@ -126,7 +127,24 @@ export function composeEvent(opts: {
   const region = regionFromText(blob, tags);
   const theme = themeFromTags(tags);
   const players = playersFor(entities, tags, family);
-  const gt = gameTheoryFor({ family, players });
+  const baseGt = gameTheoryFor({ family, players });
+  // The Nash solve is correct; its inputs are assumptions. Measure how much of
+  // the answer survives them before anything renders it as a finding.
+  const gtSensitivity = gameSensitivity(baseGt);
+  const gt: typeof baseGt = {
+    ...baseGt,
+    sensitivity: {
+      draws: gtSensitivity.draws,
+      jitter: gtSensitivity.jitter,
+      equilibriumStability: gtSensitivity.equilibriumStability,
+      primaryStability: gtSensitivity.primaryStability,
+      likelyStability: gtSensitivity.likelyStability,
+      noEquilibriumShare: gtSensitivity.noEquilibriumShare,
+      verdict: gtSensitivity.verdict,
+      alternatives: gtSensitivity.alternatives.slice(0, 4),
+      note: gtSensitivity.note,
+    },
+  };
   // esc/de are deliberately NOT passed: escalation and de-escalation keyword
   // counts used to drive the prior through authored constants, and they no
   // longer drive anything. They remain in scope for the evidence copy below.

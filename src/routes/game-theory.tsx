@@ -6,11 +6,30 @@ import { ResearchHeader } from "@/components/research-header";
 import { Badge, Delta, Panel } from "@/components/ui";
 import { ImportanceMeter } from "@/components/engine-panels";
 import { intervene } from "@/lib/ace/intervene";
+import type { GameTheory } from "@/data/types";
 import { isNash, readMatrix } from "@/lib/engine/game";
 import { goToScenario, validateEventSearch } from "@/lib/hooks/use-event-param-sync";
 import { useLiveEvent } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
+
+/**
+ * How much the equilibrium depends on payoffs nobody measured.
+ *
+ * The cells are ordinal judgements about actor preferences, and equilibria are
+ * not continuous in them — one cell moving a step can relocate the answer. On
+ * the live matrices this ranges from 100% (weather) to 43% (credit), so a
+ * reader needs to know which kind of read they are looking at.
+ */
+const STABILITY_LABEL: Record<
+  NonNullable<GameTheory["sensitivity"]>["verdict"],
+  string
+> = {
+  robust: "robust",
+  leaning: "leaning",
+  knife_edge: "knife edge",
+  no_equilibrium: "no stable equilibrium",
+};
 
 export const Route = createFileRoute("/game-theory")({
   validateSearch: validateEventSearch,
@@ -177,6 +196,30 @@ function GameTheoryPage() {
                   {" — "}
                   {read.likely.label}. Payoff ({read.likely.a}, {read.likely.b}).
                 </p>
+                {gt.sensitivity ? (
+                  <p
+                    className="mt-1 flex flex-wrap items-baseline gap-1 text-micro"
+                    title={gt.sensitivity.note}
+                  >
+                    <span
+                      className={cn(
+                        "rounded-sm px-1 py-px font-mono",
+                        gt.sensitivity.verdict === "robust"
+                          ? "bg-card-3 text-muted"
+                          : "bg-card-3 text-subtle",
+                      )}
+                    >
+                      {STABILITY_LABEL[gt.sensitivity.verdict]}
+                    </span>
+                    <span className="text-subtle">
+                      holds in {Math.round(gt.sensitivity.primaryStability * 100)}% of ±
+                      {gt.sensitivity.jitter} payoff perturbations
+                      {gt.sensitivity.noEquilibriumShare > 0.1
+                        ? ` · no equilibrium at all in ${Math.round(gt.sensitivity.noEquilibriumShare * 100)}%`
+                        : ""}
+                    </span>
+                  </p>
+                ) : null}
               </div>
             ) : (
               <p className="text-caption text-muted">No likely cell until the matrix fills.</p>

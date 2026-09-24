@@ -358,3 +358,90 @@ the model; residual rows are flagged; the reference-class transfer is stated;
 no longer drive anything — onto the horizon, which does. Plus: the prior does
 **not** move with article count, it **does** move with horizon, every row states
 its source, and `roundTo100` no longer invents mass.
+
+---
+
+# Game-theory payoff sensitivity
+
+## The defect
+
+`readMatrix` solves for pure-strategy Nash best responses **correctly**. What it
+solves over is a matrix of authored integers:
+
+```ts
+cell("Max leverage, self-harm", 3, -3)
+```
+
+Those are ordinal judgements about actor preferences, not measurements. Nothing
+in the product said so, and an equilibrium read off assumed payoffs rendered
+exactly like one read off known payoffs.
+
+That matters because **equilibria are not continuous in payoffs**. A single cell
+moving one step can relocate the mutual best response entirely, and a reader had
+no way to tell a robust answer from a knife-edge one.
+
+## The measurement
+
+Re-solve the matrix with every payoff jittered, and report how often each answer
+survives. Default ±1 — one full preference step on the scale the payoffs are
+authored on: enough to flip a genuinely marginal ordering, not enough to invent
+a different game. The magnitude is itself an assumption and travels with the
+result.
+
+Measured on all ten live family matrices, 400 draws, seeded:
+
+| family | primary holds | set unchanged | no equilibrium | verdict |
+|---|---|---|---|---|
+| weather | 100% | 100% | 0% | robust |
+| corporate | 89% | 89% | 0% | robust |
+| physical | 84% | 84% | 0% | robust |
+| kinetic | 84% | 84% | 0% | robust |
+| other | 84% | 84% | 0% | robust |
+| fx | 76% | 75% | 4% | leaning |
+| tech | 75% | 75% | 19% | leaning |
+| commodity | 75% | 67% | 12% | leaning |
+| policy | 50% | 45% | **45%** | knife edge |
+| credit | 43% | **0%** | 4% | knife edge |
+
+`policy` loses its equilibrium entirely in 45% of perturbations. `credit`'s
+equilibrium **set never survives a ±1 jitter at all**. Both were previously
+shown with a confident "likely cell" and no caveat.
+
+## Primary vs set stability
+
+The first cut graded the verdict on exact set equality, and a test fixture
+exposed why that is wrong: a matrix can have a rock-solid primary equilibrium
+alongside a second one that flickers. The set then matches 27% of the time while
+the leading cell appears in **100%**. Calling that "knife edge" understates a
+firm answer as badly as "robust" would overstate a fragile one.
+
+So the verdict grades `primaryStability` — how often the leading equilibrium
+cell appears — and `equilibriumStability` (exact set match) is reported
+alongside it. Both are in the type; the UI shows the first and the note carries
+both.
+
+## Determinism
+
+Seeded xorshift. An analyst who reruns a book must get the same stability
+number, or the number is not evidence. A test pins it, and a second test pins
+that different seeds genuinely draw different samples — compared on the share
+vector, because an all-ties game returns the same coarse summary under every
+seed and those agreeing would prove nothing.
+
+## UI
+
+One chip beside the likely cell: `robust` / `leaning` / `knife edge` / `no
+stable equilibrium`, plus "holds in N% of ±1 payoff perturbations" and the
+no-equilibrium share when it exceeds 10%. Hover gives the full note. No layout
+change.
+
+## Tests
+
+`game-sensitivity.test.ts` (13): determinism under a fixed seed; genuine
+variation across seeds; a strictly dominant equilibrium is unmoved; a
+tie-decided game is reported fragile; a firm primary is not demoted by a
+flickering secondary; stability rises as jitter shrinks; zero jitter reproduces
+the baseline; `perturb` moves payoffs within the bound and never the labels;
+shares are proportions and ordered; the note always states the payoffs are
+assumptions; a dominated strategy never reaches equilibrium; one draw does not
+divide by zero.

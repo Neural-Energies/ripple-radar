@@ -182,6 +182,28 @@ export interface GameTheory {
     moves: string[];
     batna: string;
   }[];
+  /**
+   * How much of the equilibrium survives the fact that the payoffs are guesses.
+   *
+   * The cells are ordinal judgements about actor preferences, not measurements,
+   * and equilibria are not continuous in payoffs — one cell moving by a single
+   * step can relocate the mutual best response entirely. Measured on the live
+   * matrices, `physical` and `corporate` hold their equilibrium through 84-89%
+   * of ±1 perturbations while `credit` holds it through 0%. Presenting those
+   * two the same way is the defect this field exists to close.
+   */
+  sensitivity?: {
+    draws: number;
+    jitter: number;
+    equilibriumStability: number;
+    /** Share of draws in which the LEADING equilibrium cell appeared. */
+    primaryStability: number;
+    likelyStability: number;
+    noEquilibriumShare: number;
+    verdict: "robust" | "leaning" | "knife_edge" | "no_equilibrium";
+    alternatives: { row: string; col: string; share: number }[];
+    note: string;
+  };
 }
 
 export interface TradeIdea {
