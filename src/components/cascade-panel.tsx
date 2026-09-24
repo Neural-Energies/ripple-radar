@@ -1,10 +1,6 @@
 import { Panel } from "@/components/ui";
-import {
-  CASCADE_RUN,
-  allCascades,
-  cascadesForEntities,
-  type CascadeRate,
-} from "@/lib/ace/cascade-rates";
+import { cascadesForEntities } from "@/lib/ace/cascade-match";
+import { CASCADE_RUN, allCascades, type CascadeRate } from "@/lib/ace/cascade-rates";
 
 /**
  * Measured conflict self-excitation — the one place ACE's ripple thesis is

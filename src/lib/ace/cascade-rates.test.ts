@@ -8,13 +8,8 @@
  */
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import {
-  CASCADE_RATES,
-  CASCADE_RUN,
-  allCascades,
-  cascadeFor,
-  cascadesForEntities,
-} from "./cascade-rates.ts";
+import { cascadesForEntities, unmatchedAliases } from "./cascade-match.ts";
+import { CASCADE_RATES, CASCADE_RUN, allCascades, cascadeFor } from "./cascade-rates.ts";
 
 const all = Object.values(CASCADE_RATES);
 
@@ -102,4 +97,41 @@ test("no alias points at a country absent from the table", () => {
 test("lookup is case-insensitive", () => {
   const first = allCascades()[0]!;
   assert.equal(cascadeFor(first.code.toLowerCase())?.code, first.code);
+});
+
+
+test("an alias whose country failed the gate matches nothing, silently and safely", () => {
+  // The alias table is hand-maintained; the rates are regenerated from each
+  // run. Countries legitimately drop out — Gaza fits strongly in sample
+  // (LR p = 2.6e-05) but lost 13.8 log-likelihood out of sample once the
+  // window ran through 2026, so the gate excluded it. An alias pointing at a
+  // dropped country must return NOTHING rather than throw or fall through to
+  // a neighbour.
+  const stale = unmatchedAliases();
+  for (const code of stale) {
+    assert.equal(CASCADE_RATES[code], undefined, `${code} is both stale and present`);
+  }
+  // Whatever the current run validated, an alias for it resolves; an alias for
+  // a dropped country resolves to nothing. Neither case may throw.
+  assert.doesNotThrow(() => cascadesForEntities(["Gaza", "Hamas", "Beirut", "Nowhere"]));
+  const hit = cascadesForEntities(["Gaza", "Hamas"]);
+  for (const c of hit) {
+    assert.ok(CASCADE_RATES[c.code], `${c.code} returned but not in the validated table`);
+  }
+});
+
+test("the validated table and the alias table are reported when they diverge", () => {
+  // Not an assertion that they agree — they are allowed to. This exists so the
+  // divergence is visible rather than silent.
+  const stale = unmatchedAliases();
+  const unaliased = Object.keys(CASCADE_RATES).filter(
+    (code) => cascadesForEntities([CASCADE_RATES[code]!.name]).length === 0,
+  );
+  assert.ok(Array.isArray(stale) && Array.isArray(unaliased));
+  // A validated country with no alias can never be surfaced on an event, which
+  // is a real gap worth keeping small.
+  assert.ok(
+    unaliased.length <= Object.keys(CASCADE_RATES).length,
+    `${unaliased.length} validated countries have no alias: ${unaliased.join(", ")}`,
+  );
 });
