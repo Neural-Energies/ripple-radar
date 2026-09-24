@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { AnalogPanel } from "@/components/analog-panel";
 import { SCENARIO_COLORS, ScenarioDistributionBar } from "@/components/charts";
 import { FrozenBadge, TickerLink } from "@/components/desk-nav";
 import { ExpectedEvidencePanel, HorizonPanel } from "@/components/engine-panels";
@@ -306,6 +307,7 @@ function ScenariosPage() {
         <HorizonPanel event={event} />
         <ExpectedEvidencePanel event={event} />
       </div>
+      <AnalogPanel />
     </div>
   );
 }

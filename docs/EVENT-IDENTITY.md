@@ -473,3 +473,98 @@ new" rather than "the rule is off".
 
 Six tests, including the two that demonstrate the clock getting it wrong in
 each direction.
+
+---
+
+# Historical analogs
+
+## The gap
+
+`ace/analogs/historical.py` was validated and descriptive, and the application
+exposed **none** of it. The gappy-rolling fix earlier in this session took its
+usable pool from 812 states to 4,060, and none of that reached a user.
+
+## What it retrieves
+
+Nearest historical states by **Mahalanobis distance** over a 20-day
+momentum/volatility state across NASDAQ, UST10Y, WTI, USD_BROAD and VIX —
+4,060 days, 2010-02 to 2026-09. Mahalanobis rather than Euclidean so a
+one-sigma move in a quiet channel counts as much as one in a noisy channel, and
+correlated channels are not double-counted.
+
+## Two leakage guards, both load bearing
+
+1. **Candidates are restricted to dates whose own forward window has closed.**
+   Without it an analog from last week arrives carrying a forward return that
+   has not finished happening.
+2. **The covariance is estimated on the candidate window only.** Using the full
+   sample would let the present shape the metric used to retrieve its own
+   analogs — a subtle leak that makes every query look better than it is.
+
+Both are pinned by tests that check every returned analog against the cutoff.
+
+## The port, and why it is trustworthy
+
+The request path cannot call Python, so retrieval is reimplemented in
+TypeScript — which is exactly where a validated method quietly stops being the
+validated method. So `export_pool.py` also writes **reference answers** for nine
+query dates spread across regimes (2013 calm, the 2015 and Feb-2018 vol shocks,
+Dec-2018, March 2020, Nov-2021, Sep-2022, Aug-2024, Apr-2025).
+
+The port reproduces them exactly: **0/9 mismatched orderings**, identical
+medians, p10/p90 and agreement scores, distances agreeing to 5e-4 (the
+precision Python exported). If the two ever diverge the test fails rather than
+the product shipping a second metric under the same name.
+
+The linear algebra is tested on its own terms too: covariance matches numpy's
+`ddof=1`, the Jacobi eigendecomposition reconstructs its input, and the
+pseudo-inverse satisfies `A A⁺ A = A` including on a singular matrix — a
+covariance over perfectly correlated channels, which a naive inverse would blow
+up into dominating every distance.
+
+## What it refuses to do
+
+It returns a **distribution, never a direction**. On the current state the
+nearest analog (2018-10-09, distance 1.39) fell **4.8%**, while the median of
+the twenty rose **1.8%** and 75% were positive. A product that printed the
+nearest analog would have said something the evidence does not support.
+
+Agreement is reported explicitly — `|2·sharePositive − 1|`, 0 on an even split
+and 1 when unanimous. Across the nine reference queries it ranged **0.10 to
+0.60**: these analogs mostly *disagree*, and the panel says so in words.
+
+## The caveat that matters most
+
+These are analogs of the **market state**, not of the event. The state knows
+nothing about event type, actors, severity or geography — the dimensions the
+product spec asks for. Calling them "similar events" would claim a retrieval
+the data cannot support, so the panel says "market state" and repeats that it
+is retrieval, not causality.
+
+Event-structural analogs need an event corpus with those attributes. That is
+what the GDELT backfill is for.
+
+## Where it flows
+
+```
+ace/analogs/export_pool.py   → artifacts/reports/analog_pool.json (+ reference answers)
+                             → src/lib/analogs/pool.json          (committed, 489 KB)
+  src/lib/analogs/retrieval.ts     pure, testable, cross-checked against Python
+  src/lib/analogs/pool.server.ts   loads the pool; never leaves the server
+  src/lib/analogs/analogs.ts       createServerFn boundary
+  src/components/analog-panel.tsx  distribution first, nearest analogs second
+```
+
+Verified: the pool is **not** in the client bundle. The browser receives twenty
+analogs and a distribution, not 4,060 days of history.
+
+`npm run analogs:export` regenerates.
+
+## Tests
+
+`retrieval.test.ts` (16): the nine reference replays (set, order, distances,
+distribution, agreement); no analog dated on or after the query; every analog's
+forward window closed before the query; a pre-history query refused; a thin
+candidate set refused rather than padded; an unparseable date returns a reason
+rather than throwing; quantiles ordered; agreement formula; drivers named,
+bounded and sorted; and the three linear-algebra identities.
