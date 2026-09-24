@@ -248,11 +248,26 @@ export interface SeriesPoint {
   value: number;
 }
 
+/**
+ * Attention on a story, at a point in time.
+ *
+ * `news` is a COUNT of matched headlines — a real observation of one thing.
+ *
+ * `social` and `search` are optional because Ripple has never measured either.
+ * They used to be emitted as `16 + hits * 4` and `14 + hits * 3`: two entire
+ * data series invented from a headline count, alongside two hardcoded fixture
+ * rows. Anything rendering a social or search series would have been showing a
+ * reader numbers from platforms this product does not connect to. They stay in
+ * the type so a real feed can fill them, and are absent until one does.
+ */
 export interface HeatPoint {
   date: string;
+  /** Matched headlines at this point. A count, not a score. */
   news: number;
-  social: number;
-  search: number;
+  /** Only when a social feed is connected. Never derived from `news`. */
+  social?: number;
+  /** Only when a search-interest feed is connected. Never derived from `news`. */
+  search?: number;
 }
 
 export interface TimelineItem {

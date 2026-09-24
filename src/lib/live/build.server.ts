@@ -194,7 +194,10 @@ function bookFromEvent(
     // writes the posterior back onto both the event and this book. Tilting
     // here too would double-count the same tape.
     scenarios: event.scenarios,
-    heatPoint: event.narrativeHeat[event.narrativeHeat.length - 1] ?? { date: "Now", news: 40, social: 20, search: 18 },
+    // The fallback used to be `{ news: 40, social: 20, search: 18 }` — invented
+    // numbers standing in for a missing observation. Zero headlines is a fact;
+    // forty is not.
+    heatPoint: event.narrativeHeat[event.narrativeHeat.length - 1] ?? { date: "Now", news: 0 },
     sentiment: event.sentiment,
   };
 }

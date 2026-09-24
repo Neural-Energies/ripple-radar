@@ -655,3 +655,52 @@ by the OOM reaper, taking the GDELT backfill sharing the machine with it. It now
 raises past a 400-day guard, naming `daily_counts_by()` as the fix, and accepts
 `start`/`end` to narrow the window by filename before reading. Being killed
 tells the caller nothing; raising tells them what to do.
+
+---
+
+# What `compose.ts` was inventing
+
+An audit of every hand-tuned formula left in the composer, and which of them
+reached a user.
+
+| field | was | rendered? | now |
+|---|---|---|---|
+| `probabilityDelta` | `clamp(hits*1.1 + (esc−de), −12, 18)` | **yes, 3 places** | `0` on first sighting |
+| `narrativeHeat.news` | `clamp(28 + hits*6, 8, 100)` | no | the headline count |
+| `narrativeHeat.social` | `clamp(16 + hits*4, 8, 100)` | no | **absent** |
+| `narrativeHeat.search` | `clamp(14 + hits*3, 8, 100)` | no | **absent** |
+| `narrativeHeat` T-2/T-1 | hardcoded `{news:18,social:10,search:8}` | no | removed |
+| `probabilityHistory` | `probability − 8 / −4 / −2` | no | the ledger |
+| `sentiment[].score` | `36 + hits*6`, `40 + (esc−de)*8`, `50 + mkt*6` | no | the observations |
+
+## The one that mattered
+
+`probabilityDelta` renders in three places with an up/down arrow. On first
+sighting it was a "change" computed from **how many articles had been
+written** — so a heavily covered story displayed a rising forecast having
+moved nothing. It is now `0`, which is the honest value: a book seen for the
+first time has no prior to have moved from, and the UI already hides a zero
+delta. `buildDesk` overwrites it with the real posterior delta once a frozen
+prior exists to difference against.
+
+## Social and search were never measured
+
+`social` and `search` were two entire data series derived from a headline
+count, for platforms this product does not connect to. They are now optional
+on `HeatPoint` and **absent** until a real feed fills them. `news` carries the
+count itself, so it means one thing.
+
+## Dead but not harmless
+
+`narrativeHeat`, `sentiment`, `signals`, `takeaways`, `impacts` and
+`heatPoint` are computed and rendered **nowhere**. That is why these
+fabrications never misled anyone — and the moment someone plotted one, they
+would have. The fix was to make them true rather than delete them, because
+most are things the product should eventually show.
+
+## Tests
+
+Four in `engine.test.ts`, written against the composer's real signature: a
+freshly composed book claims no change at 1, 5 and 20 headlines; attention is a
+count with social/search absent; probability history carries no synthetic `T-`
+points; sentiment reports observations rather than scores on an invented scale.

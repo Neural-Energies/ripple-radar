@@ -221,7 +221,16 @@ export function composeEvent(opts: {
         .join(" ") ||
       `${opts.title} — constructed from live evidence, not a fixture.`,
     probability: Math.round(probability),
-    probabilityDelta: Math.round(clamp(hits * 1.1 + (esc - de), -12, 18)),
+    // Zero on construction, and that is the honest value. This was
+    // `clamp(hits * 1.1 + (esc - de), -12, 18)` — a "change" computed from a
+    // headline count, rendered with an up arrow in three places. A book being
+    // seen for the first time has no prior to have moved from, and nothing
+    // about how many articles exist makes the forecast have moved.
+    //
+    // buildDesk overwrites this with the real posterior delta once a frozen
+    // prior exists to difference against. Until then the UI hides it, because
+    // it checks `!== 0`.
+    probabilityDelta: 0,
     nodes,
     links,
     impacts: nodes
@@ -237,16 +246,13 @@ export function composeEvent(opts: {
       { date: "Now", value: Math.round(probability) },
     ],
     marketReaction,
-    narrativeHeat: [
-      { date: "T-2", news: 18, social: 10, search: 8 },
-      { date: "T-1", news: 26, social: 16, search: 14 },
-      {
-        date: "Now",
-        news: clamp(28 + hits * 6, 8, 100),
-        social: clamp(16 + hits * 4, 8, 100),
-        search: clamp(14 + hits * 3, 8, 100),
-      },
-    ],
+    // One point, one real number: how many matched headlines this event has
+    // right now. The T-2 and T-1 rows were hardcoded fixture constants, and
+    // `social` and `search` were `16 + hits*4` and `14 + hits*3` — two entire
+    // series invented from a headline count for platforms this product does
+    // not connect to. Attention history, like forecast history, has to be
+    // accumulated rather than derived.
+    narrativeHeat: [{ date: "Now", news: hits }],
     scenarios,
     gameTheory: gt,
     trades,
@@ -264,10 +270,15 @@ export function composeEvent(opts: {
       title: h.source,
       detail: h.title,
     })),
+    // Counts and labels, not scores. The scores here were `36 + hits*6`,
+    // `40 + (esc-de)*8` and `50 + mkt*6` — three hand-tuned formulas rendered
+    // on a 0-96 scale, which reads as a measurement. The underlying
+    // observations are real; the numbers dressed them up. `score` now carries
+    // the count itself, so "News mentions 7" means seven articles matched.
     sentiment: [
-      { source: "News mentions", score: clamp(36 + hits * 6, 8, 96), label: hits > 5 ? "Hot" : hits > 1 ? "Active" : "Quiet" },
-      { source: "Escalation language", score: clamp(40 + (esc - de) * 8, 8, 96), label: tone === "up" ? "Hawkish" : tone === "down" ? "Softening" : "Mixed" },
-      { source: "Market confirmation", score: clamp(50 + mkt * 6, 8, 96), label: mkt > 0.4 ? "Confirming" : mkt < -0.4 ? "Fading" : "Neutral" },
+      { source: "News mentions", score: hits, label: hits > 5 ? "Hot" : hits > 1 ? "Active" : "Quiet" },
+      { source: "Escalation language", score: esc - de, label: tone === "up" ? "Hawkish" : tone === "down" ? "Softening" : "Mixed" },
+      { source: "Market confirmation", score: Math.round(mkt * 100) / 100, label: mkt > 0.4 ? "Confirming" : mkt < -0.4 ? "Fading" : "Neutral" },
     ],
     sources: sources.length ? sources : [{ name: "Desk", count: 1, latest: "now" }],
     mode: opts.mode ?? "live",

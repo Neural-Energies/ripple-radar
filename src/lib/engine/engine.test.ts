@@ -427,3 +427,60 @@ test("soft-news reject survives multi-cue entertainment without structural marke
   assert.equal(r.keep, false, `soft entertainment should DROP (score=${r.score}, soft=${r.softHits.join(",")})`);
   assert.ok(r.softHits.length >= 1, "expected soft cues");
 });
+
+// ------------------------------------- nothing invented on first sighting
+
+function wire(title: string, n: number, tone: "up" | "down" | "neutral" = "up") {
+  const now = Date.now();
+  return Array.from({ length: n }, (_, i) => ({
+    id: `h${i}`, title: `${title} ${i}`, source: "Reuters", url: "",
+    published: now, eventTimeMs: now, availableTimeMs: now, eventIds: [], tone,
+  }));
+}
+
+test("a freshly composed book claims no probability change", async () => {
+  // This used to be `clamp(hits * 1.1 + (esc - de), -12, 18)` — a "change"
+  // computed from a headline count, rendered with an up arrow in three places.
+  // A book seen for the first time has no prior to have moved from.
+  const { composeFromText } = await import("./compose.ts");
+  for (const n of [1, 5, 20]) {
+    const title = "Strait closure escalates";
+    const ev = composeFromText(title, wire(title, n));
+    assert.equal(ev.probabilityDelta, 0, `${n} headlines implied a delta of ${ev.probabilityDelta}`);
+  }
+});
+
+test("attention is a headline count, and unmeasured channels are absent", async () => {
+  // `social` and `search` were `16 + hits*4` and `14 + hits*3`: two entire
+  // series invented for platforms this product does not connect to.
+  const { composeFromText } = await import("./compose.ts");
+  const title = "Strait closure reported";
+  const ev = composeFromText(title, wire(title, 3));
+  assert.equal(ev.narrativeHeat.length, 1, "no fabricated history points");
+  const now = ev.narrativeHeat[0]!;
+  assert.equal(now.date, "Now");
+  assert.equal(now.social, undefined, "no social feed is connected");
+  assert.equal(now.search, undefined, "no search feed is connected");
+  assert.ok(Number.isInteger(now.news) && now.news >= 0, "news must be a count");
+});
+
+test("probability history carries no synthetic past", async () => {
+  const { composeFromText } = await import("./compose.ts");
+  const title = "First sighting of a thing";
+  const ev = composeFromText(title, wire(title, 1, "neutral"));
+  // One "Now" point is the current reading, not a trend. What must NOT be here
+  // is the old synthetic `T-3 / T-2 / T-1` ramp.
+  assert.ok(ev.probabilityHistory.length <= 1, `got ${ev.probabilityHistory.length} points`);
+  assert.ok(!ev.probabilityHistory.some((p) => /^T-/.test(p.date)), "no synthetic past points");
+});
+
+test("sentiment reports observations, not scores on an invented scale", async () => {
+  // The scores were `36 + hits*6`, `40 + (esc-de)*8`, `50 + mkt*6` — three
+  // hand-tuned formulas on a 0-96 scale, which reads as a measurement.
+  const { composeFromText } = await import("./compose.ts");
+  const title = "Escalation reported at the strait";
+  const ev = composeFromText(title, wire(title, 4));
+  const news = ev.sentiment.find((x) => x.source === "News mentions")!;
+  assert.ok(news.score <= 10, `a headline count should be small, got ${news.score}`);
+  assert.ok(ev.sentiment.every((x) => x.label.length > 0), "every row keeps its label");
+});
