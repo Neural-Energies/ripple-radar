@@ -23,6 +23,7 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | **Volatility forecast (HAR)** | **PASSES — 3/6 channels** | **Yes**, for SP500, DJIA, UST10Y. Withheld elsewhere. |
 | **Event cascade (Hawkes)** | **PASSES — 2/3 channels** | **Yes**, for NASDAQ and WTI. |
 | **Competing risks (Aalen-Johansen)** | **PASSES** | **Yes** — cumulative incidence by horizon. |
+| **Conflict cascade (GDELT Hawkes)** | **Excitation yes, kernel shape no** | Partly — that escalation clusters, yes. Not the branching ratio to three digits. |
 | Game theory (Nash + Monte Carlo) | **Exact** | Yes — equilibria computed and verified. Payoffs remain an assumption. |
 | Regime (Markov switching) | **Validated, descriptive** | Yes — to label the environment. Not as a forecast. |
 | Historical analogs | **Validated, descriptive** | Yes — as a distribution of what followed similar states. |
@@ -553,6 +554,88 @@ blind to.
 
 ---
 
+## 12. ace_gdelt_cascade v1 — the ripple, where it actually is
+
+Every previous attempt to measure ripple propagation ran on PRICE series and
+reached the same negative result by two independent methods: cross-market
+transmission in liquid macro is a same-day repricing with no lag surviving out
+of sample. That is a real finding about markets, and also a statement that the
+price tape was the wrong substrate.
+
+Conflict events are the right one. **10.5M GDELT events**, 2022-01 onward,
+filtered to CAMEO quad class 4 (material conflict — assaults, fights, mass
+violence, not verbal disapproval), grouped by the country the action occurred
+in. Global daily volume is deliberately unused: at that aggregation the series
+tracks GDELT's news-ingestion volume rather than real-world intensity and
+yields five spikes in three years.
+
+| country | spikes | α | half-life | LR p | OOS gain | multiplier |
+|---|---|---|---|---|---|---|
+| Syria | 44 | 0.488 | 1.2d | ~0 | **+16.4** | 1.95× |
+| Lebanon | 44 | 0.582 | 1.2d | ~0 | +7.4 | 2.40× |
+| Gaza Strip | 55 | 0.321 | 1.4d | 0.0017 | +7.0 | 1.47× |
+| El Salvador | 44 | 0.305 | 1.2d | 0.0007 | +7.0 | 1.44× |
+| Iran | 52 | 0.577 | 1.2d | ~0 | +4.4 | 2.36× |
+| Israel | 45 | 0.673 | 1.1d | ~0 | +0.8 | 3.06× |
+
+6 of 7 fitted countries clear the three per-country checks. Mean branching
+ratio 0.49: **for every 100 escalations arriving on their own, ~114 more follow
+as offspring.** Excitation half-life is close to a day everywhere — conflict
+escalation begets escalation *fast*.
+
+### The kernel shape is rejected, and that is the headline
+
+The Ogata time-rescaling test needs ~50 residuals; no country has half that in
+its holdout. Passing a check that never ran is worse than admitting it cannot
+run, so the residuals are **pooled** — correct specification per country
+implies Exp(1) residuals in each, so the union is Exp(1) too, and pooling turns
+several untestable samples into one testable one.
+
+| pool | n | KS p | mean | verdict |
+|---|---|---|---|---|
+| train | 189 | **0.0003** | 1.023 | rejected |
+| holdout | 83 | **0.0415** | 1.116 | rejected |
+
+**Both reject the exponential kernel.** The self-excitation is real — the
+likelihood-ratio test clears 0.0017 on every passing country and every one
+gains out of sample against Poisson — but exponential decay is the wrong
+functional form. This is the same discovery seismology made before adopting
+Omori's power law.
+
+So the branching ratio is an **approximation of how much one escalation
+breeds, not an estimate to quote to three digits**, and every country is
+registered `CANDIDATE`. None is promoted.
+
+### A conservative event definition, stated
+
+A spike day is one whose log event count sits 2σ above its own **trailing**
+60-day norm. Standardizing by a trailing window partially removes the very
+clustering being measured: a burst raises the bar for the days after it. The
+bias runs *against* finding excitation, so these numbers are understated rather
+than flattered.
+
+### Selection is by sample size, not by result
+
+7 fitted, 15 excluded by the holdout-size floor, 51 with too few spike days to
+fit at all. The fitted set is the top of the **sample-size** ranking, not of
+the result ranking — stated so 6 passes out of 73 cannot be read as a search
+for six that worked.
+
+### Two gate defects found and fixed during this run
+
+**A check that passed without executing.** The per-country pass condition was
+written `gof.get("exponential_by_ks") is not False`, which waves through a
+test that returned "unavailable" — while the verdict printed "with correctly
+specified intensity". Now tracked separately and tested on the pool.
+
+**A model that stopped qualifying kept its PRODUCTION status.** Retiring only
+the models being *replaced* left Pakistan in PRODUCTION on the strength of an
+earlier run, after it failed the re-run. The runner now retires any live model
+in the family that is not in the current passing set, on the record, with a
+reason.
+
+---
+
 ## Registry integrity — a defect found and fixed
 
 `register()` replaces the row for a given `model_id:version`. Models that take
@@ -629,6 +712,7 @@ python3 ace/models/competing_risks_model.py
 python3 ace/models/dbn_model.py
 python3 ace/models/causal_impact_model.py
 python3 ace/models/ensemble_model.py
+python3 ace/models/gdelt_cascade_model.py
 python3 ace/models/shock_persistence_model.py
 python3 ace/models/macro_impact_model.py
 python3 ace/ripple/validate_edges.py
