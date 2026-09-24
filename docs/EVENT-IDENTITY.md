@@ -568,3 +568,41 @@ forward window closed before the query; a pre-history query refused; a thin
 candidate set refused rather than padded; an unparseable date returns a reason
 rather than throwing; quantiles ordered; agreement formula; drivers named,
 bounded and sorted; and the three linear-algebra identities.
+
+---
+
+# Conflict cascade in the product
+
+The one place ACE's ripple thesis is supported by data, wired to the UI.
+
+`scripts/generate-cascade-rates.mjs` reads the Hawkes run and emits
+`src/lib/ace/cascade-rates.ts`. **Only countries that cleared the gate are
+emitted** — a country that failed, or was never fitted, is absent, and the app
+renders that absence rather than a default. The generator refuses to emit an
+empty table.
+
+## Linking to the event
+
+`cascadesForEntities` matches an event's extracted entities against an explicit
+alias list (`hezbollah` → Lebanon, `idf` → Israel, …). Deliberately conservative
+and hand-listed rather than fuzzy: a wrong match attaches one country's measured
+cascade to another country's event, which is worse than showing nothing because
+it reads as evidence. An event about Norway matches nothing, and the panel says
+so instead of substituting a global average.
+
+## What the panel claims
+
+The branching ratio renders to **one decimal** and is described in words
+("~83 more per 100"). The intensity's exact shape is unverified at daily
+resolution, so a three-digit figure would claim precision the residuals do not
+support. The panel states plainly that clustering is established and decay
+shape is not, and that prices show no such propagation while the event stream
+does.
+
+## Tests
+
+`cascade-rates.test.ts` (12): only gate-clearing countries present; every one
+beats Poisson in and out of sample; every branching ratio stationary; the
+cascade multiplier is consistent with `1/(1−α)`; the caveat travels with the
+numbers; entity matching hits the right country and **nothing** for an
+unmeasured one.
