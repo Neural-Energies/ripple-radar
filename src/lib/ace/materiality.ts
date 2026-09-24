@@ -21,7 +21,12 @@ export interface MaterialityVerdict {
   /** Items that may reach the probability engine. */
   admitted: EvidenceItem[];
   /** Items withheld, with the reason — surfaced, never silently dropped. */
-  withheld: { item: EvidenceItem; reason: "duplicate-fact" | "stale" | "pre-freeze" }[];
+  withheld: {
+    item: EvidenceItem;
+    reason: "duplicate-fact" | "stale" | "pre-freeze" | "not-new-to-event";
+  }[];
+  /** Which rule decided novelty — the registry's record, or the clock. */
+  noveltyBasis: "registry" | "timestamp";
   /** True when the admitted set is worth re-freezing the forecast over. */
   material: boolean;
 }
@@ -46,16 +51,42 @@ export function factKey(headline: string): string {
  */
 export function gateEvidence(
   evidence: EvidenceItem[],
-  opts: { sinceMs: number; nowMs?: number; maxAgeHours?: number } = { sinceMs: 0 },
+  opts: {
+    sinceMs: number;
+    nowMs?: number;
+    maxAgeHours?: number;
+    /**
+     * Headline ids the event registry recorded as NEW to this event on this
+     * poll. Authoritative when supplied.
+     *
+     * The clock rule -- `availableTimeMs <= sinceMs` -- gets this wrong in both
+     * directions. An item stamped before the freeze but only ATTACHED to this
+     * event afterwards (the cluster grew, or a similarity match pulled it in)
+     * is genuinely new evidence for this event, and the clock rejects it. A
+     * re-syndication carrying a fresh timestamp is not new, and the clock lets
+     * it through. The registry knows which headline ids the event did not
+     * already hold, which is the question actually being asked.
+     *
+     * Omitted when the registry is unreachable; the clock is then the fallback.
+     */
+    newHeadlineIds?: readonly string[];
+  } = { sinceMs: 0 },
 ): MaterialityVerdict {
   const now = opts.nowMs ?? Date.now();
   const maxAge = (opts.maxAgeHours ?? 96) * 3_600_000;
   const admitted: EvidenceItem[] = [];
   const withheld: MaterialityVerdict["withheld"] = [];
   const seenFacts = new Set<string>();
+  const newIds = opts.newHeadlineIds ? new Set(opts.newHeadlineIds) : null;
+  const noveltyBasis: MaterialityVerdict["noveltyBasis"] = newIds ? "registry" : "timestamp";
 
   for (const item of evidence) {
-    if (item.availableTimeMs <= opts.sinceMs) {
+    if (newIds) {
+      if (!newIds.has(item.id)) {
+        withheld.push({ item, reason: "not-new-to-event" });
+        continue;
+      }
+    } else if (item.availableTimeMs <= opts.sinceMs) {
       withheld.push({ item, reason: "pre-freeze" });
       continue;
     }
@@ -80,5 +111,5 @@ export function gateEvidence(
     return a + cls * rel;
   }, 0);
 
-  return { admitted, withheld, material: mass >= MATERIAL_MASS_THRESHOLD };
+  return { admitted, withheld, material: mass >= MATERIAL_MASS_THRESHOLD, noveltyBasis };
 }

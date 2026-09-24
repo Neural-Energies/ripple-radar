@@ -262,6 +262,9 @@ export async function buildDesk(): Promise<LiveDesk> {
     ...r.cluster,
     id: r.resolution.eventId,
   }));
+  const newIdsByEvent = new Map(
+    registry.resolved.map((r) => [r.resolution.eventId, r.newHeadlineIds]),
+  );
   const identityByEvent = new Map(
     registry.resolved.map((r) => [
       r.resolution.eventId,
@@ -320,7 +323,15 @@ export async function buildDesk(): Promise<LiveDesk> {
     for (const ev of events) {
       const prior = priors.get(ev.id);
       if (!prior) continue; // first sighting: the composed book IS the prior
-      const gate = gateEvidence(ev.evidence, { sinceMs: prior.asOfMs, nowMs: now });
+      // The registry already recorded which headlines this event did not hold
+      // before this poll. That is a better answer to "what is new" than the
+      // clock, which both rejects late-attaching evidence and admits
+      // re-syndication. Falls back to the clock on a degraded cycle.
+      const gate = gateEvidence(ev.evidence, {
+        sinceMs: prior.asOfMs,
+        nowMs: now,
+        ...(registry.degraded ? {} : { newHeadlineIds: newIdsByEvent.get(ev.id) }),
+      });
       const { scenarios, alpha, provenance } = updateScenarios({
         current: ev.scenarios,
         prior: prior.scenarios,

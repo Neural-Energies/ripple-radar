@@ -445,3 +445,31 @@ the baseline; `perturb` moves payoffs within the bound and never the labels;
 shares are proportions and ordered; the note always states the payoffs are
 assumptions; a dominated strategy never reaches equilibrium; one draw does not
 divide by zero.
+
+---
+
+# The materiality gate now asks the registry, not the clock
+
+The gate decided what counted as new evidence with
+`item.availableTimeMs <= sinceMs`. That rule is wrong in **both** directions:
+
+- **It rejects late-attaching evidence.** A headline stamped before the last
+  freeze but only *attached to this event* afterwards — the cluster grew, or a
+  similarity match pulled it in — is genuinely new evidence for this event. The
+  clock threw it away.
+- **It admits re-syndication.** The same wire item republished with a fresh
+  timestamp passes the clock while telling the engine nothing new.
+
+The event registry already records exactly which headline ids an event did not
+hold before this poll. `gateEvidence` now takes `newHeadlineIds` and treats it
+as authoritative when supplied, withholding everything else as
+`not-new-to-event`. The clock remains the fallback for a degraded cycle, and
+`noveltyBasis` on the verdict says which rule decided — `"registry"` or
+`"timestamp"`.
+
+Registry novelty does **not** bypass the stale or duplicate-fact rules; a test
+pins that, and another pins that an empty registry record means "nothing is
+new" rather than "the rule is off".
+
+Six tests, including the two that demonstrate the clock getting it wrong in
+each direction.

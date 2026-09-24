@@ -106,3 +106,89 @@ test("nothing is dropped silently — every withheld item carries a reason", () 
 test("the threshold is a documented constant, not a magic number", () => {
   assert.ok(MATERIAL_MASS_THRESHOLD > 0);
 });
+
+// ------------------------------------------- registry-based novelty (§ gate)
+
+const T = Date.UTC(2026, 8, 24, 12, 0, 0);
+const HR = 3_600_000;
+
+function item(id: string, over: Partial<EvidenceItem> = {}): EvidenceItem {
+  return {
+    id,
+    time: "12:00",
+    eventTimeMs: T - HR,
+    availableTimeMs: T - HR,
+    source: "Reuters",
+    evidenceClass: "fundamental",
+    kind: "news",
+    headline: `Headline ${id}`,
+    delayed: false,
+    ...over,
+  };
+}
+
+test("the registry's record overrides the clock when it is supplied", () => {
+  const out = gateEvidence([item("a"), item("b")], {
+    sinceMs: T,               // the clock would reject BOTH as pre-freeze
+    nowMs: T,
+    newHeadlineIds: ["b"],
+  });
+  assert.equal(out.noveltyBasis, "registry");
+  assert.deepEqual(out.admitted.map((i) => i.id), ["b"]);
+  assert.equal(out.withheld.find((w) => w.item.id === "a")!.reason, "not-new-to-event");
+});
+
+test("evidence that attached late is admitted, which the clock refused", () => {
+  // Stamped well before the freeze, but the registry says the event did not
+  // hold it until this poll — a cluster grew, or a similarity match pulled it
+  // in. It is new evidence FOR THIS EVENT and must reach the engine.
+  const late = item("late", { availableTimeMs: T - 48 * HR, eventTimeMs: T - 2 * HR });
+  const byClock = gateEvidence([late], { sinceMs: T - HR, nowMs: T });
+  assert.equal(byClock.admitted.length, 0, "the clock rejects it");
+  const byRegistry = gateEvidence([late], {
+    sinceMs: T - HR,
+    nowMs: T,
+    newHeadlineIds: ["late"],
+  });
+  assert.deepEqual(byRegistry.admitted.map((i) => i.id), ["late"]);
+});
+
+test("a re-syndication with a fresh timestamp is refused, which the clock allowed", () => {
+  const resyndicated = item("old-story", { availableTimeMs: T + HR });
+  const byClock = gateEvidence([resyndicated], { sinceMs: T, nowMs: T + HR });
+  assert.equal(byClock.admitted.length, 1, "the clock lets it through");
+  const byRegistry = gateEvidence([resyndicated], {
+    sinceMs: T,
+    nowMs: T + HR,
+    newHeadlineIds: [],
+  });
+  assert.equal(byRegistry.admitted.length, 0);
+  assert.equal(byRegistry.withheld[0]!.reason, "not-new-to-event");
+});
+
+test("without a registry record the clock is still the rule, and says so", () => {
+  const out = gateEvidence([item("a", { availableTimeMs: T + HR })], { sinceMs: T, nowMs: T + HR });
+  assert.equal(out.noveltyBasis, "timestamp");
+  assert.equal(out.admitted.length, 1);
+});
+
+test("registry novelty does not bypass the stale or duplicate rules", () => {
+  const ancient = item("ancient", { eventTimeMs: T - 500 * HR, availableTimeMs: T });
+  const dupeA = item("d1", { headline: "Port closed for 48 hours" });
+  const dupeB = item("d2", { headline: "Port closed for 48 hours." });
+  const out = gateEvidence([ancient, dupeA, dupeB], {
+    sinceMs: 0,
+    nowMs: T,
+    newHeadlineIds: ["ancient", "d1", "d2"],
+  });
+  assert.equal(out.withheld.find((w) => w.item.id === "ancient")!.reason, "stale");
+  assert.equal(out.withheld.find((w) => w.item.id === "d2")!.reason, "duplicate-fact");
+  assert.deepEqual(out.admitted.map((i) => i.id), ["d1"]);
+});
+
+test("an empty registry record means nothing is new, not that the rule is off", () => {
+  const out = gateEvidence([item("a"), item("b")], { sinceMs: 0, nowMs: T, newHeadlineIds: [] });
+  assert.equal(out.noveltyBasis, "registry");
+  assert.equal(out.admitted.length, 0);
+  assert.equal(out.material, false);
+});
