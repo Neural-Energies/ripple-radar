@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LEVEL_META } from "@/data/catalog";
 import { Panel } from "@/components/ui";
+import { QUADS, QUAD_RUN } from "@/lib/ace/macro-quads";
 
 export const Route = createFileRoute("/docs")({ component: DocsPage });
 
@@ -12,6 +13,7 @@ const TOC = [
   { id: "analyze", label: "Analyze" },
   { id: "scenarios", label: "Scenarios & game theory" },
   { id: "legend", label: "Map legend" },
+  { id: "macro", label: "Macro regime" },
   { id: "learning", label: "Calibration" },
 ] as const;
 
@@ -89,27 +91,29 @@ function DocsPage() {
         <Panel title="What is a ripple">
           <div className="flex flex-col gap-2 text-caption text-muted">
             <p>
-              A <span className="text-foreground">ripple</span> is a causal hop from an originating shock
-              to a market outcome. Distance 1 is first-order (direct); higher distances are
+              A <span className="text-foreground">ripple</span> is a causal hop from an originating
+              shock to a market outcome. Distance 1 is first-order (direct); higher distances are
               second/third-order transmission through industry, macro, and policy channels.
             </p>
             <p>
-              The product thesis: don&apos;t trade the headline print — trade what the headline causes
-              next, with an invalidation on each edge.
+              The product thesis: don&apos;t trade the headline print — trade what the headline
+              causes next, with an invalidation on each edge.
             </p>
             <ul className="mt-1 list-disc space-y-1 pl-5">
               <li>
-                <span className="text-foreground">Direction</span> — positive or negative exposure along
-                the edge
+                <span className="text-foreground">Direction</span> — positive or negative exposure
+                along the edge
               </li>
               <li>
                 <span className="text-foreground">Confidence</span> — strength of the mechanism
               </li>
               <li>
-                <span className="text-foreground">Expected lag</span> — when the hop should show in price
+                <span className="text-foreground">Expected lag</span> — when the hop should show in
+                price
               </li>
               <li>
-                <span className="text-foreground">Invalidation</span> — the condition that kills the edge
+                <span className="text-foreground">Invalidation</span> — the condition that kills the
+                edge
               </li>
             </ul>
           </div>
@@ -120,8 +124,8 @@ function DocsPage() {
         <Panel title="What headlines qualify">
           <div className="flex flex-col gap-2 text-caption text-muted">
             <p>
-              Only <span className="text-foreground">market-relevant</span> shocks belong on the desk:
-              events that can move prices, spreads, or policy paths for tradable instruments.
+              Only <span className="text-foreground">market-relevant</span> shocks belong on the
+              desk: events that can move prices, spreads, or policy paths for tradable instruments.
             </p>
             <div className="grid gap-2 sm:grid-cols-2">
               <div className="rounded-md bg-card-2 px-2.5 py-2">
@@ -152,13 +156,13 @@ function DocsPage() {
         <Panel title="Ripple map">
           <div className="flex flex-col gap-2 text-caption text-muted">
             <p>
-              Rings are causal distance from the core event. Toggle levels in the color strip to focus.
-              Hover a node for impact and mechanism blurb.
+              Rings are causal distance from the core event. Toggle levels in the color strip to
+              focus. Hover a node for impact and mechanism blurb.
             </p>
             <p>
-              <span className="text-foreground">Node click → asset.</span> Labeled nodes with tickers
-              navigate to Assets. The causal links table on Ripple Map lists direction, distance,
-              confidence, lag, and invalidation.
+              <span className="text-foreground">Node click → asset.</span> Labeled nodes with
+              tickers navigate to Assets. The causal links table on Ripple Map lists direction,
+              distance, confidence, lag, and invalidation.
             </p>
           </div>
         </Panel>
@@ -168,13 +172,13 @@ function DocsPage() {
         <Panel title="Analyze">
           <div className="flex flex-col gap-2 text-caption text-muted">
             <p>
-              Analyze accepts free text (Live Desk bar or World Tape). Output is a full research object —
-              not a preloaded war or country template. Instant book opens a thin shell without full
-              construction when you need a placeholder track.
+              Analyze accepts free text (Live Desk bar or World Tape). Output is a full research
+              object — not a preloaded war or country template. Instant book opens a thin shell
+              without full construction when you need a placeholder track.
             </p>
             <p>
-              Importance and probability are different: a low-probability event can still rank high on
-              importance if transmission is large.
+              Importance and probability are different: a low-probability event can still rank high
+              on importance if transmission is large.
             </p>
           </div>
         </Panel>
@@ -189,9 +193,9 @@ function DocsPage() {
               trail.
             </p>
             <p>
-              Game theory answers who can change the outcome and which joint move is likely. Rows are
-              the actor&apos;s moves; columns are the counterpart&apos;s. The highlighted cell is mutual
-              best response — that play can rewrite the ripple.
+              Game theory answers who can change the outcome and which joint move is likely. Rows
+              are the actor&apos;s moves; columns are the counterpart&apos;s. The highlighted cell
+              is mutual best response — that play can rewrite the ripple.
             </p>
             <p>
               Both routes share the global active book. Full matrix:{" "}
@@ -218,7 +222,9 @@ function DocsPage() {
                   style={{ background: LEVEL_META[lv].color }}
                 />
                 <div>
-                  <div className="text-caption font-medium text-foreground">{LEVEL_META[lv].label}</div>
+                  <div className="text-caption font-medium text-foreground">
+                    {LEVEL_META[lv].label}
+                  </div>
                   <p className="text-tiny text-muted">{LEVEL_META[lv].hint}</p>
                 </div>
               </li>
@@ -227,6 +233,49 @@ function DocsPage() {
           <p className="mt-3 text-tiny text-muted">
             Link color: primary = positive direction; down tone = negative. Opacity scales with
             confidence.
+          </p>
+        </Panel>
+      </section>
+
+      <section id="macro" className="scroll-mt-16">
+        <Panel title="Macro regime">
+          <p className="text-caption text-muted">
+            The quad on the Live Desk classifies the economy by the{" "}
+            <span className="text-foreground">rate of change</span> of growth and inflation, not
+            their level. Growth accelerating is the top row, inflation accelerating the right
+            column.
+          </p>
+          <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+            {([1, 2, 3, 4] as const).map((q) => (
+              <li key={q} className="rounded-md bg-card-2 px-2.5 py-2">
+                <div className="text-caption font-medium text-foreground">
+                  Q{q} {QUADS[q]?.name}
+                </div>
+                <p className="text-tiny text-muted">{QUADS[q]?.description}</p>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-caption text-muted">
+            Because it reads the second derivative, a quad can say{" "}
+            <span className="text-foreground">Goldilocks</span> while growth is still negative in
+            level — that is the framework describing a turn, not a call on the economy.
+          </p>
+          <p className="mt-2 text-caption text-muted">
+            Every reading is <span className="text-foreground">point-in-time</span>: built from
+            first-release data vintages filtered to what had actually been published by that date,
+            so a revision made years later cannot leak backwards into a past label. The cost is a
+            lag — about {Math.round(QUAD_RUN.medianDataLagDays ?? 0)} days behind the tape, because
+            that is when industrial production, payrolls and CPI publish. Real GDP is left out
+            entirely; it arrives roughly four months after the quarter it describes.
+          </p>
+          <p className="mt-2 text-caption text-muted">
+            It labels the environment. It does not tell you what to own. Tested over a sealed
+            holdout against simply being long the same asset,{" "}
+            {QUAD_RUN.validation.channelsBeatingLongOnly.length} of{" "}
+            {QUAD_RUN.validation.channelsTested.length} channels beat that baseline and{" "}
+            {QUAD_RUN.validation.signsHeld} of {QUAD_RUN.validation.usableCells} regime cells kept
+            their sign — a coin flip. So the panel shows no asset ranking, and this desk does not
+            position on the quad.
           </p>
         </Panel>
       </section>
@@ -254,15 +303,7 @@ function DocsPage() {
   );
 }
 
-function DocStep({
-  n,
-  title,
-  children,
-}: {
-  n: string;
-  title: string;
-  children: React.ReactNode;
-}) {
+function DocStep({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
   return (
     <li className="flex gap-3">
       <span className="font-mono text-micro text-primary">{n}</span>
