@@ -1,12 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { MacroOverview } from "@/components/macro/overview";
-import { useMacroRegime } from "@/components/macro-strip";
+import { MacroMirror } from "@/components/macro/mirror";
 
 export const Route = createFileRoute("/macro/")({
-  component: MacroOverviewPage,
+  component: MacroMirror,
 });
-
-function MacroOverviewPage() {
-  const read = useMacroRegime();
-  return <MacroOverview read={read} />;
-}

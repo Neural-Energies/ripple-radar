@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { GrowthPage } from "@/components/macro/workstation";
+import { GrowthDetail } from "@/components/macro/mirror";
 
 export const Route = createFileRoute("/macro/growth")({
-  component: GrowthPage,
+  component: GrowthDetail,
 });

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { InflationPage } from "@/components/macro/workstation";
+import { InflationDetail } from "@/components/macro/mirror";
 
 export const Route = createFileRoute("/macro/inflation")({
-  component: InflationPage,
+  component: InflationDetail,
 });

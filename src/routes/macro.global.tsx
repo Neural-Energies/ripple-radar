@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { GlobalPage } from "@/components/macro/workstation";
+import { GlobalDetail } from "@/components/macro/mirror";
 
 export const Route = createFileRoute("/macro/global")({
-  component: GlobalPage,
+  component: GlobalDetail,
 });

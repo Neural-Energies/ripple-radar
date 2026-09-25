@@ -24,12 +24,6 @@ export function MacroChrome({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
   return (
     <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-1.5">
-      <header className="flex items-baseline justify-between gap-2">
-        <div>
-          <div className="text-micro uppercase tracking-wider text-subtle">Macro</div>
-          <h1 className="text-base font-semibold tracking-tight">Overview</h1>
-        </div>
-      </header>
       <nav className="flex gap-1 overflow-x-auto" aria-label="Macro book">
         {TABS.map((tab) => {
           const on = tab.exact ? path === "/macro" : path === tab.to;
