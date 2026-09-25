@@ -36,6 +36,7 @@ export function percentileRank(history: number[], value: number): number | null 
 }
 
 export type VolRead = {
+  /** As-of date for the whole read. Every field below is cut to it. */
   date: string;
   vix: number;
   vix3m: number;
@@ -46,7 +47,13 @@ export type VolRead = {
   rv21: number;
   rv252: number;
   realized: "expanding" | "compressing";
+  /** Spot VIX minus 21-day realized vol, both as of `date`. */
   premium: number;
+  /**
+   * Newest index close at or before `date`. Normally equals `date`; when it
+   * does not, the index simply had no print that session and the caller can
+   * say how stale the realized leg is.
+   */
   spxDate: string;
 };
 
@@ -62,11 +69,17 @@ export function volRead(vix: FredPoint[], vix3m: FredPoint[], spx: FredPoint[]):
   if (!term || longer == null) return null;
   const history = vix.filter((point) => point.date <= spot.date).map((point) => point.value);
   const percentile = percentileRank(history, spot.value);
-  const closes = spx.map((point) => point.value);
-  const returns = logReturns(closes);
+  // Cut the index to the SAME as-of date as the volatility pair before
+  // computing anything from it. `premium` subtracts realized vol from spot
+  // VIX, and the two series do not always end on the same day — VIX3M can lag
+  // a session, or the index can print when the vol complex has not. Taking
+  // `spx.at(-1)` regardless meant the premium could compare today's realized
+  // vol against yesterday's VIX and call the difference a risk premium.
+  const aligned = spx.filter((point) => point.date <= spot.date);
+  const returns = logReturns(aligned.map((point) => point.value));
   const rv21 = realizedVol(returns, 21);
   const rv252 = realizedVol(returns, 252);
-  const spxDate = spx.at(-1)?.date;
+  const spxDate = aligned.at(-1)?.date;
   if (percentile == null || rv21 == null || rv252 == null || !spxDate) return null;
   return {
     date: spot.date,

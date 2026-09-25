@@ -278,7 +278,13 @@ function tokenIdentityKey(token: string): string {
             .digest("base64url");
         }
       }
-    } catch {}
+    } catch {
+      // A token that does not decode is not an error here — it is simply not a
+      // JWT we can read a subject out of. Fall through to hashing the raw
+      // token, which still gives a stable per-token key. Swallowing is the
+      // behaviour; the comment is here so it reads as a decision rather than a
+      // dropped error.
+    }
   }
   return createHash("sha256").update(token).digest("base64url");
 }

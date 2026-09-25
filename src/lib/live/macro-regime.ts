@@ -118,18 +118,29 @@ export function alignRegime(growth: RatePoint[], inflation: RatePoint[]) {
   return { date: last.date, growth: g, inflation: inf, quad: last.quad, path };
 }
 
+/**
+ * One observation per month — the last one — stamped to the first of the month.
+ *
+ * The comparison keeps the ORIGINAL observation date. An earlier version
+ * compared against the already-rewritten `YYYY-MM-01` stamp, so any later
+ * observation in the month beat it whether or not it was actually later than
+ * the one already held. It happened to be harmless because `parseFredCsv`
+ * sorts ascending, but it meant the rule was "last row wins" rather than
+ * "latest date wins", and the two stop agreeing the moment anything upstream
+ * hands this an unsorted series.
+ */
 export function lastOfMonth(points: FredPoint[]): FredPoint[] {
-  const by = new Map<number, FredPoint>();
+  const by = new Map<number, { observed: string; point: FredPoint }>();
   for (const p of points) {
     const idx = monthIndex(p.date);
     if (idx == null) continue;
     const prev = by.get(idx);
-    if (!prev || p.date >= prev.date) {
-      const month = String((idx % 12) + 1).padStart(2, "0");
-      by.set(idx, { date: `${Math.floor(idx / 12)}-${month}-01`, value: p.value });
-    }
+    if (prev && p.date < prev.observed) continue;
+    by.set(idx, { observed: p.date, point: { date: dateFromIndex(idx), value: p.value } });
   }
-  return [...by.values()].sort((a, b) => a.date.localeCompare(b.date));
+  return [...by.values()]
+    .map((row) => row.point)
+    .sort((a, b) => a.date.localeCompare(b.date));
 }
 
 export function median(values: number[]): number {
@@ -169,9 +180,10 @@ function signOf(basket: Basket): number {
   return basket.direction === "slowing" ? -1 : 1;
 }
 
+/** Inverse of `monthIndex`: the first of that month, zero-padded. */
 function dateFromIndex(idx: number): string {
   const month = String((idx % 12) + 1).padStart(2, "0");
-  return `${Math.floor(idx / 12)}-${month}-01`;
+  return `${String(Math.floor(idx / 12)).padStart(4, "0")}-${month}-01`;
 }
 
 /** Quad path from two baskets. A month counts only when each side has at least three legs. */

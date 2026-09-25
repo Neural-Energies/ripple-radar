@@ -1,4 +1,6 @@
 import type { Lifecycle, RadarEvent } from "@/data/types";
+import { gameSensitivity } from "@/lib/ace/game-sensitivity";
+import { probabilityFromScenarios } from "@/lib/ace/probability";
 import { etParts } from "@/lib/live/clock";
 import { rankTrades } from "@/lib/live/discover";
 import { headlineToEvidence, markDuplicates } from "@/lib/live/evidence";
@@ -125,13 +127,54 @@ export function composeEvent(opts: {
     .slice(0, 8)
     .map(([name, v]) => ({ name, count: v.count, latest: clockOf(v.latest) }));
 
-  const probability = clamp(16 + hits * 4 + esc * 4 - de * 3, 8, 82);
   const life = lifecycleOf({ headlines, tone, significance: opts.significance ?? hits * 8 });
   const region = regionFromText(blob, tags);
   const theme = themeFromTags(tags);
   const players = playersFor(entities, tags, family);
-  const gt = gameTheoryFor({ family, players });
-  const scenarios = scenariosFor({ entity, tags, family, tone, hits, esc, de });
+  const baseGt = gameTheoryFor({ family, players });
+  // The Nash solve is correct; its inputs are assumptions. Measure how much of
+  // the answer survives them before anything renders it as a finding.
+  const gtSensitivity = gameSensitivity(baseGt);
+  const gt: typeof baseGt = {
+    ...baseGt,
+    sensitivity: {
+      draws: gtSensitivity.draws,
+      jitter: gtSensitivity.jitter,
+      equilibriumStability: gtSensitivity.equilibriumStability,
+      primaryStability: gtSensitivity.primaryStability,
+      likelyStability: gtSensitivity.likelyStability,
+      noEquilibriumShare: gtSensitivity.noEquilibriumShare,
+      verdict: gtSensitivity.verdict,
+      alternatives: gtSensitivity.alternatives.slice(0, 4),
+      note: gtSensitivity.note,
+    },
+  };
+  // esc/de are deliberately NOT passed: escalation and de-escalation keyword
+  // counts used to drive the prior through authored constants, and they no
+  // longer drive anything. They remain in scope for the evidence copy below.
+  const scenarios = scenariosFor({ entity, tags, family, tone, hits });
+
+  // The book's headline probability is P(the causal thesis materializes) —
+  // the mass on the materialization end of the scenario axis, which is where
+  // `scenariosFor` always puts its first row.
+  //
+  // It was `clamp(16 + hits*4 + esc*4 - de*3, 8, 82)`: a count of matched
+  // articles plus a count of articles containing escalation keywords. That
+  // measures how heavily a story is being covered, not how likely it is — and
+  // coverage follows events that have already happened, so the number peaked
+  // exactly when a move was most priced in. Worse, it could disagree with the
+  // scenario mix displayed beside it, because the two were computed by
+  // different rules.
+  //
+  // Deriving it from the scenario distribution makes it one number from one
+  // model: it moves when the Dirichlet posterior moves (see ace/probability),
+  // it cannot contradict the mix, and it carries that model's provenance
+  // rather than implying a calibration nothing here has earned.
+  //
+  // This regressed once already (bcc651b restored the formula above and
+  // deleted this note). `probability.test.ts` asserts the two are equal for
+  // every headline count and tone, which is what caught it.
+  const probability = probabilityFromScenarios(scenarios);
   const mkt = marketReaction[0]?.change ?? 0;
   const importance = importanceOf({
     significance: opts.significance ?? hits * 8,
@@ -186,6 +229,15 @@ export function composeEvent(opts: {
         .join(" ") ||
       `${opts.title} — constructed from live evidence, not a fixture.`,
     probability: Math.round(probability),
+    // Zero on construction, and that is the honest value. This was
+    // `clamp(hits * 1.1 + (esc - de), -12, 18)` — a "change" computed from a
+    // headline count, rendered with an up arrow in three places. A book being
+    // seen for the first time has no prior to have moved from, and nothing
+    // about how many articles exist makes the forecast have moved.
+    //
+    // buildDesk overwrites this with the real posterior delta once a frozen
+    // prior exists to difference against. Until then the UI hides it, because
+    // it checks `!== 0`.
     probabilityDelta: 0,
     nodes,
     links,
@@ -195,7 +247,13 @@ export function composeEvent(opts: {
       .map((n) => ({ label: n.label, value: n.impact, direction: n.direction === "down" ? "down" : "up" })),
     probabilityHistory: [],
     marketReaction,
-    narrativeHeat: [],
+    // One point, one real number: how many matched headlines this event has
+    // right now. The T-2 and T-1 rows were hardcoded fixture constants, and
+    // `social` and `search` were `16 + hits*4` and `14 + hits*3` — two entire
+    // series invented from a headline count for platforms this product does
+    // not connect to. Attention history, like forecast history, has to be
+    // accumulated rather than derived.
+    narrativeHeat: [{ date: "Now", news: hits }],
     scenarios,
     gameTheory: gt,
     trades,
@@ -213,10 +271,15 @@ export function composeEvent(opts: {
       title: h.source,
       detail: h.title,
     })),
+    // Counts and labels, not scores. The scores here were `36 + hits*6`,
+    // `40 + (esc-de)*8` and `50 + mkt*6` — three hand-tuned formulas rendered
+    // on a 0-96 scale, which reads as a measurement. The underlying
+    // observations are real; the numbers dressed them up. `score` now carries
+    // the count itself, so "News mentions 7" means seven articles matched.
     sentiment: [
-      { source: "News mentions", score: clamp(36 + hits * 6, 8, 96), label: hits > 5 ? "Hot" : hits > 1 ? "Active" : "Quiet" },
-      { source: "Escalation language", score: clamp(40 + (esc - de) * 8, 8, 96), label: tone === "up" ? "Hawkish" : tone === "down" ? "Softening" : "Mixed" },
-      { source: "Market confirmation", score: clamp(50 + mkt * 6, 8, 96), label: mkt > 0.4 ? "Confirming" : mkt < -0.4 ? "Fading" : "Neutral" },
+      { source: "News mentions", score: hits, label: hits > 5 ? "Hot" : hits > 1 ? "Active" : "Quiet" },
+      { source: "Escalation language", score: esc - de, label: tone === "up" ? "Hawkish" : tone === "down" ? "Softening" : "Mixed" },
+      { source: "Market confirmation", score: Math.round(mkt * 100) / 100, label: mkt > 0.4 ? "Confirming" : mkt < -0.4 ? "Fading" : "Neutral" },
     ],
     sources: sources.length ? sources : [{ name: "Desk", count: 1, latest: "now" }],
     provenance: "heuristic",

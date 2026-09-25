@@ -61,7 +61,10 @@ export function RippleChain({ event }: { event: RadarEvent }) {
                     <p className="mt-0.5 text-micro text-muted">{n.blurb}</p>
                     {link ? (
                       <p className="mt-0.5 font-mono text-micro text-subtle">
-                        {link.direction > 0 ? "up" : "down"} · {link.expectedLag} · {Math.round(link.confidence * 100)}% link
+                        {link.direction > 0 ? "up" : "down"} · {link.expectedLag} ·{" "}
+                        {link.confidence == null
+                          ? "unmeasured link"
+                          : `${Math.round(link.confidence * 100)}% link`}
                       </p>
                     ) : null}
                   </li>

@@ -106,7 +106,23 @@ function MapsPage() {
                     </td>
                     <td className="px-2 py-1 font-mono">{l.direction > 0 ? "+" : "−"}</td>
                     <td className="px-2 py-1 font-mono tabular-nums">{l.distance}</td>
-                    <td className="px-2 py-1 font-mono tabular-nums">{Math.round(l.confidence * 100)}%</td>
+                    {/* Null means the edge was never measured. Rendering a
+                        dash is the point: substituting a number here is how an
+                        assertion starts looking like a measurement. */}
+                    <td
+                      className="px-2 py-1 font-mono tabular-nums"
+                      title={
+                        l.confidence == null
+                          ? `Not measured — support: ${l.support}. No sign stability to report.`
+                          : `Out-of-sample sign stability. Support: ${l.support}.`
+                      }
+                    >
+                      {l.confidence == null ? (
+                        <span className="text-subtle">—</span>
+                      ) : (
+                        `${Math.round(l.confidence * 100)}%`
+                      )}
+                    </td>
                     <td className="px-2 py-1 text-muted">{l.expectedLag}</td>
                     <td className="max-w-[18rem] truncate px-2 py-1 text-muted" title={l.invalidation}>{l.invalidation}</td>
                   </tr>
@@ -259,7 +275,8 @@ function LinkStep({
   fallback: string;
   event: RadarEvent;
   distance: number;
-  confidence: number;
+  /** Null when the edge is not measured. The step renders that absence. */
+  confidence: number | null;
   onSelect: () => void;
 }) {
   return (
@@ -278,7 +295,7 @@ function LinkStep({
           node ? "hover:bg-card-2 hover:text-foreground" : "cursor-default",
         )}
       >
-        d{distance} · {Math.round(confidence * 100)}%
+        d{distance} · {confidence == null ? "—" : `${Math.round(confidence * 100)}%`}
       </button>
     </li>
   );
