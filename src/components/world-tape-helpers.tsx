@@ -1,5 +1,8 @@
 import type { EvidenceClass, Reliability } from "@/data/types";
+import { etParts } from "@/lib/live/clock";
+import { isTapeShock } from "@/lib/engine/relevance";
 import type { LiveCluster, LiveHeadline } from "@/lib/live/types";
+import { cn } from "@/lib/utils";
 
 export const HIGH_IMP = 70;
 
@@ -33,25 +36,136 @@ export function ageLabel(ms: number, now = Date.now()): string {
 
 export function clockLabel(ms: number): string {
   try {
-    return new Intl.DateTimeFormat("en-GB", {
-      timeZone: "America/New_York",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }).format(new Date(ms));
+    const p = etParts(ms);
+    return `${p.date} ${p.time}`;
   } catch {
     return "—";
   }
 }
 
-export function Kpi({ label, value, hint }: { label: string; value: number; hint?: string }) {
+const STORY_STOP = new Set([
+  "with",
+  "from",
+  "that",
+  "this",
+  "after",
+  "over",
+  "into",
+  "about",
+  "their",
+  "they",
+  "have",
+  "been",
+  "will",
+  "would",
+  "could",
+  "than",
+  "then",
+  "when",
+  "what",
+  "why",
+  "how",
+  "are",
+  "was",
+  "were",
+  "the",
+  "and",
+  "for",
+  "not",
+  "its",
+  "one",
+  "off",
+  "along",
+  "ever",
+  "hurricane",
+  "storm",
+  "category",
+  "strongest",
+]);
+
+function storyTokens(title: string): string[] {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((w) => w.length >= 4 && !STORY_STOP.has(w));
+}
+
+function sameStory(a: string[], b: string[]): boolean {
+  const set = new Set(a);
+  let shared = 0;
+  for (const w of b) if (set.has(w)) shared += 1;
+  return shared >= 2 || (shared === 1 && a.length <= 4 && b.length <= 4);
+}
+
+/** Newest shock per story. Layout of the tape does not change — the list does. */
+export function currentShocks(headlines: LiveHeadline[]): LiveHeadline[] {
+  const sorted = headlines.filter((h) => isTapeShock(h.title)).sort((a, b) => b.published - a.published);
+  const out: LiveHeadline[] = [];
+  const seenCluster = new Set<string>();
+  const seenTokens: string[][] = [];
+  for (const h of sorted) {
+    const cluster = h.eventIds[0];
+    if (cluster) {
+      if (seenCluster.has(cluster)) continue;
+      seenCluster.add(cluster);
+    }
+    const tokens = storyTokens(h.title);
+    if (seenTokens.some((prev) => sameStory(prev, tokens))) continue;
+    seenTokens.push(tokens);
+    out.push(h);
+  }
+  return out;
+}
+
+export function Stamp({ ms }: { ms: number }) {
+  let date = "—";
+  let time = "";
+  try {
+    const p = etParts(ms);
+    date = p.date;
+    time = p.time;
+  } catch {
+    /* keep the dash */
+  }
   return (
-    <div className="min-w-[6.5rem] rounded-md border border-border bg-card px-2.5 py-1.5">
-      <div className="text-micro uppercase tracking-wider text-subtle" title={hint}>
-        {label}
-      </div>
+    <time
+      dateTime={new Date(ms).toISOString()}
+      className="flex flex-col pt-0.5 font-mono text-micro tabular-nums leading-tight text-subtle"
+    >
+      <span>{date}</span>
+      <span>{time}</span>
+    </time>
+  );
+}
+
+export function Kpi({
+  label,
+  value,
+  hint,
+  active,
+  onClick,
+}: {
+  label: string;
+  value: number;
+  hint?: string;
+  active?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      title={hint ?? `Show the ${value} ${label.toLowerCase()}`}
+      className={cn(
+        "min-w-[6.5rem] rounded-md border bg-card px-2.5 py-1.5 text-left",
+        active ? "border-primary bg-primary/10" : "border-border hover:border-primary/40",
+      )}
+    >
+      <div className="text-micro uppercase tracking-wider text-subtle">{label}</div>
       <div className="font-mono text-lg font-semibold tabular-nums leading-tight">{value}</div>
-    </div>
+    </button>
   );
 }
 

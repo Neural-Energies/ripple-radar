@@ -1,6 +1,19 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { RadarEvent } from "@/data/types";
 
+export const getEmpiricalBook = createServerFn({ method: "POST" })
+  .validator((input: { title: string; actors: string[] }) => {
+    const title = typeof input?.title === "string" ? input.title.slice(0, 400) : "";
+    const actors = Array.isArray(input?.actors)
+      ? input.actors.filter((a): a is string => typeof a === "string").slice(0, 4)
+      : [];
+    return { title, actors };
+  })
+  .handler(async ({ data }) => {
+    const { empiricalBook } = await import("./empirical.server");
+    return empiricalBook(data.title, data.actors);
+  });
+
 export const getLiveDesk = createServerFn({ method: "POST" }).handler(async () => {
   const { buildDesk } = await import("./build.server");
   return buildDesk();
@@ -19,6 +32,11 @@ export const analyzeEvent = createServerFn({ method: "POST" })
     const { analyze } = await import("@/lib/engine/analyze.server");
     return analyze(data.text);
   });
+
+export const getMacroRegime = createServerFn({ method: "GET" }).handler(async () => {
+  const { loadMacroRegime } = await import("./macro.server");
+  return loadMacroRegime();
+});
 
 export const getLiveCalibration = createServerFn({ method: "GET" }).handler(async () => {
   const { getCalibration } = await import("./forecast-ledger.server");

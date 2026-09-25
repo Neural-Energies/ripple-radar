@@ -11,27 +11,12 @@ import {
 } from "@/components/engine-panels";
 import { Badge, Panel } from "@/components/ui";
 import { LEVEL_META } from "@/data/catalog";
-import type { CausalLink, RadarEvent, RippleNode } from "@/data/types";
+import type { RadarEvent, RippleNode } from "@/data/types";
 import { nodeNavTarget } from "@/lib/engine/instruments";
 import { validateEventSearch } from "@/lib/hooks/use-event-param-sync";
 import { useLiveEvent } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
-
-/**
- * What a causal edge shows where a measured confidence does not exist.
- *
- * 34 of the graph's 42 asserted edges have no daily market proxy, so there is
- * nothing to measure. The label says which kind of absence it is; a percentage
- * would say something the data does not support.
- */
-const SUPPORT_LABEL: Record<CausalLink["support"], string> = {
-  measured: "measured",
-  asserted: "asserted",
-  inferred: "inferred",
-  no_material_coupling: "no coupling",
-  degenerate: "self-edge",
-};
 
 export const Route = createFileRoute("/maps")({
   validateSearch: validateEventSearch,
@@ -87,13 +72,13 @@ function MapsPage() {
           <table className="w-full min-w-[48rem] text-caption">
             <thead className="text-left text-micro uppercase tracking-wider text-subtle">
               <tr className="border-b border-border">
-                <th className="px-2 py-1 font-medium">Source</th>
-                <th className="px-2 py-1 font-medium">Dest</th>
-                <th className="px-2 py-1 font-medium">Dir</th>
-                <th className="px-2 py-1 font-medium">Dist</th>
-                <th className="px-2 py-1 font-medium">Conf</th>
+                <th className="px-2 py-1 font-medium">From</th>
+                <th className="px-2 py-1 font-medium">To</th>
+                <th className="px-2 py-1 font-medium" title="Sign of the effect">Sign</th>
+                <th className="px-2 py-1 font-medium" title="Hops from the shock">Hops</th>
+                <th className="px-2 py-1 font-medium" title="Confidence on this link. Not a price.">Conf.</th>
                 <th className="px-2 py-1 font-medium">Lag</th>
-                <th className="px-2 py-1 font-medium">Invalidation</th>
+                <th className="px-2 py-1 font-medium">What breaks it</th>
               </tr>
             </thead>
             <tbody>
@@ -121,37 +106,16 @@ function MapsPage() {
                     </td>
                     <td className="px-2 py-1 font-mono">{l.direction > 0 ? "+" : "−"}</td>
                     <td className="px-2 py-1 font-mono tabular-nums">{l.distance}</td>
-                    <td className="px-2 py-1 font-mono tabular-nums" title={l.historicalSupport}>
-                      {typeof l.confidence === "number" ? (
-                        <>
-                          {Math.round(l.confidence * 100)}%
-                          {typeof l.coupling === "number" ? (
-                            <span className="ml-1 text-subtle">r {l.coupling.toFixed(2)}</span>
-                          ) : null}
-                        </>
-                      ) : (
-                        <span className="text-subtle">{SUPPORT_LABEL[l.support]}</span>
-                      )}
-                    </td>
-                    <td className="px-2 py-1 text-muted">
-                      {l.expectedLag}
-                      {l.laggedHorizons && l.laggedHorizons.length === 0 ? (
-                        <span
-                          className="ml-1 text-subtle"
-                          title="No lagged horizon survives multiplicity correction on this pair. Read the lag as a mechanism description, not a timing claim."
-                        >
-                          ·&nbsp;same-day
-                        </span>
-                      ) : null}
-                    </td>
-                    <td className="max-w-[18rem] truncate px-2 py-1 text-muted">{l.invalidation}</td>
+                    <td className="px-2 py-1 font-mono tabular-nums">{Math.round(l.confidence * 100)}%</td>
+                    <td className="px-2 py-1 text-muted">{l.expectedLag}</td>
+                    <td className="max-w-[18rem] truncate px-2 py-1 text-muted" title={l.invalidation}>{l.invalidation}</td>
                   </tr>
                 );
               })}
               {event.links.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-2 py-6 text-center text-muted">
-                    No links on this book yet.
+                    No links on this book. Pick a shock on World Tape first.
                   </td>
                 </tr>
               )}
@@ -250,7 +214,6 @@ function NodeInspector({
                   event={event}
                   distance={l.distance}
                   confidence={l.confidence}
-                  support={l.support}
                   onSelect={() => src && onSelect(src.id)}
                 />
               );
@@ -266,7 +229,6 @@ function NodeInspector({
                   event={event}
                   distance={l.distance}
                   confidence={l.confidence}
-                  support={l.support}
                   onSelect={() => dst && onSelect(dst.id)}
                 />
               );
@@ -290,7 +252,6 @@ function LinkStep({
   event,
   distance,
   confidence,
-  support,
   onSelect,
 }: {
   arrow: string;
@@ -298,8 +259,7 @@ function LinkStep({
   fallback: string;
   event: RadarEvent;
   distance: number;
-  confidence: number | null;
-  support: CausalLink["support"];
+  confidence: number;
   onSelect: () => void;
 }) {
   return (
@@ -318,12 +278,7 @@ function LinkStep({
           node ? "hover:bg-card-2 hover:text-foreground" : "cursor-default",
         )}
       >
-        d{distance} ·{" "}
-        {typeof confidence === "number" ? (
-          `${Math.round(confidence * 100)}%`
-        ) : (
-          <span className="text-subtle">{SUPPORT_LABEL[support]}</span>
-        )}
+        d{distance} · {Math.round(confidence * 100)}%
       </button>
     </li>
   );

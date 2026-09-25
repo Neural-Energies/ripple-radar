@@ -84,6 +84,21 @@ export function evaluateAlert(alert: AlertRule, desk: LiveDesk): AlertHit | null
     }
   }
 
+  if (alert.kind === "path" && book) {
+    const bar = threshold || 5;
+    const moved = book.scenarios
+      .map((s) => ({ s, d: s.probability - s.prevProbability }))
+      .filter((x) => Math.abs(x.d) >= bar)
+      .sort((a, b) => Math.abs(b.d) - Math.abs(a.d))[0];
+    if (!moved) return null;
+    const sign = moved.d > 0 ? "+" : "";
+    const why = moved.s.audit?.evidence ? ` ${moved.s.audit.evidence}` : "";
+    return {
+      id: alert.id,
+      reason: `${moved.s.name}: ${moved.s.prevProbability}% → ${moved.s.probability}% (${sign}${moved.d} pts).${why}`,
+    };
+  }
+
   if (alert.kind === "crowding") {
     const ticker = inferTicker(alert.title, alert.ticker, desk);
     if (!ticker) return null;

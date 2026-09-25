@@ -10,9 +10,9 @@ import {
   ChevronsLeft,
   ChevronsRight,
   FlaskConical,
-  Gauge,
   GraduationCap,
   LineChart,
+  Landmark,
   Menu,
   Newspaper,
   PanelLeft,
@@ -25,8 +25,12 @@ import { CommandPalette } from "@/components/command-palette";
 import { Logo } from "@/components/logo";
 import { AuthSlot } from "@/components/auth-slot";
 import { Badge, Button, Kbd } from "@/components/ui";
-import { etParts } from "@/lib/live/clock";
-import { useAlertHits, useLive, useLiveEvent, useLiveEvents } from "@/lib/live/provider";
+import {
+  useAlertHits,
+  useLive,
+  useLiveEvent,
+  useLiveEvents,
+} from "@/lib/live/provider";
 import { goToEvent, useEventParamSync } from "@/lib/hooks/use-event-param-sync";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -50,8 +54,8 @@ const NAV_GROUPS: { id: string; label: string; items: NavItem[] }[] = [
       { to: "/maps", label: "Ripple Map", icon: Radar },
       { to: "/scenarios", label: "Scenarios", icon: FlaskConical },
       { to: "/game-theory", label: "Game Theory", icon: Swords },
-      { to: "/macro", label: "Macro Regime", icon: Gauge },
       { to: "/assets", label: "Assets", icon: LineChart },
+      { to: "/macro", label: "Macro", icon: Landmark },
     ],
   },
   {
@@ -186,10 +190,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </aside>
 
         <main id="main" className="min-w-0 flex-1 overflow-x-hidden">
-          <div className="px-2 py-1.5 lg:px-2.5 lg:py-2">
-            {children}
-            <RiskDisclosure />
-          </div>
+          <div className="px-2 py-1.5 lg:px-2.5 lg:py-2">{children}</div>
         </main>
       </div>
 
@@ -204,12 +205,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-card shadow-[var(--shadow-border)]">
             <div className="flex items-center justify-between border-b border-border px-3 py-3">
               <Logo />
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setMobileNav(false)}
-                aria-label="Close"
-              >
+              <Button variant="ghost" size="icon" onClick={() => setMobileNav(false)} aria-label="Close">
                 <X className="size-4" />
               </Button>
             </div>
@@ -226,16 +222,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 function LivePill() {
   const desk = useLive((s) => s.desk);
   const status = useLive((s) => s.status);
-  const [clock, setClock] = useState("");
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
-    const tick = () => setClock(etParts().clock);
-    tick();
-    const id = window.setInterval(tick, 1000);
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(id);
   }, []);
 
-  const live = status === "live";
+  const ageSec = desk ? Math.max(0, Math.round((now - desk.asOf) / 1000)) : null;
+  const fresh = ageSec != null && ageSec < 40 && status !== "degraded";
   const sess = desk?.sessions;
 
   return (
@@ -244,14 +239,16 @@ function LivePill() {
         <i
           className={cn(
             "size-1.5 rounded-full",
-            live ? "bg-up" : status === "connecting" ? "bg-warn" : "bg-down",
+            fresh ? "bg-up" : status === "connecting" || ageSec == null ? "bg-warn" : "bg-down",
           )}
         />
-        <span className={live ? "text-up" : "text-warn"}>
-          {live ? "LIVE" : status === "connecting" ? "CONN" : "DEG"}
+        <span className={fresh ? "text-up" : "text-warn"}>
+          {fresh ? "LIVE" : ageSec == null || status === "connecting" ? "CONN" : "STALE"}
         </span>
       </span>
-      <span className="font-mono text-foreground">{clock || "ET"}</span>
+      <span className="font-mono text-foreground" title={desk ? `Tape pulled ${new Date(desk.asOf).toISOString()}` : "No tape yet"}>
+        {ageSec == null ? "ET" : `tape ${ageSec}s`}
+      </span>
       <span className="hidden gap-1.5 lg:inline-flex">
         <Session on={sess?.ny} label="NY" />
         <Session on={sess?.london} label="LDN" />
@@ -263,7 +260,11 @@ function LivePill() {
 }
 
 function Session({ on, label }: { on: boolean | undefined; label: string }) {
-  return <span className={on ? "text-up" : "text-subtle"}>{label}</span>;
+  return (
+    <span className={on ? "text-up" : "text-subtle"}>
+      {label}
+    </span>
+  );
 }
 
 function ActiveEventControl({ event }: { event: RadarEvent }) {
@@ -275,7 +276,9 @@ function ActiveEventControl({ event }: { event: RadarEvent }) {
   const events = useLiveEvents();
   const sorted = useMemo(
     () =>
-      [...events].sort((a, b) => (b.importance ?? b.probability) - (a.importance ?? a.probability)),
+      [...events].sort(
+        (a, b) => (b.importance ?? b.probability) - (a.importance ?? a.probability),
+      ),
     [events],
   );
 
@@ -328,9 +331,7 @@ function ActiveEventControl({ event }: { event: RadarEvent }) {
             {event.probability}%
           </span>
         </div>
-        <ChevronDown
-          className={cn("size-3.5 shrink-0 text-subtle transition-transform", open && "rotate-180")}
-        />
+        <ChevronDown className={cn("size-3.5 shrink-0 text-subtle transition-transform", open && "rotate-180")} />
       </button>
 
       {open && (
@@ -375,17 +376,9 @@ function ActiveEventControl({ event }: { event: RadarEvent }) {
 
 function SideNav({ pathname, collapsed }: { pathname: string; collapsed: boolean }) {
   return (
-    <nav
-      className={cn(
-        "flex flex-1 flex-col gap-2 overflow-y-auto p-1.5",
-        collapsed && "items-center",
-      )}
-    >
+    <nav className={cn("flex flex-1 flex-col gap-2 overflow-y-auto p-1.5", collapsed && "items-center")}>
       {NAV_GROUPS.map((group) => (
-        <div
-          key={group.id}
-          className={cn("flex flex-col gap-px", collapsed && "w-full items-center")}
-        >
+        <div key={group.id} className={cn("flex flex-col gap-px", collapsed && "w-full items-center")}>
           {!collapsed && (
             <div className="px-2 pb-0.5 pt-1 text-[0.5625rem] font-medium uppercase tracking-wider text-subtle">
               {group.label}
@@ -408,10 +401,7 @@ function SideNav({ pathname, collapsed }: { pathname: string; collapsed: boolean
                 )}
               >
                 {active && !collapsed ? (
-                  <span
-                    className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-primary"
-                    aria-hidden
-                  />
+                  <span className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-primary" aria-hidden />
                 ) : null}
                 <Icon className={cn("size-3.5 shrink-0", active && "text-primary")} />
                 {!collapsed && <span className="truncate">{n.label}</span>}
@@ -421,36 +411,5 @@ function SideNav({ pathname, collapsed }: { pathname: string; collapsed: boolean
         </div>
       ))}
     </nav>
-  );
-}
-
-/**
- * What this desk is, and is not, stated where the numbers are.
- *
- * Every figure on these screens is research output from documented but
- * unvalidated rules. Nothing here has been fit to data or scored against
- * realized outcomes, so none of it is a recommendation and none of it carries
- * demonstrated skill. That has to be visible next to the numbers rather than
- * buried a route away, because the numbers look like signals whether or not
- * they are.
- */
-function RiskDisclosure() {
-  return (
-    <aside
-      role="note"
-      aria-label="Risk disclosure"
-      className="mt-2 rounded-md border border-border/70 bg-card-2/40 px-2.5 py-2"
-    >
-      <p className="text-micro leading-relaxed text-subtle">
-        <span className="font-medium text-muted">Research tooling — not investment advice.</span>{" "}
-        Alpha Recon maps what an event plausibly causes. Probabilities are model output from
-        documented rules that have <span className="text-muted">not</span> been fit to data or
-        validated against realized outcomes; the calibration ledger states the desk&apos;s actual
-        scored record, and until it fills there is no demonstrated skill to cite. Ranked expressions
-        order research attention by causal distance and graph position — they are not conviction,
-        expected return, position sizing, or a recommendation to buy or sell anything. Market data
-        is delayed. You are responsible for your own decisions and your own risk.
-      </p>
-    </aside>
   );
 }

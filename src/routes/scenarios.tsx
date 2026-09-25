@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { AnalogPanel } from "@/components/analog-panel";
-import { CascadePanel } from "@/components/cascade-panel";
 import { SCENARIO_COLORS, ScenarioDistributionBar } from "@/components/charts";
 import { FrozenBadge, TickerLink } from "@/components/desk-nav";
 import { ExpectedEvidencePanel, HorizonPanel } from "@/components/engine-panels";
 import { ResearchHeader } from "@/components/research-header";
 import { Button, Delta, Input, Panel } from "@/components/ui";
-import type { ForecastBand, Scenario } from "@/data/types";
+import type { ForecastBand } from "@/data/types";
 import { validateEventSearch } from "@/lib/hooks/use-event-param-sync";
 import { useLiveEvent } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
@@ -17,20 +15,6 @@ export const Route = createFileRoute("/scenarios")({
   validateSearch: validateEventSearch,
   component: ScenariosPage,
 });
-
-/**
- * Where a scenario's prior came from, in one word.
- *
- * Hovering gives the full basis — which model, what sample, what holdout error,
- * and the reference-class caveat. The point is that a reader can always get
- * from a number to its source without leaving the row.
- */
-const PRIOR_LABEL: Record<NonNullable<Scenario["prior"]>["source"], string> = {
-  reference_class: "base rate",
-  empirical_ledger: "our ledger",
-  residual: "residual",
-  insufficient: "no prior",
-};
 
 function ProbabilityBands({
   scenarios,
@@ -48,9 +32,7 @@ function ProbabilityBands({
       title="Probability bands"
       action={
         <span className="font-mono text-micro text-subtle">
-          {covered.length > 0 ? (
-            "P10 · P50 · P90 — Dirichlet posterior"
-          ) : (
+          {covered.length > 0 ? "P10 · P50 · P90" : (
             <span className="inline-flex items-center gap-1.5">
               <FrozenBadge title="Bands appear only after a frozen prior + evidence update. Empty is honest." />
               no posterior
@@ -61,9 +43,7 @@ function ProbabilityBands({
     >
       {covered.length === 0 ? (
         <p className="py-3 text-center text-caption text-muted">
-          No band on this book yet. Bands are derived from the posterior the update engine
-          produced, so they appear once a prior has been frozen and evidence has moved it — never
-          drawn around a number the model did not compute.
+          No band yet. One shows up only after a prior is frozen and evidence moves it.
         </p>
       ) : (
         <ul className="flex flex-col gap-1">
@@ -108,9 +88,8 @@ function ProbabilityBands({
           ))}
         </ul>
       )}
-      <p className="mt-1.5 text-micro text-subtle">
-        Marginal Beta(αᵢ, α₀−αᵢ) of the scenario Dirichlet. Width reflects how much evidence the
-        posterior rests on — it is not a claim of calibration against realized outcomes.
+      <p className="mt-1.5 text-micro text-subtle" title="Marginal Beta of a Dirichlet posterior. Not checked against what later happened.">
+        A wider band means less evidence behind the number. It is not a claim the desk has been right.
       </p>
     </Panel>
   );
@@ -164,7 +143,7 @@ function ScenariosPage() {
     <div className="flex min-h-0 flex-col gap-1.5">
       <ResearchHeader subtitle="Scenarios" />
       <Panel
-        title="Scenario mix"
+        title="Paths"
         action={
           <span className="font-mono text-micro text-muted">
             Σ {sum}%{sum === 100 ? " · family mass" : " · not exhaustive"}
@@ -194,7 +173,7 @@ function ScenariosPage() {
       <ProbabilityBands scenarios={all} bands={event.bands} />
 
       <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-[minmax(0,1fr)_16.5rem]">
-        <Panel title="Scenario book" padded={false}>
+        <Panel title="The book" padded={false}>
           {all.length === 0 ? (
             <p className="px-2 py-6 text-center text-caption text-muted">No scenarios on this book.</p>
           ) : (
@@ -219,37 +198,21 @@ function ScenariosPage() {
                       </div>
                       <div className="shrink-0 text-right">
                         <div className="font-mono text-lg font-semibold tabular-nums leading-none">{s.probability}%</div>
-                        {delta !== 0 ? (
-                          <Delta n={delta} digits={0} />
-                        ) : (
-                          <div className="font-mono text-micro text-subtle">prev {s.prevProbability}%</div>
-                        )}
+                        {delta !== 0 ? <Delta n={delta} digits={0} /> : null}
                       </div>
                     </div>
                     <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-card-3">
                       <div className="h-full" style={{ width: `${Math.max(0, Math.min(100, s.probability))}%`, background: color }} />
                     </div>
                     <div className="mt-1.5 grid gap-0.5 text-micro text-muted">
-                      <div>Range: {s.range}</div>
-                      <div className="line-clamp-2">{s.keyOutcomes}</div>
+                      <div><span className="text-subtle">Exposure · </span>{s.keyOutcomes}</div>
+                      <div><span className="text-subtle">Window · </span>{s.range}</div>
                     </div>
-                    {s.prior ? (
-                      <p className="mt-1 flex items-center gap-1 text-micro">
-                        <span
-                          className={cn(
-                            "rounded-sm px-1 py-px font-mono text-micro",
-                            s.prior.source === "reference_class"
-                              ? "bg-card-3 text-muted"
-                              : "bg-card-3 text-subtle",
-                          )}
-                          title={s.prior.basis}
-                        >
-                          {PRIOR_LABEL[s.prior.source]}
-                        </span>
-                        <span className="text-subtle">prior {s.prior.probability}%</span>
+                    {delta !== 0 ? (
+                      <p className="mt-1 text-micro text-foreground">
+                        Was {s.prevProbability}%. {s.audit.evidence}
                       </p>
-                    ) : null}
-                    {s.audit.evidence ? (
+                    ) : s.audit.evidence ? (
                       <p className="mt-1 text-micro text-subtle line-clamp-2">{s.audit.evidence}</p>
                     ) : null}
                     {s.audit.rescoredAssets?.length ? (
@@ -288,12 +251,12 @@ function ScenariosPage() {
               />
             </label>
             <label className="text-tiny text-muted">
-              Range / price path
-              <Input className="mt-1" value={range} onChange={(e) => setRange(e.target.value)} />
+              Window
+              <Input className="mt-1" value={range} onChange={(e) => setRange(e.target.value)} placeholder="1–10 days" />
             </label>
             <label className="text-tiny text-muted">
-              Key outcomes
-              <Input className="mt-1" value={outcomes} onChange={(e) => setOutcomes(e.target.value)} />
+              Exposure
+              <Input className="mt-1" value={outcomes} onChange={(e) => setOutcomes(e.target.value)} placeholder="gasoline, refining, freight" />
             </label>
             <Button type="submit" size="sm" className="mt-0.5">
               Add to book
@@ -307,10 +270,6 @@ function ScenariosPage() {
       <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-2">
         <HorizonPanel event={event} />
         <ExpectedEvidencePanel event={event} />
-      </div>
-      <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-2">
-        <CascadePanel entities={event.entities ?? []} />
-        <AnalogPanel />
       </div>
     </div>
   );

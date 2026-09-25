@@ -1,0 +1,43 @@
+{
+  "model": "ace_scenario_distribution_v1",
+  "method": "filtered historical simulation",
+  "horizonSessions": 20,
+  "channels": {
+    "SP500": {
+      "passes": true,
+      "probabilities": {
+        "Up more than 2%": 0.352498,
+        "Down more than 2%": 0.140113,
+        "Up more than 5%": 0.085302,
+        "Down more than 5%": 0.031364
+      }
+    },
+    "NASDAQ": {
+      "passes": true,
+      "probabilities": {
+        "Up more than 2%": 0.412166,
+        "Down more than 2%": 0.202953,
+        "Up more than 5%": 0.160893,
+        "Down more than 5%": 0.064747
+      }
+    },
+    "WTI": {
+      "passes": true,
+      "probabilities": {
+        "Up more than 2%": 0.435987,
+        "Down more than 2%": 0.396004,
+        "Up more than 5%": 0.317234,
+        "Down more than 5%": 0.282801
+      }
+    },
+    "USD_BROAD": {
+      "passes": true,
+      "probabilities": {
+        "Up more than 2%": 0.052796,
+        "Down more than 2%": 0.035306,
+        "Up more than 5%": 0.000346,
+        "Down more than 5%": 0.000232
+      }
+    }
+  }
+}

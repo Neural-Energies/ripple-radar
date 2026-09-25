@@ -129,6 +129,41 @@ export function isMarketRelevant(text: string, seedTags: Tag[] = []): boolean {
   return marketRelevanceOf(text, seedTags).keep;
 }
 
+const FIRST_ORDER = new Set<Tag>([
+  "energy",
+  "crude",
+  "rates",
+  "policy",
+  "inflation",
+  "defense",
+  "shipping",
+  "banking",
+  "credit",
+  "fx",
+]);
+
+const SHOCK_VERB =
+  /\b(war|invade|invasion|missile|airstrike|sanctions?|embargo|blockade|ceasefire|nuclear|tariffs?|default|bailout|bank run|pipeline|opec|hormuz|fomc|rate cut|rate hike|landfall|annihilat\w*|threaten\w*|halts? loadings|supply halt)\b/i;
+const WEATHER_SPECTACLE = /\b(hurricane|typhoon|cyclone)\b/i;
+const WEATHER_HIT = /\b(landfall|gulf|refin|oil|lng|\bport\b|insur|crop|wheat|corn|pipeline|power grid|outage)\b/i;
+const NOT_A_HIT = /\b(not expected to|no landfall|miss(?:es|ed)? landfall|recurve)\b/i;
+const LABOR_SOFT = /\b(union|workplace)\b/i;
+const COURT_SOFT = /\b(no sanctions|acquitted|sentenced|lawsuit|inflation case)\b/i;
+
+/**
+ * World-tape gate. Stricter than {@link isMarketRelevant}: a headline has to be
+ * able to shock a liquid market, not merely mention weather, a court, or labor.
+ */
+export function isTapeShock(text: string): boolean {
+  if (NOT_A_HIT.test(text)) return false;
+  if (WEATHER_SPECTACLE.test(text) && !WEATHER_HIT.test(text)) return false;
+  if (LABOR_SOFT.test(text) && !/\b(strike|walkout|port|rail)\b/i.test(text)) return false;
+  if (COURT_SOFT.test(text) && !/\b(bankrupt|default|systemic|contagion)\b/i.test(text)) return false;
+  if (SHOCK_VERB.test(text)) return true;
+  const r = marketRelevanceOf(text);
+  return r.keep && r.score >= 4 && r.marketTags.some((t) => FIRST_ORDER.has(t));
+}
+
 /** Drop clusters with no transmission path to liquid markets. */
 export function filterMarketRelevantClusters<
   T extends { title: string; tags: string[]; headlines: { title: string }[] },

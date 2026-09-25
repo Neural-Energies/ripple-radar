@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { TickerLink } from "@/components/desk-nav";
 import { BookStateChips } from "@/components/research-header";
@@ -6,15 +6,17 @@ import {
   ClusterLandscape,
   HIGH_IMP,
   Kpi,
-  ageLabel,
-  clockLabel,
+  Stamp,
   classTone,
+  clockLabel,
+  currentShocks,
   relTone,
   toneBadge,
 } from "@/components/world-tape-helpers";
 import { Badge, Button, Delta, Input, Panel } from "@/components/ui";
 import { regionFromText, tagsFromText, themeFromTags } from "@/lib/engine/ontology";
 import { classifyText, reliabilityOf } from "@/lib/live/evidence";
+import { isTapeShock } from "@/lib/engine/relevance";
 import { EMPTY_HEADLINES } from "@/lib/live/empty";
 import {
   runAnalyze,
@@ -40,6 +42,10 @@ function EventsPage() {
   const [selectedClusterId, setSelectedClusterId] = useState<string | null>(null);
   const [highlightClusterId, setHighlightClusterId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [lens, setLens] = useState<"headlines" | "clusters" | "high" | null>(null);
+  const streamRef = useRef<HTMLDivElement>(null);
+  const clusterRef = useRef<HTMLDivElement>(null);
+  const highRef = useRef<HTMLDivElement>(null);
   const inferredTags = tagsFromText(draft);
   const inferredTheme = themeFromTags(inferredTags);
   const inferredRegion = regionFromText(draft, inferredTags);
@@ -52,7 +58,25 @@ function EventsPage() {
   const preview = useLiveEvent(previewEventId);
   const hasComposedBook =
     Boolean(selectedCluster?.eventId) && events.some((e) => e.id === selectedCluster?.eventId);
-  const highImp = events.filter((e) => (e.importance ?? 0) >= HIGH_IMP).length;
+  const highBooks = useMemo(
+    () => events.filter((e) => (e.importance ?? 0) >= HIGH_IMP),
+    [events],
+  );
+  const highImp = highBooks.length;
+  const tape = useMemo(() => currentShocks(headlines), [headlines]);
+  const shockIds = useMemo(() => new Set(tape.flatMap((h) => h.eventIds)), [tape]);
+  const shownClusters = useMemo(
+    () => clusters.filter((c) => shockIds.has(c.id) || isTapeShock(c.title)),
+    [clusters, shockIds],
+  );
+  const stream = lens === "headlines" ? headlines : tape;
+  const clusterRows = lens === "clusters" ? clusters : shownClusters;
+
+  function pickLens(next: "headlines" | "clusters" | "high") {
+    setLens((cur) => (cur === next ? null : next));
+    const node = next === "headlines" ? streamRef.current : next === "clusters" ? clusterRef.current : highRef.current;
+    node?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   function selectCluster(id: string) {
     setSelectedClusterId(id);
@@ -72,17 +96,17 @@ function EventsPage() {
     <div className="flex min-h-0 flex-col gap-1.5">
       <section className="flex flex-wrap items-end justify-between gap-2">
         <div className="min-w-0">
-          <div className="text-micro uppercase tracking-wider text-subtle">Desk · World Tape</div>
-          <h1 className="text-base font-semibold tracking-tight">Headline Cluster Observatory</h1>
+          <div className="text-micro uppercase tracking-wider text-subtle">Live headlines</div>
+          <h1 className="text-base font-semibold tracking-tight">World Tape</h1>
         </div>
         <div className="grid grid-cols-3 gap-1.5">
-          <Kpi label="Headlines" value={headlines.length} />
-          <Kpi label="Clusters" value={clusters.length} />
-          <Kpi label="High importance" value={highImp} hint={`imp ≥ ${HIGH_IMP}`} />
+          <Kpi label="Headlines" value={headlines.length} active={lens === "headlines"} onClick={() => pickLens("headlines")} />
+          <Kpi label="Clusters" value={clusters.length} active={lens === "clusters"} onClick={() => pickLens("clusters")} />
+          <Kpi label="High importance" value={highImp} hint={`Importance ${HIGH_IMP} or higher`} active={lens === "high"} onClick={() => pickLens("high")} />
         </div>
       </section>
 
-      <Panel title="Mode B · Analyze / Instant book" className="shrink-0">
+      <Panel title="Analyze a shock" className="shrink-0">
         <form
           className="flex flex-col gap-2 sm:flex-row sm:items-end"
           onSubmit={(e) => {
@@ -104,7 +128,7 @@ function EventsPage() {
             className="min-h-9 flex-1"
           />
           <Button type="submit" disabled={analyzing || !draft.trim()} size="sm" className="min-h-9">
-            {analyzing ? "Constructing…" : "Analyze with Grok"}
+            {analyzing ? "Working…" : "Analyze"}
           </Button>
           <Button
             type="button"
@@ -112,7 +136,7 @@ function EventsPage() {
             size="sm"
             className="min-h-9"
             disabled={!draft.trim()}
-            title="Thin shell — no engine payload until you analyze"
+            title="Opens a book with no score until you analyze"
             onClick={() => {
               const title = draft.trim();
               if (!title) return;
@@ -128,7 +152,7 @@ function EventsPage() {
               openOnDesk(id);
             }}
           >
-            Instant book
+            Open book
           </Button>
         </form>
         {draft.trim() ? (
@@ -140,15 +164,16 @@ function EventsPage() {
       </Panel>
 
       <div className="grid min-h-[calc(100vh-11rem)] grid-cols-1 gap-1.5 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1.2fr)_minmax(0,0.95fr)]">
+        <div ref={streamRef}>
         <Panel
-          title="Live stream"
-          action={<span className="font-mono text-micro tabular-nums text-muted">{headlines.length} items</span>}
+          title={lens === "headlines" ? "All headlines" : "Live stream"}
+          action={<span className="font-mono text-micro tabular-nums text-muted">{lens === "headlines" ? `${stream.length} headlines` : `${stream.length} shocks`}</span>}
           padded={false}
           className="min-h-[16rem]"
           bodyClassName="flex min-h-0 flex-1 flex-col overflow-hidden"
         >
           <ul className="min-h-0 flex-1 overflow-y-auto">
-            {headlines.map((h) => {
+            {stream.map((h) => {
               const cls = classifyText(h.title);
               const rel = reliabilityOf(h.source);
               const linked = h.eventIds[0];
@@ -157,25 +182,43 @@ function EventsPage() {
                 <li
                   key={h.id}
                   className={cn(
-                    "grid grid-cols-[40px_minmax(0,1fr)_auto] items-start gap-1.5 border-b border-border/70 px-2 py-1 last:border-b-0",
+                    "grid grid-cols-[3.4rem_minmax(0,1fr)_auto] items-start gap-1.5 border-b border-border/70 px-2 py-1 last:border-b-0",
                     active && "bg-primary/10",
                   )}
                 >
-                  <span className="pt-0.5 font-mono text-micro tabular-nums text-subtle">{clockLabel(h.published)}</span>
-                  <button
-                    type="button"
-                    className="min-w-0 rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                    onClick={() => onHeadlineClick(h)}
-                    title={linked ? "Highlight cluster" : "No cluster stamp — use Mode B to analyze this headline"}
-                  >
-                    <div className="flex items-center gap-1">
+                  <Stamp ms={h.published} />
+                  <div className="min-w-0">
+                    <button
+                      type="button"
+                      className="flex max-w-full items-center gap-1 rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                      onClick={() => onHeadlineClick(h)}
+                      title={linked ? "Highlight cluster" : "No cluster yet"}
+                    >
                       <span className="truncate font-mono text-micro text-primary">{h.source}</span>
                       <Badge tone={toneBadge(h.tone)}>{h.tone}</Badge>
-                    </div>
-                    <div className={cn("mt-px text-caption leading-snug hover:text-primary", active && "text-primary")}>
-                      {h.title}
-                    </div>
-                  </button>
+                    </button>
+                    {h.url ? (
+                      <a
+                        href={h.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={cn(
+                          "mt-px block text-caption leading-snug hover:text-primary hover:underline",
+                          active && "text-primary",
+                        )}
+                      >
+                        {h.title}
+                      </a>
+                    ) : (
+                      <button
+                        type="button"
+                        className="mt-px block text-left text-caption leading-snug hover:text-primary"
+                        onClick={() => onHeadlineClick(h)}
+                      >
+                        {h.title}
+                      </button>
+                    )}
+                  </div>
                   <div className="flex flex-col items-end gap-px pt-0.5">
                     <span className="font-mono text-micro uppercase tracking-wider text-subtle">
                       {cls.evidenceClass.slice(0, 4)} {rel}
@@ -192,21 +235,25 @@ function EventsPage() {
                 </li>
               );
             })}
-            {headlines.length === 0 ? (
-              <li className="px-3 py-8 text-center text-caption text-muted">Pulling market-relevant headlines…</li>
+            {stream.length === 0 ? (
+              <li className="px-3 py-8 text-center text-caption text-muted">
+                No market-moving headlines on the tape yet.
+              </li>
             ) : null}
           </ul>
         </Panel>
+        </div>
 
+        <div ref={clusterRef}>
         <Panel
-          title="Cluster explorer"
-          action={<span className="font-mono text-micro tabular-nums text-muted">{clusters.length} clusters</span>}
+          title={lens === "clusters" ? "All clusters" : "Cluster explorer"}
+          action={<span className="font-mono text-micro tabular-nums text-muted">{clusterRows.length} clusters</span>}
           padded={false}
           className="min-h-[16rem]"
           bodyClassName="flex min-h-0 flex-1 flex-col overflow-hidden"
         >
           <ul className="min-h-0 flex-1 overflow-y-auto p-1.5">
-            {clusters.map((c) => {
+            {clusterRows.map((c) => {
               const active = c.id === activeClusterId;
               return (
                 <li key={c.id} className="mb-1 last:mb-0">
@@ -232,31 +279,64 @@ function EventsPage() {
                       <Badge tone="primary">{c.headlineCount} hdln</Badge>
                       <Badge tone="neutral">{c.sources} src</Badge>
                       <Badge tone={toneBadge(c.tone)}>{c.tone}</Badge>
-                      <span className="font-mono text-micro text-subtle">{ageLabel(c.newest)} ago</span>
+                      <span className="font-mono text-micro tabular-nums text-subtle" title="First story">
+                        First {clockLabel(c.oldest)}
+                      </span>
+                      <span className="font-mono text-micro tabular-nums text-subtle" title="Latest story">
+                        Last {clockLabel(c.newest)}
+                      </span>
                     </div>
                   </button>
                 </li>
               );
             })}
-            {clusters.length === 0 ? (
-              <li className="px-2 py-8 text-center text-caption text-muted">No market-relevant clusters on the tape yet.</li>
+            {clusterRows.length === 0 ? (
+              <li className="px-2 py-8 text-center text-caption text-muted">No market-moving clusters on the tape yet.</li>
             ) : null}
           </ul>
-          {clusters.length > 1 ? (
-            <ClusterLandscape clusters={clusters} activeId={activeClusterId} onSelect={selectCluster} />
+          {clusterRows.length > 1 ? (
+            <ClusterLandscape clusters={clusterRows} activeId={activeClusterId} onSelect={selectCluster} />
           ) : null}
         </Panel>
+        </div>
 
+        <div ref={highRef}>
         <Panel
-          title="Event preview"
+          title={lens === "high" ? "High importance" : "Event preview"}
           action={
-            selectedCluster ? (
+            lens === "high" ? (
+              <span className="font-mono text-micro text-muted">imp ≥ {HIGH_IMP}</span>
+            ) : selectedCluster ? (
               <span className="font-mono text-micro text-muted">{selectedCluster.id.slice(0, 10)}</span>
             ) : null
           }
           className="min-h-[16rem]"
           bodyClassName="flex min-h-0 flex-1 flex-col overflow-y-auto p-2"
         >
+          {lens === "high" ? (
+            highBooks.length === 0 ? (
+              <p className="text-caption text-muted">Nothing at importance {HIGH_IMP} or higher.</p>
+            ) : (
+              <ul className="flex flex-col">
+                {highBooks.map((e) => (
+                  <li key={e.id} className="border-b border-border/70 py-1.5 last:border-b-0">
+                    <button
+                      type="button"
+                      className="w-full text-left"
+                      onClick={() => openOnDesk(e.id)}
+                    >
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-caption font-medium leading-snug">{e.title}</span>
+                        <span className="shrink-0 font-mono text-micro tabular-nums text-primary">{e.importance}</span>
+                      </div>
+                      <div className="mt-0.5 font-mono text-micro text-subtle">{e.timestamp || "Open on the desk"}</div>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )
+          ) : (
+          <>
           {!selectedCluster ? (
             <p className="text-caption text-muted">Select a cluster or click a headline to preview the composed book.</p>
           ) : null}
@@ -264,9 +344,7 @@ function EventsPage() {
             <div>
               <h2 className="text-base font-semibold tracking-tight">{selectedCluster.title}</h2>
               <p className="mt-1.5 text-caption text-muted">
-                Cluster has {selectedCluster.headlineCount} headlines across {selectedCluster.sources} sources ·
-                significance {selectedCluster.significance}. No composed book on the desk yet — use Mode B to analyze,
-                or wait for the next tape cycle.
+                {selectedCluster.headlineCount} headlines, {selectedCluster.sources} sources. No book on the desk yet. Analyze it above, or wait for the next pass.
               </p>
             </div>
           ) : null}
@@ -321,6 +399,7 @@ function EventsPage() {
                 <ul className="flex flex-col gap-1">
                   {preview.evidence.slice(0, 3).map((ev) => (
                     <li key={ev.id} className="text-caption leading-snug">
+                      <div className="mb-px font-mono text-micro tabular-nums text-subtle">{clockLabel(ev.eventTimeMs)}</div>
                       {ev.url ? (
                         <a href={ev.url} target="_blank" rel="noreferrer" className="hover:text-primary">
                           {ev.headline}
@@ -355,7 +434,10 @@ function EventsPage() {
               </Button>
             </div>
           ) : null}
+          </>
+          )}
         </Panel>
+        </div>
       </div>
     </div>
   );

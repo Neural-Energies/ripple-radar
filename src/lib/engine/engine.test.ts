@@ -8,7 +8,8 @@ import { gameTheoryFor, playersFor, questionsFor, scenariosFor } from "./hypothe
 import { hopsFrom, tagsFromText, themeFromTags, TICKER_META, toneOf } from "./ontology.ts";
 import { nodeNavTarget } from "./instruments.ts";
 import { relateEvents } from "./relate.ts";
-import { isMarketRelevant, marketRelevanceOf } from "./relevance.ts";
+import { pageIntel } from "./page-intel.ts";
+import { isMarketRelevant, isTapeShock, marketRelevanceOf } from "./relevance.ts";
 import type { RadarEvent } from "../../data/types.ts";
 
 /**
@@ -178,6 +179,25 @@ test("market-relevance drops lone local weather, keeps weather→commodity shock
   assert.equal(drought.keep, true, `drought→ag should KEEP (score=${drought.score}, tags=${drought.marketTags.join(",")})`);
 });
 
+test("world tape keeps shocks and drops spectacle, labor, and single-name court noise", () => {
+  assert.equal(isTapeShock("Trump threatens to annihilate Iran in UN speech as officials meet on sidelines"), true);
+  assert.equal(
+    isTapeShock("Cat. 5 Hurricane Polo moves along Mexico's coastline, not expected to make landfall"),
+    false,
+  );
+  assert.equal(isTapeShock("Hurricane Polo explodes into one of Pacific's strongest hurricanes ever"), false);
+  assert.equal(isTapeShock("How Unions Are Confronting A.I. Threats in the Workplace"), false);
+  assert.equal(isTapeShock("No sanctions for Carvana in artificial stock inflation case"), false);
+  assert.equal(
+    isTapeShock("Category 4 hurricane is 48 hours from landfall over the US Gulf Coast refining belt"),
+    true,
+  );
+  assert.equal(
+    isTapeShock("Major crude pipeline rupture halts loadings; tanker insurance quotes and freight rates jump"),
+    true,
+  );
+});
+
 test("market-relevance gate keeps macro commodity policy geo shocks", () => {
   for (const row of KEEP_FAMILY) {
     const r = marketRelevanceOf(row.text);
@@ -269,6 +289,56 @@ test("cluster does not over-merge unrelated books that share a surname", () => {
   const blob = clusters.map((c) => c.title).join(" || ");
   // Crude book may survive; campus chancellor must not ride along.
   assert.ok(!/chancellor|campus expansion/i.test(blob), `campus story leaked into market clusters: ${blob}`);
+});
+
+test("named storm headlines share one cluster; a different storm does not", () => {
+  const tape = [
+    hl("Hurricane Polo intensifies to category 5 off Mexico", "Reuters", 0),
+    hl("Hurricane Polo explodes into one of the Pacific's strongest storms", "AP", 1),
+    hl("Cat. 5 Hurricane Polo moves along Mexico's coastline", "BBC", 2),
+    hl("Hurricane Polo churns off Mexico as officials watch the track", "NYT", 3),
+    hl("Why did Hurricane Polo rapidly intensify so fast in the Pacific", "Local", 4),
+    hl("Hurricane Marie damage prompts a Long Beach emergency declaration", "LAT", 5),
+  ];
+  const clusters = clusterHeadlines(tape);
+  const polo = clusters.filter((c) => /polo/i.test(c.title + c.headlines.map((h) => h.title).join(" ")));
+  const poloHeads = polo.reduce((n, c) => n + c.headlines.filter((h) => /polo/i.test(h.title)).length, 0);
+  assert.equal(polo.length, 1, `Polo split across ${polo.length} clusters`);
+  assert.equal(poloHeads, 5, `expected 5 Polo headlines in one cluster, got ${poloHeads}`);
+  const marieInsidePolo = polo[0]?.headlines.some((h) => /marie/i.test(h.title));
+  assert.equal(marieInsidePolo, false, "Marie must not join Polo");
+  const poloTitle = polo[0]?.title ?? "";
+  assert.match(poloTitle, /^Hurricane Polo/, `title should be the storm, not an article: ${poloTitle}`);
+});
+
+test("event page does not attach VLO or CL without a named facility", () => {
+  const titles = [
+    "Maps: Tracking Hurricane Polo",
+    "Hurricane Polo intensifies to category 5 off Mexico's Pacific coast",
+    "Hurricane Polo moves along Mexico's coastline, not expected to make landfall",
+  ];
+  const event = {
+    id: "ev-polo",
+    title: titles[0],
+    evidence: titles.map((headline, i) => ({
+      id: `e${i}`,
+      headline,
+      source: "Wire",
+      eventTimeMs: Date.now() - i * 60_000,
+      availableTimeMs: Date.now(),
+      time: "",
+      evidenceClass: "narrative" as const,
+      kind: "news" as const,
+      delayed: true,
+    })),
+  } as unknown as RadarEvent;
+  const intel = pageIntel(event, []);
+  assert.match(intel.name, /^Hurricane Polo/);
+  assert.ok(intel.omitted.includes("VLO"));
+  assert.ok(intel.omitted.includes("CL"));
+  assert.ok(intel.omitted.includes("MOS"));
+  assert.equal(intel.places.length, 0);
+  assert.ok(intel.invalidation.some((line) => /not expected/i.test(line)));
 });
 
 test("cluster still merges paraphrased market headlines", () => {

@@ -14,6 +14,7 @@ const PAGES = [
   { to: "/game-theory", label: "Game Theory" },
   { to: "/macro", label: "Macro Regime" },
   { to: "/assets", label: "Assets" },
+  { to: "/macro", label: "Macro" },
   { to: "/watchlists", label: "Watchlists" },
   { to: "/alerts", label: "Alerts" },
   { to: "/portfolio", label: "Portfolio" },

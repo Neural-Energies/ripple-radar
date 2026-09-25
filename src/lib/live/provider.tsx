@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { useApp } from "@/lib/store";
 import { evaluateAlerts } from "./alerts";
 import { analyzeEvent, getLiveDesk, rescoreBook } from "./desk";
-import { EMPTY_BOOKS, EMPTY_CLUSTERS } from "./empty";
+import { EMPTY_BOOKS, EMPTY_CLUSTERS, EMPTY_HEADLINES } from "./empty";
 import { liveAssets, liveEventsList, liveGetAsset, liveGetEvent } from "./overlay";
 import type { AlertHit, LiveDesk, RescoreResult } from "./types";
 
@@ -52,35 +52,42 @@ export const useLive = create<LiveState>((set) => ({
 
 const LiveCtx = createContext(true);
 
+const POLL_MS = 12_000;
+
+/** One loop for the life of the tab. A remount must not clear it — that was
+ * dropping the desk after the first pull while the clock kept ticking. */
+function startDeskPoll() {
+  if (typeof window === "undefined") return;
+  const w = window as Window & { __deskPoll?: boolean };
+  if (w.__deskPoll) return;
+  w.__deskPoll = true;
+  const loop = () => {
+    void (async () => {
+      try {
+        if (!useLive.getState().desk) useLive.getState().setConnecting();
+        const desk = await getLiveDesk();
+        useLive.getState().setDesk(desk);
+      } catch (err) {
+        useLive.getState().setError(err instanceof Error ? err.message : "Tape interrupted");
+      } finally {
+        window.setTimeout(loop, POLL_MS);
+      }
+    })();
+  };
+  loop();
+}
+
+if (typeof window !== "undefined") startDeskPoll();
+
 export function LiveProvider({ children }: { children: ReactNode }) {
-  const setDesk = useLive((s) => s.setDesk);
-  const setError = useLive((s) => s.setError);
-  const setConnecting = useLive((s) => s.setConnecting);
   const setHits = useLive((s) => s.setHits);
   const alerts = useApp((s) => s.alerts);
   const primed = useRef(false);
   const prevHits = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    let dead = false;
-    async function tick() {
-      try {
-        if (!useLive.getState().desk) setConnecting();
-        const desk = await getLiveDesk();
-        if (dead) return;
-        setDesk(desk);
-      } catch (err) {
-        if (dead) return;
-        setError(err instanceof Error ? err.message : "Tape interrupted");
-      }
-    }
-    void tick();
-    const id = window.setInterval(() => void tick(), 15_000);
-    return () => {
-      dead = true;
-      window.clearInterval(id);
-    };
-  }, [setConnecting, setDesk, setError]);
+    startDeskPoll();
+  }, []);
 
   const desk = useLive((s) => s.desk);
   useEffect(() => {
@@ -111,32 +118,32 @@ export function useLiveDesk() {
 export function useLiveEvents() {
   const desk = useLive((s) => s.desk);
   const rescores = useLive((s) => s.rescores);
-  const deskBooks = useApp((s) => s.deskBooks ?? EMPTY_BOOKS);
-  return useMemo(() => liveEventsList(desk, rescores, deskBooks), [desk, rescores, deskBooks]);
+  const deskBooks = useApp((s) => s.deskBooks);
+  return useMemo(() => liveEventsList(desk, rescores, deskBooks ?? EMPTY_BOOKS), [desk, rescores, deskBooks]);
 }
 
 export function useLiveEvent(id: string) {
   const desk = useLive((s) => s.desk);
   const rescores = useLive((s) => s.rescores);
-  const deskBooks = useApp((s) => s.deskBooks ?? EMPTY_BOOKS);
-  return useMemo(() => liveGetEvent(id, desk, rescores, deskBooks), [id, desk, rescores, deskBooks]);
+  const deskBooks = useApp((s) => s.deskBooks);
+  return useMemo(() => liveGetEvent(id, desk, rescores, deskBooks ?? EMPTY_BOOKS), [id, desk, rescores, deskBooks]);
 }
 
 export function useLiveAssets() {
   const desk = useLive((s) => s.desk);
   const rescores = useLive((s) => s.rescores);
-  const deskBooks = useApp((s) => s.deskBooks ?? EMPTY_BOOKS);
+  const deskBooks = useApp((s) => s.deskBooks);
   const selected = useApp((s) => s.selectedEventId);
-  const event = useMemo(() => liveGetEvent(selected, desk, rescores, deskBooks), [selected, desk, rescores, deskBooks]);
+  const event = useMemo(() => liveGetEvent(selected, desk, rescores, deskBooks ?? EMPTY_BOOKS), [selected, desk, rescores, deskBooks]);
   return useMemo(() => liveAssets(desk, event), [desk, event]);
 }
 
 export function useLiveAsset(ticker: string) {
   const desk = useLive((s) => s.desk);
   const rescores = useLive((s) => s.rescores);
-  const deskBooks = useApp((s) => s.deskBooks ?? EMPTY_BOOKS);
+  const deskBooks = useApp((s) => s.deskBooks);
   const selected = useApp((s) => s.selectedEventId);
-  const event = useMemo(() => liveGetEvent(selected, desk, rescores, deskBooks), [selected, desk, rescores, deskBooks]);
+  const event = useMemo(() => liveGetEvent(selected, desk, rescores, deskBooks ?? EMPTY_BOOKS), [selected, desk, rescores, deskBooks]);
   return useMemo(() => liveGetAsset(ticker, desk, event), [ticker, desk, event]);
 }
 

@@ -86,7 +86,7 @@ export function overlayEvent(base: RadarEvent, desk: LiveDesk | null, rescore?: 
 
   const next: RadarEvent = {
     ...base,
-    timestamp: desk.asOfLabel,
+    timestamp: base.timestamp,
     probability,
     probabilityDelta: book ? book.probabilityDelta + (rescore ? probability - book.probability : 0) : base.probabilityDelta,
     evidence: markDuplicates(

@@ -164,7 +164,8 @@ function AssetsPage() {
             <Input
               value={q}
               onChange={(e) => onQueryChange(e.target.value)}
-              placeholder="Ticker, name, bottleneck"
+              placeholder="Ticker, name, or path"
+              aria-label="Filter assets"
               className="sm:max-w-xs"
             />
             <div className="flex flex-wrap gap-1">
@@ -178,7 +179,7 @@ function AssetsPage() {
                     sort === k ? "bg-primary/15 text-primary" : "text-muted",
                   )}
                 >
-                  Sort {k}
+                  {k === "score" ? "score" : k === "change" ? "session" : k === "distance" ? "hops" : "ticker"}
                 </button>
               ))}
               {(["all", "up", "down"] as const).map((k) => (
@@ -202,8 +203,8 @@ function AssetsPage() {
                 <tr className="border-b border-border">
                   <th className="px-2 py-1 font-medium">Ticker</th>
                   <th className="px-2 py-1 font-medium">Name</th>
-                  <th className="px-2 py-1 font-medium">Dist</th>
-                  <th className="px-2 py-1 font-medium" title="Research rank, not conviction or expected return: causal distance and graph position, adjusted for crowding and confirmation. Not calibrated against outcomes.">Rank</th>
+                  <th className="px-2 py-1 font-medium" title="Hops from the shock">Hops</th>
+                  <th className="px-2 py-1 font-medium" title="Rank on this book. Not a price target.">Score</th>
                   <th className="px-2 py-1 font-medium">Crowd</th>
                   <th className="px-2 py-1 font-medium">Tape</th>
                   <th className="px-2 py-1 font-medium">Last</th>

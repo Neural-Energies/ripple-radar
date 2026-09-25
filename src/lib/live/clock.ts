@@ -13,16 +13,20 @@ export function etParts(ms = Date.now()) {
     year: "numeric",
   }).formatToParts(new Date(ms));
   const pick = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
-  const hour = Number(pick("hour"));
-  const minute = Number(pick("minute"));
+  const hourRaw = pick("hour");
+  const minuteRaw = pick("minute");
+  const hour = Number(hourRaw);
+  const minute = Number(minuteRaw);
   return {
     weekday: pick("weekday"),
     hour,
     minute,
     second: Number(pick("second")),
     hm: hour + minute / 60,
-    label: `${pick("day")} ${pick("month")} ${pick("year")} · ${pick("hour")}:${pick("minute")} ET`,
-    clock: `${pick("hour")}:${pick("minute")}:${pick("second")} ET`,
+    date: `${pick("day")} ${pick("month")}`,
+    time: `${hourRaw}:${minuteRaw}`,
+    label: `${pick("day")} ${pick("month")} ${pick("year")} · ${hourRaw}:${minuteRaw} ET`,
+    clock: `${hourRaw}:${minuteRaw}:${pick("second")} ET`,
   };
 }
 

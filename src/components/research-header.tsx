@@ -95,7 +95,7 @@ function ProvenanceChip({ provenance }: { provenance: ForecastProvenance }) {
           ? "calibrated"
           : provenance === "unchanged"
             ? "unchanged"
-            : "heuristic"}
+            : "estimate"}
     </Badge>
   );
 }
@@ -127,11 +127,12 @@ export function ResearchHeader({
           <span className="font-mono text-caption tabular-nums text-muted" title="Importance 0–99">
             Imp <span className="text-foreground">{!empty && event.importance != null ? event.importance : "—"}</span>
           </span>
-          <span className="font-mono text-caption tabular-nums" title="Probability">
+          <span className="font-mono text-caption tabular-nums" title="How hard the tape is pushing. Path odds are on the book, not this number.">
             {empty ? (
               <span className="text-subtle">—%</span>
             ) : (
               <>
+                <span className="text-micro text-subtle">tape </span>
                 <span className="text-primary">{event.probability}%</span>
                 {typeof event.probabilityDelta === "number" && event.probabilityDelta !== 0 ? (
                   <>
@@ -147,7 +148,7 @@ export function ResearchHeader({
       <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
         <div className="min-w-0">
           <div className="text-micro uppercase tracking-wider text-subtle">Research · {subtitle}</div>
-          <h1 className="truncate text-base font-semibold tracking-tight text-foreground sm:text-lg">{title}</h1>
+          <h1 className="line-clamp-2 text-base font-semibold tracking-tight text-foreground sm:text-lg" title={title}>{title}</h1>
         </div>
         {showTabs ? (
           <nav className="flex shrink-0 gap-0.5" aria-label="Research views">

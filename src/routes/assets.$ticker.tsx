@@ -48,7 +48,7 @@ function AssetDetail() {
           <div className="text-right">
             <div className="font-mono text-2xl tabular-nums">{formatPrice(asset.last)}</div>
             <div className={cn("font-mono text-sm", asset.change >= 0 ? "text-up" : "text-down")}>
-              {formatPct(asset.change)}
+              session {formatPct(asset.change)}
             </div>
             <div className="mt-1 text-tiny text-subtle">
               {quote?.state === "live"
@@ -62,7 +62,7 @@ function AssetDetail() {
           </div>
         </div>
         <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Field k="Research rank" v={String(asset.score)} />
+          <Field k="Book score" v={String(asset.score)} />
           <Field k="Crowding" v={asset.crowding ?? "—"} />
           <Field k="Confirmation" v={asset.confirmation ?? "—"} />
           <Field k="Expected lag" v={asset.lag} />

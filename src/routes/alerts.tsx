@@ -15,6 +15,7 @@ const KINDS: AlertRule["kind"][] = [
   "price",
   "narrative",
   "scenario",
+  "path",
   "crowding",
   "confirmation",
   "invalidation",
@@ -43,6 +44,9 @@ function AlertsPage() {
         title="Alert rules"
         action={<Badge tone="core">{hits.length} firing</Badge>}
       >
+        {alerts.length === 0 ? (
+          <p className="py-6 text-center text-caption text-muted">No rules yet. Add one on the right.</p>
+        ) : (
         <ul className="flex flex-col gap-2">
           {alerts.map((a) => {
             const firing = alertIsHit(a.id, hits);
@@ -97,6 +101,7 @@ function AlertsPage() {
             );
           })}
         </ul>
+        )}
       </Panel>
       <Panel title="New rule">
         <form
@@ -131,14 +136,14 @@ function AlertsPage() {
               <Input className="mt-1" value={ticker} onChange={(e) => setTicker(e.target.value)} placeholder="BWET" />
             </label>
           ) : null}
-          {(kind === "probability" || kind === "narrative") && (
+          {(kind === "probability" || kind === "narrative" || kind === "path") && (
             <label className="text-tiny text-muted">
               Book id
-              <Input className="mt-1" value={eventId} onChange={(e) => setEventId(e.target.value)} placeholder="live event id (optional)" />
+              <Input className="mt-1" value={eventId} onChange={(e) => setEventId(e.target.value)} placeholder="Optional" />
             </label>
           )}
           <label className="text-tiny text-muted">
-            Threshold
+            {kind === "probability" ? "Percent" : kind === "path" ? "Points moved" : kind === "price" ? "Price" : "Threshold"}
             <Input
               className="mt-1"
               value={threshold}

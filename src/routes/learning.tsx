@@ -246,11 +246,11 @@ function ScoredLedgerPanel({ rows }: { rows: Scored[] | null }) {
           <table className="w-full min-w-[46rem] text-caption">
             <thead className="text-left text-micro uppercase tracking-wider text-subtle">
               <tr className="border-b border-border">
-                <th className="px-3 py-2 font-medium">Frozen at T</th>
+                <th className="px-3 py-2 font-medium" title="Locked then. Not revised after the outcome.">Frozen</th>
                 <th className="px-3 py-2 font-medium">Book</th>
                 <th className="px-3 py-2 font-medium">Called</th>
                 <th className="px-3 py-2 font-medium">Occurred</th>
-                <th className="px-3 py-2 font-medium">Brier</th>
+                <th className="px-3 py-2 font-medium" title="Lower is better. 0 is perfect, 0.25 is a coin flip.">Brier</th>
               </tr>
             </thead>
             <tbody>

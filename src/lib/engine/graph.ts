@@ -1,7 +1,6 @@
 import type { CausalLink, RippleLevel, RippleNode, TradeIdea } from "@/data/types";
 import { resolveNodeTicker, tickersForTag } from "./instruments";
 import { TICKER_META, TRANSMIT, hopsFrom, type Tag } from "./ontology";
-import { edgeEvidence } from "./transmission-evidence";
 
 function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
@@ -149,34 +148,16 @@ export function buildCausalGraph(opts: {
     });
     nodeByTag.set(tag, id);
     const srcId = level === 1 ? "core" : findParent(tag);
-    // Provenance, not a number pulled from the air. An edge the ontology
-    // asserts but the panel cannot measure carries NO confidence — the UI has
-    // to render that absence, because substituting `0.8 - level * 0.08` is
-    // exactly how an assertion starts looking like a measurement.
-    const ev = edge ? edgeEvidence(edge.from, edge.to) : undefined;
-    const measured = ev?.status === "measured";
     links.push({
       source: srcId,
       dest: id,
       direction: dir === "down" ? -1 : 1,
       distance: level,
-      confidence: measured ? ev!.signStability : null,
-      coupling: measured ? ev!.coupling : null,
-      support: ev
-        ? ev.status === "unmeasured"
-          ? "asserted"
-          : ev.status
-        : edge
-          ? "asserted"
-          : "inferred",
-      proxies: ev ? { from: ev.fromProxy, to: ev.toProxy } : undefined,
-      constructionOverlap: ev?.constructionOverlap,
-      assertedConfidence: edge?.confidence,
-      evidence: edge?.mechanism ?? `Inferred transmission: event → ${tag}.`,
+      confidence: edge?.confidence ?? clamp(0.8 - level * 0.08, 0.42, 0.9),
+      evidence: `Model inference — ${edge?.mechanism ?? `event → ${tag}`}. Not an observed fact.`,
       expectedLag: edge?.lag ?? TICKER_META[ticker ?? ""]?.lag ?? "days–weeks",
-      laggedHorizons: ev?.laggedHorizons ?? null,
       invalidation: "The binding constraint eases and the first print mean-reverts.",
-      historicalSupport: ev?.note || "Same transmission family — not this ticker's last anecdote.",
+      historicalSupport: "Same transmission family — not this ticker's last anecdote.",
     });
     return id;
   }
@@ -205,11 +186,7 @@ export function buildCausalGraph(opts: {
       dest: "core",
       direction: 1,
       distance: 4,
-      // A reflexive policy-response edge. Nothing in the panel proxies "the
-      // authorities react", so this is structure the engine infers, and it
-      // says so instead of carrying a number.
-      confidence: null,
-      support: "inferred",
+      confidence: 0.48,
       evidence: "Price and policy can change the event (offset, exemption, backstop, reroute).",
       expectedLag: "days–weeks",
       invalidation: "Officials do not respond; the chain stays one-way.",

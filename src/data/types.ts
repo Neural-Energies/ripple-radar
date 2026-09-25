@@ -517,6 +517,7 @@ export type AlertKind =
   | "price"
   | "narrative"
   | "scenario"
+  | "path"
   | "crowding"
   | "confirmation"
   | "invalidation";

@@ -151,17 +151,22 @@ export function Donut({
 
 export const SCENARIO_COLORS = ["#3ec8e8", "#4ade80", "#e0b35c", "#f07178", "#a78bfa", "#94a3b8"];
 
-/** Current scenario mass only — not a path-over-time / fan chart. */
+/** Scenario mass as labeled rows. Color is not required to read the mix. */
 export function ScenarioDistributionBar({
   scenarios,
   legend = true,
   showSum = false,
+  independent = false,
+  caption,
   onSelect,
 }: {
   scenarios: Pick<Scenario, "id" | "name" | "probability">[];
   legend?: boolean;
   /** Show raw Σ of displayed mass. Never labels Σ=100 as calibrated. */
   showSum?: boolean;
+  /** Each bar is the probability itself. Use when rows are not a partition. */
+  independent?: boolean;
+  caption?: string;
   /** When given, legend rows drill into the scenario. Omitted for historical
    *  frames, where there is no current row to open. */
   onSelect?: (scenarioId: string) => void;
@@ -171,68 +176,50 @@ export function ScenarioDistributionBar({
   }
   const rawSum = scenarios.reduce((n, s) => n + Math.max(0, s.probability), 0);
   const total = rawSum || 1;
+  const ranked = [...scenarios].sort((a, b) => b.probability - a.probability);
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="flex h-4 w-full overflow-hidden rounded-sm bg-card-3">
-        {scenarios.map((s, i) => {
-          const w = (Math.max(0, s.probability) / total) * 100;
-          if (w <= 0) return null;
+      {caption ? <p className="text-micro text-subtle">{caption}</p> : null}
+      <ul className="flex flex-col gap-1.5">
+        {ranked.map((s) => {
+          const w = independent
+            ? Math.min(100, Math.max(0, s.probability))
+            : (Math.max(0, s.probability) / total) * 100;
+          const row = (
+            <>
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="font-mono text-body font-semibold tabular-nums text-foreground">{s.probability}%</span>
+                <span className="min-w-0 flex-1 truncate text-caption text-foreground">{s.name}</span>
+              </div>
+              <div className="mt-0.5 h-1.5 overflow-hidden rounded-full bg-card-3">
+                <div className="h-full rounded-full bg-primary" style={{ width: `${w}%` }} />
+              </div>
+            </>
+          );
           return (
-            <div
-              key={s.id}
-              title={`${s.name}: ${s.probability}%`}
-              className="flex h-full items-center justify-center overflow-hidden"
-              style={{ width: `${w}%`, background: SCENARIO_COLORS[i % SCENARIO_COLORS.length] }}
-            >
-              {w >= 12 ? (
-                <span className="px-0.5 font-mono text-[9px] font-semibold tabular-nums leading-none text-primary-foreground/90">
-                  {s.probability}%
-                </span>
-              ) : null}
-            </div>
+            <li key={s.id}>
+              {onSelect ? (
+                <button
+                  type="button"
+                  onClick={() => onSelect(s.id)}
+                  title={`Open ${s.name}`}
+                  className="w-full rounded-sm px-0.5 py-0.5 text-left hover:bg-card-2"
+                >
+                  {row}
+                </button>
+              ) : (
+                row
+              )}
+            </li>
           );
         })}
-      </div>
+      </ul>
       {showSum ? (
         <div className="font-mono text-micro tabular-nums text-subtle">
-          Σ {rawSum}%{rawSum === 100 ? " · family mass" : " · not exhaustive"}
+          Σ {rawSum}%{rawSum === 100 ? " · paths on this book" : " · not the full distribution"}
         </div>
-      ) : null}
-      {legend ? (
-        <ul className="flex flex-col gap-1">
-          {scenarios.map((s, i) => {
-            const body = (
-              <>
-                <span className="flex min-w-0 items-center gap-1.5">
-                  <i
-                    className="size-1.5 shrink-0 rounded-full"
-                    style={{ background: SCENARIO_COLORS[i % SCENARIO_COLORS.length] }}
-                  />
-                  <span className="truncate text-muted">{s.name}</span>
-                </span>
-                <span className="shrink-0 font-mono tabular-nums text-foreground">
-                  {s.probability}%
-                </span>
-              </>
-            );
-            return (
-              <li key={s.id} className="text-caption">
-                {onSelect ? (
-                  <button
-                    type="button"
-                    onClick={() => onSelect(s.id)}
-                    title={`Open ${s.name} in the scenario book`}
-                    className="flex w-full items-center justify-between gap-2 rounded-sm px-1 py-0.5 text-left hover:bg-card-2"
-                  >
-                    {body}
-                  </button>
-                ) : (
-                  <span className="flex items-center justify-between gap-2 px-1 py-0.5">{body}</span>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+      ) : legend && !caption ? (
+        <p className="text-micro text-subtle">Desk estimate of the paths. Not an order.</p>
       ) : null}
     </div>
   );

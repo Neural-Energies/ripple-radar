@@ -30,12 +30,12 @@ function PortfolioPage() {
     <div className="grid gap-3 lg:grid-cols-[18rem_1fr]">
       <Panel
         title="Book context"
-        action={<FrozenBadge title="Not a capital blotter — no AUM, NAV, or strategy P&L." />}
+        action={<FrozenBadge title="Exposures on this book. Not an order." />}
       >
         <p className="text-caption text-muted">
-          Ranked expressions for{" "}
-          <span className="text-foreground">{event.title?.trim() || "the selected shock"}</span>
-          . This page is not a capital blotter — there is no AUM, NAV, or strategy P&amp;L.
+          Ranked exposures for{" "}
+          <span className="text-foreground">{event.title?.trim() || "this book"}</span>
+          . Closest to the shock first. Not an order.
         </p>
         <div className="mt-3 rounded-md bg-card-2 p-3">
           <div className="text-micro uppercase tracking-wider text-subtle">
@@ -63,15 +63,15 @@ function PortfolioPage() {
         ) : null}
       </Panel>
 
-      <Panel title="Strategy lab · ranked expressions" padded={false}>
+      <Panel title="Ranked expressions" padded={false}>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[44rem] text-caption">
             <thead className="text-left text-micro uppercase tracking-wider text-subtle">
               <tr className="border-b border-border">
                 <th className="px-3 py-2 font-medium">Ticker</th>
                 <th className="px-3 py-2 font-medium">Side</th>
-                <th className="px-3 py-2 font-medium">Dist</th>
-                <th className="px-3 py-2 font-medium" title="Research rank, not conviction or expected return: causal distance and graph position, adjusted for crowding and confirmation. Not calibrated against outcomes.">Rank</th>
+                <th className="px-3 py-2 font-medium" title="Hops from the shock">Hops</th>
+                <th className="px-3 py-2 font-medium" title="Rank on this book. Not a price target.">Score</th>
                 <th className="px-3 py-2 font-medium">Last</th>
                 <th className="px-3 py-2 font-medium">Session</th>
                 <th className="px-3 py-2 font-medium">Horizon</th>
@@ -82,7 +82,7 @@ function PortfolioPage() {
               {holdings.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-3 py-6 text-center text-muted">
-                    No ranked trades on this book yet.
+                    No expressions on this book. Open a shock from the desk.
                   </td>
                 </tr>
               ) : (

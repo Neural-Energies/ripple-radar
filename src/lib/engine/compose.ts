@@ -1,6 +1,4 @@
 import type { Lifecycle, RadarEvent } from "@/data/types";
-import { gameSensitivity } from "@/lib/ace/game-sensitivity";
-import { probabilityFromScenarios } from "@/lib/ace/probability";
 import { etParts } from "@/lib/live/clock";
 import { rankTrades } from "@/lib/live/discover";
 import { headlineToEvidence, markDuplicates } from "@/lib/live/evidence";
@@ -37,17 +35,21 @@ function clamp(n: number, min: number, max: number) {
 
 function clockOf(ms: number) {
   try {
-    return etParts(ms).clock.replace(" ET", "");
+    const p = etParts(ms);
+    return `${p.date} ${p.time}`;
   } catch {
     return "";
   }
 }
 
 function lifecycleOf(cluster: { headlines: LiveHeadline[]; tone: Cluster["tone"]; significance: number }): Lifecycle {
+  const newest = Math.max(...cluster.headlines.map((h) => h.published), 0);
+  const ageH = newest ? (Date.now() - newest) / 3_600_000 : 99;
   const n = cluster.headlines.length;
-  if (cluster.tone === "up" && n >= 4) return "escalating";
-  if (cluster.tone === "down" && n >= 3) return "de-escalating";
-  if (n >= 5 || cluster.significance >= 55) return "active";
+  if (ageH > 36) return "resolving";
+  if (cluster.tone === "up" && n >= 3 && ageH < 6) return "escalating";
+  if (cluster.tone === "down" && n >= 2 && ageH < 12) return "de-escalating";
+  if (n >= 2 && ageH < 6) return "active";
   if (n >= 2) return "emerging";
   return "candidate";
 }
@@ -97,7 +99,7 @@ export function composeEvent(opts: {
     note: opts.note,
     tags,
     tone,
-    coreLabel: entity.length >= 3 && entity.length <= 28 ? entity : opts.title.length > 40 ? opts.title.slice(0, 38) + "…" : opts.title,
+    coreLabel: opts.title.length > 48 ? opts.title.slice(0, 46) + "…" : opts.title,
   });
   const { nodes, links, trades, headlineTicker } = graph;
 
@@ -123,50 +125,13 @@ export function composeEvent(opts: {
     .slice(0, 8)
     .map(([name, v]) => ({ name, count: v.count, latest: clockOf(v.latest) }));
 
+  const probability = clamp(16 + hits * 4 + esc * 4 - de * 3, 8, 82);
   const life = lifecycleOf({ headlines, tone, significance: opts.significance ?? hits * 8 });
   const region = regionFromText(blob, tags);
   const theme = themeFromTags(tags);
   const players = playersFor(entities, tags, family);
-  const baseGt = gameTheoryFor({ family, players });
-  // The Nash solve is correct; its inputs are assumptions. Measure how much of
-  // the answer survives them before anything renders it as a finding.
-  const gtSensitivity = gameSensitivity(baseGt);
-  const gt: typeof baseGt = {
-    ...baseGt,
-    sensitivity: {
-      draws: gtSensitivity.draws,
-      jitter: gtSensitivity.jitter,
-      equilibriumStability: gtSensitivity.equilibriumStability,
-      primaryStability: gtSensitivity.primaryStability,
-      likelyStability: gtSensitivity.likelyStability,
-      noEquilibriumShare: gtSensitivity.noEquilibriumShare,
-      verdict: gtSensitivity.verdict,
-      alternatives: gtSensitivity.alternatives.slice(0, 4),
-      note: gtSensitivity.note,
-    },
-  };
-  // esc/de are deliberately NOT passed: escalation and de-escalation keyword
-  // counts used to drive the prior through authored constants, and they no
-  // longer drive anything. They remain in scope for the evidence copy below.
-  const scenarios = scenariosFor({ entity, tags, family, tone, hits });
-
-  // The book's headline probability is P(the causal thesis materializes) —
-  // the mass on the materialization end of the scenario axis, which is where
-  // `scenariosFor` always puts its first row.
-  //
-  // It used to be `clamp(16 + hits*4 + esc*4 - de*3, 8, 82)`: a count of
-  // matched articles plus a count of articles containing escalation keywords.
-  // That measured how heavily a story was being covered, not how likely it
-  // was — and coverage follows events that have already happened, so the
-  // number peaked exactly when a move was most priced in. Worse, it could
-  // disagree with the scenario mix displayed beside it, because the two were
-  // computed by different rules.
-  //
-  // Deriving it from the scenario distribution makes it one number from one
-  // model: it moves when the Dirichlet posterior moves (see ace/probability),
-  // it cannot contradict the mix, and it carries that model's provenance
-  // rather than implying a calibration nothing here has earned.
-  const probability = probabilityFromScenarios(scenarios);
+  const gt = gameTheoryFor({ family, players });
+  const scenarios = scenariosFor({ entity, tags, family, tone, hits, esc, de });
   const mkt = marketReaction[0]?.change ?? 0;
   const importance = importanceOf({
     significance: opts.significance ?? hits * 8,
@@ -221,15 +186,6 @@ export function composeEvent(opts: {
         .join(" ") ||
       `${opts.title} — constructed from live evidence, not a fixture.`,
     probability: Math.round(probability),
-    // Zero on construction, and that is the honest value. This was
-    // `clamp(hits * 1.1 + (esc - de), -12, 18)` — a "change" computed from a
-    // headline count, rendered with an up arrow in three places. A book being
-    // seen for the first time has no prior to have moved from, and nothing
-    // about how many articles exist makes the forecast have moved.
-    //
-    // buildDesk overwrites this with the real posterior delta once a frozen
-    // prior exists to difference against. Until then the UI hides it, because
-    // it checks `!== 0`.
     probabilityDelta: 0,
     nodes,
     links,
@@ -237,22 +193,9 @@ export function composeEvent(opts: {
       .filter((n) => n.level > 0)
       .slice(0, 8)
       .map((n) => ({ label: n.label, value: n.impact, direction: n.direction === "down" ? "down" : "up" })),
-    // Empty by construction. This used to be `probability - 8 / -4 / -2`: a
-    // synthetic ramp that would show a trend whatever had actually happened.
-    // Real history comes from the frozen forecast ledger, which buildDesk
-    // attaches; an event seen for the first time genuinely has none, and one
-    // point is not a trend.
-    probabilityHistory: [
-      { date: "Now", value: Math.round(probability) },
-    ],
+    probabilityHistory: [],
     marketReaction,
-    // One point, one real number: how many matched headlines this event has
-    // right now. The T-2 and T-1 rows were hardcoded fixture constants, and
-    // `social` and `search` were `16 + hits*4` and `14 + hits*3` — two entire
-    // series invented from a headline count for platforms this product does
-    // not connect to. Attention history, like forecast history, has to be
-    // accumulated rather than derived.
-    narrativeHeat: [{ date: "Now", news: hits }],
+    narrativeHeat: [],
     scenarios,
     gameTheory: gt,
     trades,
@@ -270,17 +213,13 @@ export function composeEvent(opts: {
       title: h.source,
       detail: h.title,
     })),
-    // Counts and labels, not scores. The scores here were `36 + hits*6`,
-    // `40 + (esc-de)*8` and `50 + mkt*6` — three hand-tuned formulas rendered
-    // on a 0-96 scale, which reads as a measurement. The underlying
-    // observations are real; the numbers dressed them up. `score` now carries
-    // the count itself, so "News mentions 7" means seven articles matched.
     sentiment: [
-      { source: "News mentions", score: hits, label: hits > 5 ? "Hot" : hits > 1 ? "Active" : "Quiet" },
-      { source: "Escalation language", score: esc - de, label: tone === "up" ? "Hawkish" : tone === "down" ? "Softening" : "Mixed" },
-      { source: "Market confirmation", score: Math.round(mkt * 100) / 100, label: mkt > 0.4 ? "Confirming" : mkt < -0.4 ? "Fading" : "Neutral" },
+      { source: "News mentions", score: clamp(36 + hits * 6, 8, 96), label: hits > 5 ? "Hot" : hits > 1 ? "Active" : "Quiet" },
+      { source: "Escalation language", score: clamp(40 + (esc - de) * 8, 8, 96), label: tone === "up" ? "Hawkish" : tone === "down" ? "Softening" : "Mixed" },
+      { source: "Market confirmation", score: clamp(50 + mkt * 6, 8, 96), label: mkt > 0.4 ? "Confirming" : mkt < -0.4 ? "Fading" : "Neutral" },
     ],
     sources: sources.length ? sources : [{ name: "Desk", count: 1, latest: "now" }],
+    provenance: "heuristic",
     mode: opts.mode ?? "live",
     eventType: family,
     eventSubtype: subtypeOf(family, tags),
@@ -296,7 +235,7 @@ export function composeEvent(opts: {
     commodities: commoditiesFrom(tags),
     economicVariables: economicVarsFrom(tags),
     firstDetected,
-    sourceCount: headlines.length || 1,
+    sourceCount: new Set(evidence.filter((e) => !e.duplicateOf).map((e) => e.id)).size || headlines.length,
     primarySourceCount: sources.length,
     questions,
     invalidation: [

@@ -48,7 +48,7 @@ function WatchlistsPage() {
             setName("");
           }}
         >
-          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="New list" />
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="New list" aria-label="New list name" />
           <Button type="submit" size="sm">
             Add
           </Button>
@@ -60,7 +60,7 @@ function WatchlistsPage() {
       <Panel title={current ? current.name : "Select a list"} padded={false}>
         {!current || current.tickers.length === 0 ? (
           <p className="px-3 py-8 text-center text-caption text-muted">
-            Empty list. Ranked trades on the dashboard pin here.
+            Nothing here. Add a name from Assets, or pin one from the desk.
           </p>
         ) : (
           <div className="overflow-x-auto">

@@ -33,9 +33,49 @@ function featureSet(title: string): Set<string> {
   return new Set([...toks, ...bigrams(toks)]);
 }
 
+const NAME_STOP = new Set([
+  "category",
+  "tracking",
+  "maps",
+  "the",
+  "and",
+  "off",
+  "into",
+  "from",
+  "after",
+  "with",
+  "over",
+  "near",
+  "along",
+  "pacific",
+  "mexico",
+  "coast",
+  "storm",
+  "update",
+  "live",
+]);
+
+/** Prefer the named phenomenon over the shortest article title. */
+function canonicalPhenomenon(items: LiveHeadline[]): string | null {
+  const blob = items.map((h) => h.title).join(" \n ");
+  const re = /\b(hurricane|typhoon|cyclone|tropical storm)\s+([A-Za-z]{3,})\b/gi;
+  for (const m of blob.matchAll(re)) {
+    const name = m[2]!.toLowerCase();
+    if (NAME_STOP.has(name)) continue;
+    const kind = m[1]!.toLowerCase() === "tropical storm" ? "Tropical storm" : m[1]![0]!.toUpperCase() + m[1]!.slice(1).toLowerCase();
+    const proper = name[0]!.toUpperCase() + name.slice(1);
+    if (/pacific/i.test(blob) && /mexico/i.test(blob)) return `${kind} ${proper} — Eastern Pacific`;
+    return `${kind} ${proper}`;
+  }
+  return null;
+}
+
 function clusterTitle(items: LiveHeadline[], entities: string[]): string {
+  const phenomenon = canonicalPhenomenon(items);
+  if (phenomenon) return phenomenon;
   const named = entities[0];
-  const shortest = [...items].sort((a, b) => a.title.length - b.title.length)[0]!;
+  const candidates = [...items].sort((a, b) => a.title.length - b.title.length);
+  const shortest = (candidates.find((h) => !/^maps:\s/i.test(h.title)) ?? candidates[0])!;
   const t = shortest.title.replace(/\s+/g, " ").trim();
   if (named && t.toLowerCase().includes(named.toLowerCase())) return t.length > 140 ? t.slice(0, 137) + "…" : t;
   if (named && t.length > 88) return `${named}: ${t.slice(0, 100)}`;
@@ -83,13 +123,39 @@ function familiesCompatible(tagsA: string[], tagsB: string[]): boolean {
   return soft.has(`${fa}|${fb}`);
 }
 
+function phenomenonKeys(title: string): string[] {
+  const keys: string[] = [];
+  const re = /\b(hurricane|typhoon|cyclone|tropical storm)\s+([a-z]{3,})\b/gi;
+  for (const m of title.matchAll(re)) {
+    keys.push(`${m[1]!.toLowerCase()}:${m[2]!.toLowerCase()}`);
+  }
+  return keys;
+}
+
 export function clusterHeadlines(headlines: LiveHeadline[]): Cluster[] {
   const ranked = [...headlines].sort((a, b) => b.published - a.published);
-  const groups: { feats: Set<string>; items: LiveHeadline[]; entities: Set<string> }[] = [];
+  const groups: {
+    feats: Set<string>;
+    items: LiveHeadline[];
+    entities: Set<string>;
+    phenomena: Set<string>;
+  }[] = [];
 
   for (const h of ranked) {
     const feats = featureSet(h.title);
     const ents = properPhrases(h.title);
+    const keys = phenomenonKeys(h.title);
+    const forced = keys.length
+      ? groups.findIndex((g) => keys.some((k) => g.phenomena.has(k)))
+      : -1;
+    if (forced >= 0) {
+      const g = groups[forced]!;
+      g.items.push(h);
+      for (const f of feats) g.feats.add(f);
+      for (const e of ents) g.entities.add(e);
+      for (const k of keys) g.phenomena.add(k);
+      continue;
+    }
     let best = -1;
     let bestSim = 0;
     for (let i = 0; i < groups.length; i++) {
@@ -110,8 +176,9 @@ export function clusterHeadlines(headlines: LiveHeadline[]): Cluster[] {
       g.items.push(h);
       for (const f of feats) g.feats.add(f);
       for (const e of ents) g.entities.add(e);
+      for (const k of keys) g.phenomena.add(k);
     } else {
-      groups.push({ feats, items: [h], entities: new Set(ents) });
+      groups.push({ feats, items: [h], entities: new Set(ents), phenomena: new Set(keys) });
     }
   }
 
