@@ -41,7 +41,7 @@ function WorldMap({ className }: { className?: string }) {
 
 function Card({ kicker, children }: { kicker: string; children: ReactNode }) {
   return (
-    <section className="flex min-w-[9.5rem] flex-col rounded-md bg-card p-2 shadow-[var(--shadow-border)]">
+    <section className="flex min-h-[14.2rem] min-w-0 flex-col rounded-md bg-card px-3 py-2.5 shadow-[var(--shadow-border)]">
       <div className="text-micro font-medium uppercase tracking-wider text-subtle">{kicker}</div>
       {children}
     </section>
@@ -116,13 +116,16 @@ const economies = [
 
 function Contrib({ label, value }: { label: string; value: number }) {
   const pos = value >= 0;
-  const px = Math.min(88, Math.abs(value) * 220);
+  const scale = Math.abs(value) < 0.2 ? 0.14 : 1.4;
+  const pct = Math.max(8, Math.min(100, (Math.abs(value) / scale) * 100));
   return (
     <div className="grid grid-cols-[8.5rem_1fr_3.4rem] items-center gap-2 py-0.5 text-caption">
       <span className="truncate text-muted">{label}</span>
-      <span className="relative h-2">
-        <span className="absolute left-1/2 top-0 h-2 w-px bg-border" />
-        <span className={cn("absolute top-0 h-2 rounded-sm", pos ? "bg-up" : "bg-down")} style={pos ? { left: "50%", width: px } : { right: "50%", width: px }} />
+      <span className="relative h-2 overflow-hidden rounded-[1px] bg-card-3/45">
+        <span
+          className={cn("absolute inset-y-0 left-0 rounded-[1px]", pos ? "bg-up" : "bg-down")}
+          style={{ width: `${pct}%` }}
+        />
       </span>
       <span className={cn("text-right font-mono text-micro tabular-nums", pos ? "text-up" : "text-down")}>
         {pos ? "+" : ""}
@@ -138,7 +141,7 @@ export function MacroMirror() {
     <div className="flex flex-col gap-2">
       <header className="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">Macro Overview</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Macro Overview</h1>
           <p className="text-caption text-muted">Real-time economic state, model consensus, and market implications.</p>
         </div>
         <div className="flex items-center gap-3 text-micro text-subtle">
@@ -146,9 +149,9 @@ export function MacroMirror() {
           <span className="text-up">● All systems operational</span>
         </div>
       </header>
-      <div className="flex flex-col gap-2 2xl:flex-row">
+      <div className="flex flex-col gap-2 xl:flex-row">
         <div className="min-w-0 flex-1">
-          <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-4 2xl:grid-cols-7">
+          <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-4 xl:grid-cols-7">
             <Card kicker="Growth">
               <div className="text-micro text-subtle">GDP Nowcast</div>
               <Stat value="1.6%" move="↓ 0.3 pp" hint="SAAR vs prior" />
@@ -245,7 +248,7 @@ export function MacroMirror() {
         </div>
         <ReleaseDrawer id={id} />
       </div>
-      <div className="grid grid-cols-1 gap-2 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2 xl:grid-cols-4">
         <GrowthDetail />
         <InflationDetail />
         <RatesDetail />
@@ -268,7 +271,7 @@ function Changed({ label, from, to, delta, good }: { label: string; from: string
 export function ReleaseDrawer({ id }: { id: string }) {
   const release = releases.find((row) => row.id === id) ?? releases[0]!;
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-2 2xl:w-[22rem]">
+    <aside className="flex w-full shrink-0 flex-col gap-2 xl:-mt-[3.1rem] xl:w-[29.25rem] xl:border-l xl:border-border xl:pl-3">
       <div className="text-micro text-subtle">Macro → What Changed → {release.name.split(" (")[0]}</div>
       <section className="rounded-md bg-card p-2.5 shadow-[var(--shadow-border)]">
         <div className="flex items-start justify-between gap-2">
@@ -277,17 +280,23 @@ export function ReleaseDrawer({ id }: { id: string }) {
             <p className="text-micro text-subtle">{release.time} ET · Oct 3, 2024</p>
           </div>
           <div className="flex gap-1 text-micro text-muted">
-            <span className="rounded-sm bg-card-3 px-1.5 py-0.5">Previous</span>
-            <span className="rounded-sm bg-card-3 px-1.5 py-0.5">Next</span>
+            <span className="rounded-sm bg-card-3 px-1.5 py-0.5">Previous Release</span>
+            <span className="rounded-sm bg-card-3 px-1.5 py-0.5">Next Release</span>
           </div>
         </div>
-        <div className="mt-2 grid grid-cols-4 gap-2">
+        <div className="mt-2 grid grid-cols-4 overflow-hidden rounded-sm border border-border bg-card-2/40 [&>div]:border-r [&>div]:border-border [&>div]:px-2 [&>div]:py-2 [&>div:last-child]:border-r-0">
           <div><div className="text-micro text-subtle">Actual</div><div className={cn("font-mono text-xl font-semibold", release.actualGood ? "text-up" : "text-down")}>{release.actual}</div></div>
           <div><div className="text-micro text-subtle">Consensus</div><div className="font-mono text-xl">{release.consensus}</div></div>
           <div><div className="text-micro text-subtle">Prior</div><div className="font-mono text-xl text-muted">{release.prior}</div></div>
           <div className="text-micro text-up">↑ Stronger than expected<div>+2.9 vs consensus</div></div>
         </div>
       </section>
+      <div className="flex h-7 items-end gap-5 border-b border-border px-2 text-micro">
+        <span className="border-b border-primary pb-1.5 text-primary">Impact</span>
+        <span className="pb-1.5 text-muted">Details</span>
+        <span className="pb-1.5 text-muted">History</span>
+        <span className="pb-1.5 text-muted">Related Assets</span>
+      </div>
       <section className="rounded-md bg-card p-2.5 shadow-[var(--shadow-border)]">
         <h3 className="text-caption font-medium">What Changed</h3>
         <p className="text-micro text-subtle">How this release moved our models and estimates.</p>
@@ -334,7 +343,7 @@ function Tabs({ items, active }: { items: string[]; active: string }) {
 
 export function GrowthDetail() {
   return (
-    <section className="rounded-md bg-card p-2.5 shadow-[var(--shadow-border)]">
+    <section className="min-h-[25.5rem] rounded-md bg-card p-2.5 shadow-[var(--shadow-border)]">
       <Subhead crumb="Macro → Growth" title="Growth Detail" />
       <Tabs items={["Overview", "Nowcast", "Breadth", "Drivers", "Model Detail"]} active="Overview" />
       <div className="grid grid-cols-2 gap-3">
@@ -376,7 +385,7 @@ export function GrowthDetail() {
 
 export function InflationDetail() {
   return (
-    <section className="rounded-md bg-card p-2.5 shadow-[var(--shadow-border)]">
+    <section className="min-h-[25.5rem] rounded-md bg-card p-2.5 shadow-[var(--shadow-border)]">
       <Subhead crumb="Macro → Inflation" title="Inflation Detail" />
       <Tabs items={["Overview", "Components", "Nowcast", "Persistence", "Expectations"]} active="Overview" />
       <div className="grid grid-cols-2 gap-2">
@@ -417,7 +426,7 @@ export function InflationDetail() {
 
 export function RatesDetail() {
   return (
-    <section className="rounded-md bg-card p-2.5 shadow-[var(--shadow-border)]">
+    <section className="min-h-[25.5rem] rounded-md bg-card p-2.5 shadow-[var(--shadow-border)]">
       <Subhead crumb="Macro → Rates" title="Rates Decomposition" />
       <Tabs items={["Overview", "Curve", "Term Premium", "Drivers"]} active="Overview" />
       <div className="grid grid-cols-2 gap-2">
@@ -454,7 +463,7 @@ export function RatesDetail() {
 
 export function GlobalDetail() {
   return (
-    <section className="rounded-md bg-card p-2.5 shadow-[var(--shadow-border)]">
+    <section className="min-h-[25.5rem] rounded-md bg-card p-2.5 shadow-[var(--shadow-border)]">
       <Subhead crumb="Macro → Global" title="Global Macro Cycle" />
       <Tabs items={["Overview", "Economies", "Growth", "Inflation", "Trade", "Breadth"]} active="Overview" />
       <div className="grid grid-cols-[1fr_7rem] items-start gap-2">
