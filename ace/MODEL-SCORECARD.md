@@ -27,6 +27,7 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | Game theory (Nash + Monte Carlo) | **Exact** | Yes — equilibria computed and verified. Payoffs remain an assumption. |
 | Regime (Markov switching) | **Validated, descriptive** | Yes — to label the environment. Not as a forecast. |
 | Historical analogs | **Validated, descriptive** | Yes — as a distribution of what followed similar states. |
+| **Growth/inflation quad** | **Classification validated, positioning FAILED — 0/6 channels** | Yes, as an environment label with its data lag stated. **No** as a positioning signal. |
 | Transmission / Ripple | **Partly validated** | Contemporaneous structure only. No tradeable lag exists in this data. |
 | Shock persistence | **FAILED** | No. |
 | Event impact (macro) | **FAILED** | No. |
@@ -36,9 +37,14 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | Ensemble (stacking / BMA) | **FAILED under multiplicity correction** | No. |
 | Prophet (news attention) | **FAILED** | No — loses to a trailing mean. |
 
-**Nothing is wired into the application.** `ace/` is standalone; the UI still
-runs its original heuristics. A PRODUCTION status in the registry is a
-registry label, not a deployment.
+**What is wired, and how.** `ace/` runs offline; nothing calls Python on the
+request path. Validated results reach the app as GENERATED TypeScript modules
+built by a script from a run artifact — measured transmission edges, escalation
+base rates, the analog pool, the conflict cascade table, and the growth/
+inflation quad. Each generator refuses to emit a result that did not clear its
+gate, and each emitted module carries the scope of what it established. A
+PRODUCTION status in the registry is still a registry label, not a deployment:
+the generator is the deployment, and it is the thing that says no.
 
 ---
 
@@ -697,6 +703,95 @@ reason.
 
 ---
 
+## 13. ace_macro_quad v1 — the classification passes, the trade does not
+
+The growth/inflation quad — classify the economy by the **rate of change** of
+growth and inflation rather than their level, into four regimes. It is the
+framework Hedgeye built a business on, and it makes two claims that are almost
+always sold as one:
+
+1. The economy can be classified this way, in real time.
+2. Knowing which quad you are in tells you how to be positioned.
+
+They are separable, and they came out differently.
+
+### Claim 1 — PASSES, and the point-in-time discipline is the whole thing
+
+320 month-ends classified, 2000-01 to 2026-08, from ALFRED **first-release**
+vintages filtered to what had actually been published by each classification
+date. Median lag behind the tape: **60 days**, max 90.
+
+That lag is the model. The publication calendar on this sample:
+
+| Series | median lag | p90 |
+|---|---|---|
+| PAYEMS | 34d | 37d |
+| INDPRO | 45d | 47d |
+| CPIAUCSL | 45d | 49d |
+| real GDP | **119d** | — |
+
+Real GDP is excluded for that reason: by the time it lands it describes a
+quarter that ended four months ago, and a nowcast that waits for it is reading
+an almanac.
+
+Two spot checks show the discipline is real rather than asserted:
+
+- **2020-03-31 → Quad 3 Stagflation**, growth +0.61% YoY, data through
+  2020-02-01. COVID had not entered published data yet. Today's revised figures
+  say Quad 4, emphatically. Anyone whose backtest says Quad 4 on that date
+  scored themselves on data nobody had.
+- **2008-10-31 → Quad 3, not Quad 4.** CPI was still +5.05% and accelerating in
+  the September print. The deflation everyone remembers shows up in the data
+  later than it shows up in the story.
+
+`test_quads.py` pins the property directly: appending a violent revision and
+eight further months to the vintage frame leaves an earlier reading
+byte-identical.
+
+### Claim 2 — FAILED, on the baseline that matters
+
+The baseline is **always long the same asset over the same period**, not zero.
+Equities drift up; any rule that is long most of the time inherits that drift
+and looks clever. Signs were learned on a training window and checked on a
+sealed chronological holdout, with block-bootstrap intervals (3-month blocks,
+1000 draws) because monthly returns cluster.
+
+| Channel | signs held | holdout edge over always-long | 95% CI |
+|---|---|---|---|
+| NASDAQ | 3/4 | +0.000 %/mo | [+0.000, +0.000] |
+| SP500 | 2/3 | −0.678 | [−1.744, +0.181] |
+| UST10Y | **1/4** | −2.720 | [−7.635, +1.499] |
+| WTI | 2/4 | −0.396 | [−3.529, +3.704] |
+| USD_BROAD | **0/4** | −0.289 | [−0.979, +0.373] |
+| VIX | 3/4 | −1.580 | [−8.647, +4.786] |
+
+**11 of 23 usable quad cells kept their sign out of sample — 48%, a coin flip.
+Zero of six channels beat always-long with a CI excluding zero.**
+
+NASDAQ's exactly-zero edge is worth reading carefully rather than as a rounding
+artefact: every sign the training window learned for NASDAQ was positive, so
+"quad positioning" reduced to being long in all four quads. It matched
+long-only because it *was* long-only. A framework that produces that on its
+strongest channel is not adding a regime view, it is adding ceremony.
+
+Registered **FAILED**. Not promoted.
+
+### What went into the product, and what did not
+
+`scripts/generate-macro-quads.mjs` emits `src/lib/ace/macro-quads.ts` with
+`POSITIONING_VALIDATED = false`, written from the run, not by hand. The panel
+renders the label, the two rates of change, and how far behind the data is —
+and no asset ranking at all. If a future run passes, the same generator writes
+`true` and the gate opens on its own.
+
+The panel also calls out the thing this framework is most often misread on.
+The live reading is **Q1 Goldilocks** with growth at **−0.56% year-on-year** —
+negative in level, but less negative than a quarter ago. "Goldilocks" here
+describes the second derivative, not the economy, and a panel that does not say
+so is letting a reader infer a bullish call the data never made.
+
+---
+
 ## Registry integrity — a defect found and fixed
 
 `register()` replaces the row for a given `model_id:version`. Models that take
@@ -720,7 +815,7 @@ from a test that once wrote to the live registry — was removed.
 
 ## What this means
 
-Thirteen model families have now been put through the same gate: purged
+Fourteen model families have now been put through the same gate: purged
 walk-forward, a sealed holdout read once, out-of-sample calibration, and a
 comparison against the *right* baseline rather than a convenient one.
 
@@ -774,6 +869,8 @@ python3 ace/models/dbn_model.py
 python3 ace/models/causal_impact_model.py
 python3 ace/models/ensemble_model.py
 python3 ace/models/gdelt_cascade_model.py
+python3 ace/models/quad_model.py
+python3 ace/macro/export_quads.py
 python3 ace/models/shock_persistence_model.py
 python3 ace/models/macro_impact_model.py
 python3 ace/ripple/validate_edges.py

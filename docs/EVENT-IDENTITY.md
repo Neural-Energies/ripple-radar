@@ -704,3 +704,118 @@ Four in `engine.test.ts`, written against the composer's real signature: a
 freshly composed book claims no change at 1, 5 and 20 headlines; attention is a
 count with social/search absent; probability history carries no synthetic `T-`
 points; sentiment reports observations rather than scores on an invented scale.
+
+---
+
+# The macro regime, and the half of it that failed
+
+## Two claims sold as one
+
+The growth/inflation quad classifies the economy by the **rate of change** of
+growth and inflation rather than their level: growth accelerating is the top
+row, inflation accelerating the right column.
+
+|  | inflation decelerating | inflation accelerating |
+|---|---|---|
+| **growth accelerating** | Q1 Goldilocks | Q2 Reflation |
+| **growth decelerating** | Q4 Deflation | Q3 Stagflation |
+
+Wherever this framework is sold, two claims arrive together: that the economy
+can be classified this way in real time, and that knowing the quad tells you
+how to be positioned. They are separable, they were tested separately, and
+they came out differently. The classification passed. The positioning did not.
+
+## What the classification had to survive
+
+Macro data revises for years and publishes late. Classify March 2020 as Quad 4
+using today's figures and you did not nowcast a regime, you read an almanac.
+
+So `ace/macro/quads.py` builds every reading from ALFRED **first-release**
+vintages filtered on the *publication* timestamp: a value observed in March but
+published in May does not exist on an April classification date, and a later
+revision of the same month is a different number that was not known then
+either. Real GDP is excluded outright — a ~119-day publication lag means the
+print describes a quarter that ended four months ago.
+
+The discipline shows up in the results rather than only in the docstring:
+
+- **2008-10-31 → Q3 Stagflation**, not Q4. CPI was still +5.05% and
+  accelerating in the September print. The deflation everyone remembers
+  arrives in the data later than it arrives in the story.
+- **2020-03-31 → Q3 Stagflation**, growth +0.61% YoY, reading through
+  2020-02-01. COVID had not entered published data yet.
+
+320 month-ends classified, 2000-01 to 2026-08, median **60 days** behind the
+tape.
+
+## What the positioning claim failed against
+
+Not zero — **always long the same asset over the same period**. Equities drift
+up, and a rule that is long most of the time inherits that drift and looks
+clever. Signs learned on a training window, checked on a sealed chronological
+holdout, block-bootstrap intervals throughout.
+
+Result: **0 of 6 channels** beat always-long with a CI excluding zero, and
+**11 of 23** usable quad cells kept their sign out of sample. Forty-eight
+percent is a coin flip.
+
+NASDAQ is the instructive one. Its edge over long-only was exactly `+0.000`
+with a CI of `[+0.000, +0.000]`, which looks like a bug and is not: every sign
+the training window learned for NASDAQ was positive, so "quad positioning"
+reduced to being long in all four quads. It matched long-only because it *was*
+long-only.
+
+## The gate is a generator, not a flag
+
+`scripts/generate-macro-quads.mjs` reads the run artifact and writes
+`src/lib/ace/macro-quads.ts` with `POSITIONING_VALIDATED` set from
+`validation.positioning_validated`. Nobody hand-sets it. The generator also
+refuses to emit at all if the live reading is unclassified or there are fewer
+than twelve classified months.
+
+The emitted module carries the label, the two rates of change, the publication
+lags, the descriptive transition matrix, and the per-channel edges **including
+their intervals** — the evidence for the gate, not just its verdict. A test
+asserts the two agree: if any channel's CI ever excluded zero while the
+recorded verdict said otherwise, the suite fails rather than the product
+shipping a stale gate.
+
+## What the panel renders, and what it refuses to
+
+`MacroQuadPanel` shows the quad, the growth and inflation rates of change, and
+how far behind the data is. It shows **no asset ranking**, because there is
+nothing to rank by.
+
+Two things are deliberately prominent that a quad dashboard usually hides.
+
+**The data lag.** The label reads two months behind the tape because that is
+when the data publishes. A regime panel implying it knows the current month is
+claiming a nowcast nobody has.
+
+**Level versus direction.** The framework turns on the second derivative, so it
+can read "Goldilocks" while growth is still negative in level — which is
+exactly the live reading: Q1, growth −0.56% year-on-year but less negative than
+a quarter ago. When the two disagree the panel says so in the panel, not in a
+tooltip. Without that line a reader infers a bullish call the data never made.
+
+The panel also warns when the generated reading is more than 40 days old, since
+newer vintages will have published by then and a stale label presented as live
+is the same defect in a different coat.
+
+## Tests
+
+`ace/tests/test_quads.py` — the 2×2 including its boundary; `known_at` hiding
+unpublished months and keeping first releases over revisions; a reading going
+unclassified rather than guessing on short history; the regression that
+matters, where appending a violent revision and eight further months leaves an
+earlier reading byte-identical; run-collapsed transitions with no diagonal; and
+a synthetic V-shaped recovery scanned for the months where level and direction
+disagree, asserting each one reads Q1.
+
+`src/lib/ace/macro-quads.test.ts` — every reading's inputs predate the date it
+classifies; the median lag is never shorter than the fastest input's
+publication lag; the quad matches the rates of change it was derived from;
+history is chronological and does not reach past the live reading; the
+positioning gate agrees with the channel intervals behind it; transitions are
+distributions over *other* quads; and staleness is measured against the data,
+not against the label.

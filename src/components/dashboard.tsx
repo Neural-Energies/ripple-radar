@@ -8,6 +8,7 @@ import {
   X,
 } from "lucide-react";
 import { ScenarioDistributionBar } from "@/components/charts";
+import { MacroQuadPanel } from "@/components/macro-quad-panel";
 import { BookStateChips } from "@/components/research-header";
 import { RippleMap } from "@/components/ripple-map";
 import { Badge, Button, Delta, Input, Panel, buttonVariants } from "@/components/ui";
@@ -79,6 +80,7 @@ export function Dashboard({ event }: { event: RadarEvent }) {
               </ul>
             )}
           </Panel>
+          <MacroQuadPanel />
           <NextEvidencePanel event={event} />
         </div>
       </div>
