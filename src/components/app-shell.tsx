@@ -33,7 +33,8 @@ import {
 } from "@/lib/live/provider";
 import { goToEvent, useEventParamSync } from "@/lib/hooks/use-event-param-sync";
 import { useApp } from "@/lib/store";
-import { cn } from "@/lib/utils";\nimport { MacroTopNav } from "@/components/macro/top-nav";
+import { cn } from "@/lib/utils";
+import { MacroTopNav } from "@/components/macro/top-nav";
 import type { RadarEvent } from "@/data/types";
 
 type NavItem = { to: string; label: string; icon: typeof Activity };
