@@ -707,23 +707,22 @@ points; sentiment reports observations rather than scores on an invented scale.
 
 ---
 
-# The macro regime, and the half of it that failed
+# The macro regime: a label with a measured error rate
 
-## Two claims sold as one
+## Three claims sold as one
 
 The growth/inflation quad classifies the economy by the **rate of change** of
-growth and inflation rather than their level: growth accelerating is the top
-row, inflation accelerating the right column.
+growth and inflation rather than their level.
 
 |  | inflation decelerating | inflation accelerating |
 |---|---|---|
 | **growth accelerating** | Q1 Goldilocks | Q2 Reflation |
 | **growth decelerating** | Q4 Deflation | Q3 Stagflation |
 
-Wherever this framework is sold, two claims arrive together: that the economy
-can be classified this way in real time, and that knowing the quad tells you
-how to be positioned. They are separable, they were tested separately, and
-they came out differently. The classification passed. The positioning did not.
+Wherever this framework is sold, three claims arrive together: that the economy
+can be classified this way in real time, that the quad tells you how to be
+positioned, and that it tells you how much risk to carry. They are separable,
+they were tested separately, and only the first survived.
 
 ## What the classification had to survive
 
@@ -734,88 +733,155 @@ So `ace/macro/quads.py` builds every reading from ALFRED **first-release**
 vintages filtered on the *publication* timestamp: a value observed in March but
 published in May does not exist on an April classification date, and a later
 revision of the same month is a different number that was not known then
-either. Real GDP is excluded outright — a ~119-day publication lag means the
-print describes a quarter that ended four months ago.
+either. Real GDP is excluded outright — a ~119-day lag means the print
+describes a quarter that ended four months ago.
 
-The discipline shows up in the results rather than only in the docstring:
+The discipline shows up in results rather than only in a docstring:
 
 - **2008-10-31 → Q3 Stagflation**, not Q4. CPI was still +5.05% and
-  accelerating in the September print. The deflation everyone remembers
-  arrives in the data later than it arrives in the story.
-- **2020-03-31 → Q3 Stagflation**, growth +0.61% YoY, reading through
-  2020-02-01. COVID had not entered published data yet.
+  accelerating in the September print.
+- **2020-03-31 → Q3**, growth +0.61% YoY through 2020-02-01. COVID had not
+  entered published data yet.
 
-320 month-ends classified, 2000-01 to 2026-08, median **60 days** behind the
-tape.
+320 month-ends, 2000-01 to 2026-08.
 
-## What the positioning claim failed against
+## The composite is chosen, not assumed
 
-Not zero — **always long the same asset over the same period**. Equities drift
-up, and a rule that is long most of the time inherits that drift and looks
-clever. Signs learned on a training window, checked on a sealed chronological
-holdout, block-bootstrap intervals throughout.
+"Industrial production and payrolls" is a convention. Eight candidates are
+scored instead, on a stated criterion — the share of real-time labels that
+survived contact with the revised data, measured on a training window and
+re-checked on a holdout — with a pre-registered **two-month persistence floor**
+that disqualifies a candidate outright rather than letting persistence be
+traded off against survival.
 
-Result: **0 of 6 channels** beat always-long with a CI excluding zero, and
-**11 of 23** usable quad cells kept their sign out of sample. Forty-eight
-percent is a coin flip.
+`labour` (payrolls + CPI, three-month rate of change) won the training window
+at 72.5% and ranked 2nd of 7 eligible on the holdout. The full table ships in
+the app, because the honest caveat is that a narrow composite partly wins a
+revision criterion by having less to revise — and a reader should be able to
+disagree with the criterion rather than with a hidden choice.
 
-NASDAQ is the instructive one. Its edge over long-only was exactly `+0.000`
-with a CI of `[+0.000, +0.000]`, which looks like a bug and is not: every sign
-the training window learned for NASDAQ was positive, so "quad positioning"
-reduced to being long in all four quads. It matched long-only because it *was*
-long-only.
+## Three measured facts that qualify every reading
 
-## The gate is a generator, not a flag
+**1. Revision risk, calibrated by margin.** Every historical reading was re-run
+on today's revised data, cut to the same observation months. 74.2% survived.
+The per-margin rates are monotone, with bin edges fixed in advance:
 
-`scripts/generate-macro-quads.mjs` reads the run artifact and writes
-`src/lib/ace/macro-quads.ts` with `POSITIONING_VALIDATED` set from
-`validation.positioning_validated`. Nobody hand-sets it. The generator also
-refuses to emit at all if the live reading is unclassified or there are fewer
-than twelve classified months.
+| margin | n | survived |
+|---|---|---|
+| knife-edge 0.00–0.25 | 190 | 62.6% |
+| thin 0.25–0.75 | 83 | 91.6% |
+| clear 0.75–2.00 | 24 | 100% |
 
-The emitted module carries the label, the two rates of change, the publication
-lags, the descriptive transition matrix, and the per-channel edges **including
-their intervals** — the evidence for the gate, not just its verdict. A test
-asserts the two agree: if any channel's CI ever excluded zero while the
-recorded verdict said otherwise, the suite fails rather than the product
-shipping a stale gate.
+**190 of 302 readings are knife-edge.** The quad is usually a near-tie, and a
+near-tie flips more than a third of the time.
 
-## What the panel renders, and what it refuses to
+**2. The failures have a direction.** 72% of them flipped the *growth* axis
+(Q1↔Q4, Q2↔Q3), against 15 on inflation. Growth data revises far more than
+price data, so the top row of the 2×2 is where a real-time quad is most likely
+to be wrong — and the framework's own dominant transitions travel the same
+axis, because both are driven by the same noise.
 
-`MacroQuadPanel` shows the quad, the growth and inflation rates of change, and
-how far behind the data is. It shows **no asset ranking**, because there is
-nothing to rank by.
+**3. The median spell is two months — under every specification tested.** Only
+33–46% of completed spells reach a quarter. A framework presented as quarterly
+regimes produces, on honest point-in-time monthly data, a label that turns over
+about every two months. Spells are measured with Kaplan-Meier so the one still
+running contributes to the risk set without being recorded as a short completed
+one; treating it as finished, or dropping it, biases every estimate downward.
 
-Two things are deliberately prominent that a quad dashboard usually hides.
+Because of this, the product ships **occupancy** — the share of the last N
+months spent in each quad — alongside the point reading. The window is the
+steadier read; the point call is the fresher one; they disagree often, and when
+they do it is the point call that is more likely to move.
 
-**The data lag.** The label reads two months behind the tape because that is
-when the data publishes. A regime panel implying it knows the current month is
-claiming a nowcast nobody has.
+## What the two forecasting claims failed against
 
-**Level versus direction.** The framework turns on the second derivative, so it
-can read "Goldilocks" while growth is still negative in level — which is
-exactly the live reading: Q1, growth −0.56% year-on-year but less negative than
-a quarter ago. When the two disagree the panel says so in the panel, not in a
-tooltip. Without that line a reader infers a bullish call the data never made.
+**Positioning.** Baseline: always long the same asset, not zero. 0 of 6
+channels beat it with a CI excluding zero. NASDAQ's edge of exactly `+0.000` is
+not a rounding artefact — every learned sign was positive, so "quad
+positioning" *was* long-only.
 
-The panel also warns when the generated reading is more than 40 days old, since
-newer vintages will have published by then and a stale label presented as live
-is the same defect in a different coat.
+**Risk sizing.** Baseline: an AR(1) in log realised volatility, not the
+unconditional mean. Volatility is the most persistent quantity in finance, so a
+quad that merely recovers "vol was high recently" has discovered nothing. 0 of
+6 channels survive Holm correction. But the descriptive signature is real —
+**14 of 18 cells kept their sign (78%)**, against 8/12 for returns. Quads 3 and
+4 genuinely run hotter. The tape already knows it.
+
+## The gates are generators, not flags
+
+`scripts/generate-macro-quads.mjs` writes `POSITIONING_VALIDATED` and
+`VOL_FORECAST_VALIDATED` from the runs. It refuses to emit if the live reading
+is unclassified, the history is under 24 months, or **either verdict is
+missing** — an absent scorecard must never read as a pass.
+
+It emits two artifacts. `macro-quads.ts` carries the live reading and
+everything needed to qualify it, small enough for every page. `macro-detail.json`
+carries the history, the per-spec scorecards and the survival curves, and is
+fetched server-side by the macro route only — the same split the analog pool
+uses.
+
+## What the surfaces render
+
+`MacroQuadPanel` is a full-width band on the desk: the quad, both rates of
+change, the data lag, the confidence line, a three-year strip, twelve-month
+occupancy, and the line saying it does not position or size risk.
+
+It was a tile in the event-analysis column first. That column is stretched to
+the map's height with `overflow-hidden` on every panel, so the band's last
+paragraph was silently clipped — the paragraph saying the quad does not
+position, which is the one line that must never be the one that gets cut. A
+band also matches what this is: macro backdrop, the same whichever event is on
+the desk.
+
+`/macro` carries the depth: the live reading with its inputs and their
+publication lags, the margin calibration with bin counts, the revision
+confusion matrix, the spec vote with every candidate's scorecard, the
+Kaplan-Meier curves, occupancy across four windows, and both failed tests in
+full. It ranks no assets and sizes no risk.
+
+Confidence grades ("firm", "mixed", "fragile") are a **rendering convention**
+applying stated cutoffs to two measured quantities — the margin's survival rate
+and the share of specifications agreeing. The components are always shown
+beside the word, and it is never presented as a probability.
+
+## A missing provider, found on the way
+
+`/macro` uses `useQuery` for its detail payload, and it would not server-render.
+The cause was that `@tanstack/react-query` was a dependency and components
+called `useQuery`, but **nothing ever mounted a `QueryClientProvider`**. Every
+such call threw "No QueryClient set" — silently on the server, where the render
+fell back to a shell, and into the route error boundary on the client.
+
+The historical-analog panel had been one of the casualties. `src/lib/query.ts`
+now provides a client, per request on the server (a module-level singleton
+would serve one request's data to the next visitor) and as a singleton in the
+browser (a new client per render throws the cache away). `/scenarios`
+server-renders its analogs for the first time.
 
 ## Tests
 
 `ace/tests/test_quads.py` — the 2×2 including its boundary; `known_at` hiding
 unpublished months and keeping first releases over revisions; a reading going
-unclassified rather than guessing on short history; the regression that
-matters, where appending a violent revision and eight further months leaves an
-earlier reading byte-identical; run-collapsed transitions with no diagonal; and
-a synthetic V-shaped recovery scanned for the months where level and direction
-disagree, asserting each one reads Q1.
+unclassified rather than guessing; the regression where appending a violent
+revision leaves an earlier reading byte-identical; run-collapsed transitions
+with no diagonal; a synthetic V-shaped recovery scanned for months where level
+and direction disagree.
 
-`src/lib/ace/macro-quads.test.ts` — every reading's inputs predate the date it
-classifies; the median lag is never shorter than the fastest input's
-publication lag; the quad matches the rates of change it was derived from;
-history is chronological and does not reach past the live reading; the
-positioning gate agrees with the channel intervals behind it; transitions are
-distributions over *other* quads; and staleness is measured against the data,
-not against the label.
+`ace/tests/test_macro.py` — a censored spell that is not counted as a death (the
+defect the duration module exists to prevent); a conditional exit that stays
+conditional; a median reported as `None` when the sample does not contain it;
+margin bins tiling the line; calibration excluding unsettled months, with the
+flattered figure the test would otherwise have let through; a thin bin reported
+but not quotable; confusion rows as distributions; occupancy that surfaces a
+tie rather than picking a winner by index order.
+
+`src/lib/ace/macro-quads.test.ts` — 34 tests across three families: the gates
+stay tied to their verdicts and stay separate from each other; every reading's
+inputs predate the date it classifies and no reading is fresher than its
+slowest input publishes; and every qualification stays consistent with the
+numbers behind it — survival rising with margin, the live rate coming from the
+live reading's own bin, the flip tally accounting for each failure once, spec
+agreement counting what the specs actually say, a disqualified spec never
+winning, and the pooled rate equalling the bins it is made of. That last one
+caught a real defect: the exporter was pooling over a larger sample than the
+calibration used, reporting 75.3% where the honest figure is 74.2%.

@@ -99,6 +99,36 @@ def release_history(series_id: str, start: str = "2010-01-01") -> pd.DataFrame:
     return out.sort_values("published").reset_index(drop=True)
 
 
+def current_vintage(series_id: str, start: str = "2010-01-01") -> pd.Series:
+    """The series as it stands TODAY, every revision included.
+
+    This is the number a naive backtest uses, and using it as a feature is the
+    defect `release_history` exists to prevent. It has exactly one legitimate
+    job here: as the answer key. Comparing a point-in-time reading against the
+    fully revised series is how you measure what revision risk actually costs —
+    see `ace/macro/revisions.py`.
+
+    Never feed this to a model. It is hindsight by construction.
+    """
+    payload = _get(
+        "series/observations",
+        {"series_id": series_id, "observation_start": start},
+    )
+    rows = payload.get("observations") or []
+    if not rows:
+        raise MacroUnavailable(f"{series_id}: no observations")
+    df = pd.DataFrame(rows)
+    df = df[df["value"] != "."]
+    if df.empty:
+        raise MacroUnavailable(f"{series_id}: all observations missing")
+    out = pd.Series(
+        pd.to_numeric(df["value"], errors="coerce").values,
+        index=pd.to_datetime(df["date"], utc=True),
+        name=series_id,
+    ).dropna()
+    return out.sort_index()
+
+
 def as_of(series_id: str, when: pd.Timestamp, start: str = "2010-01-01") -> pd.DataFrame:
     """The series exactly as it was publicly known at `when`.
 

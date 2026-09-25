@@ -10,28 +10,42 @@
 //   growth decel          Quad 4                    Quad 3
 //                       "Deflation"              "Stagflation"
 //
-// WHAT IS ESTABLISHED: the classification, point-in-time. Every reading here
-// was built from ALFRED first-release vintages filtered to what had actually
-// been PUBLISHED by its own date. 320 month-ends from
-// 2000-01-31 to 2026-08-31, median 60 days behind the tape.
-// Real GDP is deliberately excluded: a ~119-day publication lag means the print
-// describes a quarter that ended four months ago.
+// ESTABLISHED: the classification, point-in-time. Every reading was built from
+// ALFRED first-release vintages filtered to what had actually been PUBLISHED by
+// its own date. 320 month-ends, 2000-01-31 to 2026-08-31.
+// Real GDP is excluded: a ~119-day publication lag means the print describes a
+// quarter that ended four months ago.
 //
-// WHAT IS NOT: that the quad tells you how to be positioned. Tested against
-// "always long the same asset" over a sealed chronological holdout:
-// 0/6 channels beat that baseline with a CI excluding zero, and
-// 11/23 usable quad cells kept their sign out of sample. That is a coin
-// flip. POSITIONING_VALIDATED is therefore false, and the UI must render this
-// as an ENVIRONMENT LABEL with its lag stated — never as a trade.
+// MEASURED, AND UNCOMFORTABLE: 74% of real-time labels survived contact
+// with the revised data. 72% of the failures flipped the GROWTH axis —
+// growth data revises far more than price data does, so the top row of the 2x2
+// is where a real-time quad is most likely to be wrong. And a reading's margin
+// matters enormously: readings in the "knife-edge" bin survived
+// 63% of the time against 100% for "clear" ones.
 //
-// Consequence for display: show the quad, the rates of change behind it, and
-// how far behind the data is. Do not rank assets by it.
+// ALSO MEASURED: the median spell is 2 months. Under EVERY specification
+// tested. A framework presented as quarterly regimes produces, on honest
+// point-in-time monthly data, a label that changes about every two months —
+// which is why this module ships OCCUPANCY alongside the point reading.
+//
+// NOT ESTABLISHED, twice:
+//   returns    — 0/6 channels beat always-long out of sample;
+//                8/12 quad cells kept their sign. A coin flip.
+//   volatility — 0/6 channels improved on an AR(1) in log realised
+//                vol after Holm correction. The vol SIGNATURE is sign-stable
+//                (14/18 cells held), but the tape already knew it.
+//
+// Consequence for display: show the quad, its margin, how many specifications
+// agree, how far behind the data is, and where the last year was actually
+// spent. Do not rank assets by it and do not size risk by it.
 
 export type Quad = 1 | 2 | 3 | 4;
 
 export interface QuadReading {
-  /** The date this classification was made FOR, not the date data was observed. */
+  /** The date this classification was made FOR, not when data was observed. */
   asOf: string;
+  /** Which specification produced it. */
+  spec: string;
   quad: Quad;
   name: string;
   description: string;
@@ -39,17 +53,33 @@ export interface QuadReading {
   growthYoy: number | null;
   inflationYoy: number | null;
   /**
-   * How that year-on-year rate compares with itself a quarter ago, in points.
-   * This is the second derivative the framework turns on — and the reason a
+   * How that year-on-year rate compares with itself `lookback` months ago, in
+   * points. The second derivative the framework turns on — and the reason a
    * quad can read "Goldilocks" while growth is still negative in level.
    */
   growthRoc: number | null;
   inflationRoc: number | null;
+  /** Distance from the boundary on each axis. */
+  growthMargin: number | null;
+  inflationMargin: number | null;
+  /**
+   * The smaller of the two. The quad changes as soon as EITHER axis crosses,
+   * so a reading is only as firm as its weaker axis.
+   */
+  margin: number | null;
   /** Newest observation month each input had published by `asOf`. */
   growthThrough: string | null;
   inflationThrough: string | null;
-  /** Days between the newest input observation and `asOf`. */
+  /** Days from the START of that observation month to `asOf`. */
   dataLagDays: number | null;
+  /** Whole months behind. The number to put on screen. */
+  monthsBehind: number | null;
+  growthUsed: readonly string[];
+  inflationUsed: readonly string[];
+  /** Share of an axis's inputs whose own rate of change has the composite's sign. */
+  growthAgreement: number | null;
+  inflationAgreement: number | null;
+  contributions: Record<string, { yoy: number; roc: number }>;
 }
 
 export const QUADS: Record<number, { name: string; description: string }> = {
@@ -62,874 +92,478 @@ export const QUADS: Record<number, { name: string; description: string }> = {
 /** The live reading, from what was published when this module was generated. */
 export const CURRENT_QUAD: QuadReading = {
   asOf: "2026-09-25",
+  spec: "labour",
   quad: 1,
   name: "Goldilocks",
   description: "Growth accelerating while inflation decelerates.",
-  growthYoy: -0.5557,
+  growthYoy: -0.2915,
   inflationYoy: 3.7249,
-  growthRoc: 0.077,
+  growthRoc: 0.0595,
   inflationRoc: -0.539,
+  growthMargin: 0.0595,
+  inflationMargin: 0.539,
+  margin: 0.0595,
   growthThrough: "2026-08-01",
   inflationThrough: "2026-08-01",
   dataLagDays: 55,
+  monthsBehind: 1,
+  growthUsed: ["PAYEMS"],
+  inflationUsed: ["CPIAUCSL"],
+  growthAgreement: 1,
+  inflationAgreement: 1,
+  contributions: {"PAYEMS":{"yoy":-0.2915,"roc":0.0595},"CPIAUCSL":{"yoy":3.7249,"roc":-0.539}},
 };
 
-/** Month-end readings, oldest first. Each uses only its own point-in-time data. */
-export const QUAD_HISTORY: readonly QuadReading[] = [
-  {
-    asOf: "2021-09-30",
-    quad: 3,
-    name: "Stagflation",
-    description: "Inflation accelerating while growth decelerates.",
-    growthYoy: 2.3425,
-    inflationYoy: 5.1336,
-    growthRoc: -6.112,
-    inflationRoc: 0.1357,
-    growthThrough: "2021-08-01",
-    inflationThrough: "2021-08-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2021-10-31",
-    quad: 3,
-    name: "Stagflation",
-    description: "Inflation accelerating while growth decelerates.",
-    growthYoy: 1.3251,
-    inflationYoy: 5.353,
-    growthRoc: -2.9146,
-    inflationRoc: 0.0007,
-    growthThrough: "2021-09-01",
-    inflationThrough: "2021-09-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2021-11-30",
-    quad: 3,
-    name: "Stagflation",
-    description: "Inflation accelerating while growth decelerates.",
-    growthYoy: 1.3157,
-    inflationYoy: 6.2994,
-    growthRoc: -1.7507,
-    inflationRoc: 1.0653,
-    growthThrough: "2021-10-01",
-    inflationThrough: "2021-10-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2021-12-31",
-    quad: 3,
-    name: "Stagflation",
-    description: "Inflation accelerating while growth decelerates.",
-    growthYoy: 1.2812,
-    inflationYoy: 6.9255,
-    growthRoc: -1.0613,
-    inflationRoc: 1.7919,
-    growthThrough: "2021-11-01",
-    inflationThrough: "2021-11-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2022-01-31",
-    quad: 3,
-    name: "Stagflation",
-    description: "Inflation accelerating while growth decelerates.",
-    growthYoy: 0.4059,
-    inflationYoy: 7.0354,
-    growthRoc: -0.9192,
-    inflationRoc: 1.6824,
-    growthThrough: "2021-12-01",
-    inflationThrough: "2021-12-01",
-    dataLagDays: 61,
-  },
-  {
-    asOf: "2022-02-28",
-    quad: 3,
-    name: "Stagflation",
-    description: "Inflation accelerating while growth decelerates.",
-    growthYoy: 0.7194,
-    inflationYoy: 7.5132,
-    growthRoc: -0.5963,
-    inflationRoc: 1.2138,
-    growthThrough: "2022-01-01",
-    inflationThrough: "2022-01-01",
-    dataLagDays: 58,
-  },
-  {
-    asOf: "2022-03-31",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: 2.0575,
-    inflationYoy: 7.9879,
-    growthRoc: 0.7763,
-    inflationRoc: 1.0623,
-    growthThrough: "2022-02-01",
-    inflationThrough: "2022-02-01",
-    dataLagDays: 58,
-  },
-  {
-    asOf: "2022-04-30",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: 1.8884,
-    inflationYoy: 8.6539,
-    growthRoc: 1.4825,
-    inflationRoc: 1.6185,
-    growthThrough: "2022-03-01",
-    inflationThrough: "2022-03-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2022-05-31",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: 2.091,
-    inflationYoy: 8.1816,
-    growthRoc: 1.3715,
-    inflationRoc: 0.6683,
-    growthThrough: "2022-04-01",
-    inflationThrough: "2022-04-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2022-06-30",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: 5.2923,
-    inflationYoy: 8.5358,
-    growthRoc: 3.2348,
-    inflationRoc: 0.5479,
-    growthThrough: "2022-05-01",
-    inflationThrough: "2022-05-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2022-07-31",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: 4.2668,
-    inflationYoy: 8.9848,
-    growthRoc: 2.3784,
-    inflationRoc: 0.3308,
-    growthThrough: "2022-06-01",
-    inflationThrough: "2022-06-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2022-08-31",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: 3.7722,
-    inflationYoy: 8.4499,
-    growthRoc: 1.6813,
-    inflationRoc: 0.2683,
-    growthThrough: "2022-07-01",
-    inflationThrough: "2022-07-01",
-    dataLagDays: 61,
-  },
-  {
-    asOf: "2022-09-30",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 3.3393,
-    inflationYoy: 8.281,
-    growthRoc: -1.953,
-    inflationRoc: -0.2549,
-    growthThrough: "2022-08-01",
-    inflationThrough: "2022-08-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2022-10-31",
-    quad: 1,
-    name: "Goldilocks",
-    description: "Growth accelerating while inflation decelerates.",
-    growthYoy: 4.4306,
-    inflationYoy: 8.2524,
-    growthRoc: 0.1638,
-    inflationRoc: -0.7323,
-    growthThrough: "2022-09-01",
-    inflationThrough: "2022-09-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2022-11-30",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 3.1966,
-    inflationYoy: 7.7109,
-    growthRoc: -0.5756,
-    inflationRoc: -0.7389,
-    growthThrough: "2022-10-01",
-    inflationThrough: "2022-10-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2022-12-31",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 2.7523,
-    inflationYoy: 6.9811,
-    growthRoc: -0.587,
-    inflationRoc: -1.2998,
-    growthThrough: "2022-11-01",
-    inflationThrough: "2022-11-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2023-01-31",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 2.3646,
-    inflationYoy: 6.3956,
-    growthRoc: -2.066,
-    inflationRoc: -1.8568,
-    growthThrough: "2022-12-01",
-    inflationThrough: "2022-12-01",
-    dataLagDays: 61,
-  },
-  {
-    asOf: "2023-02-28",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 1.5702,
-    inflationYoy: 6.5984,
-    growthRoc: -1.6264,
-    inflationRoc: -1.1126,
-    growthThrough: "2023-01-01",
-    inflationThrough: "2023-01-01",
-    dataLagDays: 58,
-  },
-  {
-    asOf: "2023-03-31",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 1.1946,
-    inflationYoy: 6.1461,
-    growthRoc: -1.5577,
-    inflationRoc: -0.8351,
-    growthThrough: "2023-02-01",
-    inflationThrough: "2023-02-01",
-    dataLagDays: 58,
-  },
-  {
-    asOf: "2023-04-30",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 0.7929,
-    inflationYoy: 4.9008,
-    growthRoc: -1.5716,
-    inflationRoc: -1.4948,
-    growthThrough: "2023-03-01",
-    inflationThrough: "2023-03-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2023-05-31",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 0.2294,
-    inflationYoy: 4.9383,
-    growthRoc: -1.3408,
-    inflationRoc: -1.6601,
-    growthThrough: "2023-04-01",
-    inflationThrough: "2023-04-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2023-06-30",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 0.164,
-    inflationYoy: 4.0553,
-    growthRoc: -1.0306,
-    inflationRoc: -2.0908,
-    growthThrough: "2023-05-01",
-    inflationThrough: "2023-05-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2023-07-31",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 0.3749,
-    inflationYoy: 2.8826,
-    growthRoc: -0.418,
-    inflationRoc: -2.0182,
-    growthThrough: "2023-06-01",
-    inflationThrough: "2023-06-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2023-08-31",
-    quad: 1,
-    name: "Goldilocks",
-    description: "Growth accelerating while inflation decelerates.",
-    growthYoy: 0.3355,
-    inflationYoy: 3.0741,
-    growthRoc: 0.1061,
-    inflationRoc: -1.8642,
-    growthThrough: "2023-07-01",
-    inflationThrough: "2023-07-01",
-    dataLagDays: 61,
-  },
-  {
-    asOf: "2023-09-30",
-    quad: 1,
-    name: "Goldilocks",
-    description: "Growth accelerating while inflation decelerates.",
-    growthYoy: 0.6971,
-    inflationYoy: 3.6023,
-    growthRoc: 0.5331,
-    inflationRoc: -0.453,
-    growthThrough: "2023-08-01",
-    inflationThrough: "2023-08-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2023-10-31",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: 0.5161,
-    inflationYoy: 3.6123,
-    growthRoc: 0.1412,
-    inflationRoc: 0.7298,
-    growthThrough: "2023-09-01",
-    inflationThrough: "2023-09-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2023-11-30",
-    quad: 3,
-    name: "Stagflation",
-    description: "Inflation accelerating while growth decelerates.",
-    growthYoy: 0.2327,
-    inflationYoy: 3.2064,
-    growthRoc: -0.1028,
-    inflationRoc: 0.1323,
-    growthThrough: "2023-10-01",
-    inflationThrough: "2023-10-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2023-12-31",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 0.2662,
-    inflationYoy: 3.207,
-    growthRoc: -0.4309,
-    inflationRoc: -0.3953,
-    growthThrough: "2023-11-01",
-    inflationThrough: "2023-11-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2024-01-31",
-    quad: 1,
-    name: "Goldilocks",
-    description: "Growth accelerating while inflation decelerates.",
-    growthYoy: 0.6758,
-    inflationYoy: 3.602,
-    growthRoc: 0.1597,
-    inflationRoc: -0.0103,
-    growthThrough: "2023-12-01",
-    inflationThrough: "2023-12-01",
-    dataLagDays: 61,
-  },
-  {
-    asOf: "2024-02-29",
-    quad: 1,
-    name: "Goldilocks",
-    description: "Growth accelerating while inflation decelerates.",
-    growthYoy: 0.6631,
-    inflationYoy: 3.0442,
-    growthRoc: 0.4304,
-    inflationRoc: -0.1622,
-    growthThrough: "2024-01-01",
-    inflationThrough: "2024-01-01",
-    dataLagDays: 59,
-  },
-  {
-    asOf: "2024-03-31",
-    quad: 1,
-    name: "Goldilocks",
-    description: "Growth accelerating while inflation decelerates.",
-    growthYoy: 0.6378,
-    inflationYoy: 3.1182,
-    growthRoc: 0.3716,
-    inflationRoc: -0.0888,
-    growthThrough: "2024-02-01",
-    inflationThrough: "2024-02-01",
-    dataLagDays: 59,
-  },
-  {
-    asOf: "2024-04-30",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 0.6454,
-    inflationYoy: 3.4532,
-    growthRoc: -0.0304,
-    inflationRoc: -0.1488,
-    growthThrough: "2024-03-01",
-    inflationThrough: "2024-03-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2024-05-31",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: 0.7046,
-    inflationYoy: 3.3966,
-    growthRoc: 0.0415,
-    inflationRoc: 0.3524,
-    growthThrough: "2024-04-01",
-    inflationThrough: "2024-04-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2024-06-30",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: 0.9351,
-    inflationYoy: 3.2744,
-    growthRoc: 0.2973,
-    inflationRoc: 0.1562,
-    growthThrough: "2024-05-01",
-    inflationThrough: "2024-05-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2024-07-31",
-    quad: 1,
-    name: "Goldilocks",
-    description: "Growth accelerating while inflation decelerates.",
-    growthYoy: 1.6336,
-    inflationYoy: 3.0305,
-    growthRoc: 0.9881,
-    inflationRoc: -0.4227,
-    growthThrough: "2024-06-01",
-    inflationThrough: "2024-06-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2024-08-31",
-    quad: 1,
-    name: "Goldilocks",
-    description: "Growth accelerating while inflation decelerates.",
-    growthYoy: 0.7581,
-    inflationYoy: 3.0183,
-    growthRoc: 0.0535,
-    inflationRoc: -0.3784,
-    growthThrough: "2024-07-01",
-    inflationThrough: "2024-07-01",
-    dataLagDays: 61,
-  },
-  {
-    asOf: "2024-09-30",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 0.5854,
-    inflationYoy: 2.5638,
-    growthRoc: -0.3497,
-    inflationRoc: -0.7106,
-    growthThrough: "2024-08-01",
-    inflationThrough: "2024-08-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2024-10-31",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 0.2431,
-    inflationYoy: 2.3432,
-    growthRoc: -1.3904,
-    inflationRoc: -0.6873,
-    growthThrough: "2024-09-01",
-    inflationThrough: "2024-09-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2024-11-30",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 0.4552,
-    inflationYoy: 2.547,
-    growthRoc: -0.3029,
-    inflationRoc: -0.4713,
-    growthThrough: "2024-10-01",
-    inflationThrough: "2024-10-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2024-12-31",
-    quad: 3,
-    name: "Stagflation",
-    description: "Inflation accelerating while growth decelerates.",
-    growthYoy: 0.3582,
-    inflationYoy: 2.7683,
-    growthRoc: -0.2272,
-    inflationRoc: 0.2045,
-    growthThrough: "2024-11-01",
-    inflationThrough: "2024-11-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2025-01-31",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: 1.0792,
-    inflationYoy: 2.8606,
-    growthRoc: 0.836,
-    inflationRoc: 0.5174,
-    growthThrough: "2024-12-01",
-    inflationThrough: "2024-12-01",
-    dataLagDays: 61,
-  },
-  {
-    asOf: "2025-02-28",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: 0.8908,
-    inflationYoy: 3.0357,
-    growthRoc: 0.4356,
-    inflationRoc: 0.4887,
-    growthThrough: "2025-01-01",
-    inflationThrough: "2025-01-01",
-    dataLagDays: 58,
-  },
-  {
-    asOf: "2025-03-31",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: 1.3628,
-    inflationYoy: 2.8037,
-    growthRoc: 1.0046,
-    inflationRoc: 0.0354,
-    growthThrough: "2025-02-01",
-    inflationThrough: "2025-02-01",
-    dataLagDays: 58,
-  },
-  {
-    asOf: "2025-04-30",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 0.9998,
-    inflationYoy: 2.3652,
-    growthRoc: -0.0794,
-    inflationRoc: -0.4954,
-    growthThrough: "2025-03-01",
-    inflationThrough: "2025-03-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2025-05-31",
-    quad: 1,
-    name: "Goldilocks",
-    description: "Growth accelerating while inflation decelerates.",
-    growthYoy: 0.9326,
-    inflationYoy: 2.2713,
-    growthRoc: 0.0418,
-    inflationRoc: -0.7643,
-    growthThrough: "2025-04-01",
-    inflationThrough: "2025-04-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2025-06-30",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: 0.45,
-    inflationYoy: 2.3482,
-    growthRoc: -0.9129,
-    inflationRoc: -0.4555,
-    growthThrough: "2025-05-01",
-    inflationThrough: "2025-05-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2025-07-31",
-    quad: 3,
-    name: "Stagflation",
-    description: "Inflation accelerating while growth decelerates.",
-    growthYoy: 0.3485,
-    inflationYoy: 2.6996,
-    growthRoc: -0.6512,
-    inflationRoc: 0.3343,
-    growthThrough: "2025-06-01",
-    inflationThrough: "2025-06-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2025-08-31",
-    quad: 3,
-    name: "Stagflation",
-    description: "Inflation accelerating while growth decelerates.",
-    growthYoy: 0.7906,
-    inflationYoy: 2.7423,
-    growthRoc: -0.142,
-    inflationRoc: 0.4709,
-    growthThrough: "2025-07-01",
-    inflationThrough: "2025-07-01",
-    dataLagDays: 61,
-  },
-  {
-    asOf: "2025-09-30",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: 0.6185,
-    inflationYoy: 2.9425,
-    growthRoc: 0.1685,
-    inflationRoc: 0.5943,
-    growthThrough: "2025-08-01",
-    inflationThrough: "2025-08-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2025-10-31",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: 0.6185,
-    inflationYoy: 3.0767,
-    growthRoc: 0.1685,
-    inflationRoc: 0.3771,
-    growthThrough: "2025-08-01",
-    inflationThrough: "2025-09-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2025-11-30",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: 0.6185,
-    inflationYoy: 3.0767,
-    growthRoc: 0.1685,
-    inflationRoc: 0.3771,
-    growthThrough: "2025-08-01",
-    inflationThrough: "2025-09-01",
-    dataLagDays: 90,
-  },
-  {
-    asOf: "2025-12-31",
-    quad: 3,
-    name: "Stagflation",
-    description: "Inflation accelerating while growth decelerates.",
-    growthYoy: 0.0002,
-    inflationYoy: 3.0359,
-    growthRoc: -0.6183,
-    inflationRoc: 0.2937,
-    growthThrough: "2025-11-01",
-    inflationThrough: "2025-11-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2026-01-31",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: -0.4243,
-    inflationYoy: 3.0303,
-    growthRoc: 0.0033,
-    inflationRoc: 0.0878,
-    growthThrough: "2025-12-01",
-    inflationThrough: "2025-12-01",
-    dataLagDays: 61,
-  },
-  {
-    asOf: "2026-02-28",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: -0.704,
-    inflationYoy: 2.8025,
-    growthRoc: -0.531,
-    inflationRoc: -0.2743,
-    growthThrough: "2026-01-01",
-    inflationThrough: "2026-01-01",
-    dataLagDays: 58,
-  },
-  {
-    asOf: "2026-03-31",
-    quad: 4,
-    name: "Deflation",
-    description: "Growth and inflation both decelerating.",
-    growthYoy: -1.0303,
-    inflationYoy: 2.6244,
-    growthRoc: -1.0305,
-    inflationRoc: -0.4116,
-    growthThrough: "2026-02-01",
-    inflationThrough: "2026-02-01",
-    dataLagDays: 58,
-  },
-  {
-    asOf: "2026-04-30",
-    quad: 3,
-    name: "Stagflation",
-    description: "Inflation accelerating while growth decelerates.",
-    growthYoy: -1.2491,
-    inflationYoy: 3.2892,
-    growthRoc: -0.8248,
-    inflationRoc: 0.2589,
-    growthThrough: "2026-03-01",
-    inflationThrough: "2026-03-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2026-05-31",
-    quad: 3,
-    name: "Stagflation",
-    description: "Inflation accelerating while growth decelerates.",
-    growthYoy: -0.9108,
-    inflationYoy: 4.0023,
-    growthRoc: -0.2068,
-    inflationRoc: 1.1999,
-    growthThrough: "2026-04-01",
-    inflationThrough: "2026-04-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2026-06-30",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: -0.6327,
-    inflationYoy: 4.2638,
-    growthRoc: 0.3977,
-    inflationRoc: 1.6395,
-    growthThrough: "2026-05-01",
-    inflationThrough: "2026-05-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2026-07-31",
-    quad: 2,
-    name: "Reflation",
-    description: "Growth and inflation both accelerating.",
-    growthYoy: -0.8891,
-    inflationYoy: 3.7395,
-    growthRoc: 0.36,
-    inflationRoc: 0.4503,
-    growthThrough: "2026-06-01",
-    inflationThrough: "2026-06-01",
-    dataLagDays: 60,
-  },
-  {
-    asOf: "2026-08-31",
-    quad: 1,
-    name: "Goldilocks",
-    description: "Growth accelerating while inflation decelerates.",
-    growthYoy: -0.6908,
-    inflationYoy: 3.5188,
-    growthRoc: 0.22,
-    inflationRoc: -0.4835,
-    growthThrough: "2026-07-01",
-    inflationThrough: "2026-07-01",
-    dataLagDays: 61,
-  },
-];
+// ---------------------------------------------------------------------------
+// Gates. Written from the validation runs, never by hand.
+// ---------------------------------------------------------------------------
 
-/**
- * Whether the POSITIONING claim cleared its gate. False here means the app
- * must not turn the quad into asset guidance. The generator writes this from
- * the validation run; it is not a hand-set flag.
- */
+/** Whether the POSITIONING claim cleared its gate. */
 export const POSITIONING_VALIDATED = false;
 
+/** Whether the quad improved a volatility forecast that knows lagged vol. */
+export const VOL_FORECAST_VALIDATED = false;
+
+// ---------------------------------------------------------------------------
+// Revision risk: what a real-time label is actually worth.
+// ---------------------------------------------------------------------------
+
+export interface MarginBin {
+  label: string;
+  lo: number;
+  hi: number | null;
+  n: number;
+  survived: number;
+  /** Share whose real-time label matched what the revised data later said. */
+  survival: number | null;
+  /** False when the bin is too thin to quote. Render the absence, not a guess. */
+  usable: boolean;
+}
+
+export const MARGIN_CALIBRATION: Record<string, MarginBin> = {
+  "knife-edge": { label: "knife-edge", lo: 0, hi: 0.25, n: 190, survived: 119, survival: 0.6263, usable: true },
+  "thin": { label: "thin", lo: 0.25, hi: 0.75, n: 83, survived: 76, survival: 0.9157, usable: true },
+  "clear": { label: "clear", lo: 0.75, hi: 2, n: 24, survived: 24, survival: 1, usable: true },
+  "decisive": { label: "decisive", lo: 2, hi: null, n: 5, survived: 5, survival: 1, usable: false },
+};
+
+/**
+ * Where a real-time label ended up once the data settled. Rows are the
+ * real-time quad, columns what the revised data said; the diagonal is survival.
+ */
+export const REVISION_CONFUSION: Record<number, { name: string; n: number; to: Record<number, number> }> = {
+  1: { name: "Goldilocks", n: 63, to: { 1: 0.6984, 2: 0.0317, 3: 0.0159, 4: 0.2540 } },
+  2: { name: "Reflation", n: 75, to: { 1: 0.0267, 2: 0.7333, 3: 0.2000, 4: 0.0400 } },
+  3: { name: "Stagflation", n: 70, to: { 1: 0.0143, 2: 0.1714, 3: 0.7857, 4: 0.0286 } },
+  4: { name: "Deflation", n: 94, to: { 1: 0.1383, 2: 0.0213, 3: 0.0957, 4: 0.7447 } },
+};
+
+export const REVISION = {
+  pooledSurvival: 0.7417,
+  measuredOver: { first: "2000-01-31", last: "2025-02-28", n: 302 },
+  /** Readings younger than this were excluded — the data has not revised yet. */
+  settlingMonths: 18,
+  /**
+   * Which axis revision breaks. Q1<->Q4 and Q2<->Q3 hold inflation fixed and
+   * flip growth; Q1<->Q2 and Q3<->Q4 do the reverse.
+   */
+  flipAxis: {
+    growth: 56,
+    inflation: 15,
+    both: 7,
+    total: 78,
+    growthShare: 0.7179,
+  },
+  /** The live reading's own bin and its measured survival rate. */
+  live: {
+    bin: "knife-edge",
+    survival: 0.6263,
+    n: 190,
+    usable: true,
+  },
+} as const;
+
+// ---------------------------------------------------------------------------
+// Specification agreement: how contingent the label is on how you measure it.
+// ---------------------------------------------------------------------------
+
+export interface SpecInfo {
+  name: string;
+  growth: readonly string[];
+  inflation: readonly string[];
+  lookback: number;
+  rationale: string;
+  /** False when the spec failed the pre-registered persistence floor. */
+  eligible: boolean;
+  disqualifiedBecause: string | null;
+  survivalTrain: number | null;
+  survivalHoldout: number | null;
+  medianSpellMonths: number | null;
+  shareSpellsAtLeastAQuarter: number | null;
+  /** What this specification says right now. */
+  quadNow: number | null;
+  marginNow: number | null;
+}
+
+export const SPECS: Record<string, SpecInfo> = {
+  "fast": {
+    name: "fast",
+    growth: ["INDPRO","PAYEMS"],
+    inflation: ["CPIAUCSL"],
+    lookback: 3,
+    rationale: "Two of the quickest broad series. Least lag, narrowest evidence.",
+    eligible: true,
+    disqualifiedBecause: null,
+    survivalTrain: 0.6588,
+    survivalHoldout: 0.7582,
+    medianSpellMonths: 2,
+    shareSpellsAtLeastAQuarter: 0.3285,
+    quadNow: 1,
+    marginNow: 0.077,
+  },
+  "broad": {
+    name: "broad",
+    growth: ["INDPRO","PAYEMS","RRSFS","PCEC96","DSPIC96"],
+    inflation: ["CPIAUCSL","CPILFESL","PPIACO"],
+    lookback: 3,
+    rationale: "Five growth series and three price series. Most evidence, dragged to the slowest member's publication date.",
+    eligible: true,
+    disqualifiedBecause: null,
+    survivalTrain: 0.6857,
+    survivalHoldout: 0.7802,
+    medianSpellMonths: 2,
+    shareSpellsAtLeastAQuarter: 0.3286,
+    quadNow: 1,
+    marginNow: 1.268,
+  },
+  "core": {
+    name: "core",
+    growth: ["INDPRO","PAYEMS"],
+    inflation: ["CPILFESL"],
+    lookback: 3,
+    rationale: "Core inflation instead of headline: fewer energy head-fakes, slower to register a real one.",
+    eligible: true,
+    disqualifiedBecause: null,
+    survivalTrain: 0.6635,
+    survivalHoldout: 0.7473,
+    medianSpellMonths: 2,
+    shareSpellsAtLeastAQuarter: 0.3969,
+    quadNow: 1,
+    marginNow: 0.077,
+  },
+  "labour": {
+    name: "labour",
+    growth: ["PAYEMS"],
+    inflation: ["CPIAUCSL"],
+    lookback: 3,
+    rationale: "Payrolls alone. The single fastest read; no cross-confirmation.",
+    eligible: true,
+    disqualifiedBecause: null,
+    survivalTrain: 0.7251,
+    survivalHoldout: 0.7802,
+    medianSpellMonths: 2,
+    shareSpellsAtLeastAQuarter: 0.4087,
+    quadNow: 1,
+    marginNow: 0.0595,
+  },
+  "production": {
+    name: "production",
+    growth: ["INDPRO"],
+    inflation: ["CPIAUCSL"],
+    lookback: 3,
+    rationale: "Industrial production alone. Turns early and cries wolf.",
+    eligible: true,
+    disqualifiedBecause: null,
+    survivalTrain: 0.6445,
+    survivalHoldout: 0.7692,
+    medianSpellMonths: 2,
+    shareSpellsAtLeastAQuarter: 0.3382,
+    quadNow: 1,
+    marginNow: 0.0945,
+  },
+  "fast_1m": {
+    name: "fast_1m",
+    growth: ["INDPRO","PAYEMS"],
+    inflation: ["CPIAUCSL"],
+    lookback: 1,
+    rationale: "One month of rate-of-change. Maximum responsiveness, maximum noise.",
+    eligible: false,
+    disqualifiedBecause: "median spell 1.0 months is below the 2-month floor — this labels months, not regimes",
+    survivalTrain: 0.6445,
+    survivalHoldout: 0.7253,
+    medianSpellMonths: 1,
+    shareSpellsAtLeastAQuarter: 0.1005,
+    quadNow: 2,
+    marginNow: 0.1351,
+  },
+  "fast_6m": {
+    name: "fast_6m",
+    growth: ["INDPRO","PAYEMS"],
+    inflation: ["CPIAUCSL"],
+    lookback: 6,
+    rationale: "Six months. Smooth enough to miss a turn until it is obvious.",
+    eligible: true,
+    disqualifiedBecause: null,
+    survivalTrain: 0.6919,
+    survivalHoldout: 0.7253,
+    medianSpellMonths: 2,
+    shareSpellsAtLeastAQuarter: 0.4574,
+    quadNow: 2,
+    marginNow: 0.4746,
+  },
+  "broad_6m": {
+    name: "broad_6m",
+    growth: ["INDPRO","PAYEMS","RRSFS","PCEC96","DSPIC96"],
+    inflation: ["CPIAUCSL","CPILFESL","PPIACO"],
+    lookback: 6,
+    rationale: "Broad evidence on a slow clock — the most conservative reading here.",
+    eligible: true,
+    disqualifiedBecause: null,
+    survivalTrain: 0.6777,
+    survivalHoldout: 0.7033,
+    medianSpellMonths: 2,
+    shareSpellsAtLeastAQuarter: 0.4444,
+    quadNow: 2,
+    marginNow: 0.7978,
+  },
+};
+
+export const SELECTION = {
+  chosen: "labour",
+  criterion: "among specifications whose median spell clears the persistence floor of 2 months, the highest share of real-time labels that survived revision, measured on the training window; ties to the shorter publication lag",
+  trainFrac: 0.7,
+  persistenceFloorMonths: 2,
+  /** Where the training-window winner ranked on the holdout. Lower is better. */
+  holdoutRank: 2,
+  nCandidatesRanked: 7,
+  growth: ["PAYEMS"] as readonly string[],
+  inflation: ["CPIAUCSL"] as readonly string[],
+  lookback: 3,
+  rationale: "Payrolls alone. The single fastest read; no cross-confirmation.",
+} as const;
+
+export const AGREEMENT = {
+  nSpecs: 8,
+  nClassified: 8,
+  counts: {"1":5,"2":3} as Record<string, number>,
+  modalQuad: 1,
+  modalShare: 0.625,
+  /** Where today's agreement sits in the historical distribution of agreement. */
+  percentileToday: 0.5188,
+  historical: {
+    median: 0.625,
+    p25: 0.5,
+    p75: 0.875,
+    n: 320,
+  },
+} as const;
+
+// ---------------------------------------------------------------------------
+// Occupancy and persistence: the stable answer next to the fresh one.
+// ---------------------------------------------------------------------------
+
+export interface Occupancy {
+  window: number;
+  months: number;
+  dominant: number | null;
+  dominantShare: number | null;
+  /**
+   * True when two or more quads share the top count. Naming either as "the
+   * regime" would then be an artefact of ordering, so callers must say split.
+   */
+  tied: boolean;
+  tiedWith: readonly number[];
+  distinctQuads: number | null;
+  switches: number | null;
+  /** Largest-remainder rounded, so a stacked bar cannot overflow its track. */
+  shares: Record<string, number>;
+}
+
+/** Share of the last N classified month-ends spent in each quad. */
+export const OCCUPANCY: Record<number, Occupancy> = {
+  3: { window: 3, months: 3, dominant: 2, dominantShare: 0.6667, tied: false, tiedWith: [], distinctQuads: 2, switches: 1, shares: {"1":0.3333,"2":0.6667} },
+  6: { window: 6, months: 6, dominant: 2, dominantShare: 0.3333, tied: true, tiedWith: [3], distinctQuads: 4, switches: 3, shares: {"1":0.1667,"2":0.3333,"3":0.3333,"4":0.1667} },
+  12: { window: 12, months: 12, dominant: 3, dominantShare: 0.5833, tied: false, tiedWith: [], distinctQuads: 4, switches: 4, shares: {"1":0.0833,"2":0.1667,"3":0.5833,"4":0.1667} },
+  24: { window: 24, months: 24, dominant: 3, dominantShare: 0.5, tied: false, tiedWith: [], distinctQuads: 4, switches: 9, shares: {"1":0.0417,"2":0.125,"3":0.5,"4":0.3333} },
+};
+
+export const DURATIONS = {
+  pooled: {
+    nSpells: 116,
+    nCompleted: 115,
+    nCensored: 1,
+    medianMonths: 2,
+    meanCompletedMonths: 2.77,
+    usable: true,
+  },
+  byQuad: {
+  1: { nSpells: 26, nCompleted: 25, medianMonths: 2, meanCompletedMonths: 2.52, usable: true },
+  2: { nSpells: 27, nCompleted: 27, medianMonths: 3, meanCompletedMonths: 2.85, usable: true },
+  3: { nSpells: 32, nCompleted: 32, medianMonths: 2, meanCompletedMonths: 2.5, usable: true },
+  4: { nSpells: 31, nCompleted: 31, medianMonths: 2, meanCompletedMonths: 3.19, usable: true },
+  } as Record<number, { nSpells: number; nCompleted: number; medianMonths: number | null; meanCompletedMonths: number | null; usable: boolean }>,
+  /** The spell in progress. Right-censored: it has not ended yet. */
+  current: {
+    quad: 1,
+    elapsedMonths: 1,
+    start: "2026-08-31",
+    basis: "Q1 spells",
+    basisNCompleted: 25,
+    beyondSample: false,
+    exitWithin: {"1":0.5,"3":0.5714,"6":0.9286} as Record<string, number | null>,
+  },
+} as const;
+
+/**
+ * The last three years of labels, for a compact timeline.
+ *
+ * Just the date and the quad — two fields, so every page can afford it. The
+ * full history with margins and contributions is in the detail payload the
+ * macro route fetches.
+ */
+export const RECENT_STRIP: readonly { asOf: string; quad: Quad }[] = [
+  { asOf: "2023-09-30", quad: 4 },
+  { asOf: "2023-10-31", quad: 3 },
+  { asOf: "2023-11-30", quad: 3 },
+  { asOf: "2023-12-31", quad: 4 },
+  { asOf: "2024-01-31", quad: 4 },
+  { asOf: "2024-02-29", quad: 4 },
+  { asOf: "2024-03-31", quad: 4 },
+  { asOf: "2024-04-30", quad: 4 },
+  { asOf: "2024-05-31", quad: 3 },
+  { asOf: "2024-06-30", quad: 3 },
+  { asOf: "2024-07-31", quad: 4 },
+  { asOf: "2024-08-31", quad: 4 },
+  { asOf: "2024-09-30", quad: 4 },
+  { asOf: "2024-10-31", quad: 4 },
+  { asOf: "2024-11-30", quad: 4 },
+  { asOf: "2024-12-31", quad: 3 },
+  { asOf: "2025-01-31", quad: 2 },
+  { asOf: "2025-02-28", quad: 3 },
+  { asOf: "2025-03-31", quad: 3 },
+  { asOf: "2025-04-30", quad: 4 },
+  { asOf: "2025-05-31", quad: 4 },
+  { asOf: "2025-06-30", quad: 4 },
+  { asOf: "2025-07-31", quad: 3 },
+  { asOf: "2025-08-31", quad: 3 },
+  { asOf: "2025-09-30", quad: 3 },
+  { asOf: "2025-10-31", quad: 3 },
+  { asOf: "2025-11-30", quad: 3 },
+  { asOf: "2025-12-31", quad: 3 },
+  { asOf: "2026-01-31", quad: 3 },
+  { asOf: "2026-02-28", quad: 4 },
+  { asOf: "2026-03-31", quad: 4 },
+  { asOf: "2026-04-30", quad: 3 },
+  { asOf: "2026-05-31", quad: 3 },
+  { asOf: "2026-06-30", quad: 2 },
+  { asOf: "2026-07-31", quad: 2 },
+  { asOf: "2026-08-31", quad: 1 },
+];
+
+/** Where the quad has historically gone next. Descriptive, run-collapsed. */
+export const QUAD_TRANSITIONS: Record<number, Record<number, number>> = {
+  1: { 1: 0.0000, 2: 0.5600, 3: 0.1600, 4: 0.2800 },
+  2: { 1: 0.4444, 2: 0.0000, 3: 0.4815, 4: 0.0741 },
+  3: { 1: 0.0938, 2: 0.2188, 3: 0.0000, 4: 0.6875 },
+  4: { 1: 0.3226, 2: 0.1935, 3: 0.4839, 4: 0.0000 },
+};
+
+// ---------------------------------------------------------------------------
+// What the two forecasting claims did against their baselines.
+// ---------------------------------------------------------------------------
+
+export const RETURNS_TEST = {
+  claim: "knowing the quad tells you which way an asset goes",
+  baseline: "always long the same asset",
+  passes: false,
+  horizonMonths: 1,
+  channelsTested: ["NASDAQ","SP500","USD_BROAD","UST10Y","VIX","WTI"] as readonly string[],
+  channelsBeatingBaseline: [] as readonly string[],
+  signsHeld: 8,
+  usableCells: 12,
+} as const;
+
+export const RETURNS_BY_CHANNEL: Record<
+  string,
+  { edgePctPerMonth: number | null; edgeCi: [number | null, number | null]; signsHeld: number | null; usableCells: number | null; holdoutMonths: number | null }
+> = {
+  "NASDAQ": { edgePctPerMonth: 0, edgeCi: [0, 0], signsHeld: 2, usableCells: 2, holdoutMonths: 60 },
+  "SP500": { edgePctPerMonth: 0, edgeCi: [0, 0], signsHeld: 2, usableCells: 2, holdoutMonths: 36 },
+  "UST10Y": { edgePctPerMonth: -0.3641, edgeCi: [-3.3772, 2.2807], signsHeld: 1, usableCells: 2, holdoutMonths: 60 },
+  "WTI": { edgePctPerMonth: 1.8883, edgeCi: [-1.1265, 6.2114], signsHeld: 2, usableCells: 2, holdoutMonths: 60 },
+  "USD_BROAD": { edgePctPerMonth: -0.2208, edgeCi: [-0.8207, 0.3911], signsHeld: 0, usableCells: 2, holdoutMonths: 60 },
+  "VIX": { edgePctPerMonth: 0, edgeCi: [0, 0], signsHeld: 1, usableCells: 2, holdoutMonths: 60 },
+};
+
+export const VOL_TEST = {
+  claim: "knowing the quad improves a volatility forecast that already knows last month's volatility",
+  baseline: "AR(1) in log realised volatility",
+  passes: false,
+  channelsTested: ["DJIA","NASDAQ","SP500","USD_BROAD","UST10Y","WTI"] as readonly string[],
+  channelsBeatingBaseline: [] as readonly string[],
+  signsHeld: 14,
+  usableCells: 18,
+} as const;
+
+/**
+ * Per-channel volatility results. `volRatios` is the DESCRIPTIVE part: how
+ * volatile each quad's months were relative to the training average. Those
+ * ratios are sign-stable and worth showing as context. `quadGainOverAr` is the
+ * part that failed — what the quad added once the model already knew last
+ * month's volatility.
+ */
+export const VOL_BY_CHANNEL: Record<
+  string,
+  {
+    quadGainOverAr: number | null;
+    arGainOverUnconditional: number | null;
+    pValue: number | null;
+    reductionCi: [number | null, number | null];
+    signsHeld: number | null;
+    usableCells: number | null;
+    holdoutMonths: number | null;
+    volRatios: Record<string, { trainVolRatio: number | null; holdoutVolRatio: number | null; signHeld: boolean | null }>;
+  }
+> = {
+  "SP500": { quadGainOverAr: 0.0394, arGainOverUnconditional: -0.0002, pValue: 0.401, reductionCi: [-0.006371, 0.023151], signsHeld: 2, usableCells: 2, holdoutMonths: 36, volRatios: { 1: { trainVolRatio: 1.1307, holdoutVolRatio: null, signHeld: null }, 2: { trainVolRatio: 1.0111, holdoutVolRatio: null, signHeld: null }, 3: { trainVolRatio: 0.9767, holdoutVolRatio: 0.9817, signHeld: true }, 4: { trainVolRatio: 0.9514, holdoutVolRatio: 0.9387, signHeld: true } } },
+  "NASDAQ": { quadGainOverAr: 0.0284, arGainOverUnconditional: 0.1619, pValue: 0.211, reductionCi: [-0.002766, 0.013091], signsHeld: 1, usableCells: 4, holdoutMonths: 96, volRatios: { 1: { trainVolRatio: 0.8539, holdoutVolRatio: 1.0795, signHeld: false }, 2: { trainVolRatio: 0.9241, holdoutVolRatio: 1.1192, signHeld: false }, 3: { trainVolRatio: 1.1259, holdoutVolRatio: 1.144, signHeld: true }, 4: { trainVolRatio: 1.1279, holdoutVolRatio: 0.9312, signHeld: false } } },
+  "DJIA": { quadGainOverAr: 0.0111, arGainOverUnconditional: 0.081, pValue: 0.655, reductionCi: [-0.006312, 0.01315], signsHeld: 2, usableCells: 2, holdoutMonths: 36, volRatios: { 1: { trainVolRatio: 1.1465, holdoutVolRatio: null, signHeld: null }, 2: { trainVolRatio: 1.0248, holdoutVolRatio: null, signHeld: null }, 3: { trainVolRatio: 0.97, holdoutVolRatio: 0.9459, signHeld: true }, 4: { trainVolRatio: 0.9383, holdoutVolRatio: 0.9226, signHeld: true } } },
+  "UST10Y": { quadGainOverAr: 0.0068, arGainOverUnconditional: 0.3386, pValue: 0.71, reductionCi: [-0.003316, 0.005013], signsHeld: 4, usableCells: 4, holdoutMonths: 96, volRatios: { 1: { trainVolRatio: 0.9768, holdoutVolRatio: 0.8455, signHeld: true }, 2: { trainVolRatio: 0.9217, holdoutVolRatio: 0.8541, signHeld: true }, 3: { trainVolRatio: 1.0406, holdoutVolRatio: 1.0269, signHeld: true }, 4: { trainVolRatio: 1.0683, holdoutVolRatio: 1.0453, signHeld: true } } },
+  "WTI": { quadGainOverAr: -0.0062, arGainOverUnconditional: 0.2929, pValue: 0.61, reductionCi: [-0.005391, 0.003343], signsHeld: 2, usableCells: 3, holdoutMonths: 90, volRatios: { 1: { trainVolRatio: 0.9092, holdoutVolRatio: null, signHeld: null }, 2: { trainVolRatio: 0.91, holdoutVolRatio: 1.1759, signHeld: false }, 3: { trainVolRatio: 1.0691, holdoutVolRatio: 1.1614, signHeld: true }, 4: { trainVolRatio: 1.1251, holdoutVolRatio: 1.0365, signHeld: true } } },
+  "USD_BROAD": { quadGainOverAr: 0.021, arGainOverUnconditional: 0.1438, pValue: 0.57, reductionCi: [-0.002378, 0.004196], signsHeld: 3, usableCells: 3, holdoutMonths: 75, volRatios: { 1: { trainVolRatio: 0.9836, holdoutVolRatio: null, signHeld: null }, 2: { trainVolRatio: 0.8978, holdoutVolRatio: 0.9948, signHeld: true }, 3: { trainVolRatio: 1.0837, holdoutVolRatio: 1.0055, signHeld: true }, 4: { trainVolRatio: 1.0396, holdoutVolRatio: 1.0343, signHeld: true } } },
+};
+
+/** Median and 90th-percentile publication lag per eligible input, in days. */
+export const PUBLICATION_LAGS: Record<
+  string,
+  { label: string; axis: string | null; medianDays: number; p90Days: number; note: string }
+> = {
+  "PAYEMS": { label: "Nonfarm payrolls", axis: "growth", medianDays: 34, p90Days: 37, note: "The fastest broad read on the economy, and the one the rest wait for." },
+  "INDPRO": { label: "Industrial production", axis: "growth", medianDays: 45, p90Days: 47, note: "Cyclical and volatile; turns before the labour market." },
+  "RRSFS": { label: "Real retail sales", axis: "growth", medianDays: 45, p90Days: 49, note: "Consumption in volume terms, so inflation does not leak into growth." },
+  "PCEC96": { label: "Real consumption", axis: "growth", medianDays: 59, p90Days: 62, note: "Two thirds of output, but it publishes three weeks behind payrolls." },
+  "DSPIC96": { label: "Real disposable income", axis: "growth", medianDays: 59, p90Days: 62, note: "What funds the consumption above; turns earlier in an income shock." },
+  "CPIAUCSL": { label: "CPI", axis: "inflation", medianDays: 45, p90Days: 48.80000000000001, note: "Headline. What households and index-linked contracts actually face." },
+  "CPILFESL": { label: "Core CPI", axis: "inflation", medianDays: 45, p90Days: 48.80000000000001, note: "Ex food and energy; less noisy, and slower to turn." },
+  "PPIACO": { label: "Producer prices", axis: "inflation", medianDays: 43, p90Days: 48, note: "Upstream, so it leads consumer prices when the shock is a cost shock." },
+};
+
 export const QUAD_RUN = {
-  generatedAt: "2026-09-25T17:02:43.855618+00:00",
-  rocLookbackMonths: 3,
-  growthSeries: ["INDPRO","PAYEMS"],
-  inflationSeries: ["CPIAUCSL"],
+  generatedAt: "2026-09-25T18:11:00.571735+00:00",
   gdpExcludedReason: "real GDP publishes ~119 days after the quarter it describes; a nowcast that waits for it is reading an almanac",
   nClassified: 320,
   first: "2000-01-31",
   last: "2026-08-31",
   medianDataLagDays: 60,
   maxDataLagDays: 90,
-  distribution: {"1":66,"2":82,"3":75,"4":97},
-  validation: {
-    baseline: "always long the same asset",
-    horizonMonths: 1,
-    channelsTested: ["NASDAQ","SP500","USD_BROAD","UST10Y","VIX","WTI"] as readonly string[],
-    // Annotated rather than inferred: when this is empty `as const` would give
-    // it element type `never`, and every consumer that asks whether a channel
-    // is in it would stop compiling the moment the list is empty — which is
-    // precisely the state the gate exists to represent.
-    channelsBeatingLongOnly: [] as readonly string[],
-    signsHeld: 11,
-    usableCells: 23,
-  },
+  medianMonthsBehind: 1,
+  distribution: {"1":64,"2":77,"3":80,"4":99} as Record<string, number>,
+  displayMonths: 120,
 } as const;
 
-/** Median and 90th-percentile publication lag per input series, in days. */
-export const PUBLICATION_LAGS: Record<string, { medianDays: number; p90Days: number }> = {
-  "INDPRO": { medianDays: 45, p90Days: 47 },
-  "PAYEMS": { medianDays: 34, p90Days: 37 },
-  "CPIAUCSL": { medianDays: 45, p90Days: 48.80000000000001 },
-};
-
-/**
- * Empirical quad-to-quad transitions, run-collapsed so this counts REGIME
- * CHANGES rather than how long each regime happened to last.
- *
- * Descriptive. It says how the regime HAS moved, not how it will — the
- * positioning test above is what would have made it predictive, and it failed.
- */
-export const QUAD_TRANSITIONS: Record<number, Record<number, number>> = {
-  1: { 1: 0.0000, 2: 0.4242, 3: 0.0909, 4: 0.4848 },
-  2: { 1: 0.4571, 2: 0.0000, 3: 0.3714, 4: 0.1714 },
-  3: { 1: 0.0625, 2: 0.4688, 3: 0.0000, 4: 0.4688 },
-  4: { 1: 0.4054, 2: 0.1622, 3: 0.4324, 4: 0.0000 },
-};
-
-/** Out-of-sample edge over always-long, per channel. All CIs include zero. */
-export const QUAD_CHANNEL_EDGES: Record<
-  string,
-  {
-    edgePctPerMonth: number | null;
-    edgeCi: [number | null, number | null];
-    signsHeld: number | null;
-    usableCells: number | null;
-    holdoutMonths: number | null;
-  }
-> = {
-  "NASDAQ": { edgePctPerMonth: 0, edgeCi: [0, 0], signsHeld: 3, usableCells: 4, holdoutMonths: 60 },
-  "SP500": { edgePctPerMonth: -0.6778, edgeCi: [-1.7436, 0.1811], signsHeld: 2, usableCells: 3, holdoutMonths: 36 },
-  "UST10Y": { edgePctPerMonth: -2.7197, edgeCi: [-7.6349, 1.4988], signsHeld: 1, usableCells: 4, holdoutMonths: 60 },
-  "WTI": { edgePctPerMonth: -0.3959, edgeCi: [-3.529, 3.7036], signsHeld: 2, usableCells: 4, holdoutMonths: 60 },
-  "USD_BROAD": { edgePctPerMonth: -0.289, edgeCi: [-0.9785, 0.3731], signsHeld: 0, usableCells: 4, holdoutMonths: 60 },
-  "VIX": { edgePctPerMonth: -1.58, edgeCi: [-8.6466, 4.7859], signsHeld: 3, usableCells: 4, holdoutMonths: 60 },
-};
+// ---------------------------------------------------------------------------
+// Helpers. Every one of these reads measured numbers; none invents one.
+// ---------------------------------------------------------------------------
 
 /** Where the quad has historically gone next, most likely first. */
 export function likelyNextQuads(from: Quad): { quad: Quad; p: number }[] {
@@ -940,7 +574,7 @@ export function likelyNextQuads(from: Quad): { quad: Quad; p: number }[] {
     .sort((a, b) => b.p - a.p);
 }
 
-/** How stale the reading is, given a clock. Null when the reading has no lag. */
+/** How stale the reading's DATA is, given a clock. Not how old the label is. */
 export function stalenessDays(reading: QuadReading, nowMs: number): number | null {
   if (reading.growthThrough == null && reading.inflationThrough == null) return null;
   const newest = Math.max(
@@ -949,4 +583,103 @@ export function stalenessDays(reading: QuadReading, nowMs: number): number | nul
   );
   if (!Number.isFinite(newest) || newest <= 0) return null;
   return Math.floor((nowMs - newest) / 86_400_000);
+}
+
+/** The calibration bin a margin falls in, or null when there is no margin. */
+export function marginBinFor(margin: number | null): MarginBin | null {
+  if (margin == null || !Number.isFinite(margin)) return null;
+  for (const bin of Object.values(MARGIN_CALIBRATION)) {
+    if (margin >= bin.lo && (bin.hi == null || margin < bin.hi)) return bin;
+  }
+  return null;
+}
+
+/**
+ * The measured share of past readings this close to a boundary that survived
+ * revision — or an honest miss.
+ *
+ * A caller that gets `usable: false` must render the absence rather than fall
+ * back to the pooled rate: the pooled rate is dominated by decisive readings
+ * and would flatter a knife-edge one.
+ */
+export function revisionSurvivalFor(margin: number | null): {
+  bin: string | null;
+  survival: number | null;
+  n: number;
+  usable: boolean;
+} {
+  const bin = marginBinFor(margin);
+  if (!bin) return { bin: null, survival: null, n: 0, usable: false };
+  return { bin: bin.label, survival: bin.survival, n: bin.n, usable: bin.usable };
+}
+
+/**
+ * How much weight a reading carries, from two measured quantities.
+ *
+ * The GRADE is a rendering convention, not a model output: it applies stated
+ * cutoffs to the margin's measured survival rate and to the share of
+ * specifications that agree. It is not a probability and must never be shown
+ * as one. The components are returned alongside it so a reader can see what
+ * produced the word.
+ */
+export function confidenceOf(reading: QuadReading): {
+  grade: "firm" | "mixed" | "fragile";
+  basis: string;
+  marginBin: string | null;
+  marginSurvival: number | null;
+  marginUsable: boolean;
+  specShare: number | null;
+  specAgreeing: number;
+  specTotal: number;
+} {
+  const surv = revisionSurvivalFor(reading.margin);
+  const share = reading.quad === AGREEMENT.modalQuad ? AGREEMENT.modalShare : null;
+  const agreeing = Number(
+    (AGREEMENT.counts as Record<string, number>)[String(reading.quad)] ?? 0,
+  );
+  const base = {
+    marginBin: surv.bin,
+    marginSurvival: surv.survival,
+    marginUsable: surv.usable,
+    specShare: share,
+    specAgreeing: agreeing,
+    specTotal: Number(AGREEMENT.nClassified ?? 0),
+  };
+  const thin = surv.survival != null && surv.survival < 0.75;
+  const split = share != null && share < 0.6;
+  if (thin || split) {
+    return {
+      ...base,
+      grade: "fragile",
+      basis: thin
+        ? `readings this close to the boundary held ${Math.round((surv.survival ?? 0) * 100)}% of the time`
+        : "fewer than three in five specifications agree",
+    };
+  }
+  if (surv.survival != null && surv.survival >= 0.9 && share != null && share >= 0.75) {
+    return { ...base, grade: "firm", basis: "a clear margin and broad agreement across specifications" };
+  }
+  return { ...base, grade: "mixed", basis: "neither margin nor agreement is decisive" };
+}
+
+/** P(the current spell ends within N months | it has already lasted this long). */
+export function exitOdds(withinMonths: 1 | 3 | 6): number | null {
+  const v = DURATIONS.current.exitWithin[String(withinMonths)];
+  return v == null ? null : v;
+}
+
+/** Occupancy over a window, or null when that window was not exported. */
+export function occupancyFor(window: number): Occupancy | null {
+  return OCCUPANCY[window] ?? null;
+}
+
+/** Every eligible specification's current call, disagreements first. */
+export function specCalls(): SpecInfo[] {
+  const modal = AGREEMENT.modalQuad;
+  return Object.values(SPECS).sort((a, b) => {
+    const ad = a.quadNow === modal ? 1 : 0;
+    const bd = b.quadNow === modal ? 1 : 0;
+    if (ad !== bd) return ad - bd;
+    return (b.survivalHoldout ?? 0) - (a.survivalHoldout ?? 0);
+  });
 }

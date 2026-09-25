@@ -1,7 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LEVEL_META } from "@/data/catalog";
 import { Panel } from "@/components/ui";
-import { QUADS, QUAD_RUN } from "@/lib/ace/macro-quads";
+import {
+  DURATIONS,
+  QUADS,
+  QUAD_RUN,
+  RETURNS_TEST,
+  REVISION,
+  VOL_TEST,
+} from "@/lib/ace/macro-quads";
 
 export const Route = createFileRoute("/docs")({ component: DocsPage });
 
@@ -269,13 +276,28 @@ function DocsPage() {
             entirely; it arrives roughly four months after the quarter it describes.
           </p>
           <p className="mt-2 text-caption text-muted">
-            It labels the environment. It does not tell you what to own. Tested over a sealed
-            holdout against simply being long the same asset,{" "}
-            {QUAD_RUN.validation.channelsBeatingLongOnly.length} of{" "}
-            {QUAD_RUN.validation.channelsTested.length} channels beat that baseline and{" "}
-            {QUAD_RUN.validation.signsHeld} of {QUAD_RUN.validation.usableCells} regime cells kept
-            their sign — a coin flip. So the panel shows no asset ranking, and this desk does not
-            position on the quad.
+            Two further things are measured rather than assumed, and both are on the{" "}
+            <Link to="/macro" className="text-primary hover:underline">
+              macro page
+            </Link>
+            . Every historical reading was re-run on today&rsquo;s revised data:{" "}
+            <span className="text-foreground">
+              {Math.round((REVISION.pooledSurvival ?? 0) * 100)}%
+            </span>{" "}
+            of real-time labels survived, and{" "}
+            {Math.round((REVISION.flipAxis.growthShare ?? 0) * 100)}% of the failures flipped the
+            growth axis, because growth data revises far more than price data. And the median regime
+            lasts <span className="text-foreground">{DURATIONS.pooled.medianMonths} months</span> —
+            under every specification tested — so the page shows where the last year was actually
+            spent alongside the point reading.
+          </p>
+          <p className="mt-2 text-caption text-muted">
+            It labels the environment. It does not tell you what to own, or how much risk to carry.
+            Tested over sealed holdouts: {RETURNS_TEST.channelsBeatingBaseline.length} of{" "}
+            {RETURNS_TEST.channelsTested.length} channels beat simply being long the same asset, and{" "}
+            {VOL_TEST.channelsBeatingBaseline.length} of {VOL_TEST.channelsTested.length} improved a
+            volatility forecast that already knew last month&rsquo;s volatility. So no asset ranking
+            and no risk sizing is shown, and this desk does not position on the quad.
           </p>
         </Panel>
       </section>

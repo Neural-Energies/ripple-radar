@@ -26,7 +26,7 @@
     "edges:measure": "node scripts/export-transmit-edges.mjs && python3 ace/ripple/edge_calibration.py && node scripts/generate-transmission-evidence.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "quads:generate": "python3 ace/macro/export_quads.py && node scripts/generate-macro-quads.mjs"
+    "quads:generate": "python3 ace/models/quad_model.py --spec labour && python3 ace/models/quad_vol_model.py --spec labour && python3 ace/macro/export_quads.py && node scripts/generate-macro-quads.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.4",

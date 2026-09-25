@@ -1,29 +1,26 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import {
-  ArrowUpRight,
-  Bookmark,
-  BookmarkCheck,
-  Newspaper,
-  X,
-} from "lucide-react";
+import { ArrowUpRight, Bookmark, BookmarkCheck, Newspaper, X } from "lucide-react";
 import { ScenarioDistributionBar } from "@/components/charts";
 import { MacroQuadPanel } from "@/components/macro-quad-panel";
 import { BookStateChips } from "@/components/research-header";
 import { RippleMap } from "@/components/ripple-map";
 import { Badge, Button, Delta, Input, Panel, buttonVariants } from "@/components/ui";
-import type {
-  Crowding,
-  RadarEvent,
-  TradeCategory,
-  TriageDisposition,
-} from "@/data/types";
+import type { Crowding, RadarEvent, TradeCategory, TriageDisposition } from "@/data/types";
 import { goToEvent, goToScenario } from "@/lib/hooks/use-event-param-sync";
 import { runAnalyze, runRescore, useLive, useLiveEvents, useQuote } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
 import { cn, formatPct } from "@/lib/utils";
 
-const TRADE_FILTERS: Array<"All" | TradeCategory> = ["All", "etf", "stock", "futures", "forex", "commodities", "crypto"];
+const TRADE_FILTERS: Array<"All" | TradeCategory> = [
+  "All",
+  "etf",
+  "stock",
+  "futures",
+  "forex",
+  "commodities",
+  "crypto",
+];
 
 export function Dashboard({ event }: { event: RadarEvent }) {
   const navigate = useNavigate();
@@ -75,15 +72,23 @@ export function Dashboard({ event }: { event: RadarEvent }) {
             ) : (
               <ul className="flex flex-col">
                 {event.marketReaction.slice(0, 8).map((m) => (
-                  <ReactionRow key={m.ticker} label={m.label} ticker={m.ticker} fallback={m.change} />
+                  <ReactionRow
+                    key={m.ticker}
+                    label={m.label}
+                    ticker={m.ticker}
+                    fallback={m.change}
+                  />
                 ))}
               </ul>
             )}
           </Panel>
-          <MacroQuadPanel />
           <NextEvidencePanel event={event} />
         </div>
       </div>
+
+      {/* Macro backdrop: the same whichever event is on the desk, so it sits as
+          a full-width band rather than a tile in the event-analysis column. */}
+      <MacroQuadPanel />
 
       {/* Footer: exposures + evidence + transmission */}
       <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-12">
@@ -117,7 +122,9 @@ function DevelopingNowStrip({ activeId }: { activeId: string }) {
   return (
     <section className="rounded-md border border-border bg-card px-2 py-1.5">
       <div className="mb-1 flex items-center justify-between gap-2">
-        <h2 className="text-micro font-medium uppercase tracking-wider text-muted">Developing now</h2>
+        <h2 className="text-micro font-medium uppercase tracking-wider text-muted">
+          Developing now
+        </h2>
         <div className="flex items-center gap-2">
           <span className="font-mono text-micro tabular-nums text-subtle">
             {events.length} book{events.length === 1 ? "" : "s"} · by importance
@@ -128,7 +135,9 @@ function DevelopingNowStrip({ activeId }: { activeId: string }) {
         </div>
       </div>
       {events.length === 0 ? (
-        <p className="px-1 py-1.5 text-caption text-muted">Clustering live headlines into events…</p>
+        <p className="px-1 py-1.5 text-caption text-muted">
+          Clustering live headlines into events…
+        </p>
       ) : (
         <ul className="flex gap-1.5 overflow-x-auto pb-0.5">
           {events.map((e) => {
@@ -136,7 +145,13 @@ function DevelopingNowStrip({ activeId }: { activeId: string }) {
             const hasImp = typeof e.importance === "number";
             const imp = hasImp ? e.importance! : 0;
             const riskTone: "core" | "warn" | "primary" | "neutral" =
-              hasImp && imp >= 70 ? "core" : hasImp && imp >= 45 ? "warn" : hasImp && imp >= 25 ? "primary" : "neutral";
+              hasImp && imp >= 70
+                ? "core"
+                : hasImp && imp >= 45
+                  ? "warn"
+                  : hasImp && imp >= 25
+                    ? "primary"
+                    : "neutral";
             const family = e.eventSubtype ?? e.eventType ?? e.theme;
             const links = e.relatedEvents?.length ?? 0;
             return (
@@ -168,11 +183,11 @@ function DevelopingNowStrip({ activeId }: { activeId: string }) {
                       </Badge>
                     )}
                   </div>
-                  <div className="mt-0.5 line-clamp-2 text-caption font-medium leading-snug">{e.title}</div>
+                  <div className="mt-0.5 line-clamp-2 text-caption font-medium leading-snug">
+                    {e.title}
+                  </div>
                   <div className="mt-1 flex items-center justify-between gap-1 font-mono text-micro text-muted">
-                    <span title="Importance 0–99">
-                      imp {hasImp ? e.importance : "—"}
-                    </span>
+                    <span title="Importance 0–99">imp {hasImp ? e.importance : "—"}</span>
                     <span className="tabular-nums text-primary" title="Probability">
                       {e.probability}%
                     </span>
@@ -207,7 +222,9 @@ function DevelopingNowStrip({ activeId }: { activeId: string }) {
 /** Thin book chrome — crowding ≠ confirmation; reserved fields only when present. */
 function EventHero({ event }: { event: RadarEvent }) {
   const rescoring = useLive((s) => s.rescoring);
-  const mode = event.mode ?? (event.id.startsWith("live-") ? "live" : event.id.startsWith("desk-") ? "desk" : "standing");
+  const mode =
+    event.mode ??
+    (event.id.startsWith("live-") ? "live" : event.id.startsWith("desk-") ? "desk" : "standing");
   const family = event.eventSubtype ?? event.eventType ?? event.theme;
   const sourceN = event.sourceCount ?? event.sources.reduce((n, s) => n + s.count, 0);
   const freshness = event.timestamp || event.firstDetected;
@@ -223,9 +240,14 @@ function EventHero({ event }: { event: RadarEvent }) {
         {event.region && event.region !== "—" ? <Badge tone="neutral">{event.region}</Badge> : null}
         <BookStateChips event={event} />
         {freshness ? <span className="font-mono text-micro text-subtle">{freshness}</span> : null}
-        {sourceN > 0 ? <span className="font-mono text-micro text-subtle">{sourceN} src</span> : null}
+        {sourceN > 0 ? (
+          <span className="font-mono text-micro text-subtle">{sourceN} src</span>
+        ) : null}
         <div className="ml-auto flex items-center gap-2">
-          <span className="font-mono text-caption tabular-nums text-muted" title="Importance 0–99 · not a 10-scale">
+          <span
+            className="font-mono text-caption tabular-nums text-muted"
+            title="Importance 0–99 · not a 10-scale"
+          >
             imp <span className="text-foreground">{hasImp ? event.importance : "—"}</span>
           </span>
           <span className="font-mono text-caption tabular-nums" title="Probability">
@@ -247,7 +269,10 @@ function EventHero({ event }: { event: RadarEvent }) {
             type="button"
             disabled={rescoring === event.id || empty}
             onClick={() => void runRescore(event.id)}
-            className={cn(buttonVariants({ size: "sm", variant: "secondary" }), "h-6 px-2 text-micro")}
+            className={cn(
+              buttonVariants({ size: "sm", variant: "secondary" }),
+              "h-6 px-2 text-micro",
+            )}
           >
             {rescoring === event.id ? "…" : "Rescore"}
           </button>
@@ -270,7 +295,9 @@ function ProbabilityReadout({ event }: { event: RadarEvent }) {
   if (empty) {
     return (
       <Panel title="Event analysis">
-        <p className="text-caption text-muted">Select a live book to see probability and importance.</p>
+        <p className="text-caption text-muted">
+          Select a live book to see probability and importance.
+        </p>
       </Panel>
     );
   }
@@ -331,7 +358,9 @@ function NextEvidencePanel({ event }: { event: RadarEvent }) {
             Then within {next.lag}: {next.observe}
           </p>
           <div className="mt-1">
-            <Badge tone={next.appeared ? "up" : "neutral"}>{next.appeared ? "observed" : "awaiting"}</Badge>
+            <Badge tone={next.appeared ? "up" : "neutral"}>
+              {next.appeared ? "observed" : "awaiting"}
+            </Badge>
           </div>
           {next.appeared && next.matchedHeadline && (
             <p className="mt-1 text-micro text-muted">
@@ -377,14 +406,21 @@ function AnalyzeBar() {
             void runAnalyze(t).then(() => setDraft(""));
           }}
         >
-          <span className="shrink-0 text-micro font-medium uppercase tracking-wider text-muted">Analyze</span>
+          <span className="shrink-0 text-micro font-medium uppercase tracking-wider text-muted">
+            Analyze
+          </span>
           <Input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Paste a shock — pipeline hit, FOMC hike, yen intervention…"
             className="min-h-7 h-7 flex-1 text-caption"
           />
-          <Button type="submit" size="sm" disabled={analyzing || !draft.trim()} className="h-7 sm:w-20">
+          <Button
+            type="submit"
+            size="sm"
+            disabled={analyzing || !draft.trim()}
+            className="h-7 sm:w-20"
+          >
             {analyzing ? "…" : "Run"}
           </Button>
         </form>
@@ -408,18 +444,31 @@ function dispositionTone(d: TriageDisposition): "up" | "warn" | "core" | "neutra
   return "neutral";
 }
 
-
-function ReactionRow({ label, ticker, fallback }: { label: string; ticker: string; fallback: number }) {
+function ReactionRow({
+  label,
+  ticker,
+  fallback,
+}: {
+  label: string;
+  ticker: string;
+  fallback: number;
+}) {
   const q = useQuote(ticker);
   const change = q?.changePct ?? fallback;
   const live = q != null;
   return (
     <li className="flex items-center justify-between gap-2 border-t border-border/60 py-1 text-caption first:border-t-0 first:pt-0">
-      <Link to="/assets/$ticker" params={{ ticker }} className="truncate text-muted hover:text-primary">
+      <Link
+        to="/assets/$ticker"
+        params={{ ticker }}
+        className="truncate text-muted hover:text-primary"
+      >
         {label}
         <span className="ml-1 font-mono text-micro text-subtle">{live ? "live" : "last"}</span>
       </Link>
-      <span className={cn("shrink-0 font-mono tabular-nums", change >= 0 ? "text-up" : "text-down")}>
+      <span
+        className={cn("shrink-0 font-mono tabular-nums", change >= 0 ? "text-up" : "text-down")}
+      >
         {formatPct(change)}
       </span>
     </li>
@@ -470,7 +519,9 @@ function TransmissionPanel({ event }: { event: RadarEvent }) {
                       {s?.label ?? l.source} → {d?.label ?? l.dest}
                       {d?.ticker ? ` · ${d.ticker}` : ""}
                     </span>
-                    <span className="shrink-0 font-mono text-micro text-primary">d{l.distance}</span>
+                    <span className="shrink-0 font-mono text-micro text-primary">
+                      d{l.distance}
+                    </span>
                   </div>
                   <p className="line-clamp-1 text-micro text-muted">{l.evidence}</p>
                 </button>
@@ -525,7 +576,9 @@ function TransmissionPanel({ event }: { event: RadarEvent }) {
               <dl className="flex flex-col gap-3">
                 <div>
                   <dt className="text-micro uppercase tracking-wider text-subtle">Explanation</dt>
-                  <dd className="mt-1 text-sm leading-relaxed text-foreground">{selected.evidence}</dd>
+                  <dd className="mt-1 text-sm leading-relaxed text-foreground">
+                    {selected.evidence}
+                  </dd>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
@@ -538,8 +591,12 @@ function TransmissionPanel({ event }: { event: RadarEvent }) {
                   </div>
                 </div>
                 <div>
-                  <dt className="text-micro uppercase tracking-wider text-subtle">Kill / invalidation</dt>
-                  <dd className="mt-1 text-sm leading-relaxed text-foreground">{selected.invalidation}</dd>
+                  <dt className="text-micro uppercase tracking-wider text-subtle">
+                    Kill / invalidation
+                  </dt>
+                  <dd className="mt-1 text-sm leading-relaxed text-foreground">
+                    {selected.invalidation}
+                  </dd>
                 </div>
                 {typeof selected.confidence === "number" ? (
                   <div>
@@ -551,8 +608,12 @@ function TransmissionPanel({ event }: { event: RadarEvent }) {
                 ) : null}
                 {selected.historicalSupport ? (
                   <div>
-                    <dt className="text-micro uppercase tracking-wider text-subtle">Historical support</dt>
-                    <dd className="mt-1 text-sm leading-relaxed text-muted">{selected.historicalSupport}</dd>
+                    <dt className="text-micro uppercase tracking-wider text-subtle">
+                      Historical support
+                    </dt>
+                    <dd className="mt-1 text-sm leading-relaxed text-muted">
+                      {selected.historicalSupport}
+                    </dd>
                   </div>
                 ) : null}
               </dl>
@@ -653,7 +714,9 @@ function TradesPanel({ event, compact }: { event: RadarEvent; compact?: boolean 
                       {t.side} · {t.horizon}
                       {t.distance != null && ` · d${t.distance}`}
                       {chg != null && (
-                        <span className={cn("ml-1.5", chg >= 0 ? "text-up" : "text-down")}>{formatPct(chg)}</span>
+                        <span className={cn("ml-1.5", chg >= 0 ? "text-up" : "text-down")}>
+                          {formatPct(chg)}
+                        </span>
                       )}
                     </div>
                   )}
@@ -695,13 +758,19 @@ function EvidencePanel({ event }: { event: RadarEvent }) {
               <div className="flex items-center gap-1.5">
                 <Badge
                   tone={
-                    e.evidenceClass === "fundamental" ? "up" : e.evidenceClass === "market" ? "warn" : "primary"
+                    e.evidenceClass === "fundamental"
+                      ? "up"
+                      : e.evidenceClass === "market"
+                        ? "warn"
+                        : "primary"
                   }
                 >
                   {e.evidenceClass.slice(0, 4)}
                 </Badge>
                 <span className="font-mono text-micro text-subtle">{e.source}</span>
-                {e.reliability && <span className="font-mono text-micro text-muted">{e.reliability}</span>}
+                {e.reliability && (
+                  <span className="font-mono text-micro text-muted">{e.reliability}</span>
+                )}
               </div>
               {e.url ? (
                 <a

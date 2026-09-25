@@ -17,6 +17,7 @@ import { Route as EventsRouteImport } from './routes/events'
 import { Route as GameTheoryRouteImport } from './routes/game-theory'
 import { Route as LearningRouteImport } from './routes/learning'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MacroRouteImport } from './routes/macro'
 import { Route as MapsRouteImport } from './routes/maps'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as ScenariosRouteImport } from './routes/scenarios'
@@ -64,6 +65,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MacroRoute = MacroRouteImport.update({
+  id: '/macro',
+  path: '/macro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MapsRoute = MapsRouteImport.update({
   id: '/maps',
   path: '/maps',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/game-theory': typeof GameTheoryRoute
   '/learning': typeof LearningRoute
   '/login': typeof LoginRoute
+  '/macro': typeof MacroRoute
   '/maps': typeof MapsRoute
   '/portfolio': typeof PortfolioRoute
   '/scenarios': typeof ScenariosRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByTo {
   '/game-theory': typeof GameTheoryRoute
   '/learning': typeof LearningRoute
   '/login': typeof LoginRoute
+  '/macro': typeof MacroRoute
   '/maps': typeof MapsRoute
   '/portfolio': typeof PortfolioRoute
   '/scenarios': typeof ScenariosRoute
@@ -137,6 +145,7 @@ export interface FileRoutesById {
   '/game-theory': typeof GameTheoryRoute
   '/learning': typeof LearningRoute
   '/login': typeof LoginRoute
+  '/macro': typeof MacroRoute
   '/maps': typeof MapsRoute
   '/portfolio': typeof PortfolioRoute
   '/scenarios': typeof ScenariosRoute
@@ -155,6 +164,7 @@ export interface FileRouteTypes {
     | '/game-theory'
     | '/learning'
     | '/login'
+    | '/macro'
     | '/maps'
     | '/portfolio'
     | '/scenarios'
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/game-theory'
     | '/learning'
     | '/login'
+    | '/macro'
     | '/maps'
     | '/portfolio'
     | '/scenarios'
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/game-theory'
     | '/learning'
     | '/login'
+    | '/macro'
     | '/maps'
     | '/portfolio'
     | '/scenarios'
@@ -204,6 +216,7 @@ export interface RootRouteChildren {
   GameTheoryRoute: typeof GameTheoryRoute
   LearningRoute: typeof LearningRoute
   LoginRoute: typeof LoginRoute
+  MacroRoute: typeof MacroRoute
   MapsRoute: typeof MapsRoute
   PortfolioRoute: typeof PortfolioRoute
   ScenariosRoute: typeof ScenariosRoute
@@ -267,6 +280,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/macro': {
+      id: '/macro'
+      path: '/macro'
+      fullPath: '/macro'
+      preLoaderRoute: typeof MacroRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/maps': {
@@ -334,6 +354,7 @@ const rootRouteChildren: RootRouteChildren = {
   GameTheoryRoute: GameTheoryRoute,
   LearningRoute: LearningRoute,
   LoginRoute: LoginRoute,
+  MacroRoute: MacroRoute,
   MapsRoute: MapsRoute,
   PortfolioRoute: PortfolioRoute,
   ScenariosRoute: ScenariosRoute,

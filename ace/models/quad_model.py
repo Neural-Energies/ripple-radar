@@ -49,7 +49,14 @@ warnings.filterwarnings("ignore")
 
 from ace.config import RANDOM_SEED, REPORTS
 from ace.data.fred_market import market_panel
-from ace.macro.quads import QUAD_NAMES, quad_history, transitions
+from ace.macro.quads import (
+    DEFAULT_SPEC,
+    QUAD_NAMES,
+    SPECS,
+    load_vintages,
+    quad_history,
+    transitions,
+)
 from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
 
 MODEL_ID = "ace_macro_quad"
@@ -149,6 +156,9 @@ def main() -> int:
                     default=["NASDAQ", "SP500", "UST10Y", "WTI", "USD_BROAD", "VIX"])
     ap.add_argument("--horizon", type=int, default=1, help="months ahead")
     ap.add_argument("--seed", type=int, default=RANDOM_SEED)
+    ap.add_argument("--spec", default=DEFAULT_SPEC, choices=sorted(SPECS),
+                    help="which composite to classify with — must match the one the "
+                         "product ships, or this tests a different model than it sells")
     args = ap.parse_args()
 
     print("=" * 88)
@@ -158,7 +168,8 @@ def main() -> int:
     panel = market_panel("2010-01-01")
     rets = monthly_returns(panel, args.channels)
     dates = rets.index
-    hist = quad_history(dates)
+    spec = SPECS[args.spec]
+    hist = quad_history(dates, spec=spec, vintages=load_vintages(spec))
     quads = hist["quad"]
 
     labelled = quads.notna().sum()
@@ -247,8 +258,8 @@ def main() -> int:
             validation_periods=[{"scheme": "chronological holdout", "frac": HOLDOUT_FRAC}],
             holdout_period={"frac": HOLDOUT_FRAC},
             training_dataset_hash=dataframe_hash(rets.dropna(how="all")),
-            hyperparameters={"lookback_months": 3, "min_months": MIN_MONTHS,
-                             "horizon_months": args.horizon},
+            hyperparameters={"spec": spec.name, "lookback_months": spec.lookback,
+                             "min_months": MIN_MONTHS, "horizon_months": args.horizon},
             random_seed=args.seed,
             performance_metrics={c: {k: v for k, v in results[c].items() if k != "cells"}
                                  for c in ran},

@@ -12,6 +12,7 @@ const PAGES = [
   { to: "/maps", label: "Ripple Map" },
   { to: "/scenarios", label: "Scenarios" },
   { to: "/game-theory", label: "Game Theory" },
+  { to: "/macro", label: "Macro Regime" },
   { to: "/assets", label: "Assets" },
   { to: "/watchlists", label: "Watchlists" },
   { to: "/alerts", label: "Alerts" },

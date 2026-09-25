@@ -18,13 +18,17 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from ace.macro.quads import (
-    MIN_OBSERVATIONS,
-    ROC_LOOKBACK_MONTHS,
+    MIN_OBSERVATIONS_BASE,
+    SPECS,
     classify,
     known_at,
     reading_at,
     transitions,
 )
+
+#: The fixtures below all use the default three-month lookback.
+LOOKBACK = SPECS["fast"].lookback
+MIN_OBSERVATIONS = MIN_OBSERVATIONS_BASE + LOOKBACK
 
 
 def _vintage(values: dict[str, float], lag_days: int = 45) -> pd.DataFrame:
@@ -94,7 +98,7 @@ def test_reading_uses_only_published_months():
         "CPIAUCSL": _vintage(_ramp("2018-01-01", n, 250.0, 0.5), lag_days=45),
     }
     when = pd.Timestamp("2020-06-30", tz="UTC")
-    r = reading_at(when, vintages)
+    r = reading_at(when, vintages, spec="fast")
     assert r.quad is not None
     # Newest input observation must predate the classification date, always.
     assert pd.Timestamp(r.growth_through, tz="UTC") < when
@@ -108,7 +112,7 @@ def test_reading_is_unclassified_without_enough_history():
         "PAYEMS": _vintage(_ramp("2020-01-01", 4, 150.0, 1.0)),
         "CPIAUCSL": _vintage(_ramp("2020-01-01", 4, 250.0, 1.0)),
     }
-    r = reading_at(pd.Timestamp("2020-06-30", tz="UTC"), short)
+    r = reading_at(pd.Timestamp("2020-06-30", tz="UTC"), short, spec="fast")
     assert r.quad is None
     assert r.name == "unclassified"
     assert "not enough" in r.reason
@@ -123,14 +127,14 @@ def test_a_future_revision_cannot_change_a_past_reading():
         "CPIAUCSL": _vintage(_ramp("2018-01-01", n, 250.0, 0.5), lag_days=45),
     }
     when = pd.Timestamp("2020-06-30", tz="UTC")
-    before = reading_at(when, base)
+    before = reading_at(when, base, spec="fast")
 
     # Now add a violent revision and several more months, all published later.
     revised = {}
     for sid, hist in base.items():
         extra = _vintage(_ramp("2020-06-01", 8, 999.0, -50.0), lag_days=45)
         revised[sid] = pd.concat([hist, extra], ignore_index=True)
-    after = reading_at(when, revised)
+    after = reading_at(when, revised, spec="fast")
 
     assert before.to_dict() == after.to_dict()
 
@@ -163,7 +167,7 @@ def test_roc_is_the_second_derivative_not_the_level():
     disagreements = [
         r
         for r in (
-            reading_at(d, vintages)
+            reading_at(d, vintages, spec="fast")
             for d in pd.date_range("2019-06-30", "2020-12-31", freq="ME", tz="UTC")
         )
         if r.quad is not None and r.growth_yoy < 0 < r.growth_roc
@@ -191,7 +195,11 @@ def test_transitions_collapse_runs_and_have_no_diagonal():
 
 
 def test_lookback_is_a_quarter_not_a_month():
-    # One month of rate-of-change is revision noise; the constant is a
-    # deliberate choice and worth pinning so it is not drifted casually.
-    assert ROC_LOOKBACK_MONTHS == 3
-    assert MIN_OBSERVATIONS == 13 + ROC_LOOKBACK_MONTHS
+    # One month of rate-of-change is revision noise; the default is a
+    # deliberate choice and worth pinning so it is not drifted casually. The
+    # one-month variant still exists as a named candidate, and is measured
+    # against the others rather than assumed away.
+    assert LOOKBACK == 3
+    assert MIN_OBSERVATIONS == MIN_OBSERVATIONS_BASE + LOOKBACK
+    assert SPECS["fast_1m"].lookback == 1
+    assert SPECS["fast_6m"].lookback == 6

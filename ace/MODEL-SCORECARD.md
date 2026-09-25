@@ -27,7 +27,8 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | Game theory (Nash + Monte Carlo) | **Exact** | Yes — equilibria computed and verified. Payoffs remain an assumption. |
 | Regime (Markov switching) | **Validated, descriptive** | Yes — to label the environment. Not as a forecast. |
 | Historical analogs | **Validated, descriptive** | Yes — as a distribution of what followed similar states. |
-| **Growth/inflation quad** | **Classification validated, positioning FAILED — 0/6 channels** | Yes, as an environment label with its data lag stated. **No** as a positioning signal. |
+| **Growth/inflation quad** | **Classification validated; positioning FAILED 0/6; vol forecast FAILED 0/6** | Yes, as an environment label with its data lag, margin and revision survival stated. **No** as a positioning signal and **no** as a risk-sizing signal. |
+| **Quad revision risk** | **Measured** | **Yes** — 74% of real-time labels survived revision, and the per-margin rates are calibrated. |
 | Transmission / Ripple | **Partly validated** | Contemporaneous structure only. No tradeable lag exists in this data. |
 | Shock persistence | **FAILED** | No. |
 | Event impact (macro) | **FAILED** | No. |
@@ -703,92 +704,187 @@ reason.
 
 ---
 
-## 13. ace_macro_quad v1 — the classification passes, the trade does not
+## 13. ace_macro_quad v1 — the label holds, both trades built on it do not
 
 The growth/inflation quad — classify the economy by the **rate of change** of
 growth and inflation rather than their level, into four regimes. It is the
-framework Hedgeye built a business on, and it makes two claims that are almost
-always sold as one:
+framework Hedgeye built a business on, and it bundles three claims that are
+almost always sold as one:
 
 1. The economy can be classified this way, in real time.
-2. Knowing which quad you are in tells you how to be positioned.
+2. Knowing which quad you are in tells you how to be **positioned**.
+3. Knowing which quad you are in tells you how much **risk** to carry.
 
-They are separable, and they came out differently.
+They are separable. They were tested separately. Only the first survived.
 
 ### Claim 1 — PASSES, and the point-in-time discipline is the whole thing
 
 320 month-ends classified, 2000-01 to 2026-08, from ALFRED **first-release**
 vintages filtered to what had actually been published by each classification
-date. Median lag behind the tape: **60 days**, max 90.
+date.
 
-That lag is the model. The publication calendar on this sample:
+That lag is the model. The publication calendar, measured from the vintage
+archive rather than quoted from a manual:
 
 | Series | median lag | p90 |
 |---|---|---|
-| PAYEMS | 34d | 37d |
-| INDPRO | 45d | 47d |
-| CPIAUCSL | 45d | 49d |
+| PAYEMS nonfarm payrolls | 34d | 37d |
+| PPIACO producer prices | 43d | 48d |
+| INDPRO industrial production | 45d | 47d |
+| CPIAUCSL / CPILFESL | 45d | 49d |
+| RRSFS real retail sales | 45d | 49d |
+| PCEC96 real consumption | 59d | 62d |
+| DSPIC96 real disposable income | 59d | 62d |
 | real GDP | **119d** | — |
 
-Real GDP is excluded for that reason: by the time it lands it describes a
-quarter that ended four months ago, and a nowcast that waits for it is reading
-an almanac.
+GDP is excluded for that reason: by the time it lands it describes a quarter
+that ended four months ago, and a nowcast that waits for it is reading an
+almanac. Two spot checks show the discipline is real rather than asserted:
 
-Two spot checks show the discipline is real rather than asserted:
-
-- **2020-03-31 → Quad 3 Stagflation**, growth +0.61% YoY, data through
-  2020-02-01. COVID had not entered published data yet. Today's revised figures
-  say Quad 4, emphatically. Anyone whose backtest says Quad 4 on that date
-  scored themselves on data nobody had.
-- **2008-10-31 → Quad 3, not Quad 4.** CPI was still +5.05% and accelerating in
-  the September print. The deflation everyone remembers shows up in the data
-  later than it shows up in the story.
+- **2008-10-31 → Quad 3 Stagflation**, not Quad 4. CPI was still +5.05% and
+  accelerating in the September print. The deflation everyone remembers shows
+  up in the data later than it shows up in the story.
+- **2020-03-31 → Quad 3**, growth +0.61% YoY, reading through 2020-02-01. COVID
+  had not entered published data yet. Anyone whose backtest says Quad 4 on that
+  date scored themselves on data nobody had.
 
 `test_quads.py` pins the property directly: appending a violent revision and
 eight further months to the vintage frame leaves an earlier reading
 byte-identical.
 
+### The composite is chosen by a criterion, not by convention
+
+"Industrial production and payrolls" is a convention. Eight candidate
+specifications were scored instead, on a stated criterion: **the share of
+real-time labels that survived contact with the revised data**, measured on a
+training window and re-checked on a holdout. Readings from the last 18 months
+are excluded — the data has not had time to revise, so they would score as
+survivors by default and flatter every candidate equally.
+
+A candidate whose median spell falls below a **two-month persistence floor** is
+disqualified outright rather than traded off against survival: it is labelling
+months, not regimes.
+
+| spec | train | holdout | median spell | ≥1 quarter |
+|---|---|---|---|---|
+| **labour** (PAYEMS, CPI, 3mo) | **72.5%** | 78.0% | 2 mo | 41% |
+| fast_6m | 69.2% | 72.5% | 2 mo | 46% |
+| broad (5 growth, 3 price) | 68.6% | 78.0% | 2 mo | 33% |
+| broad_6m | 67.8% | 70.3% | 2 mo | 44% |
+| core (core CPI) | 66.3% | 74.7% | 2 mo | 40% |
+| fast (INDPRO+PAYEMS, CPI) | 65.9% | 75.8% | 2 mo | 33% |
+| production | 64.5% | 76.9% | 2 mo | 34% |
+| fast_1m | 64.5% | — | **1 mo** | 10% — **disqualified** |
+
+`labour` won the training window and ranked 2nd of 7 eligible on the holdout,
+so the choice held up rather than being the luckiest of eight. It is worth
+saying plainly why a single series wins a *revision-survival* criterion:
+payrolls revises less than industrial production does, so a narrow composite
+partly wins by having less to revise. That is a real property, it is the
+property the criterion asks about, and the full table is shipped so a reader
+can disagree with the criterion rather than with a hidden choice.
+
+### The finding that undercuts how the framework is presented
+
+**The median spell is two months. Under every specification tested** — the
+broadest, the slowest, the core-inflation variant, all of them. Only 33–46% of
+completed spells reach a single quarter.
+
+A framework presented as quarterly regimes you position around produces, on
+honest point-in-time monthly data, a label that turns over about every two
+months. That is not a defect in one composite; it is what the data does.
+
+The reason is visible in the margins: **190 of 302** settled readings sat in
+the "knife-edge" bin, with both rates of change inside ±0.25 points of the
+boundary. The quad is usually a near-tie.
+
+### Claim 1 comes with an error rate, which is also measured
+
+Every historical reading was re-run on today's revised data, cut to the same
+observation months, so the two differ only in how revised the values are.
+
+**74.2% of real-time labels survived.** The per-margin calibration is monotone
+and the bin edges were fixed in advance rather than fitted:
+
+| margin | n | survived |
+|---|---|---|
+| knife-edge 0.00–0.25 | 190 | **62.6%** |
+| thin 0.25–0.75 | 83 | 91.6% |
+| clear 0.75–2.00 | 24 | 100% |
+| decisive 2.00+ | 5 | 100% (too thin to quote) |
+
+And the failures have a direction. **72% of them (56 of 78) flipped the growth
+axis** — Q1↔Q4 or Q2↔Q3, which hold inflation fixed — against 15 on inflation.
+Growth data revises far more than price data, so the top row of the 2×2 is
+where a real-time quad is most likely to be wrong. The framework's own
+transitions travel the same axis, because both are driven by the same noise.
+
 ### Claim 2 — FAILED, on the baseline that matters
 
 The baseline is **always long the same asset over the same period**, not zero.
-Equities drift up; any rule that is long most of the time inherits that drift
-and looks clever. Signs were learned on a training window and checked on a
-sealed chronological holdout, with block-bootstrap intervals (3-month blocks,
-1000 draws) because monthly returns cluster.
+Equities drift up, and a rule that is long most of the time inherits that drift
+and looks clever. Signs learned on a training window, checked on a sealed
+chronological holdout, block-bootstrap intervals (3-month blocks, 1000 draws).
 
-| Channel | signs held | holdout edge over always-long | 95% CI |
-|---|---|---|---|
-| NASDAQ | 3/4 | +0.000 %/mo | [+0.000, +0.000] |
-| SP500 | 2/3 | −0.678 | [−1.744, +0.181] |
-| UST10Y | **1/4** | −2.720 | [−7.635, +1.499] |
-| WTI | 2/4 | −0.396 | [−3.529, +3.704] |
-| USD_BROAD | **0/4** | −0.289 | [−0.979, +0.373] |
-| VIX | 3/4 | −1.580 | [−8.647, +4.786] |
-
-**11 of 23 usable quad cells kept their sign out of sample — 48%, a coin flip.
-Zero of six channels beat always-long with a CI excluding zero.**
-
-NASDAQ's exactly-zero edge is worth reading carefully rather than as a rounding
-artefact: every sign the training window learned for NASDAQ was positive, so
+Under the shipped `labour` spec: **0 of 6 channels** beat always-long with a CI
+excluding zero; **8 of 12** usable quad cells kept their sign (67%). NASDAQ's
+edge of exactly `+0.000` with a CI of `[+0.000, +0.000]` looks like a bug and
+is not: every sign the training window learned for NASDAQ was positive, so
 "quad positioning" reduced to being long in all four quads. It matched
-long-only because it *was* long-only. A framework that produces that on its
-strongest channel is not adding a regime view, it is adding ceremony.
+long-only because it *was* long-only.
 
 Registered **FAILED**. Not promoted.
 
+### Claim 3 — FAILED too, and the way it failed is the interesting part
+
+`ace/models/quad_vol_model.py`. A framework can be useless for direction and
+still useful for sizing, so volatility gets its own test rather than inheriting
+the returns verdict.
+
+The baseline is **an AR(1) in log realised volatility**, not the unconditional
+mean. Volatility is the most persistent quantity in finance, and a quad that
+merely recovers "vol was high recently" has discovered nothing. So the test is
+incremental — does adding quad dummies to a regression that already has lagged
+log vol reduce out-of-sample squared error — with Holm-Bonferroni across the
+six channels.
+
+| channel | persistence alone | quad adds | p |
+|---|---|---|---|
+| NASDAQ | +16.2% | +2.8% | 0.211 |
+| SP500 | −0.0% | +3.9% | 0.401 |
+| USD_BROAD | +14.4% | +2.1% | 0.570 |
+| WTI | +29.3% | −0.6% | 0.610 |
+| DJIA | +8.1% | +1.1% | 0.655 |
+| UST10Y | +33.9% | +0.7% | 0.710 |
+
+**0 of 6 survive correction.** But the descriptive signature is real and much
+more stable than the returns one: **14 of 18 usable cells kept their sign
+(78%)**, against 8/12 for returns. Quads 3 and 4 genuinely run hotter across
+channels. The conclusion is precise rather than dismissive — the vol signature
+exists, and the tape already knows it, so the quad adds nothing you could not
+get from last month's realised vol.
+
+Registered **FAILED**, and explicitly retired rather than left as a stale row.
+
 ### What went into the product, and what did not
 
-`scripts/generate-macro-quads.mjs` emits `src/lib/ace/macro-quads.ts` with
-`POSITIONING_VALIDATED = false`, written from the run, not by hand. The panel
-renders the label, the two rates of change, and how far behind the data is —
-and no asset ranking at all. If a future run passes, the same generator writes
-`true` and the gate opens on its own.
+`scripts/generate-macro-quads.mjs` emits two artifacts: a client module with
+the live reading and everything needed to qualify it, and a server-side detail
+payload with the history, the per-spec scorecards and the survival curves. It
+writes `POSITIONING_VALIDATED` and `VOL_FORECAST_VALIDATED` from the runs, and
+refuses to emit at all if the live reading is unclassified, the history is too
+short, or either verdict is missing — an absent scorecard must never read as a
+pass.
 
-The panel also calls out the thing this framework is most often misread on.
-The live reading is **Q1 Goldilocks** with growth at **−0.56% year-on-year** —
-negative in level, but less negative than a quarter ago. "Goldilocks" here
-describes the second derivative, not the economy, and a panel that does not say
-so is letting a reader infer a bullish call the data never made.
+A `/macro` route renders the label, its margin and measured survival rate, the
+spec vote, the revision confusion matrix, the Kaplan-Meier spell curves, the
+composite scorecard and both failed tests in full. It ranks no assets and sizes
+no risk, because there is nothing to rank or size by.
+
+A defect worth recording: the first export computed pooled survival over every
+comparison while the per-bin rates used only the settled ones, reporting 75.3%
+where the honest figure is 74.2%. The TypeScript test asserting that the pooled
+rate equals the bins it is made of caught it on the first run.
 
 ---
 
@@ -815,7 +911,7 @@ from a test that once wrote to the live registry — was removed.
 
 ## What this means
 
-Fourteen model families have now been put through the same gate: purged
+Fifteen model families have now been put through the same gate: purged
 walk-forward, a sealed holdout read once, out-of-sample calibration, and a
 comparison against the *right* baseline rather than a convenient one.
 
@@ -869,7 +965,8 @@ python3 ace/models/dbn_model.py
 python3 ace/models/causal_impact_model.py
 python3 ace/models/ensemble_model.py
 python3 ace/models/gdelt_cascade_model.py
-python3 ace/models/quad_model.py
+python3 ace/models/quad_model.py --spec labour
+python3 ace/models/quad_vol_model.py --spec labour
 python3 ace/macro/export_quads.py
 python3 ace/models/shock_persistence_model.py
 python3 ace/models/macro_impact_model.py
