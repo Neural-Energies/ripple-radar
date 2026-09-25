@@ -1,21 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { MacroPageBody, useMacroRegime } from "@/components/macro-strip";
-import { ReleaseDrawer, WhatChanged } from "@/components/macro/workstation";
-import { Panel } from "@/components/ui";
+import { MacroOverview } from "@/components/macro/overview";
+import { useMacroRegime } from "@/components/macro-strip";
 
 export const Route = createFileRoute("/macro/")({
-  component: MacroOverview,
+  component: MacroOverviewPage,
 });
 
-function MacroOverview() {
+function MacroOverviewPage() {
   const read = useMacroRegime();
-  return (
-    <>
-      <WhatChanged read={read} />
-      <ReleaseDrawer read={read} />
-      <Panel title="Validated regime">
-        <MacroPageBody read={read} />
-      </Panel>
-    </>
-  );
+  return <MacroOverview read={read} />;
 }

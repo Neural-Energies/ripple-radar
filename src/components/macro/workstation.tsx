@@ -17,15 +17,18 @@ const TABS = [
   { to: "/macro/policy", label: "Policy", exact: false },
   { to: "/macro/conditions", label: "Conditions", exact: false },
   { to: "/macro/shocks", label: "Shocks", exact: false },
+  { to: "/macro/models", label: "Models", exact: false },
 ] as const;
 
 export function MacroChrome({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-1.5">
-      <header>
-        <div className="text-micro uppercase tracking-wider text-subtle">Macro</div>
-        <h1 className="text-base font-semibold tracking-tight">Workstation</h1>
+    <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-1.5">
+      <header className="flex items-baseline justify-between gap-2">
+        <div>
+          <div className="text-micro uppercase tracking-wider text-subtle">Macro</div>
+          <h1 className="text-base font-semibold tracking-tight">Overview</h1>
+        </div>
       </header>
       <nav className="flex gap-1 overflow-x-auto" aria-label="Macro book">
         {TABS.map((tab) => {
@@ -187,7 +190,11 @@ export function GrowthPage() {
   const read = useMacroRegime();
   const side = read?.growth;
   return (
-    <Tabs
+    <div className="flex flex-col gap-1.5">
+      <p className="text-micro text-subtle">
+        This is the live five-leg basket. It is not the ALFRED labour specification, and it is not a GDP nowcast.
+      </p>
+      <Tabs
       tabs={[
         {
           id: "drivers",
@@ -204,7 +211,7 @@ export function GrowthPage() {
           body: (
             <Panel title="Breadth" action={<Badge tone="primary">Live</Badge>}>
               <p className="text-caption">
-                {side ? `${side.up} of ${side.n} accelerating. ${side.direction}.` : "No growth vote yet."} Same basket as the validated regime.
+                {side ? `${side.up} of ${side.n} accelerating. ${side.direction}.` : "No growth vote yet."} Live basket only. The ALFRED labour spec is a different vote.
               </p>
             </Panel>
           ),
@@ -213,6 +220,7 @@ export function GrowthPage() {
         { id: "range", label: "Range", body: <Hole id="range" /> },
       ]}
     />
+    </div>
   );
 }
 
@@ -324,9 +332,9 @@ export function PolicyPage() {
     <Panel title="Funds versus the rule" action={<Badge tone="primary">Live</Badge>}>
       {rule ? (
         <p className="text-caption">
-          Funds {rule.funds.toFixed(2)} versus {rule.rule.toFixed(2)}. {Math.abs(rule.stance).toFixed(2)} pp{" "}
-          {rule.stance < 0 ? "easier" : "tighter"} than Taylor 1993. r* {rule.rStar.toFixed(2)}. Unemployment {rule.unemployment.toFixed(1)} versus{" "}
-          {rule.nairu.toFixed(2)}. A comparison, not a call.
+          Funds {rule.funds.toFixed(2)} versus {rule.rule.toFixed(2)}. {Math.abs(rule.stance * 100).toFixed(0)} bp{" "}
+          {rule.stance < 0 ? "under" : "over"} the rule. r* {rule.rStar.toFixed(2)} (HLW). Unemployment {rule.unemployment.toFixed(1)} versus CBO{" "}
+          {rule.nairu.toFixed(2)}. The form is Taylor 1993 with those two substitutions. A comparison, not an optimal rate.
         </p>
       ) : (
         <p className="text-caption text-muted">The rule is not in yet.</p>

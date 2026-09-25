@@ -29,6 +29,7 @@ import { Route as MacroCycleRouteImport } from './routes/macro.cycle'
 import { Route as MacroGlobalRouteImport } from './routes/macro.global'
 import { Route as MacroGrowthRouteImport } from './routes/macro.growth'
 import { Route as MacroInflationRouteImport } from './routes/macro.inflation'
+import { Route as MacroModelsRouteImport } from './routes/macro.models'
 import { Route as MacroPolicyRouteImport } from './routes/macro.policy'
 import { Route as MacroRatesRouteImport } from './routes/macro.rates'
 import { Route as MacroShocksRouteImport } from './routes/macro.shocks'
@@ -134,6 +135,11 @@ const MacroInflationRoute = MacroInflationRouteImport.update({
   path: '/inflation',
   getParentRoute: () => MacroRoute,
 } as any)
+const MacroModelsRoute = MacroModelsRouteImport.update({
+  id: '/models',
+  path: '/models',
+  getParentRoute: () => MacroRoute,
+} as any)
 const MacroPolicyRoute = MacroPolicyRouteImport.update({
   id: '/policy',
   path: '/policy',
@@ -175,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/macro/global': typeof MacroGlobalRoute
   '/macro/growth': typeof MacroGrowthRoute
   '/macro/inflation': typeof MacroInflationRoute
+  '/macro/models': typeof MacroModelsRoute
   '/macro/policy': typeof MacroPolicyRoute
   '/macro/rates': typeof MacroRatesRoute
   '/macro/shocks': typeof MacroShocksRoute
@@ -200,6 +207,7 @@ export interface FileRoutesByTo {
   '/macro/global': typeof MacroGlobalRoute
   '/macro/growth': typeof MacroGrowthRoute
   '/macro/inflation': typeof MacroInflationRoute
+  '/macro/models': typeof MacroModelsRoute
   '/macro/policy': typeof MacroPolicyRoute
   '/macro/rates': typeof MacroRatesRoute
   '/macro/shocks': typeof MacroShocksRoute
@@ -227,6 +235,7 @@ export interface FileRoutesById {
   '/macro/global': typeof MacroGlobalRoute
   '/macro/growth': typeof MacroGrowthRoute
   '/macro/inflation': typeof MacroInflationRoute
+  '/macro/models': typeof MacroModelsRoute
   '/macro/policy': typeof MacroPolicyRoute
   '/macro/rates': typeof MacroRatesRoute
   '/macro/shocks': typeof MacroShocksRoute
@@ -255,6 +264,7 @@ export interface FileRouteTypes {
     | '/macro/global'
     | '/macro/growth'
     | '/macro/inflation'
+    | '/macro/models'
     | '/macro/policy'
     | '/macro/rates'
     | '/macro/shocks'
@@ -280,6 +290,7 @@ export interface FileRouteTypes {
     | '/macro/global'
     | '/macro/growth'
     | '/macro/inflation'
+    | '/macro/models'
     | '/macro/policy'
     | '/macro/rates'
     | '/macro/shocks'
@@ -306,6 +317,7 @@ export interface FileRouteTypes {
     | '/macro/global'
     | '/macro/growth'
     | '/macro/inflation'
+    | '/macro/models'
     | '/macro/policy'
     | '/macro/rates'
     | '/macro/shocks'
@@ -472,6 +484,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MacroInflationRouteImport
       parentRoute: typeof MacroRoute
     }
+    '/macro/models': {
+      id: '/macro/models'
+      path: '/models'
+      fullPath: '/macro/models'
+      preLoaderRoute: typeof MacroModelsRouteImport
+      parentRoute: typeof MacroRoute
+    }
     '/macro/policy': {
       id: '/macro/policy'
       path: '/policy'
@@ -520,6 +539,7 @@ interface MacroRouteChildren {
   MacroGlobalRoute: typeof MacroGlobalRoute
   MacroGrowthRoute: typeof MacroGrowthRoute
   MacroInflationRoute: typeof MacroInflationRoute
+  MacroModelsRoute: typeof MacroModelsRoute
   MacroPolicyRoute: typeof MacroPolicyRoute
   MacroRatesRoute: typeof MacroRatesRoute
   MacroShocksRoute: typeof MacroShocksRoute
@@ -532,6 +552,7 @@ const MacroRouteChildren: MacroRouteChildren = {
   MacroGlobalRoute: MacroGlobalRoute,
   MacroGrowthRoute: MacroGrowthRoute,
   MacroInflationRoute: MacroInflationRoute,
+  MacroModelsRoute: MacroModelsRoute,
   MacroPolicyRoute: MacroPolicyRoute,
   MacroRatesRoute: MacroRatesRoute,
   MacroShocksRoute: MacroShocksRoute,
