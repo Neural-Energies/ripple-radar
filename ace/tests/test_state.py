@@ -226,3 +226,126 @@ def test_price_indices_take_a_second_log_difference():
     # Rates are differenced, not log-differenced — they can be zero or negative.
     for sid in ("UNRATE", "TCU"):
         assert PANEL_BY_ID[sid].code == 2
+
+
+# --- the MacroState contract -----------------------------------------------
+
+def _toy_fit(n: int = 120, k: int = 2):
+    """A small factor fit on synthetic data, so state tests stay offline."""
+    from ace.state.factors import fit_factors
+    specs = _panel_of("PAYEMS", "UNRATE", "MANEMP", "INDPRO", "TCU",
+                      "CPIAUCSL", "CPILFESL", "PPIACO")
+    rng = np.random.default_rng(11)
+    vin = {}
+    common = np.cumsum(rng.normal(0, 1, n))
+    for i, s in enumerate(specs):
+        base = 100.0 + 0.4 * common + rng.normal(0, 0.5, n) + 0.05 * i * np.arange(n)
+        obs = pd.date_range("2005-01-01", periods=n, freq="MS", tz="UTC")
+        vin[s.series_id] = pd.DataFrame({
+            "obs_date": obs, "value": np.abs(base) + 10.0,
+            "published": obs + pd.Timedelta(days=45),
+        })
+    build = build_asof("2016-06-30", vin, specs=specs)
+    return fit_factors(build, k=k, maxiter=25), build
+
+
+def test_state_populates_every_field_the_contract_promises():
+    from ace.state.state import build_state
+    fit, build = _toy_fit()
+    st = build_state(fit, build)
+    assert st.blocks, "no blocks produced"
+    for name, b in st.blocks.items():
+        assert np.isfinite(b.level), f"{name} level"
+        assert np.isfinite(b.momentum), f"{name} momentum"
+        assert np.isfinite(b.acceleration), f"{name} acceleration"
+        assert 0.0 <= b.percentile <= 100.0, f"{name} percentile out of range"
+        assert b.direction in {"rising", "falling", "flat"}
+        assert b.through, f"{name} has no observation month"
+        assert b.days_behind >= 0
+        assert b.n_series >= 1
+
+
+def test_acceleration_is_the_change_in_momentum():
+    from ace.state.state import MOMENTUM_MONTHS, build_state
+    fit, build = _toy_fit()
+    st = build_state(fit, build)
+    for name, b in st.blocks.items():
+        series = fit.factors[name if name in fit.factors else name].dropna()
+        mom = float(series.iloc[-1] - series.iloc[-1 - MOMENTUM_MONTHS])
+        prior = float(series.iloc[-1 - MOMENTUM_MONTHS] - series.iloc[-1 - 2 * MOMENTUM_MONTHS])
+        assert b.momentum == pytest.approx(mom, abs=1e-6)
+        assert b.acceleration == pytest.approx(mom - prior, abs=1e-6)
+
+
+def test_direction_has_a_dead_zone():
+    """Without one, every reading has a direction including the noise."""
+    from ace.state.state import DIRECTION_FLOOR, _direction
+    assert _direction(0.0) == "flat"
+    assert _direction(DIRECTION_FLOOR * 0.5) == "flat"
+    assert _direction(-DIRECTION_FLOOR * 0.5) == "flat"
+    assert _direction(DIRECTION_FLOOR * 2) == "rising"
+    assert _direction(-DIRECTION_FLOOR * 2) == "falling"
+    assert _direction(float("nan")) == "flat"
+
+
+def test_uncertainty_comes_from_the_smoother_and_is_never_invented():
+    from ace.state.state import _uncertainty, build_state
+    fit, build = _toy_fit()
+    st = build_state(fit, build)
+    # At least one block must carry a real posterior standard error.
+    reported = [b.uncertainty for b in st.blocks.values() if np.isfinite(b.uncertainty)]
+    assert reported, "no block reported a smoother standard error"
+    assert all(u > 0 for u in reported), "a standard error cannot be non-positive"
+    # A factor the model never estimated has no uncertainty, and gets NaN
+    # rather than a substituted value.
+    assert np.isnan(_uncertainty(fit, "not_a_factor"))
+
+
+def test_drivers_are_loading_times_observation_and_stay_in_their_block():
+    from ace.state.state import build_state
+    fit, build = _toy_fit()
+    st = build_state(fit, build)
+    for name, b in st.blocks.items():
+        for d in b.drivers:
+            assert d.contribution == pytest.approx(d.loading * d.z, abs=1e-4)
+            assert d.series_id in fit.series
+            if not name.startswith("global"):
+                assert fit.blocks[d.series_id] == name.split(".")[0]
+        # Sorted by absolute contribution, largest first.
+        mags = [abs(d.contribution) for d in b.drivers]
+        assert mags == sorted(mags, reverse=True)
+
+
+def test_a_boundary_factor_count_is_reported_not_hidden():
+    from ace.state.factors import FactorCount
+    interior = FactorCount(k=2, criterion="ICp2", kmax=6, n=8, t=100,
+                           ic={1: -0.2, 2: -0.5, 3: -0.4})
+    assert not interior.at_boundary
+    boundary = FactorCount(k=3, criterion="ICp2", kmax=6, n=8, t=100,
+                           ic={1: -0.2, 2: -0.4, 3: -0.6})
+    assert boundary.at_boundary, "a monotone IC is a boundary hit, not a selection"
+
+
+def test_state_serialises_with_its_provenance():
+    from ace.state.state import build_state
+    fit, build = _toy_fit()
+    d = build_state(fit, build).to_dict()
+    for key in ("as_of", "model_id", "model_version", "provenance", "months_behind",
+                "n_series", "factor_count", "converged", "blocks"):
+        assert key in d, f"missing {key}"
+    assert d["provenance"] == "point_in_time_alfred_vintages"
+    any_block = next(iter(d["blocks"].values()))
+    assert "drivers" in any_block and isinstance(any_block["drivers"], list)
+
+
+def test_an_empty_panel_yields_an_empty_state_rather_than_raising():
+    from ace.state.state import build_state
+    from ace.state.factors import FactorCount, FactorFit
+    empty = FactorFit(as_of="2020-01-01", factors=pd.DataFrame(),
+                      loadings=pd.DataFrame(), blocks={}, n_factors=0,
+                      factor_count=FactorCount(0, "ICp2", 6, 0, 0, {}),
+                      converged=True, llf=0.0, n_obs=0, series=())
+    build = build_asof("2020-01-01", {}, specs=_panel_of("PAYEMS"))
+    st = build_state(empty, build)
+    assert st.blocks == {}
+    assert "no factors" in " ".join(st.notes)
