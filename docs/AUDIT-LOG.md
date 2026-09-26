@@ -13,6 +13,184 @@ drift watch, then Now/Next/Later coverage.
 
 ---
 
+## 2026-09-26 — cycle 2 (macro panel completeness)
+
+**Checked:** `ace/state/` and `ace/regime/` against the commissioning brief's
+data requirements and the roadmap's non-negotiable invariants. 91 FRED/ALFRED
+candidate series probed against the live API; two fetch routes verified
+empirically; the WP3 regime finding re-run on the completed panel.
+
+**Trigger:** a direct instruction — *"we shouldn't have missing data bc it's
+federal government data all of it accessible through api's if we don't have all
+the data that is our number 1 priority before anything else."*
+
+### Finding 1 — one fetch route could not reach a third of the panel
+
+`ace/data/alfred.py` had a single accessor, `release_history`, which asks FRED
+for `output_type=4` (first release only). That request returns **HTTP 400 for
+every daily market series** — VIX, the whole Treasury curve, breakevens, the
+real yield, the Moody's spreads, the overnight repo facility, the S&P 500.
+
+The cause is not an outage. There is no vintage archive for these series
+because there is nothing to archive: a close is never revised. The effect was
+that the panel had no financial-conditions block, no credit-spread series and
+no daily anything, and the gap looked like a design choice rather than a
+missing accessor.
+
+**Fixed.** `unrevised_history` reads the standard endpoint and synthesises
+`published = obs_date + 1 day` — conservative by a day, in the only direction
+that cannot manufacture a backtest. `SeriesSpec.revised` selects the route and
+**defaults to True**, so the unsafe path is never reached by omission.
+
+### Finding 2 — the route argument was wrong for one series, and measuring caught it
+
+"A market quote is never revised" is reasoning. `ace/state/route_check.py` turns
+it into a measurement, two ways: against ALFRED's first-release archive where
+one exists, and against ALFRED as-of snapshots two and four years back where it
+does not.
+
+| Series | Overlap | Differing | Verdict |
+|---|---:|---:|---|
+| DGS2, DGS10, T10Y2Y, T10Y3M, T10YIE, DFII10, BAA10Y, AAA10Y | ~2,500 each | **0** | unrevised across every snapshot |
+| BAMLH0A0HYM2 | 786 (archive) + 334 | **0** | identical to its own first release |
+| VIXCLS | 2,020 | 2 | 0.099%, max 0.08 vol points |
+| RRPONTSYD | 1,991 | 1 | 0.050%, max $0.103bn |
+| **DTWEXBGS** | 1,991 | **1,962** | **98.5% — removed from the route** |
+| SP500 | — | — | licence refuses both checks; flagged unverifiable |
+
+The broad trade-weighted dollar index looks exactly like a market quote. It is
+a **constructed index** whose H.10 basket weights are re-estimated annually and
+applied backwards, so it disagrees with its own archive on 91% of days by up to
+2.18 index points. Reasoning would have kept it on the unrevised route and it
+would have leaked, invisibly, into every financial-conditions statement. It now
+reads the archive, at the cost of history before 2019.
+
+A control group confirms the guard is not decoration: initial claims,
+continuing claims, the Fed balance sheet, weekly C&I loans and the St. Louis
+stress index — all read via ALFRED — disagree with the standard endpoint on
+11% to 99.9% of observations. `revised=True` is load-bearing.
+
+`test_every_unrevised_series_carries_a_measurement_or_a_flag` reads the report
+back and fails if a series joins the route without a record under
+`MAX_UNREVISED_DIVERGENCE` (0.002) or a written reason in `UNVERIFIABLE_ROUTE`.
+
+### Finding 3 — a 504 is not an absence
+
+NFCI and ANFCI were recorded as unreachable after the archive request timed
+out. Retried at 240 seconds, FRED answered with its own **504 Gateway
+Time-out** — a server-side limit on response size, not a missing archive.
+Narrowing `observation_start` to 2005 returns in seconds.
+
+`SeriesSpec.vintage_start` now carries a per-series archive start. Both series
+are in the panel. Two limits are recorded separately in the note, because they
+are different facts: the 504 (worked around) and the archive's own start of
+**2011-05-27**, which no request start changes.
+
+### Finding 4 — quarterly members were about to be misspecified
+
+Real GDP, the employment cost index and the loan officer survey are quarterly.
+Stacked into a monthly frame they would have read as monthly series that are
+missing two months in three — a different and wrong claim from "quarterly".
+
+`PanelBuild` now carries `frame_q`, and `fit_factors` passes it to
+`DynamicFactorMQ` as `endog_quarterly`, which applies the Mariano-Murasawa
+aggregation: a quarterly reading is a weighted average of three latent monthly
+values. Caught before it shipped, by reading the constructor rather than by a
+failing number.
+
+### Finding 5 — `days_behind` understated the fast edge by up to four weeks
+
+A daily yield stamped into the September row reported `days_behind: 25`,
+because the field measured distance to the row's month stamp. The 10-year had
+printed the day before. The whole reason for including daily series is the fast
+edge, and the field was hiding it.
+
+The edge dict now reports `through` (the real print date) and `days_behind`
+from it, with `panel_month` alongside for frame alignment. `months_behind`
+still comes from the month stamp, because it answers a different question.
+
+### Finding 6 — five of ten blocks cannot see their own newest month
+
+Visible only once the panel was large enough to have slow blocks. The Kalman
+smoother's standard error at the ragged edge, in units of each factor's own
+historical spread:
+
+| informative | ratio | | uninformative | ratio |
+|---|---:|---|---|---:|
+| housing | 0.37 | | consumer | 1.00 |
+| global | 0.43 | | growth | 1.03 |
+| labor | 0.66 | | credit | 1.20 |
+| financial | 0.79 | | inflation | 1.30 |
+| | | | manufacturing | 1.65 |
+| | | | liquidity | 1.84 |
+
+At a ratio of 1.0 the posterior is as wide as the unconditional distribution:
+the filter has learned nothing about that month and has reverted to the mean.
+The block's `level` then reads as a confident zero — September's growth level
+was `+0.00`, consumer `-0.02`, manufacturing `-0.06` — which a surface would
+render as "no change" rather than as "no data". The blocks that fail are
+exactly the slow-publishing ones, so this is the ragged edge behaving
+correctly and the CONTRACT was what needed fixing.
+
+`BlockState` now carries `uncertainty_ratio` and `informative`, an absent
+uncertainty counts as uninformative rather than fine, and the state notes name
+the blind blocks.
+
+### Finding 7 — the factor count was reported as if it drove the model
+
+`MacroState.factor_count` reported Bai-Ng's k beside a nine-block factor list.
+Under the block specification each block already gets a factor, so k changes
+nothing until it exceeds the block count — and k=6 against 9 blocks does not.
+The number was accurate and misleading at the same time.
+
+`FactorFit.count_binding` records whether the criterion actually shaped the
+fit, and the state says so in as many words.
+
+### Coverage, after
+
+| | count |
+|---|---:|
+| candidates probed | 91 |
+| in the panel | **89** |
+| joined on a live build, nothing dropped | **89 / 89** |
+| genuine holes | **1** |
+
+The one hole is existing home sales: FRED holds a 13-month rolling window under
+NAR licensing, so there is no history to fetch at any price from this API. New
+home sales (`HSN1F`) is the federal substitute and is in the panel. The other
+two excluded candidates were FRED-MD internal names that are not FRED series
+IDs, and both concepts are present under their real IDs. All three are in
+`panel.UNAVAILABLE` with the measurement.
+
+### Against the roadmap
+
+- **Invariant 7 (provenance, never a bare number).** Strengthened. Every panel
+  member records its fetch route, its native frequency, its print date and its
+  staleness; every block records whether its newest reading is informative.
+- **Invariant 10 (no `BUY X 87%`).** Untouched. Nothing here produces a
+  user-facing number; `ace/` remains offline.
+- **Drift watch — "fake metrics / institutional costume numbers on live desk".**
+  Checked `src/data/macro-fixtures.ts`, flagged in the previous cycle as a
+  possible violation. **It is the opposite**: an explicit list of things NOT
+  built, rendered as gaps. Its `nfci` row ("NFCI and ANFCI are not on this
+  book") is accurate for the TypeScript macro book, which reads STLFSI4 only —
+  it will need updating when WP7 exports the panel to the surface, and not
+  before.
+- **STOP WORK banner (2026-09-21).** Still in the roadmap, and this cycle's
+  work is new implementation. It proceeds on the direct instruction quoted
+  under *Trigger* above, which post-dates the banner. Recorded here rather
+  than resolved silently: the banner needs an explicit lift or an amendment.
+
+### Open, with reasons
+
+| Item | Why not this cycle |
+|---|---|
+| WP2's second exit condition — nowcast beats a random walk out of sample | The panel and factors are in place; the out-of-sample comparison is its own piece of work with its own purged walk-forward. Not started. |
+| Bai-Ng `kmax` | Still 6, still a boundary hit, and now known to be inert under the block specification. Raising it is only meaningful if the block structure is relaxed. |
+| Fit cost | 468 seconds for 89 series, 561 months, 10 factors, converged. Fine for a daily refresh; not fine inside a 300-date historical replay. A replay will need the fit cached or the panel narrowed, and that choice is not yet made. |
+
+---
+
 ## 2026-09-25 — cycle 1 (baseline)
 
 **Checked:** `bcc651b` (Add the live macro book, session check, and vol regime)

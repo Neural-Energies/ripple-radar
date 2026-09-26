@@ -801,3 +801,53 @@ def build_asof(
         frame_q=frame_q,
         levels_q=level_frame_q,
     )
+
+
+def main() -> None:
+    """Build the panel as of now and write the coverage record.
+
+    Reproduces `artifacts/reports/macro_panel_build.json`, which is what the
+    coverage claims in `docs/MACRO-ENGINE-PLAN.md` are read from. Run it after
+    touching `PANEL` so the record and the code cannot drift apart.
+
+    Run: `python -m ace.state.panel`
+    """
+    import json
+
+    from ace.config import ROOT
+
+    vintages = load_vintages()
+    build = build_asof(pd.Timestamp.now(tz="UTC"), vintages)
+    print(build.describe())
+    for group in GROUPS:
+        members = build.groups.get(group, ())
+        print(f"  {group:<14} {len(members):>2}  {' '.join(members)}")
+    if LOAD_ERRORS:
+        print("\nFETCH FAILURES:")
+        for series_id, why in sorted(LOAD_ERRORS.items()):
+            print(f"  {series_id:<16} {why[:100]}")
+    if build.dropped:
+        print("\nDROPPED:")
+        for series_id, why in sorted(build.dropped.items()):
+            print(f"  {series_id:<16} {why[:100]}")
+
+    report = ROOT / "artifacts" / "reports" / "macro_panel_build.json"
+    report.parent.mkdir(parents=True, exist_ok=True)
+    report.write_text(json.dumps({
+        "as_of": build.as_of,
+        "n_panel": len(PANEL),
+        "n_used": build.n_series,
+        "n_monthly": build.n_monthly,
+        "n_quarterly": build.n_quarterly,
+        "groups": {k: list(v) for k, v in build.groups.items()},
+        "dropped": build.dropped,
+        "fetch_errors": dict(LOAD_ERRORS),
+        "unavailable": UNAVAILABLE,
+        "unverifiable_route": UNVERIFIABLE_ROUTE,
+        "edge": build.edge,
+    }, indent=2, sort_keys=True))
+    print(f"\nwrote {report}")
+
+
+if __name__ == "__main__":
+    main()

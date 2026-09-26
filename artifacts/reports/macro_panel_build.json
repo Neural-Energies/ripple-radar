@@ -247,11 +247,11 @@
     "DTWEXBGS": {
       "days_behind": 8,
       "frequency": "daily",
-      "n_native": 5193,
-      "n_published": 249,
-      "n_usable": 248,
+      "n_native": 1907,
+      "n_published": 92,
+      "n_usable": 91,
       "panel_month": "2026-09-01",
-      "route": "unrevised_observation",
+      "route": "alfred_first_release",
       "through": "2026-09-18"
     },
     "ECIWAG": {
@@ -944,5 +944,8 @@
     "AMDMNOx": "FRED-MD's internal name for durable goods new orders, not a FRED series ID; AMDMNO does not exist either. DGORDER is the same concept under its real ID and is in the panel.",
     "AMDMUOx": "FRED-MD's internal name. The real ID is AMDMUO, which IS in the panel.",
     "EXHOSLUSM495S": "Existing home sales. FRED holds 13 observations \u2014 a rolling 13-month window \u2014 because the underlying data is licensed from the National Association of Realtors. Not a point-in-time problem and not fixable from the API: there is no history to fetch. HSN1F (new home sales) is the closest federal substitute and is in the panel."
+  },
+  "unverifiable_route": {
+    "SP500": "Rolling ten-year licence window: series/observations returns 400 for both output_type=4 and any realtime_start in the past, so neither check can run. An index close is not revised in any sense that would move a monthly panel, but that is an argument, not a measurement."
   }
 }

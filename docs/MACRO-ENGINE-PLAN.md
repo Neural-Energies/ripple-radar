@@ -122,16 +122,70 @@ contract pushed down to the data level.
 | Need | Source | Status |
 |---|---|---|
 | Macro levels, point-in-time | ALFRED first-release vintages, `ace/data/alfred.py` | **exists** |
-| Macro panel breadth (~120 series) | FRED, FRED-MD group structure | to build |
+| Macro panel breadth | 89 series across nine blocks, `ace/state/panel.py` | **exists** — see below |
 | Release timestamps | ALFRED `realtime_start` | **exists** — this is the release date |
 | Consensus forecasts | **none available under a usable license** | blocked, documented |
 | Market series | `ace/data/fred_market.py` | **exists** |
-| Treasury curve / breakevens | FRED DGS2/5/10/30, T10YIE, DFII10 | partly exists |
+| Treasury curve / breakevens | DGS2, DGS10, T10Y2Y, T10Y3M, T10YIE, DFII10 | **in the panel**, unrevised route |
 | Fed funds futures / SOFR | not on FRED | out of scope, stated |
 
 Storage follows the existing pattern: `artifacts/cache/` keyed on the request
 without the API key, `artifacts/reports/` for scorecards, `artifacts/registry.json`
 for model metadata. No new store.
+
+### Panel coverage, measured
+
+91 candidates were probed against the live API. 89 are in the panel; every one
+joins on a build as of 2026-09-26 with nothing dropped.
+
+| Block | n | Fastest member | Slowest member |
+|---|---:|---|---|
+| growth | 7 | INDPRO, 56d | GDPC1, 178d (quarterly) |
+| manufacturing | 6 | IPMANSICS, 56d | BUSINV, 87d |
+| labor | 16 | ICSA, 7d (weekly) | JOLTS, 87d |
+| consumer | 7 | UMCSENT, 56d | PCEC96, 87d |
+| housing | 9 | MORTGAGE30US, 4d (weekly) | CSUSHPINSA, 117d |
+| inflation | 13 | CES0500000003, 56d | ECIWAG, 178d (quarterly) |
+| liquidity | 8 | RRPONTSYD, 1d (daily) | M2SL, 56d |
+| credit | 10 | BAA10Y, 2d (daily) | G.19 series, 87d |
+| financial | 13 | the curve, 2d (daily) | FEDFUNDS, 56d |
+
+**Two fetch routes, and the route is measured.** ALFRED's first-release archive
+answers `output_type=4` with a 400 for daily market series — there is nothing to
+archive, because a close is never revised. `SeriesSpec.revised` selects the
+route and defaults to True. `ace/state/route_check.py` verifies each `False`
+two ways and writes both to `artifacts/reports/`: against the archive where one
+exists, and against ALFRED as-of snapshots two and four years back where it
+does not.
+
+The check has already overruled reasoning once. The broad trade-weighted dollar
+index looks exactly like a market quote and disagrees with its own archive on
+**91% of overlapping days by up to 2.18 index points**, because the H.10 basket
+weights are re-estimated annually and applied backwards. It reads the archive
+now. Eight series came back identical across ~2,500 observations; VIX and the
+overnight repo facility came back with one and two corrections respectively, an
+order 10⁻³ contamination recorded in their notes rather than rounded away; the
+S&P 500's rolling licence refuses both checks, so it sits in `UNVERIFIABLE_ROUTE`
+with its claim marked as reasoning.
+
+**Mixed frequency.** Daily and weekly members collapse to the last print in a
+month, and only once `MONTH_COVERAGE` prints have been published in it — the
+month in progress therefore appears about half-way through. The collapse runs
+AFTER the point-in-time filter; aggregating first would put days beyond the
+as-of date into the current month's figure. Quarterly members (`GDPC1`,
+`ECIWAG`, `DRTSCILM`) go to `DynamicFactorMQ` as `endog_quarterly`, so the
+Mariano-Murasawa aggregation ties a quarterly reading to three latent monthly
+values.
+
+**What is not there, and why.** One genuine hole: existing home sales
+(`EXHOSLUSM495S`), where FRED holds a 13-month rolling window under NAR
+licensing — there is no history to fetch, at any price, from this API. New home
+sales (`HSN1F`) is the federal substitute and is in the panel. The other two
+excluded candidates were FRED-MD internal names that are not FRED series IDs;
+both concepts are in the panel under their real IDs. All three are recorded in
+`panel.UNAVAILABLE` with the measurement, because "we have every federal
+series" is a claim and a claim needs its exceptions written where the panel is
+read.
 
 ---
 
@@ -187,8 +241,8 @@ harness.
 
 | WP | Content | Exit condition |
 |---|---|---|
-| **WP1** | `ace/state/transforms.py` + `panel.py` — FRED-MD transforms, point-in-time panel | Panel builds as-of any historical date; tests prove no post-date vintage leaks |
-| **WP2** | `ace/state/factors.py` + `state.py` — DynamicFactorMQ, Bai-Ng, MacroState schema | Growth/inflation/labor factors estimate; nowcast beats a random walk out of sample |
+| **WP1** | `ace/state/transforms.py` + `panel.py` — FRED-MD transforms, point-in-time panel | **DONE.** Panel builds as-of any historical date; tests prove no post-date vintage leaks. 89 series across nine blocks, two verified fetch routes, mixed frequency. |
+| **WP2** | `ace/state/factors.py` + `state.py` — DynamicFactorMQ, Bai-Ng, MacroState schema | **Factors estimate** (10 over 89 series, converged). The out-of-sample nowcast comparison against a random walk is the OPEN half of this exit condition. |
 | **WP3** | `ace/regime/macro_regime.py` — Markov switching on the factors | Regime probabilities; Brier vs climatology; registered |
 | **WP4** | `ace/surprise/` — calendar, expectation, standardized surprise | Surprise series for CPI, payrolls, unemployment; provenance says "model expectation" |
 | **WP5** | `ace/reaction/conditional.py` — conditional distributions for 2Y, 10Y, NQ, ES, DXY, Gold at 1/5/20d | PIT and coverage reported; compared to unconditional FHS |
