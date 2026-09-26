@@ -1,17 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { MacroPageBody, useMacroRegime } from "@/components/macro-strip";
+import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { MacroChrome } from "@/components/macro/workstation";
 
-export const Route = createFileRoute("/macro")({ component: MacroPage });
+export const Route = createFileRoute("/macro")({
+  component: MacroLayout,
+});
 
-function MacroPage() {
-  const read = useMacroRegime();
+function MacroLayout() {
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-1.5">
-      <header>
-        <div className="text-micro uppercase tracking-wider text-subtle">FRED</div>
-        <h1 className="text-base font-semibold tracking-tight">Macro risk</h1>
-      </header>
-      <MacroPageBody read={read} />
-    </div>
+    <MacroChrome>
+      <Outlet />
+    </MacroChrome>
   );
 }

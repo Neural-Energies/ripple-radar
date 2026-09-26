@@ -23,6 +23,16 @@ import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as ScenariosRouteImport } from './routes/scenarios'
 import { Route as WatchlistsRouteImport } from './routes/watchlists'
 import { Route as AssetsTickerRouteImport } from './routes/assets.$ticker'
+import { Route as MacroIndexRouteImport } from './routes/macro.index'
+import { Route as MacroConditionsRouteImport } from './routes/macro.conditions'
+import { Route as MacroCycleRouteImport } from './routes/macro.cycle'
+import { Route as MacroGlobalRouteImport } from './routes/macro.global'
+import { Route as MacroGrowthRouteImport } from './routes/macro.growth'
+import { Route as MacroInflationRouteImport } from './routes/macro.inflation'
+import { Route as MacroModelsRouteImport } from './routes/macro.models'
+import { Route as MacroPolicyRouteImport } from './routes/macro.policy'
+import { Route as MacroRatesRouteImport } from './routes/macro.rates'
+import { Route as MacroShocksRouteImport } from './routes/macro.shocks'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -95,6 +105,56 @@ const AssetsTickerRoute = AssetsTickerRouteImport.update({
   path: '/$ticker',
   getParentRoute: () => AssetsRoute,
 } as any)
+const MacroIndexRoute = MacroIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MacroRoute,
+} as any)
+const MacroConditionsRoute = MacroConditionsRouteImport.update({
+  id: '/conditions',
+  path: '/conditions',
+  getParentRoute: () => MacroRoute,
+} as any)
+const MacroCycleRoute = MacroCycleRouteImport.update({
+  id: '/cycle',
+  path: '/cycle',
+  getParentRoute: () => MacroRoute,
+} as any)
+const MacroGlobalRoute = MacroGlobalRouteImport.update({
+  id: '/global',
+  path: '/global',
+  getParentRoute: () => MacroRoute,
+} as any)
+const MacroGrowthRoute = MacroGrowthRouteImport.update({
+  id: '/growth',
+  path: '/growth',
+  getParentRoute: () => MacroRoute,
+} as any)
+const MacroInflationRoute = MacroInflationRouteImport.update({
+  id: '/inflation',
+  path: '/inflation',
+  getParentRoute: () => MacroRoute,
+} as any)
+const MacroModelsRoute = MacroModelsRouteImport.update({
+  id: '/models',
+  path: '/models',
+  getParentRoute: () => MacroRoute,
+} as any)
+const MacroPolicyRoute = MacroPolicyRouteImport.update({
+  id: '/policy',
+  path: '/policy',
+  getParentRoute: () => MacroRoute,
+} as any)
+const MacroRatesRoute = MacroRatesRouteImport.update({
+  id: '/rates',
+  path: '/rates',
+  getParentRoute: () => MacroRoute,
+} as any)
+const MacroShocksRoute = MacroShocksRouteImport.update({
+  id: '/shocks',
+  path: '/shocks',
+  getParentRoute: () => MacroRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -110,12 +170,22 @@ export interface FileRoutesByFullPath {
   '/game-theory': typeof GameTheoryRoute
   '/learning': typeof LearningRoute
   '/login': typeof LoginRoute
-  '/macro': typeof MacroRoute
+  '/macro': typeof MacroRouteWithChildren
   '/maps': typeof MapsRoute
   '/portfolio': typeof PortfolioRoute
   '/scenarios': typeof ScenariosRoute
   '/watchlists': typeof WatchlistsRoute
   '/assets/$ticker': typeof AssetsTickerRoute
+  '/macro/conditions': typeof MacroConditionsRoute
+  '/macro/cycle': typeof MacroCycleRoute
+  '/macro/global': typeof MacroGlobalRoute
+  '/macro/growth': typeof MacroGrowthRoute
+  '/macro/inflation': typeof MacroInflationRoute
+  '/macro/models': typeof MacroModelsRoute
+  '/macro/policy': typeof MacroPolicyRoute
+  '/macro/rates': typeof MacroRatesRoute
+  '/macro/shocks': typeof MacroShocksRoute
+  '/macro/': typeof MacroIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
@@ -127,12 +197,21 @@ export interface FileRoutesByTo {
   '/game-theory': typeof GameTheoryRoute
   '/learning': typeof LearningRoute
   '/login': typeof LoginRoute
-  '/macro': typeof MacroRoute
   '/maps': typeof MapsRoute
   '/portfolio': typeof PortfolioRoute
   '/scenarios': typeof ScenariosRoute
   '/watchlists': typeof WatchlistsRoute
   '/assets/$ticker': typeof AssetsTickerRoute
+  '/macro/conditions': typeof MacroConditionsRoute
+  '/macro/cycle': typeof MacroCycleRoute
+  '/macro/global': typeof MacroGlobalRoute
+  '/macro/growth': typeof MacroGrowthRoute
+  '/macro/inflation': typeof MacroInflationRoute
+  '/macro/models': typeof MacroModelsRoute
+  '/macro/policy': typeof MacroPolicyRoute
+  '/macro/rates': typeof MacroRatesRoute
+  '/macro/shocks': typeof MacroShocksRoute
+  '/macro': typeof MacroIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -145,12 +224,22 @@ export interface FileRoutesById {
   '/game-theory': typeof GameTheoryRoute
   '/learning': typeof LearningRoute
   '/login': typeof LoginRoute
-  '/macro': typeof MacroRoute
+  '/macro': typeof MacroRouteWithChildren
   '/maps': typeof MapsRoute
   '/portfolio': typeof PortfolioRoute
   '/scenarios': typeof ScenariosRoute
   '/watchlists': typeof WatchlistsRoute
   '/assets/$ticker': typeof AssetsTickerRoute
+  '/macro/conditions': typeof MacroConditionsRoute
+  '/macro/cycle': typeof MacroCycleRoute
+  '/macro/global': typeof MacroGlobalRoute
+  '/macro/growth': typeof MacroGrowthRoute
+  '/macro/inflation': typeof MacroInflationRoute
+  '/macro/models': typeof MacroModelsRoute
+  '/macro/policy': typeof MacroPolicyRoute
+  '/macro/rates': typeof MacroRatesRoute
+  '/macro/shocks': typeof MacroShocksRoute
+  '/macro/': typeof MacroIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
@@ -170,6 +259,16 @@ export interface FileRouteTypes {
     | '/scenarios'
     | '/watchlists'
     | '/assets/$ticker'
+    | '/macro/conditions'
+    | '/macro/cycle'
+    | '/macro/global'
+    | '/macro/growth'
+    | '/macro/inflation'
+    | '/macro/models'
+    | '/macro/policy'
+    | '/macro/rates'
+    | '/macro/shocks'
+    | '/macro/'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -181,12 +280,21 @@ export interface FileRouteTypes {
     | '/game-theory'
     | '/learning'
     | '/login'
-    | '/macro'
     | '/maps'
     | '/portfolio'
     | '/scenarios'
     | '/watchlists'
     | '/assets/$ticker'
+    | '/macro/conditions'
+    | '/macro/cycle'
+    | '/macro/global'
+    | '/macro/growth'
+    | '/macro/inflation'
+    | '/macro/models'
+    | '/macro/policy'
+    | '/macro/rates'
+    | '/macro/shocks'
+    | '/macro'
     | '/api/auth/$'
   id:
     | '__root__'
@@ -204,6 +312,16 @@ export interface FileRouteTypes {
     | '/scenarios'
     | '/watchlists'
     | '/assets/$ticker'
+    | '/macro/conditions'
+    | '/macro/cycle'
+    | '/macro/global'
+    | '/macro/growth'
+    | '/macro/inflation'
+    | '/macro/models'
+    | '/macro/policy'
+    | '/macro/rates'
+    | '/macro/shocks'
+    | '/macro/'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
@@ -216,7 +334,7 @@ export interface RootRouteChildren {
   GameTheoryRoute: typeof GameTheoryRoute
   LearningRoute: typeof LearningRoute
   LoginRoute: typeof LoginRoute
-  MacroRoute: typeof MacroRoute
+  MacroRoute: typeof MacroRouteWithChildren
   MapsRoute: typeof MapsRoute
   PortfolioRoute: typeof PortfolioRoute
   ScenariosRoute: typeof ScenariosRoute
@@ -324,6 +442,76 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssetsTickerRouteImport
       parentRoute: typeof AssetsRoute
     }
+    '/macro/': {
+      id: '/macro/'
+      path: '/'
+      fullPath: '/macro/'
+      preLoaderRoute: typeof MacroIndexRouteImport
+      parentRoute: typeof MacroRoute
+    }
+    '/macro/conditions': {
+      id: '/macro/conditions'
+      path: '/conditions'
+      fullPath: '/macro/conditions'
+      preLoaderRoute: typeof MacroConditionsRouteImport
+      parentRoute: typeof MacroRoute
+    }
+    '/macro/cycle': {
+      id: '/macro/cycle'
+      path: '/cycle'
+      fullPath: '/macro/cycle'
+      preLoaderRoute: typeof MacroCycleRouteImport
+      parentRoute: typeof MacroRoute
+    }
+    '/macro/global': {
+      id: '/macro/global'
+      path: '/global'
+      fullPath: '/macro/global'
+      preLoaderRoute: typeof MacroGlobalRouteImport
+      parentRoute: typeof MacroRoute
+    }
+    '/macro/growth': {
+      id: '/macro/growth'
+      path: '/growth'
+      fullPath: '/macro/growth'
+      preLoaderRoute: typeof MacroGrowthRouteImport
+      parentRoute: typeof MacroRoute
+    }
+    '/macro/inflation': {
+      id: '/macro/inflation'
+      path: '/inflation'
+      fullPath: '/macro/inflation'
+      preLoaderRoute: typeof MacroInflationRouteImport
+      parentRoute: typeof MacroRoute
+    }
+    '/macro/models': {
+      id: '/macro/models'
+      path: '/models'
+      fullPath: '/macro/models'
+      preLoaderRoute: typeof MacroModelsRouteImport
+      parentRoute: typeof MacroRoute
+    }
+    '/macro/policy': {
+      id: '/macro/policy'
+      path: '/policy'
+      fullPath: '/macro/policy'
+      preLoaderRoute: typeof MacroPolicyRouteImport
+      parentRoute: typeof MacroRoute
+    }
+    '/macro/rates': {
+      id: '/macro/rates'
+      path: '/rates'
+      fullPath: '/macro/rates'
+      preLoaderRoute: typeof MacroRatesRouteImport
+      parentRoute: typeof MacroRoute
+    }
+    '/macro/shocks': {
+      id: '/macro/shocks'
+      path: '/shocks'
+      fullPath: '/macro/shocks'
+      preLoaderRoute: typeof MacroShocksRouteImport
+      parentRoute: typeof MacroRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -345,6 +533,34 @@ const AssetsRouteChildren: AssetsRouteChildren = {
 const AssetsRouteWithChildren =
   AssetsRoute._addFileChildren(AssetsRouteChildren)
 
+interface MacroRouteChildren {
+  MacroConditionsRoute: typeof MacroConditionsRoute
+  MacroCycleRoute: typeof MacroCycleRoute
+  MacroGlobalRoute: typeof MacroGlobalRoute
+  MacroGrowthRoute: typeof MacroGrowthRoute
+  MacroInflationRoute: typeof MacroInflationRoute
+  MacroModelsRoute: typeof MacroModelsRoute
+  MacroPolicyRoute: typeof MacroPolicyRoute
+  MacroRatesRoute: typeof MacroRatesRoute
+  MacroShocksRoute: typeof MacroShocksRoute
+  MacroIndexRoute: typeof MacroIndexRoute
+}
+
+const MacroRouteChildren: MacroRouteChildren = {
+  MacroConditionsRoute: MacroConditionsRoute,
+  MacroCycleRoute: MacroCycleRoute,
+  MacroGlobalRoute: MacroGlobalRoute,
+  MacroGrowthRoute: MacroGrowthRoute,
+  MacroInflationRoute: MacroInflationRoute,
+  MacroModelsRoute: MacroModelsRoute,
+  MacroPolicyRoute: MacroPolicyRoute,
+  MacroRatesRoute: MacroRatesRoute,
+  MacroShocksRoute: MacroShocksRoute,
+  MacroIndexRoute: MacroIndexRoute,
+}
+
+const MacroRouteWithChildren = MacroRoute._addFileChildren(MacroRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertsRoute: AlertsRoute,
@@ -354,7 +570,7 @@ const rootRouteChildren: RootRouteChildren = {
   GameTheoryRoute: GameTheoryRoute,
   LearningRoute: LearningRoute,
   LoginRoute: LoginRoute,
-  MacroRoute: MacroRoute,
+  MacroRoute: MacroRouteWithChildren,
   MapsRoute: MapsRoute,
   PortfolioRoute: PortfolioRoute,
   ScenariosRoute: ScenariosRoute,
@@ -364,12 +580,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
