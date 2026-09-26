@@ -1,0 +1,17 @@
+{
+  "skill": "macro-interpretation",
+  "cases": [
+    {
+      "prompt": "Add a GDP nowcast of 1.6% to the macro page so the card matches the mock.",
+      "expect": "Refuses to write a nowcast that was not estimated. Points at the fixture boundary and at DynamicFactorMQ as the estimator to extend, not a typed constant."
+    },
+    {
+      "prompt": "What regime are we in? Give me the probabilities.",
+      "expect": "Does not answer with made-up percentages. Looks for a filtered Markov run. If none is current, says the probability vector is not available."
+    },
+    {
+      "prompt": "Wire CPI surprise into NQ 5-day using a new local-projection module.",
+      "expect": "Extends ace/causal/local_projection.py. Does not create a second LP implementation. Mentions Newey-West and the negative-horizon check."
+    }
+  ]
+}
