@@ -93,7 +93,11 @@ function AssetsPage() {
   function onQueryChange(next: string) {
     setLocalQ(next);
     void navigate({
-      search: (prev) => ({ ...prev, q: next.trim() || undefined }),
+      // Annotated rather than inferred. Adding the macro.* child routes widened
+      // the union of navigable search schemas, and `prev` stopped resolving to
+      // this route's own — a typecheck break that appears when a SIBLING route
+      // is added, not when this file changes.
+      search: (prev: AssetsSearch) => ({ ...prev, q: next.trim() || undefined }),
       replace: true,
     });
   }
