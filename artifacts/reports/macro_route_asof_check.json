@@ -1,0 +1,338 @@
+{
+  "as_of_dates": [
+    "2023-01-03",
+    "2025-01-02"
+  ],
+  "generated": "2026-09-26",
+  "method": "ALFRED as-of query (realtime_start=realtime_end=<date>) compared against the current standard endpoint, on observation dates present in both. Any difference is a revision in between.",
+  "observation_start": "2015-01-01",
+  "results": [
+    {
+      "checks": [
+        {
+          "as_of": "2023-01-03",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2023-01-03",
+          "max_abs_diff": 0.103,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.103,
+          "n_overlapping": 1991,
+          "n_values_differing": 1,
+          "share_differing": 0.000502
+        },
+        {
+          "as_of": "2025-01-02",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2025-01-02",
+          "max_abs_diff": 0.103,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.103,
+          "n_overlapping": 2490,
+          "n_values_differing": 1,
+          "share_differing": 0.000402
+        }
+      ],
+      "label": "Overnight reverse repo",
+      "series": "RRPONTSYD",
+      "verdict": "revised on 0.050% of observations"
+    },
+    {
+      "checks": [
+        {
+          "as_of": "2023-01-03",
+          "status": "unavailable: MacroUnavailable: series/observations: HTTP Error 400: Bad Request"
+        },
+        {
+          "as_of": "2025-01-02",
+          "first_overlap": "2023-09-26",
+          "last_overlap": "2025-01-02",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 334,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        }
+      ],
+      "label": "High yield OAS",
+      "series": "BAMLH0A0HYM2",
+      "verdict": "unrevised across every snapshot checked"
+    },
+    {
+      "checks": [
+        {
+          "as_of": "2023-01-03",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2022-12-30",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 1998,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        },
+        {
+          "as_of": "2025-01-02",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2024-12-31",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 2497,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        }
+      ],
+      "label": "Baa - 10y spread",
+      "series": "BAA10Y",
+      "verdict": "unrevised across every snapshot checked"
+    },
+    {
+      "checks": [
+        {
+          "as_of": "2023-01-03",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2022-12-30",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 1998,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        },
+        {
+          "as_of": "2025-01-02",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2024-12-31",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 2497,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        }
+      ],
+      "label": "Aaa - 10y spread",
+      "series": "AAA10Y",
+      "verdict": "unrevised across every snapshot checked"
+    },
+    {
+      "checks": [
+        {
+          "as_of": "2023-01-03",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2022-12-30",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 2001,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        },
+        {
+          "as_of": "2025-01-02",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2024-12-31",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 2501,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        }
+      ],
+      "label": "2y Treasury",
+      "series": "DGS2",
+      "verdict": "unrevised across every snapshot checked"
+    },
+    {
+      "checks": [
+        {
+          "as_of": "2023-01-03",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2022-12-30",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 2001,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        },
+        {
+          "as_of": "2025-01-02",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2024-12-31",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 2501,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        }
+      ],
+      "label": "10y Treasury",
+      "series": "DGS10",
+      "verdict": "unrevised across every snapshot checked"
+    },
+    {
+      "checks": [
+        {
+          "as_of": "2023-01-03",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2023-01-03",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 2002,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        },
+        {
+          "as_of": "2025-01-02",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2025-01-02",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 2502,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        }
+      ],
+      "label": "10y-2y slope",
+      "series": "T10Y2Y",
+      "verdict": "unrevised across every snapshot checked"
+    },
+    {
+      "checks": [
+        {
+          "as_of": "2023-01-03",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2023-01-03",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 2002,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        },
+        {
+          "as_of": "2025-01-02",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2025-01-02",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 2502,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        }
+      ],
+      "label": "10y-3m slope",
+      "series": "T10Y3M",
+      "verdict": "unrevised across every snapshot checked"
+    },
+    {
+      "checks": [
+        {
+          "as_of": "2023-01-03",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2023-01-03",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 2002,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        },
+        {
+          "as_of": "2025-01-02",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2025-01-02",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 2502,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        }
+      ],
+      "label": "10y breakeven",
+      "series": "T10YIE",
+      "verdict": "unrevised across every snapshot checked"
+    },
+    {
+      "checks": [
+        {
+          "as_of": "2023-01-03",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2022-12-30",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 2001,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        },
+        {
+          "as_of": "2025-01-02",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2024-12-31",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 2501,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        }
+      ],
+      "label": "10y TIPS real yield",
+      "series": "DFII10",
+      "verdict": "unrevised across every snapshot checked"
+    },
+    {
+      "checks": [
+        {
+          "as_of": "2023-01-03",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2023-01-03",
+          "max_abs_diff": 0.08000000000000007,
+          "max_rel_diff": 0.005442176870748304,
+          "median_abs_diff_of_changed": 0.04499999999999993,
+          "n_overlapping": 2020,
+          "n_values_differing": 2,
+          "share_differing": 0.00099
+        },
+        {
+          "as_of": "2025-01-02",
+          "first_overlap": "2015-01-02",
+          "last_overlap": "2025-01-02",
+          "max_abs_diff": 0.0,
+          "max_rel_diff": 0.0,
+          "median_abs_diff_of_changed": 0.0,
+          "n_overlapping": 2536,
+          "n_values_differing": 0,
+          "share_differing": 0.0
+        }
+      ],
+      "label": "VIX",
+      "series": "VIXCLS",
+      "verdict": "revised on 0.099% of observations"
+    },
+    {
+      "checks": [
+        {
+          "as_of": "2023-01-03",
+          "status": "unavailable: MacroUnavailable: series/observations: HTTP Error 400: Bad Request"
+        },
+        {
+          "as_of": "2025-01-02",
+          "status": "unavailable: MacroUnavailable: series/observations: HTTP Error 400: Bad Request"
+        }
+      ],
+      "label": "S&P 500",
+      "series": "SP500",
+      "verdict": "unverifiable from this API: Rolling ten-year licence window: series/observations returns 400 for both output_type=4 and any realtime_start in the past, so neither check can run. An index close is not revised in any sense that would move a monthly panel, but that is an argument, not a measurement."
+    }
+  ]
+}

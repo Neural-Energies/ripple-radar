@@ -49,6 +49,21 @@ DIRECTION_FLOOR = 0.10
 #: How many series to name as drivers.
 TOP_DRIVERS = 4
 
+#: A block's newest reading is reported as UNINFORMATIVE when the smoother's
+#: standard error there reaches this multiple of the factor's own historical
+#: standard deviation. At a ratio of 1.0 the posterior is as wide as the
+#: unconditional distribution: the filter has learned nothing about this month
+#: and has reverted to the mean, which is why such a level always sits near zero
+#: and always looks like "no change" rather than like "we do not know".
+#:
+#: Measured on the full 89-series panel as of 2026-09-26, five of ten blocks
+#: were at or above it — growth 1.03, manufacturing 1.65, consumer 1.00,
+#: inflation 1.30, liquidity 1.84, credit 1.20 — against global 0.43, housing
+#: 0.37, labor 0.66 and financial 0.79. The blocks that fail are exactly the
+#: slow-publishing ones, which is the ragged edge behaving correctly. Reporting
+#: the level without this flag would present six weeks of silence as a reading.
+UNINFORMATIVE_SE_RATIO = 1.0
+
 
 @dataclass(frozen=True)
 class Driver:
@@ -76,6 +91,14 @@ class BlockState:
     momentum: float
     acceleration: float
     uncertainty: float
+    #: `uncertainty` divided by the factor's own historical standard deviation,
+    #: so the error is readable without knowing the factor's scale. NaN when
+    #: either number is unavailable — never substituted.
+    uncertainty_ratio: float
+    #: False when `uncertainty_ratio` reaches `UNINFORMATIVE_SE_RATIO`. A
+    #: consumer that renders `level` without checking this will show a
+    #: confident-looking zero for a block that has not reported yet.
+    informative: bool
     percentile: float
     direction: str
     #: Observation month this state describes — NOT the date it was computed.
@@ -162,6 +185,27 @@ def _uncertainty(fit: FactorFit, column: str) -> float:
     return value if np.isfinite(value) else float("nan")
 
 
+def _uncertainty_ratio(uncertainty: float, series: pd.Series) -> float:
+    """The smoother's error at the edge, in units of the factor's own spread.
+
+    An absolute standard error is unreadable without the factor's scale: 5.47
+    is either negligible or total ignorance depending on whether the factor
+    ranges over hundreds or over ones. Dividing by the factor's own historical
+    standard deviation makes the number mean the same thing for every block.
+
+    The denominator uses the WHOLE estimated history including the edge months.
+    Excluding them would shrink the denominator exactly where the filter has
+    reverted to the mean, which would flatter the ratio in the one place it
+    matters.
+    """
+    if not np.isfinite(uncertainty):
+        return float("nan")
+    sd = float(series.std(ddof=1)) if len(series) > 1 else float("nan")
+    if not np.isfinite(sd) or sd <= 0:
+        return float("nan")
+    return float(uncertainty / sd)
+
+
 def _drivers(
     fit: FactorFit, build: PanelBuild, column: str, block: str, top: int = TOP_DRIVERS
 ) -> tuple[Driver, ...]:
@@ -243,12 +287,20 @@ def build_state(fit: FactorFit, build: PanelBuild) -> MacroState:
         ]
         members = [s for s in fit.series if block == "global" or fit.blocks.get(s) == block]
 
+        uncertainty = _uncertainty(fit, name)
+        ratio = _uncertainty_ratio(uncertainty, series)
+        # Unknown uncertainty is not evidence of a usable reading, so an
+        # unavailable ratio counts as uninformative rather than as fine.
+        informative = bool(np.isfinite(ratio) and ratio < UNINFORMATIVE_SE_RATIO)
+
         blocks[key] = BlockState(
             block=key,
             level=round(level, 6),
             momentum=round(momentum, 6),
             acceleration=round(momentum - prior_momentum, 6),
-            uncertainty=_uncertainty(fit, name),
+            uncertainty=uncertainty,
+            uncertainty_ratio=round(ratio, 4) if np.isfinite(ratio) else float("nan"),
+            informative=informative,
             percentile=round(_percentile(series, level), 2),
             direction=_direction(momentum),
             through=str(newest.date()),
@@ -257,8 +309,22 @@ def build_state(fit: FactorFit, build: PanelBuild) -> MacroState:
             drivers=_drivers(fit, build, name, block),
         )
 
+    blind = sorted(k for k, b in blocks.items() if not b.informative)
+    if blind:
+        notes.append(
+            f"{len(blind)} block(s) have a smoother error at the edge at least as "
+            f"wide as their own historical spread, so their newest level is the "
+            f"unconditional mean rather than a reading: {', '.join(blind)}"
+        )
+
     count = fit.factor_count
-    if count.at_boundary:
+    if not getattr(fit, "count_binding", True):
+        notes.append(
+            f"Bai-Ng selected k={count.k}, but the block specification already "
+            "commits one factor per block and k did not exceed the block count, "
+            "so the criterion did not shape this fit"
+        )
+    elif count.at_boundary:
         notes.append(
             f"Bai-Ng selected k={count.k}, the largest it was offered — the criterion "
             "was still falling, so this is a boundary hit rather than a selection"

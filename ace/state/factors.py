@@ -41,11 +41,14 @@ import numpy as np
 import pandas as pd
 from statsmodels.tsa.statespace.dynamic_factor_mq import DynamicFactorMQ
 
-from ace.state.panel import GROUPS, PanelBuild
+from ace.state.panel import PanelBuild
 from ace.state.transforms import standardize
 
-#: Most factors Bai-Ng is allowed to consider. Above this the criterion is
-#: being asked about structure a 14-series panel cannot support.
+#: Most factors Bai-Ng is allowed to consider. Six is not a claim about the
+#: data — it is the ceiling above which the criterion is being asked to rank
+#: structures that the nine block factors below already span. `bai_ng_factor_count`
+#: reports whether the chosen k sat AT this boundary, which is the case where the
+#: number came from the ceiling rather than from the panel.
 DEFAULT_KMAX = 6
 
 #: EM iterations. Enough to converge on a panel this size without a run taking
@@ -173,11 +176,26 @@ class FactorFit:
     #: It is larger at the ragged edge, which is the correct behaviour: the most
     #: recent month is estimated from the fewest observations.
     factor_se: pd.Series = field(default_factory=pd.Series)
+    #: The `series` split by native frequency. Quarterly members enter through
+    #: `endog_quarterly`, so they contribute to the factors but are NOT part of
+    #: the monthly panel Bai-Ng counted factors over — a distinction that
+    #: matters when reading `factor_count`.
+    series_monthly: tuple[str, ...] = ()
+    series_quarterly: tuple[str, ...] = ()
+    #: Did the Bai-Ng count actually change the specification? Under the block
+    #: structure it only does so when k exceeds the number of blocks, because
+    #: each block already gets a factor. False means `factor_count` is reported
+    #: for the record and did not shape this fit.
+    count_binding: bool = True
 
     def describe(self) -> str:
         conv = "converged" if self.converged else "DID NOT CONVERGE"
+        mix = (
+            f" ({len(self.series_monthly)}m + {len(self.series_quarterly)}q)"
+            if self.series_quarterly else ""
+        )
         return (
-            f"{self.n_factors} factors over {len(self.series)} series, "
+            f"{self.n_factors} factors over {len(self.series)} series{mix}, "
             f"{self.n_obs} months, {conv}, llf {self.llf:,.1f}"
         )
 
@@ -188,12 +206,17 @@ def _block_map(build: PanelBuild) -> dict[str, list[str]]:
     A block with fewer than two members cannot identify its own factor, so it
     is folded into the global factor rather than estimated as a block of one —
     which would just relabel that series' own variation as a "factor".
+
+    Reads `build.groups`, which `build_asof` derives from the specs it was
+    actually handed. Iterating a module-level block list instead would silently
+    drop a block belonging to a custom panel, and the failure would look like a
+    modelling result rather than a filter.
     """
     out: dict[str, list[str]] = {}
-    for group in GROUPS:
-        members = [s for s in build.used if build.groups.get(group) and s in build.groups[group]]
-        if len(members) >= 2:
-            out[group] = members
+    for group, members in build.groups.items():
+        present = [s for s in members if s in build.used]
+        if len(present) >= 2:
+            out[group] = present
     return out
 
 
@@ -220,27 +243,55 @@ def fit_factors(
     if z.shape[1] < 2:
         raise ValueError(f"only {z.shape[1]} usable series after standardising")
 
+    # Quarterly members go in through `endog_quarterly`, standardised on their
+    # OWN moments. Sharing the monthly panel's moments would be wrong twice: a
+    # quarterly growth rate is roughly three times a monthly one, and the two
+    # frames do not have the same number of observations to average over.
+    zq, mu_q, sigma_q = (pd.DataFrame(), pd.Series(dtype=float), pd.Series(dtype=float))
+    if not build.frame_q.empty:
+        zq, mu_q, sigma_q = standardize(build.frame_q)
+        zq = zq.dropna(axis=1, how="all")
+
+    # Bai-Ng is a criterion for a balanced-ish panel of one frequency. It is run
+    # on the MONTHLY block only; the quarterly members join the estimation but
+    # do not vote on how many factors there are.
     count = bai_ng_factor_count(z, kmax=kmax)
     n_factors = int(k if k is not None else count.k)
 
     blocks = _block_map(build) if use_blocks else {}
+    modelled = list(z.columns) + list(zq.columns)
     if blocks:
         # Global factor on everything, plus one factor per economic block. The
         # global factor carries the common cycle; the blocks carry what is
         # specific to labor, prices and so on.
         factors = {
             col: ["global"] + [g for g, members in blocks.items() if col in members]
-            for col in z.columns
+            for col in modelled
         }
         factor_orders = {"global": 2, **{g: 1 for g in blocks}}
-        factor_multiplicities = {"global": max(1, n_factors - len(blocks))}
+        # The block specification already commits one factor per block, so
+        # Bai-Ng's k only adds anything once it exceeds the number of blocks.
+        # On the nine-block panel it does not: k=6 against 9 blocks floors this
+        # at one global factor, and the criterion is INERT. That is recorded
+        # rather than left for a reader to infer from a number that looks
+        # load-bearing beside a block list.
+        extra_global = n_factors - len(blocks)
+        factor_multiplicities = {"global": max(1, extra_global)}
+        count_binding = extra_global > 1
     else:
-        factors = {col: ["global"] for col in z.columns}
+        factors = {col: ["global"] for col in modelled}
         factor_orders = {"global": 2}
         factor_multiplicities = {"global": n_factors}
+        # Without blocks the count is the whole specification.
+        count_binding = True
 
+    # DynamicFactorMQ needs an unambiguous frequency to align the two blocks,
+    # and converts a tz-aware DatetimeIndex to periods with a warning. Doing
+    # the conversion here makes the alignment explicit instead of incidental,
+    # and `_restore_index` puts the original stamps back on the output.
     model = DynamicFactorMQ(
-        z,
+        _as_periods(z, "M"),
+        endog_quarterly=_as_periods(zq, "Q") if not zq.empty else None,
         factors=factors,
         factor_orders=factor_orders,
         factor_multiplicities=factor_multiplicities,
@@ -249,15 +300,20 @@ def fit_factors(
     )
     res = model.fit(maxiter=maxiter, disp=False)
 
-    estimated = res.factors.smoothed
-    loadings = _loadings_from(res, z.columns)
+    # Read the smoother's uncertainty while the frame is still on the
+    # PeriodIndex statsmodels built, because `res.factors.smoothed_cov` is keyed
+    # on that index. Restoring the timestamps first would make every lookup miss
+    # and turn the standard errors silently into NaN.
+    se = _edge_standard_errors(res, res.factors.smoothed)
+
+    estimated = _restore_index(res.factors.smoothed, build.frame.index)
+    loadings = _loadings_from(res, modelled)
 
     assigned = {
         col: next((g for g, m in blocks.items() if col in m), "global")
-        for col in z.columns
+        for col in modelled
     }
     estimated, loadings = _orient(estimated, loadings, assigned)
-    se = _edge_standard_errors(res, estimated)
     return FactorFit(
         as_of=build.as_of,
         factors=estimated,
@@ -269,11 +325,51 @@ def fit_factors(
         if hasattr(res, "mlefit") else True,
         llf=float(res.llf),
         n_obs=int(z.shape[0]),
-        series=tuple(z.columns),
-        mean=mu,
-        std=sigma,
+        series=tuple(modelled),
+        mean=pd.concat([mu, mu_q]) if not zq.empty else mu,
+        std=pd.concat([sigma, sigma_q]) if not zq.empty else sigma,
         factor_se=se,
+        series_monthly=tuple(z.columns),
+        series_quarterly=tuple(zq.columns),
+        count_binding=count_binding,
     )
+
+
+def _as_periods(frame: pd.DataFrame, freq: str) -> pd.DataFrame:
+    """Re-stamp a frame on a PeriodIndex at `freq`, dropping the timezone.
+
+    A period is a span, not an instant, so a timezone on it is meaningless —
+    which is why statsmodels drops it with a warning when handed tz-aware
+    dates. Every observation date in this panel is a FRED reference-period
+    label at midnight UTC, so nothing is lost.
+    """
+    out = frame.copy()
+    idx = pd.DatetimeIndex(out.index)
+    if idx.tz is not None:
+        idx = idx.tz_localize(None)
+    out.index = idx.to_period(freq)
+    return out
+
+
+def _restore_index(frame: pd.DataFrame, like: pd.Index) -> pd.DataFrame:
+    """Put the panel's own timestamps back on a frame statsmodels returned.
+
+    The estimated factors come back on the monthly PeriodIndex `_as_periods`
+    built. Everything downstream — the regime models, the state contract, the
+    exporter — joins against `build.frame`, so the factors are returned on that
+    index rather than leaving each consumer to guess the convention.
+    """
+    if frame.empty or not isinstance(frame.index, pd.PeriodIndex):
+        return frame
+    out = frame.copy()
+    stamps = pd.DatetimeIndex([p.to_timestamp(how="start") for p in out.index])
+    tz = getattr(pd.DatetimeIndex(like), "tz", None) if len(like) else None
+    stamps = stamps.tz_localize(tz) if tz is not None else stamps
+    # Carry the panel's index NAME too, not just its stamps and zone. A frame
+    # that matches on values but not on name fails an equality check for a
+    # reason that has nothing to do with the data.
+    out.index = stamps.rename(getattr(like, "name", None))
+    return out
 
 
 def _edge_standard_errors(res, factors: pd.DataFrame) -> pd.Series:
@@ -339,12 +435,24 @@ def _orient(
     return f, l
 
 
-def _loadings_from(res, columns: pd.Index) -> pd.DataFrame:
+def _loadings_from(res, columns) -> pd.DataFrame:
     """Pull the observation-equation loadings out of the fitted model.
 
     statsmodels exposes these on the design matrix of the state space form.
     Reading them rather than re-deriving keeps the reported loading identical
     to the one the filter actually used.
+
+    The design's ROWS are in the model's own endog order, which for a mixed
+    frequency fit is monthly-then-quarterly. That happens to match `columns` as
+    `fit_factors` builds it, but the row labels are taken from the model rather
+    than assumed, because a silent off-by-one here would attribute every series'
+    loading to its neighbour and read as a modelling result.
+
+    Note for a quarterly member: `DynamicFactorMQ` loads it on the factor AND
+    four of its lags, with the Mariano-Murasawa weights that turn three latent
+    monthly values into a quarterly average. Only the contemporaneous weight
+    survives the lag filter below, so a quarterly row here understates the
+    series' total exposure. It is a diagnostic table, not the filter.
     """
     try:
         design = np.asarray(res.filter_results.design)
@@ -353,7 +461,11 @@ def _loadings_from(res, columns: pd.Index) -> pd.DataFrame:
         names = list(getattr(res.model, "state_names", []))[: d.shape[1]]
         if len(names) != d.shape[1]:
             names = [f"state_{i}" for i in range(d.shape[1])]
-        frame = pd.DataFrame(d[: len(columns)], index=columns, columns=names)
+        rows = list(getattr(res.model, "endog_names", []) or [])
+        if len(rows) != d.shape[0]:
+            rows = list(columns)
+        frame = pd.DataFrame(d, index=rows[: d.shape[0]], columns=names)
+        frame = frame.loc[[c for c in columns if c in frame.index]]
         # Drop the idiosyncratic AR(1) states. Every series loads 1.0 on its
         # own error term by construction, so leaving them in makes each row's
         # largest "loading" the uninformative one and buries the factor

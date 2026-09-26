@@ -1,0 +1,948 @@
+{
+  "as_of": "2026-09-26",
+  "dropped": {},
+  "edge": {
+    "AAA10Y": {
+      "days_behind": 2,
+      "frequency": "daily",
+      "n_native": 10930,
+      "n_published": 525,
+      "n_usable": 525,
+      "panel_month": "2026-09-01",
+      "route": "unrevised_observation",
+      "through": "2026-09-24"
+    },
+    "AMDMUO": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 184,
+      "n_usable": 183,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "ANFCI": {
+      "days_behind": 8,
+      "frequency": "weekly",
+      "n_native": 800,
+      "n_published": 184,
+      "n_usable": 184,
+      "panel_month": "2026-09-01",
+      "route": "alfred_first_release",
+      "through": "2026-09-18"
+    },
+    "AWHMAN": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 560,
+      "n_usable": 560,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "AWOTMAN": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 560,
+      "n_usable": 559,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "BAA10Y": {
+      "days_behind": 2,
+      "frequency": "daily",
+      "n_native": 10183,
+      "n_published": 489,
+      "n_usable": 489,
+      "panel_month": "2026-09-01",
+      "route": "unrevised_observation",
+      "through": "2026-09-24"
+    },
+    "BAMLH0A0HYM2": {
+      "days_behind": 2,
+      "frequency": "daily",
+      "n_native": 787,
+      "n_published": 36,
+      "n_usable": 36,
+      "panel_month": "2026-09-01",
+      "route": "unrevised_observation",
+      "through": "2026-09-24"
+    },
+    "BOGMBASE": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 158,
+      "n_usable": 156,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "BUSINV": {
+      "days_behind": 87,
+      "frequency": "monthly",
+      "n_published": 358,
+      "n_usable": 357,
+      "panel_month": "2026-07-01",
+      "route": "alfred_first_release",
+      "through": "2026-07-01"
+    },
+    "BUSLOANS": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 357,
+      "n_usable": 355,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "CCSA": {
+      "days_behind": 14,
+      "frequency": "weekly",
+      "n_native": 889,
+      "n_published": 205,
+      "n_usable": 204,
+      "panel_month": "2026-09-01",
+      "route": "alfred_first_release",
+      "through": "2026-09-12"
+    },
+    "CES0500000003": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 186,
+      "n_usable": 184,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "CIVPART": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 354,
+      "n_usable": 353,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "CPIAUCSL": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 559,
+      "n_usable": 557,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "CPIENGSL": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 356,
+      "n_usable": 354,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "CPILFESL": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 356,
+      "n_usable": 354,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "CPIUFDSL": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 356,
+      "n_usable": 354,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "CSUSHPINSA": {
+      "days_behind": 117,
+      "frequency": "monthly",
+      "n_published": 141,
+      "n_usable": 139,
+      "panel_month": "2026-06-01",
+      "route": "alfred_first_release",
+      "through": "2026-06-01"
+    },
+    "CUSR0000SAC": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 184,
+      "n_usable": 182,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "CUSR0000SAS": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 184,
+      "n_usable": 182,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "DFII10": {
+      "days_behind": 2,
+      "frequency": "daily",
+      "n_native": 5937,
+      "n_published": 285,
+      "n_usable": 284,
+      "panel_month": "2026-09-01",
+      "route": "unrevised_observation",
+      "through": "2026-09-24"
+    },
+    "DGORDER": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 326,
+      "n_usable": 325,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "DGS10": {
+      "days_behind": 2,
+      "frequency": "daily",
+      "n_native": 11684,
+      "n_published": 561,
+      "n_usable": 560,
+      "panel_month": "2026-09-01",
+      "route": "unrevised_observation",
+      "through": "2026-09-24"
+    },
+    "DGS2": {
+      "days_behind": 2,
+      "frequency": "daily",
+      "n_native": 11684,
+      "n_published": 561,
+      "n_usable": 560,
+      "panel_month": "2026-09-01",
+      "route": "unrevised_observation",
+      "through": "2026-09-24"
+    },
+    "DRTSCILM": {
+      "days_behind": 87,
+      "frequency": "quarterly",
+      "n_published": 65,
+      "n_usable": 65,
+      "panel_month": "2026-07-01",
+      "route": "alfred_first_release",
+      "through": "2026-07-01"
+    },
+    "DSPIC96": {
+      "days_behind": 87,
+      "frequency": "monthly",
+      "n_published": 559,
+      "n_usable": 558,
+      "panel_month": "2026-07-01",
+      "route": "alfred_first_release",
+      "through": "2026-07-01"
+    },
+    "DTWEXBGS": {
+      "days_behind": 8,
+      "frequency": "daily",
+      "n_native": 5193,
+      "n_published": 249,
+      "n_usable": 248,
+      "panel_month": "2026-09-01",
+      "route": "unrevised_observation",
+      "through": "2026-09-18"
+    },
+    "ECIWAG": {
+      "days_behind": 178,
+      "frequency": "quarterly",
+      "n_published": 119,
+      "n_usable": 117,
+      "panel_month": "2026-04-01",
+      "route": "alfred_first_release",
+      "through": "2026-04-01"
+    },
+    "FEDFUNDS": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 357,
+      "n_usable": 356,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "GDPC1": {
+      "days_behind": 178,
+      "frequency": "quarterly",
+      "n_published": 139,
+      "n_usable": 138,
+      "panel_month": "2026-04-01",
+      "route": "alfred_first_release",
+      "through": "2026-04-01"
+    },
+    "HOUST": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 560,
+      "n_usable": 560,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "HOUSTMW": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 560,
+      "n_usable": 560,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "HOUSTNE": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 560,
+      "n_usable": 560,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "HOUSTS": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 560,
+      "n_usable": 560,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "HOUSTW": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 560,
+      "n_usable": 560,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "HSN1F": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 326,
+      "n_usable": 326,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "ICSA": {
+      "days_behind": 7,
+      "frequency": "weekly",
+      "n_native": 904,
+      "n_published": 208,
+      "n_usable": 207,
+      "panel_month": "2026-09-01",
+      "route": "alfred_first_release",
+      "through": "2026-09-19"
+    },
+    "INDPRO": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 560,
+      "n_usable": 559,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "IPBUSEQ": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 225,
+      "n_usable": 224,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "IPCONGD": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 225,
+      "n_usable": 224,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "IPFINAL": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 225,
+      "n_usable": 224,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "IPMANSICS": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 148,
+      "n_usable": 147,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "IPMAT": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 225,
+      "n_usable": 224,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "ISRATIO": {
+      "days_behind": 87,
+      "frequency": "monthly",
+      "n_published": 354,
+      "n_usable": 353,
+      "panel_month": "2026-07-01",
+      "route": "alfred_first_release",
+      "through": "2026-07-01"
+    },
+    "JTSJOL": {
+      "days_behind": 87,
+      "frequency": "monthly",
+      "n_published": 193,
+      "n_usable": 192,
+      "panel_month": "2026-07-01",
+      "route": "alfred_first_release",
+      "through": "2026-07-01"
+    },
+    "JTSLDR": {
+      "days_behind": 87,
+      "frequency": "monthly",
+      "n_published": 193,
+      "n_usable": 192,
+      "panel_month": "2026-07-01",
+      "route": "alfred_first_release",
+      "through": "2026-07-01"
+    },
+    "JTSQUR": {
+      "days_behind": 87,
+      "frequency": "monthly",
+      "n_published": 193,
+      "n_usable": 192,
+      "panel_month": "2026-07-01",
+      "route": "alfred_first_release",
+      "through": "2026-07-01"
+    },
+    "M1SL": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 560,
+      "n_usable": 558,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "M2REAL": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 151,
+      "n_usable": 150,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "M2SL": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 560,
+      "n_usable": 558,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "MANEMP": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 560,
+      "n_usable": 559,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "MORTGAGE30US": {
+      "days_behind": 2,
+      "frequency": "weekly",
+      "n_native": 849,
+      "n_published": 195,
+      "n_usable": 194,
+      "panel_month": "2026-09-01",
+      "route": "alfred_first_release",
+      "through": "2026-09-24"
+    },
+    "NEWORDER": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 355,
+      "n_usable": 354,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "NFCI": {
+      "days_behind": 8,
+      "frequency": "weekly",
+      "n_native": 800,
+      "n_published": 184,
+      "n_usable": 184,
+      "panel_month": "2026-09-01",
+      "route": "alfred_first_release",
+      "through": "2026-09-18"
+    },
+    "NONREVSL": {
+      "days_behind": 87,
+      "frequency": "monthly",
+      "n_published": 326,
+      "n_usable": 324,
+      "panel_month": "2026-07-01",
+      "route": "alfred_first_release",
+      "through": "2026-07-01"
+    },
+    "PAYEMS": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 560,
+      "n_usable": 559,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "PCEC96": {
+      "days_behind": 87,
+      "frequency": "monthly",
+      "n_published": 559,
+      "n_usable": 558,
+      "panel_month": "2026-07-01",
+      "route": "alfred_first_release",
+      "through": "2026-07-01"
+    },
+    "PCEPI": {
+      "days_behind": 87,
+      "frequency": "monthly",
+      "n_published": 313,
+      "n_usable": 311,
+      "panel_month": "2026-07-01",
+      "route": "alfred_first_release",
+      "through": "2026-07-01"
+    },
+    "PCEPILFE": {
+      "days_behind": 87,
+      "frequency": "monthly",
+      "n_published": 313,
+      "n_usable": 311,
+      "panel_month": "2026-07-01",
+      "route": "alfred_first_release",
+      "through": "2026-07-01"
+    },
+    "PERMIT": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 325,
+      "n_usable": 325,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "PPIACO": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 357,
+      "n_usable": 355,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "PPIFIS": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 151,
+      "n_usable": 149,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "PSAVERT": {
+      "days_behind": 87,
+      "frequency": "monthly",
+      "n_published": 355,
+      "n_usable": 354,
+      "panel_month": "2026-07-01",
+      "route": "alfred_first_release",
+      "through": "2026-07-01"
+    },
+    "REALLN": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 357,
+      "n_usable": 355,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "REVOLSL": {
+      "days_behind": 87,
+      "frequency": "monthly",
+      "n_published": 357,
+      "n_usable": 355,
+      "panel_month": "2026-07-01",
+      "route": "alfred_first_release",
+      "through": "2026-07-01"
+    },
+    "RRPONTSYD": {
+      "days_behind": 1,
+      "frequency": "daily",
+      "n_native": 3334,
+      "n_published": 159,
+      "n_usable": 159,
+      "panel_month": "2026-09-01",
+      "route": "unrevised_observation",
+      "through": "2026-09-25"
+    },
+    "RRSFS": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 302,
+      "n_usable": 301,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "SP500": {
+      "days_behind": 1,
+      "frequency": "daily",
+      "n_native": 2514,
+      "n_published": 120,
+      "n_usable": 119,
+      "panel_month": "2026-09-01",
+      "route": "unrevised_observation",
+      "through": "2026-09-25"
+    },
+    "SRVPRD": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 560,
+      "n_usable": 559,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "STLFSI4": {
+      "days_behind": 8,
+      "frequency": "weekly",
+      "n_native": 202,
+      "n_published": 47,
+      "n_usable": 47,
+      "panel_month": "2026-09-01",
+      "route": "alfred_first_release",
+      "through": "2026-09-18"
+    },
+    "T10Y2Y": {
+      "days_behind": 1,
+      "frequency": "daily",
+      "n_native": 11685,
+      "n_published": 561,
+      "n_usable": 561,
+      "panel_month": "2026-09-01",
+      "route": "unrevised_observation",
+      "through": "2026-09-25"
+    },
+    "T10Y3M": {
+      "days_behind": 1,
+      "frequency": "daily",
+      "n_native": 11186,
+      "n_published": 537,
+      "n_usable": 537,
+      "panel_month": "2026-09-01",
+      "route": "unrevised_observation",
+      "through": "2026-09-25"
+    },
+    "T10YIE": {
+      "days_behind": 1,
+      "frequency": "daily",
+      "n_native": 5938,
+      "n_published": 285,
+      "n_usable": 285,
+      "panel_month": "2026-09-01",
+      "route": "unrevised_observation",
+      "through": "2026-09-25"
+    },
+    "TCU": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 358,
+      "n_usable": 357,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "TOTALSA": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 164,
+      "n_usable": 163,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "TOTALSL": {
+      "days_behind": 87,
+      "frequency": "monthly",
+      "n_published": 357,
+      "n_usable": 355,
+      "panel_month": "2026-07-01",
+      "route": "alfred_first_release",
+      "through": "2026-07-01"
+    },
+    "TOTCI": {
+      "days_behind": 10,
+      "frequency": "weekly",
+      "n_native": 1555,
+      "n_published": 358,
+      "n_usable": 356,
+      "panel_month": "2026-09-01",
+      "route": "alfred_first_release",
+      "through": "2026-09-16"
+    },
+    "TOTRESNS": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 357,
+      "n_usable": 355,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "U6RATE": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 185,
+      "n_usable": 184,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "UEMPMEAN": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 559,
+      "n_usable": 558,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "UMCSENT": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 337,
+      "n_usable": 336,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "UNRATE": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 559,
+      "n_usable": 558,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "USCONS": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 560,
+      "n_usable": 559,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "USTRADE": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 560,
+      "n_usable": 559,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "VIXCLS": {
+      "days_behind": 4,
+      "frequency": "daily",
+      "n_native": 9279,
+      "n_published": 441,
+      "n_usable": 441,
+      "panel_month": "2026-09-01",
+      "route": "unrevised_observation",
+      "through": "2026-09-22"
+    },
+    "W875RX1": {
+      "days_behind": 87,
+      "frequency": "monthly",
+      "n_published": 195,
+      "n_usable": 194,
+      "panel_month": "2026-07-01",
+      "route": "alfred_first_release",
+      "through": "2026-07-01"
+    },
+    "WALCL": {
+      "days_behind": 3,
+      "frequency": "weekly",
+      "n_native": 794,
+      "n_published": 183,
+      "n_usable": 183,
+      "panel_month": "2026-09-01",
+      "route": "alfred_first_release",
+      "through": "2026-09-23"
+    },
+    "WPSFD49207": {
+      "days_behind": 56,
+      "frequency": "monthly",
+      "n_published": 138,
+      "n_usable": 136,
+      "panel_month": "2026-08-01",
+      "route": "alfred_first_release",
+      "through": "2026-08-01"
+    },
+    "WTREGEN": {
+      "days_behind": 3,
+      "frequency": "weekly",
+      "n_native": 927,
+      "n_published": 214,
+      "n_usable": 214,
+      "panel_month": "2026-09-01",
+      "route": "alfred_first_release",
+      "through": "2026-09-23"
+    }
+  },
+  "fetch_errors": {},
+  "groups": {
+    "consumer": [
+      "RRSFS",
+      "PCEC96",
+      "DSPIC96",
+      "W875RX1",
+      "PSAVERT",
+      "UMCSENT",
+      "TOTALSA"
+    ],
+    "credit": [
+      "TOTALSL",
+      "REVOLSL",
+      "NONREVSL",
+      "BUSLOANS",
+      "REALLN",
+      "TOTCI",
+      "BAMLH0A0HYM2",
+      "BAA10Y",
+      "AAA10Y",
+      "DRTSCILM"
+    ],
+    "financial": [
+      "NFCI",
+      "ANFCI",
+      "STLFSI4",
+      "FEDFUNDS",
+      "DGS2",
+      "DGS10",
+      "T10Y2Y",
+      "T10Y3M",
+      "T10YIE",
+      "DFII10",
+      "VIXCLS",
+      "DTWEXBGS",
+      "SP500"
+    ],
+    "growth": [
+      "INDPRO",
+      "IPFINAL",
+      "IPCONGD",
+      "IPBUSEQ",
+      "IPMAT",
+      "TCU",
+      "GDPC1"
+    ],
+    "housing": [
+      "HOUST",
+      "PERMIT",
+      "HOUSTNE",
+      "HOUSTMW",
+      "HOUSTS",
+      "HOUSTW",
+      "HSN1F",
+      "CSUSHPINSA",
+      "MORTGAGE30US"
+    ],
+    "inflation": [
+      "CPIAUCSL",
+      "CPILFESL",
+      "CPIENGSL",
+      "CPIUFDSL",
+      "CUSR0000SAC",
+      "CUSR0000SAS",
+      "PCEPI",
+      "PCEPILFE",
+      "PPIACO",
+      "PPIFIS",
+      "WPSFD49207",
+      "CES0500000003",
+      "ECIWAG"
+    ],
+    "labor": [
+      "PAYEMS",
+      "UNRATE",
+      "U6RATE",
+      "CIVPART",
+      "AWHMAN",
+      "AWOTMAN",
+      "MANEMP",
+      "USCONS",
+      "USTRADE",
+      "SRVPRD",
+      "ICSA",
+      "CCSA",
+      "JTSJOL",
+      "JTSQUR",
+      "JTSLDR",
+      "UEMPMEAN"
+    ],
+    "liquidity": [
+      "M1SL",
+      "M2SL",
+      "M2REAL",
+      "BOGMBASE",
+      "TOTRESNS",
+      "WALCL",
+      "WTREGEN",
+      "RRPONTSYD"
+    ],
+    "manufacturing": [
+      "IPMANSICS",
+      "DGORDER",
+      "NEWORDER",
+      "AMDMUO",
+      "BUSINV",
+      "ISRATIO"
+    ]
+  },
+  "n_monthly": 86,
+  "n_panel": 89,
+  "n_quarterly": 3,
+  "n_used": 89,
+  "unavailable": {
+    "AMDMNOx": "FRED-MD's internal name for durable goods new orders, not a FRED series ID; AMDMNO does not exist either. DGORDER is the same concept under its real ID and is in the panel.",
+    "AMDMUOx": "FRED-MD's internal name. The real ID is AMDMUO, which IS in the panel.",
+    "EXHOSLUSM495S": "Existing home sales. FRED holds 13 observations \u2014 a rolling 13-month window \u2014 because the underlying data is licensed from the National Association of Realtors. Not a point-in-time problem and not fixable from the API: there is no history to fetch. HSN1F (new home sales) is the closest federal substitute and is in the panel."
+  }
+}

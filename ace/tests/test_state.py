@@ -10,6 +10,7 @@ number.
 from __future__ import annotations
 
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -19,11 +20,18 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from ace.state.panel import (
+    FREQUENCIES,
+    GROUPS,
+    MAX_UNREVISED_DIVERGENCE,
     MIN_USABLE_OBS,
+    MONTH_COVERAGE,
+    UNVERIFIABLE_ROUTE,
     PANEL,
     PANEL_BY_ID,
+    UNAVAILABLE,
     SeriesSpec,
     build_asof,
+    load_vintages,
 )
 from ace.state.transforms import (
     TRANSFORM_NAMES,
@@ -44,6 +52,21 @@ def _vintage(n: int, *, start: str = "2000-01-01", lag_days: int = 45,
     return pd.DataFrame({
         "obs_date": obs,
         "value": [first + step * i for i in range(n)],
+        "published": obs + pd.Timedelta(days=lag_days),
+    })
+
+
+def _daily_vintage(start: str, end: str, *, first: float = 1.0,
+                   step: float = 1.0, lag_days: int = 1) -> pd.DataFrame:
+    """A never-revised daily quote: published `lag_days` after it printed.
+
+    Business days only, which is what a market series actually has, so the
+    month-coverage threshold is tested against a realistic count.
+    """
+    obs = pd.date_range(start, end, freq="B", tz="UTC")
+    return pd.DataFrame({
+        "obs_date": obs,
+        "value": [first + step * i for i in range(len(obs))],
         "published": obs + pd.Timedelta(days=lag_days),
     })
 
@@ -213,9 +236,204 @@ def test_an_empty_panel_returns_empty_rather_than_raising():
 def test_every_panel_member_declares_a_group_and_a_valid_code():
     for spec in PANEL:
         assert spec.code in TRANSFORM_NAMES
-        assert spec.group
-        assert spec.typical_lag_days > 0
+        assert spec.group in GROUPS, f"{spec.series_id} is in block {spec.group!r}"
+        assert spec.frequency in FREQUENCIES
+        # Zero is a real answer for a same-day quote, so the floor is >= 0 —
+        # but it must be stated, not left to a default that happens to be zero.
+        assert spec.typical_lag_days >= 0
         assert len(spec.note) > 10, f"{spec.series_id} has no stated rationale"
+
+
+def test_the_unrevised_route_is_only_taken_by_high_frequency_series():
+    """The one way this panel could leak wholesale.
+
+    `revised=False` means the standard endpoint, whose value is the CURRENT one,
+    revisions included. That is only safe where there are no revisions — a market
+    close, a spread computed from closes. Taking it for a monthly statistical
+    release would hand a model the final figure a day after the reference month.
+    """
+    for spec in PANEL:
+        if spec.revised:
+            continue
+        assert spec.frequency == "daily", (
+            f"{spec.series_id} takes the unrevised route at {spec.frequency} "
+            "frequency; only same-day quotes qualify"
+        )
+        assert spec.typical_lag_days == 0, (
+            f"{spec.series_id} claims a {spec.typical_lag_days}-day publication "
+            "lag AND no revisions, which cannot both be true"
+        )
+
+
+def test_every_unrevised_series_carries_a_measurement_or_a_flag():
+    """Governance, not statistics: a series may not join the unrevised route on
+    someone's reasoning about what kind of series it is.
+
+    The check that caught this mattering: the broad trade-weighted dollar index
+    looks exactly like a market quote and disagrees with its own archive on 91%
+    of days, because the H.10 basket weights are re-estimated annually and
+    applied backwards. Reasoning would have kept it; the measurement removed it.
+    """
+    report = (
+        Path(__file__).resolve().parents[2]
+        / "artifacts" / "reports" / "macro_route_asof_check.json"
+    )
+    assert report.exists(), (
+        "the unrevised route has no verification record; run "
+        "the route check before adding a series to it"
+    )
+    import json
+    measured = {
+        r["series"]: r for r in json.loads(report.read_text())["results"]
+    }
+    for spec in PANEL:
+        if spec.revised:
+            continue
+        sid = spec.series_id
+        if sid in UNVERIFIABLE_ROUTE:
+            assert len(UNVERIFIABLE_ROUTE[sid]) > 40
+            continue
+        assert sid in measured, f"{sid} takes the unrevised route unmeasured"
+        shares = [
+            c["share_differing"] for c in measured[sid]["checks"]
+            if "share_differing" in c
+        ]
+        assert shares, f"{sid} has a record with no usable comparison in it"
+        assert max(shares) <= MAX_UNREVISED_DIVERGENCE, (
+            f"{sid} disagrees with its point-in-time history on "
+            f"{max(shares):.1%} of observations"
+        )
+
+
+def test_the_route_actually_called_matches_the_spec(monkeypatch):
+    """Not just what the spec says — what `load_vintages` does with it."""
+    import ace.state.panel as panel_mod
+
+    called: dict[str, str] = {}
+
+    def fake_release(sid, start):
+        called[sid] = f"alfred:{start}"
+        return _vintage(48)
+
+    def fake_plain(sid, start):
+        called[sid] = f"plain:{start}"
+        return _vintage(48)
+
+    monkeypatch.setattr(panel_mod, "release_history", fake_release)
+    monkeypatch.setattr(panel_mod, "unrevised_history", fake_plain)
+    specs = _panel_of("PAYEMS", "DGS10", "NFCI")
+    load_vintages(specs, start="1980-01-01")
+    assert called["PAYEMS"].startswith("alfred:")
+    assert called["DGS10"].startswith("plain:")
+    # And a spec-level archive start overrides the default rather than being
+    # silently ignored, which is the whole reason NFCI is reachable at all.
+    assert called["NFCI"] == "alfred:2005-01-01"
+
+
+def test_a_failed_fetch_is_attributable_to_its_series(monkeypatch):
+    import ace.state.panel as panel_mod
+
+    def fake_release(sid, start):
+        if sid == "INDPRO":
+            raise RuntimeError("HTTP Error 504: Gateway Time-out")
+        return _vintage(MIN_USABLE_OBS + 24)
+
+    monkeypatch.setattr(panel_mod, "release_history", fake_release)
+    specs = _panel_of("PAYEMS", "INDPRO")
+    vin = load_vintages(specs)
+    build = build_asof("2003-06-30", vin, specs=specs)
+    assert build.used == ("PAYEMS",)
+    # The reason must be the actual failure, not a generic "no archive" — the
+    # difference between a 504 to retry and a series that does not exist.
+    assert "504" in build.dropped["INDPRO"]
+
+
+def test_a_daily_series_becomes_the_last_print_in_the_month():
+    """Not the month's average: a well-defined level whether the month finished."""
+    spec = PANEL_BY_ID["DGS10"]
+    vin = {"DGS10": _daily_vintage("2015-01-01", "2020-12-31")}
+    build = build_asof("2021-01-31", vin, specs=(spec,))
+    levels = build.levels["DGS10"].dropna()
+    raw = vin["DGS10"].set_index("obs_date")["value"]
+    for month in ("2020-10-01", "2020-11-01", "2020-12-01"):
+        m = pd.Timestamp(month, tz="UTC")
+        in_month = raw[(raw.index >= m) & (raw.index < m + pd.offsets.MonthBegin(1))]
+        assert levels.loc[m] == pytest.approx(float(in_month.iloc[-1]))
+
+
+def test_collapsing_a_month_in_progress_cannot_see_past_the_as_of_date():
+    """The leak the collapse could introduce, and the reason it runs last.
+
+    Aggregating before the point-in-time filter would let days after `as_of`
+    into the current month's figure — invisible in the output, and it would make
+    the newest observation the most contaminated one.
+    """
+    spec = PANEL_BY_ID["DGS10"]
+    vin = {"DGS10": _daily_vintage("2015-01-01", "2020-12-31")}
+    when = pd.Timestamp("2020-12-16", tz="UTC")
+    build = build_asof(when, vin, specs=(spec,))
+    levels = build.levels["DGS10"].dropna()
+    raw = vin["DGS10"]
+    knowable = raw[raw["published"] <= when].set_index("obs_date")["value"]
+    december = pd.Timestamp("2020-12-01", tz="UTC")
+    assert december in levels.index, "a half-finished month with enough prints is usable"
+    assert levels.loc[december] == pytest.approx(float(knowable.iloc[-1]))
+    # And strictly less than the month's real last value, which is the leak.
+    assert levels.loc[december] < float(raw["value"].iloc[-1])
+
+
+def test_a_month_below_coverage_is_absent_rather_than_represented_by_one_print():
+    spec = PANEL_BY_ID["DGS10"]
+    vin = {"DGS10": _daily_vintage("2015-01-01", "2020-12-31")}
+    # Two business days into January: below the daily threshold, so the month
+    # must not appear at all.
+    when = pd.Timestamp("2021-01-05", tz="UTC")
+    build = build_asof(when, vin, specs=(spec,))
+    assert pd.Timestamp("2021-01-01", tz="UTC") not in build.levels.index
+    assert MONTH_COVERAGE["daily"] > 2
+
+
+def test_the_edge_reports_the_print_date_not_the_month_it_landed_in():
+    """A same-day yield stamped into the September row is one day old, not 25."""
+    spec = PANEL_BY_ID["DGS10"]
+    vin = {"DGS10": _daily_vintage("2015-01-01", "2020-12-24")}
+    when = pd.Timestamp("2020-12-28", tz="UTC")
+    build = build_asof(when, vin, specs=(spec,))
+    e = build.edge["DGS10"]
+    assert e["through"] == "2020-12-24"
+    assert e["panel_month"] == "2020-12-01"
+    assert e["days_behind"] == 4
+    # The frame's newest ROW is still the month, which is what months_behind says.
+    assert build.months_behind == 0
+    assert e["n_native"] > e["n_published"]
+
+
+def test_quarterly_members_go_to_their_own_frame():
+    """Stacked into the monthly frame they would read as a mostly-missing
+    monthly series, which is a different and wrong claim than a quarterly one."""
+    specs = _panel_of("PAYEMS", "GDPC1")
+    obs_q = pd.date_range("1995-01-01", periods=100, freq="QS", tz="UTC")
+    vin = {
+        "PAYEMS": _vintage(MIN_USABLE_OBS + 240, start="1995-01-01", lag_days=34),
+        "GDPC1": pd.DataFrame({
+            "obs_date": obs_q,
+            "value": [10_000.0 + 50.0 * i for i in range(len(obs_q))],
+            "published": obs_q + pd.Timedelta(days=120),
+        }),
+    }
+    build = build_asof("2019-12-31", vin, specs=specs)
+    assert "GDPC1" not in build.frame.columns
+    assert list(build.frame_q.columns) == ["GDPC1"]
+    assert "GDPC1" in build.used and "PAYEMS" in build.used
+    assert build.n_monthly == 1 and build.n_quarterly == 1
+    assert build.edge["GDPC1"]["frequency"] == "quarterly"
+
+
+def test_probed_but_unavailable_candidates_are_not_quietly_in_the_panel():
+    overlap = set(UNAVAILABLE) & set(PANEL_BY_ID)
+    assert not overlap, f"{overlap} are recorded as unavailable AND in the panel"
+    for sid, reason in UNAVAILABLE.items():
+        assert len(reason) > 40, f"{sid} is excluded without a stated measurement"
 
 
 def test_price_indices_take_a_second_log_difference():
@@ -226,6 +444,78 @@ def test_price_indices_take_a_second_log_difference():
     # Rates are differenced, not log-differenced — they can be zero or negative.
     for sid in ("UNRATE", "TCU"):
         assert PANEL_BY_ID[sid].code == 2
+
+
+# --- the factor model's frequency handling ---------------------------------
+
+def test_period_conversion_round_trips_the_panel_index():
+    """The factors come back on whatever index statsmodels used; downstream
+    joins against `build.frame`, so the trip out and back must be lossless."""
+    from ace.state.factors import _as_periods, _restore_index
+
+    idx = pd.date_range("2010-01-01", periods=48, freq="MS", tz="UTC")
+    frame = pd.DataFrame({"a": np.arange(48.0)}, index=idx)
+    periods = _as_periods(frame, "M")
+    assert isinstance(periods.index, pd.PeriodIndex)
+    back = _restore_index(periods, idx)
+    pd.testing.assert_index_equal(pd.DatetimeIndex(back.index), idx)
+
+
+def test_block_map_reads_the_build_rather_than_a_module_constant():
+    """A custom panel's blocks must survive; filtering against a global list
+    would drop them and the loss would read as a modelling result."""
+    from ace.state.factors import _block_map
+    from ace.state.panel import PanelBuild
+
+    build = PanelBuild(
+        as_of="2020-01-01",
+        frame=pd.DataFrame(columns=["A", "B", "C", "D"]),
+        levels=pd.DataFrame(),
+        used=("A", "B", "C", "D"),
+        dropped={},
+        edge={},
+        groups={"invented_block": ("A", "B"), "singleton": ("C",)},
+    )
+    blocks = _block_map(build)
+    assert blocks == {"invented_block": ["A", "B"]}, blocks
+
+
+def test_a_quarterly_member_reaches_the_factor_model_through_endog_quarterly():
+    """Not stacked into the monthly frame: DynamicFactorMQ must see it as
+    quarterly so the Mariano-Murasawa aggregation applies."""
+    from ace.state.factors import fit_factors
+
+    specs = _panel_of("PAYEMS", "UNRATE", "MANEMP", "INDPRO", "GDPC1")
+    n, rng = 200, np.random.default_rng(3)
+    common = np.cumsum(rng.normal(0, 1, n))
+    obs_m = pd.date_range("2000-01-01", periods=n, freq="MS", tz="UTC")
+    vin = {}
+    for i, spec in enumerate(specs[:-1]):
+        base = 100.0 + 0.4 * common + rng.normal(0, 0.5, n) + 0.05 * i * np.arange(n)
+        vin[spec.series_id] = pd.DataFrame({
+            "obs_date": obs_m, "value": np.abs(base) + 10.0,
+            "published": obs_m + pd.Timedelta(days=34),
+        })
+    obs_q = pd.date_range("2000-01-01", periods=n // 3, freq="QS", tz="UTC")
+    vin["GDPC1"] = pd.DataFrame({
+        "obs_date": obs_q,
+        "value": 10_000.0 + np.cumsum(rng.normal(30, 10, len(obs_q))),
+        "published": obs_q + pd.Timedelta(days=120),
+    })
+    build = build_asof("2016-06-30", vin, specs=specs)
+    assert "GDPC1" in build.frame_q.columns
+    fit = fit_factors(build, k=1, maxiter=15)
+    assert "GDPC1" in fit.series
+    assert fit.series_quarterly == ("GDPC1",)
+    assert "GDPC1" not in fit.series_monthly
+    # The factors must come back on the monthly panel's own index, not on the
+    # PeriodIndex statsmodels works in.
+    pd.testing.assert_index_equal(
+        pd.DatetimeIndex(fit.factors.index), pd.DatetimeIndex(build.frame.index)
+    )
+    # And the training moments must cover the quarterly member too, or a later
+    # date would standardise it against nothing.
+    assert "GDPC1" in fit.mean.index and "GDPC1" in fit.std.index
 
 
 # --- the MacroState contract -----------------------------------------------
@@ -314,6 +604,57 @@ def test_drivers_are_loading_times_observation_and_stay_in_their_block():
         # Sorted by absolute contribution, largest first.
         mags = [abs(d.contribution) for d in b.drivers]
         assert mags == sorted(mags, reverse=True)
+
+
+def test_a_block_whose_edge_error_swamps_its_own_spread_is_flagged():
+    """The failure mode this catches: a slow block whose newest month the filter
+    knows nothing about reverts to the mean, so `level` reads as a confident
+    zero rather than as silence."""
+    from ace.state.state import UNINFORMATIVE_SE_RATIO, build_state
+
+    fit, build = _toy_fit()
+    wide = fit.factor_se.copy()
+    for column in fit.factors.columns:
+        # Ten times the factor's own spread: unambiguously uninformative.
+        wide.loc[column] = 10.0 * float(fit.factors[column].std(ddof=1))
+    state = build_state(replace(fit, factor_se=wide), build)
+    assert state.blocks, "the fixture produced no blocks"
+    for key, block in state.blocks.items():
+        assert not block.informative, key
+        assert block.uncertainty_ratio >= UNINFORMATIVE_SE_RATIO
+    assert any("unconditional mean" in n for n in state.notes)
+
+    # And the converse: a tiny error leaves every block usable.
+    narrow = fit.factor_se.copy()
+    for column in fit.factors.columns:
+        narrow.loc[column] = 0.01 * float(fit.factors[column].std(ddof=1))
+    ok = build_state(replace(fit, factor_se=narrow), build)
+    assert all(b.informative for b in ok.blocks.values())
+    assert not any("unconditional mean" in n for n in ok.notes)
+
+
+def test_missing_uncertainty_counts_as_uninformative_rather_than_fine():
+    """Absence of an error estimate is not evidence the estimate is good."""
+    from ace.state.state import build_state
+
+    fit, build = _toy_fit()
+    blank = pd.Series(np.nan, index=fit.factor_se.index, dtype=float)
+    state = build_state(replace(fit, factor_se=blank), build)
+    for key, block in state.blocks.items():
+        assert not block.informative, key
+        assert np.isnan(block.uncertainty_ratio)
+
+
+def test_a_non_binding_factor_count_says_so_rather_than_looking_load_bearing():
+    """Under the block specification each block already gets a factor, so
+    Bai-Ng's k changes nothing until it exceeds the number of blocks."""
+    from ace.state.state import build_state
+
+    fit, build = _toy_fit()
+    state = build_state(replace(fit, count_binding=False), build)
+    assert any("did not shape this fit" in n for n in state.notes)
+    # It is still recorded — the point is to label it, not to hide it.
+    assert state.factor_count == fit.factor_count.k
 
 
 def test_a_boundary_factor_count_is_reported_not_hidden():

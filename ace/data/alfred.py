@@ -129,6 +129,54 @@ def current_vintage(series_id: str, start: str = "2010-01-01") -> pd.Series:
     return out.sort_index()
 
 
+def unrevised_history(
+    series_id: str, start: str = "1980-01-01", *, publication_lag_days: int = 1
+) -> pd.DataFrame:
+    """A NEVER-REVISED series in the same shape `release_history` returns.
+
+    ALFRED has no vintage archive for a market quote, because there is nothing
+    to archive: the S&P 500 close on a given day is the same number forever.
+    FRED returns `output_type=4` as a 400 for exactly these series, which is
+    why the vintage sweep could not reach VIX, the Treasury curve, the Moody's
+    spreads or the overnight repo facility.
+
+    For that class — and ONLY that class — the standard endpoint loses nothing,
+    because the observation IS the first release. So `published` is synthesised
+    as the observation date plus `publication_lag_days`, defaulting to one day:
+    a same-day close is treated as knowable the following morning rather than
+    at the instant it printed. Conservative by a day in the only direction that
+    cannot manufacture a backtest.
+
+    DO NOT USE THIS FOR A REVISED SERIES. Payrolls, CPI, industrial production
+    and every other statistical release get revised for months or years, so
+    `published = obs_date + 1` would hand a model the FINAL value one day after
+    the reference period — the precise lookahead this module exists to prevent.
+    `ace.state.panel.SeriesSpec.revised` is the switch that keeps the two
+    routes apart, and it defaults to True so a new series must argue its way
+    onto this path rather than fall onto it.
+    """
+    payload = _get(
+        "series/observations",
+        {"series_id": series_id, "observation_start": start},
+    )
+    rows = payload.get("observations") or []
+    if not rows:
+        raise MacroUnavailable(f"{series_id}: no observations")
+    df = pd.DataFrame(rows)
+    df = df[df["value"] != "."]
+    if df.empty:
+        raise MacroUnavailable(f"{series_id}: all observations missing")
+    obs = pd.to_datetime(df["date"], utc=True)
+    out = pd.DataFrame(
+        {
+            "obs_date": obs,
+            "value": pd.to_numeric(df["value"], errors="coerce"),
+            "published": obs + pd.Timedelta(days=int(publication_lag_days)),
+        }
+    ).dropna()
+    return out.sort_values("published").reset_index(drop=True)
+
+
 def as_of(series_id: str, when: pd.Timestamp, start: str = "2010-01-01") -> pd.DataFrame:
     """The series exactly as it was publicly known at `when`.
 
