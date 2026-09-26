@@ -89,6 +89,17 @@ TAXONOMY_SEPARATION = 0.50
 #: to make one example come out right.
 THIN_SEPARATION = 0.75
 
+#: A state must last this long, in expectation, to be a regime rather than an
+#: outlier bucket. Six months is one quad cycle in the existing macro stack.
+#:
+#: Not hypothetical. On the full 89-series panel the growth factor separates its
+#: two state means by 1.11 pooled standard deviations — comfortably past
+#: TAXONOMY_SEPARATION — and holds the low state for 1.1 months against 35.5 for
+#: the high one, with a 143x variance ratio. That is not a growth regime; it is
+#: April 2020 given a state of its own. Without this floor the taxonomy gate
+#: would have passed it and named a quad off it.
+MIN_REGIME_MONTHS = 6.0
+
 #: The joint taxonomy, keyed by (growth state is high, inflation state is high).
 #: These are the brief's candidate names, assigned to sign combinations rather
 #: than to anything the estimator was told in advance.
@@ -133,6 +144,11 @@ class AxisFit:
     separation: float = float("nan")
     #: True when separation is thin. A diagnostic, not a verdict.
     thin: bool = False
+    #: Does the SHORTER-lived state last at least `MIN_REGIME_MONTHS`? A
+    #: one-month state is a single observation wearing a regime's clothes.
+    #: Defaults False so an AxisFit built without it is treated as unproven
+    #: rather than as persistent.
+    persistent: bool = False
     #: True when the states differ enough in MEAN to carry a level-based name.
     #: False means the fit found volatility regimes, and any growth_high /
     #: growth_low label on it would be describing something it did not estimate.
@@ -241,6 +257,7 @@ def fit_axis(
         labels=labels,
         separation=round(float(separation), 4) if np.isfinite(separation) else float("nan"),
         thin=bool(not np.isfinite(separation) or separation < THIN_SEPARATION),
+        persistent=bool(durations and min(durations) >= MIN_REGIME_MONTHS),
         mean_separated=bool(np.isfinite(separation) and separation >= TAXONOMY_SEPARATION),
         bic_one_state=round(float(bic_one), 4) if np.isfinite(bic_one) else float("nan"),
         n_starts=SEARCH_REPS,
@@ -498,6 +515,43 @@ class MacroRegimeState:
         return asdict(self)
 
 
+def _axis_notes(*fits: AxisFit) -> list[str]:
+    """Per-axis warnings, computed once so BOTH return paths carry them.
+
+    These used to be built only on the path that renders a taxonomy, which meant
+    withholding the taxonomy also swallowed them. A fit of pure Gaussian noise
+    then reported "the states do not persist" and said nothing about the more
+    fundamental problem — that the two-state model does not beat a one-state
+    baseline at all. The weaker finding hid the stronger one.
+    """
+    notes: list[str] = []
+    for f in fits:
+        if f.degenerate:
+            notes.append(
+                f"the {f.axis} axis is DEGENERATE — its two-state fit (BIC {f.bic:.1f}) "
+                f"does not beat a one-state baseline (BIC {f.bic_one_state:.1f}). "
+                "It is describing one distribution, and nothing derived from it "
+                "should drive anything."
+            )
+        elif f.n_at_best <= 1 and f.n_starts > 1:
+            notes.append(
+                f"the {f.axis} axis found its best optimum from only "
+                f"{f.n_at_best} of {f.n_starts} starts — the likelihood surface "
+                "is multi-modal here and the fit is fragile to small data changes."
+            )
+        elif f.thin:
+            notes.append(
+                f"the {f.axis} axis is THIN — its states differ by only "
+                f"{f.separation:.2f} pooled standard deviations, so the two are "
+                "close enough that month-to-month assignment will be unstable."
+            )
+        if not f.converged:
+            notes.append(
+                f"the {f.axis} axis did not converge; treat its states as provisional"
+            )
+    return notes
+
+
 def build_regime_state(
     growth: AxisFit,
     inflation: AxisFit,
@@ -517,7 +571,13 @@ def build_regime_state(
     # the model found volatility regimes and these names do not describe it.
     # Refusing here is the difference between reporting a result and dressing
     # one up: the probabilities are real, but "reflation" would not be.
-    unsupported = [f.axis for f in (growth, inflation) if not f.mean_separated]
+    # Two ways an axis fails to describe a LEVEL regime, and both have to be
+    # checked: states that are not mean-separated (a volatility regime), and
+    # states that are mean-separated but last a month (an outlier bucket).
+    unsupported = [
+        f.axis for f in (growth, inflation)
+        if not f.mean_separated or not f.persistent
+    ]
     if unsupported:
         return MacroRegimeState(
             as_of=str(pd.Timestamp(joint.index.max()).date()),
@@ -528,17 +588,30 @@ def build_regime_state(
             axes={"growth": growth.to_dict(), "inflation": inflation.to_dict()},
             drivers=list(drivers or []),
             notes=tuple(
-                [
+                _axis_notes(growth, inflation)
+                + [
                     "TAXONOMY WITHHELD. "
-                    + ", ".join(
-                        f"the {f.axis} axis separates its states by only "
-                        f"{f.separation:.2f} pooled standard deviations in MEAN "
-                        f"(variances {min(f.variances):.2f} vs {max(f.variances):.2f})"
-                        for f in (growth, inflation) if not f.mean_separated
+                    + "; ".join(
+                        (
+                            f"the {f.axis} axis separates its states by only "
+                            f"{f.separation:.2f} pooled standard deviations in MEAN "
+                            f"(variances {min(f.variances):.2f} vs "
+                            f"{max(f.variances):.2f}), which is a volatility regime "
+                            f"rather than a level one"
+                        )
+                        if not f.mean_separated else (
+                            f"the {f.axis} axis separates its means by "
+                            f"{f.separation:.2f} SD but its shorter state lasts "
+                            f"{min(f.expected_duration):.1f} months, which is an "
+                            f"outlier given a state of its own rather than a regime"
+                        )
+                        for f in (growth, inflation)
+                        if not f.mean_separated or not f.persistent
                     )
-                    + f". Below the {TAXONOMY_SEPARATION} floor these are volatility "
-                    "regimes, not level regimes, so names like 'reflation' would "
-                    "describe something the model did not estimate."
+                    + f". The floors are {TAXONOMY_SEPARATION} pooled SD of mean "
+                    f"separation and {MIN_REGIME_MONTHS} months of expected "
+                    "duration; names like 'reflation' would describe something "
+                    "the model did not estimate."
                 ]
             ),
         )
@@ -559,31 +632,7 @@ def build_regime_state(
     stay = float(pg) * float(pi)
     duration = float(1.0 / max(1e-9, 1.0 - stay))
 
-    notes: list[str] = []
-    for f in (growth, inflation):
-        if f.degenerate:
-            notes.append(
-                f"the {f.axis} axis is DEGENERATE — its two-state fit (BIC {f.bic:.1f}) "
-                f"does not beat a one-state baseline (BIC {f.bic_one_state:.1f}). "
-                "It is describing one distribution, and the probabilities below "
-                "should not drive anything."
-            )
-        elif f.n_at_best <= 1 and f.n_starts > 1:
-            notes.append(
-                f"the {f.axis} axis found its best optimum from only "
-                f"{f.n_at_best} of {f.n_starts} starts — the likelihood surface "
-                "is multi-modal here and the fit is fragile to small data changes."
-            )
-        elif f.thin:
-            notes.append(
-                f"the {f.axis} axis is THIN — its states differ by only "
-                f"{f.separation:.2f} pooled standard deviations, so the two are "
-                "close enough that month-to-month assignment will be unstable."
-            )
-    if not growth.converged:
-        notes.append("the growth axis did not converge; treat its states as provisional")
-    if not inflation.converged:
-        notes.append("the inflation axis did not converge; treat its states as provisional")
+    notes: list[str] = _axis_notes(growth, inflation)
     check = independence_check(growth, inflation)
     if check.get("available") and not check.get("independent_at_5pct", True):
         notes.append(

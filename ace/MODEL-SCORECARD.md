@@ -25,7 +25,7 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | **Competing risks (Aalen-Johansen)** | **PASSES** | **Yes** — cumulative incidence by horizon. |
 | **Conflict cascade (GDELT Hawkes)** | **PASSES — 15/20 countries, shape unverified** | Partly — that escalation clusters, yes. Not the branching ratio to three digits. |
 | Game theory (Nash + Monte Carlo) | **Exact** | Yes — equilibria computed and verified. Payoffs remain an assumption. |
-| Regime (Markov switching) | **Validated, descriptive** | Yes — to label the environment. Not as a forecast. |
+| Regime (Markov switching) | **Validated, descriptive. Specification settled: 2 of 10 factors carry LEVEL regimes** | Yes — to label the environment, and only where the label is supported. Not as a forecast. |
 | Historical analogs | **Validated, descriptive** | Yes — as a distribution of what followed similar states. |
 | **Growth/inflation quad** | **Classification validated; positioning FAILED 0/6; vol forecast FAILED 0/6** | Yes, as an environment label with its data lag, margin and revision survival stated. **No** as a positioning signal and **no** as a risk-sizing signal. |
 | **Quad revision risk** | **Measured** | **Yes** — 74% of real-time labels survived revision, and the per-margin rates are calibrated. |
@@ -37,6 +37,59 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | Causal impact (SCM + local projections) | **Estimators validated; no forecastable effect** | Yes for same-day co-movement, labelled predictive. No forward claim. |
 | Ensemble (stacking / BMA) | **FAILED under multiplicity correction** | No. |
 | Prophet (news attention) | **FAILED** | No — loses to a trailing mean. |
+
+### Macro regimes: which factors have a level regime, and which only have volatility
+
+Measured on the 89-series point-in-time panel, 561 months. The test is not
+"does a two-state model beat one state" — nearly every macro factor wins that,
+and on these series it is the variance winning it. The test is whether letting
+the MEAN switch buys anything **once the variance already switches**: one
+parameter apart, with a six-month floor on the shorter state's expected
+duration.
+
+| Factor | Mean buys (BIC) | Mean separation | Variance ratio | State durations | Verdict |
+|---|---:|---:|---:|---|---|
+| housing | +151.0 | 2.06 | 5x | 91 / 52 mo | **level regime** |
+| financial | +68.4 | 2.06 | 1.5x | 37 / 20 mo | **level regime** |
+| growth | +1.7 | 1.11 | 143x | 35 / 1.1 mo | neither — fails the BIC bar and the duration floor |
+| liquidity | −0.5 | 0.26 | 115x | 232 / 131 mo | volatility regime |
+| consumer | −1.8 | 0.46 | 637x | 19 / 1.6 mo | volatility regime |
+| labor | −5.1 | 0.34 | 85x | 41 / 1.9 mo | volatility regime |
+| global | −6.0 | 0.15 | 240x | 83 / 4.3 mo | volatility regime |
+| credit | −6.3 | 0.004 | 10,180x | 35 / 4.0 mo | volatility regime |
+| inflation | −6.3 | 0.0001 | 115,701x | 139 / 225 mo | volatility regime |
+| manufacturing | — | — | degenerate | 263 / 461 mo | **inconclusive** — a state variance optimised to 1.9e-33, so both BIC figures are artefacts of an unbounded likelihood |
+
+A negative "mean buys" means switching variance ALONE is the better model. Six
+of the ten factors are in that column, and growth is a seventh with no level
+regime — it clears the separation floor but buys only 1.7 BIC against a floor
+of 2.0 and holds its low state for 1.1 months. The earlier finding, that
+monthly macro regime structure is volatility-based, holds for all seven. It does
+not hold for housing or financial conditions, and neither of those blocks
+existed in the panel the earlier finding was measured on. Manufacturing's fit is
+degenerate, so it is counted in neither column.
+
+**The same test on the panel the earlier finding was measured on.** Same as-of
+date, same code, same seeds; only the series differ.
+
+| Panel | Factors | Level regimes | Best mean separation |
+|---|---:|---|---:|
+| 14-series | 6 | **none** | 0.49 (consumer) |
+| 89-series | 10 | **housing, financial** | 2.06 (both) |
+
+Every factor on the 14-series panel gives the mean a negative BIC. That panel
+carried one housing series — too few to identify a housing factor — and no
+financial series at all, so neither level regime had a factor it could have been
+found in. The change is coverage, not method.
+
+**What this permits.** The four-name growth/inflation taxonomy stays withheld:
+neither the growth nor the inflation factor supports a level-based name. The
+housing and financial-conditions regimes are supported as ENVIRONMENT LABELS
+with their probabilities. Whether those probabilities beat climatology on Brier
+is a separate, unrun test, and nothing may drive a user-facing number until it
+does.
+
+---
 
 **What is wired, and how.** `ace/` runs offline; nothing calls Python on the
 request path. Validated results reach the app as GENERATED TypeScript modules

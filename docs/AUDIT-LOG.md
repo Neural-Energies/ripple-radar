@@ -24,6 +24,13 @@ empirically; the WP3 regime finding re-run on the completed panel.
 federal government data all of it accessible through api's if we don't have all
 the data that is our number 1 priority before anything else."*
 
+**Scope, stated:** this cycle changed only `ace/` — `git status src/` is empty —
+so the gates that read the TypeScript app were run as a regression check rather
+than as the subject. `tsc --noEmit` exits **0**, against **8 errors** at cycle 1.
+The eslint, vite build and SSR sweep were NOT re-run; nothing in `src/`,
+`scripts/` or `server/` moved, and a cycle that reports gates it did not run is
+worse than one that says which it skipped.
+
 ### Finding 1 — one fetch route could not reach a third of the panel
 
 `ace/data/alfred.py` had a single accessor, `release_history`, which asks FRED
@@ -146,6 +153,112 @@ The number was accurate and misleading at the same time.
 `FactorFit.count_binding` records whether the criterion actually shaped the
 fit, and the state says so in as many words.
 
+### Finding 8 — the WP3 regime conclusion was right about seven factors and wrong about two
+
+WP3 concluded there is no LEVEL regime in monthly macro data — regimes are
+about volatility, not about the level a factor reverts to. That was decided on
+the 14-series panel, which had no liquidity, credit, financial-conditions or
+housing-finance block in it. Re-running it on the completed panel was the
+reason the coverage work came first.
+
+**The original comparison was too weak to answer it.** `fit_axis` scores a
+two-state switching-mean-AND-variance model against a single Gaussian, and
+nearly every macro factor wins that by hundreds of BIC points. It has to: the
+winning model has two things the baseline lacks, and on these factors it is the
+variance doing the work. Credit's fitted states separate by **0.004** pooled
+standard deviations in mean and by a factor of **10,180** in variance. Inflation
+by 0.0001 and 115,701. Those are volatility regimes that pass a level test.
+
+So `ace/regime/mean_vs_variance.py` runs the decisive comparison instead:
+
+> switching mean AND variance **vs** switching VARIANCE ALONE
+
+Both have two states, both let volatility move, and the only difference is one
+parameter — whether the mean may move with the state. Plus a persistence floor,
+because a state with an expected duration near one month is an outlier bucket.
+
+| factor | mean buys (BIC) | separation | var ratio | durations | verdict |
+|---|---:|---:|---:|---|---|
+| **housing** | **+151.0** | 2.06 | 5x | 91 / 52 mo | **LEVEL REGIME** |
+| **financial** | **+68.4** | 2.06 | 1.5x | 37 / 20 mo | **LEVEL REGIME** |
+| growth | +1.7 | 1.11 | 143x | 35 / **1.1 mo** | fails both bars |
+| liquidity | -0.5 | 0.26 | 115x | 232 / 131 mo | volatility only |
+| consumer | -1.8 | 0.46 | 637x | 19 / 1.6 mo | volatility only |
+| labor | -5.1 | 0.34 | 85x | 41 / 1.9 mo | volatility only |
+| global | -6.0 | 0.15 | 240x | 83 / 4.3 mo | volatility only |
+| credit | -6.3 | 0.004 | 10,180x | 35 / 4.0 mo | volatility only |
+| inflation | -6.3 | 0.0001 | 115,701x | 139 / 225 mo | volatility only |
+| manufacturing | — | — | degenerate | 263 / 461 mo | **inconclusive** (see Finding 10) |
+
+Ten factors, a global one and one per block. **Six** give the mean a NEGATIVE
+BIC — switching variance alone is the better model — and growth gives it +1.7
+against a floor of 2.0 while failing the duration floor outright. So of the
+nine the test could reach, seven have no level regime and **two do**. Those two
+are blocks that **did not exist in the panel the original finding was decided
+on**. Financial conditions is the cleanest level regime in the table: a variance
+ratio of 1.5 means the two states are almost equally volatile and differ almost
+entirely in level.
+
+**The comparison is controlled.** Both panels are built on the same as-of date,
+through the same code, with the same seeds; only the series differ. On the
+14-series panel the stricter test finds NO level regime at all — six factors,
+every one giving the mean a negative BIC (labor -1.6, growth -1.7, global.2
+-2.9, consumer -3.3, global.1 -5.6, inflation -6.3), and no separation above
+0.49. So the change is the coverage, not the method.
+
+It could not have gone otherwise on that panel: it carried **one** housing
+series, too few for `_block_map` to identify a housing factor, and **no**
+financial series at all. Neither of the two level regimes had a factor to be
+found in. The original finding was correct about the data it had, and was
+recorded as a finding about macro data.
+
+Artifact: `artifacts/reports/macro_regime_mean_vs_variance.json`, with both
+panels in it. The discriminator is unit-tested on synthetic series whose answers
+are known by construction, and one of those tests asserts that a pure volatility
+regime STILL WINS the naive one-state comparison — which is the whole argument
+for the extra machinery.
+
+### Finding 9 — the taxonomy gate would have named a quad off a single month
+
+`build_regime_state` withheld the four-name taxonomy when an axis was not
+mean-separated. Growth on the full panel separates its means by 1.11 pooled
+standard deviations, past the 0.50 floor, so it would have passed — and its low
+state lasts **1.1 months** with a 143x variance ratio. That is April 2020 given
+a state of its own.
+
+`AxisFit.persistent` and `MIN_REGIME_MONTHS` now gate the taxonomy alongside
+separation. Checked against the real factor rather than assumed: growth's
+low-state variance is 0.128 of the series variance, so the short state is a
+genuine finding and not the numerical artefact of Finding 10.
+
+### Finding 10 — a likelihood spike was reporting as the strongest result in the table
+
+The manufacturing factor's low-state variance optimised to **1.9e-33**, and its
+two-state BIC came back at **-11,808** against a one-state baseline of 1,162.
+Read down the column that is by far the best result on the panel.
+
+It is a broken fit. A Gaussian mixture's likelihood is unbounded: drive one
+component's variance to zero on points it passes exactly and the density there
+goes to infinity, so BIC improves without limit and means nothing. The row
+first looked like a FORMATTING bug — the ratio printed 33 characters and ran
+into the next column — which is how it was found.
+
+`MIN_STATE_VARIANCE_FRACTION` (1e-8 of the series' own variance) now detects it
+and the verdict reads INCONCLUSIVE rather than a result in either direction. A
+degenerate fit cannot establish a level regime and cannot rule one out. The
+real factors sit far clear of the floor: growth 0.128, housing 0.188, financial
+0.488, manufacturing 0.
+
+### Finding 11 — withholding the taxonomy was swallowing the axis warnings
+
+The per-axis diagnostics — DEGENERATE, fragile optimum, THIN — were built only
+on the path that renders a taxonomy. When the taxonomy was withheld they were
+dropped, so a fit of pure Gaussian noise reported "the states do not persist"
+and never mentioned that the two-state model does not beat a one-state baseline
+at all. **The weaker finding hid the stronger one.** Found by a test that
+started failing for the right reason after Finding 9's gate went in. The
+diagnostics are computed once and carried down both paths.
+
 ### Coverage, after
 
 | | count |
@@ -187,6 +300,8 @@ IDs, and both concepts are present under their real IDs. All three are in
 |---|---|
 | WP2's second exit condition — nowcast beats a random walk out of sample | The panel and factors are in place; the out-of-sample comparison is its own piece of work with its own purged walk-forward. Not started. |
 | Bai-Ng `kmax` | Still 6, still a boundary hit, and now known to be inert under the block specification. Raising it is only meaningful if the block structure is relaxed. |
+| WP3's own exit condition — Brier vs climatology, registered | The regime SPECIFICATION is now settled: housing and financial conditions carry level regimes, the rest are volatility. Scoring those probabilities against climatology and registering the result is the next piece, and it is not done. |
+| The manufacturing factor | Its two-state fit is degenerate on the current panel. Whether that is the factor, the block's six members, or the specification is untested. |
 | Fit cost | 468 seconds for 89 series, 561 months, 10 factors, converged. Fine for a daily refresh; not fine inside a 300-date historical replay. A replay will need the fit cached or the panel narrowed, and that choice is not yet made. |
 
 ---

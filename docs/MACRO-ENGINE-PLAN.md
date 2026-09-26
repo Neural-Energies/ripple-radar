@@ -243,13 +243,68 @@ harness.
 |---|---|---|
 | **WP1** | `ace/state/transforms.py` + `panel.py` — FRED-MD transforms, point-in-time panel | **DONE.** Panel builds as-of any historical date; tests prove no post-date vintage leaks. 89 series across nine blocks, two verified fetch routes, mixed frequency. |
 | **WP2** | `ace/state/factors.py` + `state.py` — DynamicFactorMQ, Bai-Ng, MacroState schema | **Factors estimate** (10 over 89 series, converged). The out-of-sample nowcast comparison against a random walk is the OPEN half of this exit condition. |
-| **WP3** | `ace/regime/macro_regime.py` — Markov switching on the factors | Regime probabilities; Brier vs climatology; registered |
+| **WP3** | `ace/regime/macro_regime.py` — Markov switching on the factors | **Specification settled** (see below): housing and financial conditions carry level regimes; the other seven factors carry volatility regimes. Brier vs climatology and registration are the OPEN half. |
 | **WP4** | `ace/surprise/` — calendar, expectation, standardized surprise | Surprise series for CPI, payrolls, unemployment; provenance says "model expectation" |
 | **WP5** | `ace/reaction/conditional.py` — conditional distributions for 2Y, 10Y, NQ, ES, DXY, Gold at 1/5/20d | PIT and coverage reported; compared to unconditional FHS |
 | **WP6** | `ace/news_decomp/` — `.news()` wrapper + run diff | Forecast change attributed to named observations |
 | **WP7** | Export + product surface | Generated module, gated like every other |
 
 WP1–WP3 are the first vertical slice's spine. WP4–WP6 complete it.
+
+---
+
+### What the regime work actually found
+
+WP3 first concluded there is no LEVEL regime in monthly macro data — that a
+macro regime is about volatility, not about the level a factor reverts to. It
+was decided on a 14-series panel with no liquidity, credit, financial-conditions
+or housing-finance block, which is why completing the panel came before
+anything else.
+
+**Beating a one-state Gaussian is not the test.** A two-state
+switching-mean-AND-variance model beats a single Gaussian on essentially every
+macro factor, because it has two things the baseline lacks and on these series
+it is the variance doing the work. Credit's fitted states separate by 0.004
+pooled standard deviations in mean and by a factor of 10,180 in variance.
+`ace/regime/mean_vs_variance.py` runs the comparison that does answer it —
+switching mean and variance against switching **variance alone**, one parameter
+apart — with a six-month persistence floor alongside.
+
+Ten factors: a global one and one per block.
+
+| | n | factors |
+|---|---:|---|
+| **Level regime** | **2** | **housing** (mean buys +151 BIC, states 91 and 52 months) and **financial conditions** (+68 BIC, variance ratio 1.5, states 37 and 20 months) |
+| Volatility regime | 6 | global, labor, consumer, inflation, liquidity, credit — the mean buys NEGATIVE BIC on every one |
+| Neither | 1 | growth: 1.11 SD of separation, but the mean buys 1.7 BIC against a floor of 2.0 and its low state lasts 1.1 months. That is April 2020 with a state to itself. |
+| Untestable | 1 | manufacturing: a state variance optimised to 1.9e-33, so the likelihood spiked and both BIC figures are artefacts |
+
+So of the nine factors the test could reach, **seven have no level regime and
+two do**. Financial conditions is the cleanest: a variance ratio of 1.5 means
+its two states are almost equally volatile and differ almost entirely in level.
+
+**And it is the coverage, not the method.** Both panels are built on the same
+as-of date, through the same code, with the same seeds — the only difference is
+which series are in them. On the 14-series panel the stricter test finds **no
+level regime at all**: six factors, every one of them giving the mean a negative
+BIC, and no separation above 0.49.
+
+| panel | factors | level regimes | best separation |
+|---|---:|---|---:|
+| 14-series (WP3's) | 6 | **none** | 0.49 (consumer) |
+| 89-series | 10 | **housing, financial** | 2.06 (both) |
+
+The old panel could not have found either one. It carried a single housing
+series — one member, too few to identify a block factor — and no financial
+series whatsoever. The original finding was not wrong about the data it had; it
+was a finding about that panel, and it read as a finding about macro data.
+
+The four-name taxonomy (`reflation`, `inflationary_slowdown`, …) is gated on
+BOTH mean separation and persistence. Growth clears the first and fails the
+second, and without the second gate the engine would have named a quad off a
+single month.
+
+Artifact: `artifacts/reports/macro_regime_mean_vs_variance.json`.
 
 ---
 

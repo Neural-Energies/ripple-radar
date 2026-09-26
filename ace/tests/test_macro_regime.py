@@ -334,6 +334,60 @@ def test_the_taxonomy_is_withheld_when_states_are_not_mean_separated():
     assert state_out.axes["growth"]["separation"] == fit.separation
 
 
+def test_the_taxonomy_is_withheld_when_a_state_lasts_a_month():
+    """Mean separation alone is not enough, and the real panel proves it.
+
+    On the full 89-series panel the growth factor separates its state means by
+    1.11 pooled standard deviations — past every separation floor — and holds
+    the low state for 1.1 months with a 143x variance ratio. That is April 2020
+    given a state of its own. Without the persistence gate the taxonomy would
+    have named a quad off a single month.
+    """
+    from ace.regime.macro_regime import MIN_REGIME_MONTHS
+
+    rng = np.random.default_rng(9)
+    n = 500
+    values = rng.normal(0.0, 1.0, n)
+    values[n // 2] = -20.0  # one collapse, shaped after the real thing
+    idx = pd.date_range("1960-01-01", periods=n, freq="MS")
+    outlier = pd.Series(values, index=idx)
+
+    fit = fit_axis(outlier, axis="growth")
+    assert fit.mean_separated, (
+        f"fixture does not clear the separation floor: {fit.separation}"
+    )
+    assert not fit.persistent, fit.expected_duration
+    assert min(fit.expected_duration) < MIN_REGIME_MONTHS
+
+    good, _ = _two_state(n=500, lo=-2.0, hi=2.0, sd=0.5, seed=4)
+    out = build_regime_state(fit, fit_axis(good, axis="inflation"))
+    assert out.probabilities == {}
+    joined = " ".join(out.notes)
+    assert "TAXONOMY WITHHELD" in joined
+    assert "outlier given a state of its own" in joined
+
+
+def test_withholding_the_taxonomy_does_not_swallow_the_axis_warnings():
+    """The weaker finding must not hide the stronger one.
+
+    A degenerate fit — one that cannot beat a single Gaussian — used to report
+    only the withholding reason, because the diagnostics were built on the path
+    that renders a taxonomy. A reader was told the states do not persist and
+    never told the model does not fit.
+    """
+    rng = np.random.default_rng(5)
+    idx = pd.date_range("1960-01-01", periods=400, freq="MS")
+    flat = pd.Series(rng.normal(0.0, 1.0, len(idx)), index=idx)
+    good, _ = _two_state(n=400, lo=-2.0, hi=2.0, sd=0.5, seed=4)
+    growth_fit = fit_axis(flat, axis="growth")
+    assert growth_fit.degenerate, "fixture is not degenerate"
+
+    out = build_regime_state(growth_fit, fit_axis(good, axis="inflation"))
+    joined = " ".join(out.notes)
+    assert "DEGENERATE" in joined, joined
+    assert "TAXONOMY WITHHELD" in joined, joined
+
+
 def test_mean_separated_axes_still_produce_the_taxonomy():
     g, _ = _two_state(n=500, lo=-2.0, hi=2.0, sd=0.5, seed=3)
     i, _ = _two_state(n=500, lo=-2.0, hi=2.0, sd=0.5, seed=11)
