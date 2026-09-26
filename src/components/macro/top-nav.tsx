@@ -1,7 +1,7 @@
 import { Bell, Search } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { AuthSlot } from "@/components/auth-slot";
-import { Logo } from "@/components/logo";
+import { LogoMark } from "@/components/logo";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -31,10 +31,11 @@ export function MacroTopNav({
   const path = useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-[#07101c]/98">
-      <div className="flex h-9 items-center gap-1 px-3">
-        <Link to="/" className="mr-2 shrink-0">
-          <Logo compact />
+    <header className="sticky top-0 z-40 border-b border-border bg-[#07101c]">
+      <div className="flex h-8 items-center gap-0.5 px-2">
+        <Link to="/" className="mr-2 flex shrink-0 items-center gap-1.5">
+          <LogoMark className="size-4" />
+          <span className="text-[13px] font-semibold tracking-tight text-foreground">ripple</span>
         </Link>
 
         <nav className="hidden h-full items-stretch lg:flex" aria-label="Primary">
@@ -45,7 +46,7 @@ export function MacroTopNav({
                 key={item.label}
                 to={item.to}
                 className={cn(
-                  "relative flex h-full items-center px-3 text-[10px] text-muted transition-colors hover:bg-card-2/60 hover:text-foreground",
+                  "relative flex h-full items-center px-2.5 text-[11px] text-muted transition-colors hover:text-foreground",
                   on && "bg-[#10223a] text-[#66c9ff]",
                 )}
               >
@@ -59,7 +60,7 @@ export function MacroTopNav({
         <button
           type="button"
           onClick={onSearch}
-          className="ml-auto hidden h-7 w-[13rem] items-center gap-2 rounded-sm border border-border bg-[#0c1828] px-2 text-left text-[9px] text-subtle hover:border-primary/40 xl:flex"
+          className="ml-auto hidden h-6 w-52 items-center gap-2 rounded-sm border border-border bg-[#0c1828] px-2 text-left text-[11px] text-subtle hover:border-primary/40 xl:flex"
         >
           <Search className="size-3.5 shrink-0" />
           <span className="truncate">Search assets, events, or data...</span>
@@ -78,7 +79,7 @@ export function MacroTopNav({
           ) : null}
         </Link>
 
-        <AuthSlot />
+        <AuthSlot compact />
       </div>
     </header>
   );
