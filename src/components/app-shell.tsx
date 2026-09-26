@@ -34,6 +34,7 @@ import {
 import { goToEvent, useEventParamSync } from "@/lib/hooks/use-event-param-sync";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { MacroTopNav } from "@/components/macro/top-nav";
 import type { RadarEvent } from "@/data/types";
 
 type NavItem = { to: string; label: string; icon: typeof Activity };
@@ -106,6 +107,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMobileNav(false);
   }, [pathname]);
+
+  const macroWorkstation = pathname === "/macro" || pathname.startsWith("/macro/");
+  if (macroWorkstation) {
+    return (
+      <div className="flex min-h-dvh flex-col bg-background text-foreground">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
+        >
+          Skip to content
+        </a>
+        <MacroTopNav onSearch={() => setCommand(true)} alertCount={hits.length} />
+        <main id="main" className="min-w-0 flex-1 overflow-x-hidden">
+          <div className="px-2 py-1.5">{children}</div>
+        </main>
+        <CommandPalette />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">

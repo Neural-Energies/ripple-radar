@@ -87,7 +87,7 @@ export function SignInButtons() {
  * gate-materialized — behind the gate the next request signs the viewer
  * straight back in, so a sign-out control there is a broken loop.
  */
-export function UserButton() {
+export function UserButton({ compact = false }: { compact?: boolean }) {
   const user = useCurrentUser();
   // Sign-out can take a moment (and can fail when deployed), so the control
   // shows it is working and cannot be fired twice.
@@ -108,11 +108,11 @@ export function UserButton() {
           className="h-8 w-8 rounded-full object-cover"
         />
       ) : (
-        <span className="grid h-8 w-8 place-items-center rounded-full bg-black/10 text-sm font-medium dark:bg-white/20">
+        <span className="grid size-6 place-items-center rounded-full bg-card-3 text-[10px] font-medium text-foreground">
           {label.charAt(0).toUpperCase()}
         </span>
       )}
-      <span className="text-sm font-medium">{label}</span>
+      {compact ? null : <span className="text-sm font-medium">{label}</span>}
       {authEnabled && !gateSession && (
         <button
           type="button"
