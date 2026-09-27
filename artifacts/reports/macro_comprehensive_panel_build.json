@@ -1,0 +1,297 @@
+{
+  "as_of": "2026-09-27",
+  "dropped": {},
+  "duplicate_choices": [
+    {
+      "chosen": "IPMANSICS",
+      "dropped": [
+        "IPMAN"
+      ],
+      "group": "concept:IP: manufacturing",
+      "reason": "already validated in the production panel"
+    },
+    {
+      "chosen": "FRGSHPUSM649NCIS",
+      "dropped": [
+        "TSIFRGHT"
+      ],
+      "group": "concept:freight activity",
+      "reason": "point-in-time route, deepest vintage history"
+    },
+    {
+      "chosen": "PPIFES",
+      "dropped": [
+        "WPSFD4131"
+      ],
+      "group": "concept:PPI final demand ex food and energy",
+      "reason": "point-in-time route, deepest vintage history"
+    },
+    {
+      "chosen": "PPIITM",
+      "dropped": [
+        "WPUID61"
+      ],
+      "group": "concept:PPI intermediate demand",
+      "reason": "point-in-time route, deepest vintage history"
+    },
+    {
+      "chosen": "IOER",
+      "dropped": [
+        "IORB"
+      ],
+      "group": "concept:interest on reserve balances",
+      "reason": "point-in-time route, deepest vintage history"
+    }
+  ],
+  "fetch_errors": {},
+  "groups": {
+    "banking": [
+      "TOTBKCR",
+      "TLAACBW027SBOG",
+      "USGSEC",
+      "CREACBM027NBOG"
+    ],
+    "business_investment": [
+      "ANDEVS",
+      "PNRESCONS",
+      "PNFI",
+      "Y033RC1Q027SBEA",
+      "B009RC1Q027SBEA",
+      "Y001RC1Q027SBEA"
+    ],
+    "commodities": [
+      "GASREGW",
+      "PCOPPUSDM",
+      "PALLFNFINDEXM",
+      "PINDUINDEXM",
+      "PRAWMINDEXM"
+    ],
+    "consumer": [
+      "RSAFS",
+      "RRSFS",
+      "RSFSXMV",
+      "PCE",
+      "PCEC96",
+      "TOTALSA",
+      "PI",
+      "RPI",
+      "DSPI",
+      "DSPIC96",
+      "W875RX1",
+      "PSAVERT",
+      "UMCSENT",
+      "CSCICP03USM665S",
+      "TDSP",
+      "DRCCLACBS"
+    ],
+    "corporate_profits": [
+      "CP",
+      "CPATAX",
+      "COMPNFB",
+      "PROPINC"
+    ],
+    "credit": [
+      "BAMLH0A0HYM2",
+      "BAMLC0A0CM",
+      "BAMLC0A4CBBB",
+      "BAA10Y",
+      "AAA10Y",
+      "BUSLOANS",
+      "TOTCI",
+      "REALLN",
+      "CONSUMER",
+      "TOTALSL",
+      "REVOLSL",
+      "NONREVSL",
+      "DRTSCILM",
+      "DRSFRMACBS",
+      "CORALACBS"
+    ],
+    "energy": [
+      "IPG32411S",
+      "IPUTIL"
+    ],
+    "financial_conditions": [
+      "FEDFUNDS",
+      "SOFR",
+      "IOER",
+      "DGS2",
+      "DGS10",
+      "T10Y2Y",
+      "T10Y3M",
+      "DFII10",
+      "VIXCLS",
+      "NFCI",
+      "ANFCI",
+      "STLFSI4",
+      "DTWEXBGS"
+    ],
+    "fiscal": [
+      "MTSDS133FMS",
+      "FGRECPT",
+      "FGEXPND",
+      "FGCE",
+      "FYGFDPUN",
+      "GFDEBTN",
+      "A091RC1Q027SBEA"
+    ],
+    "housing": [
+      "HOUST",
+      "HOUST1F",
+      "PERMIT",
+      "COMPUTSA",
+      "HOUSTNE",
+      "HOUSTMW",
+      "HOUSTS",
+      "HOUSTW",
+      "HSN1F",
+      "MSACSR",
+      "HNFSEPUSSA",
+      "CSUSHPINSA",
+      "MORTGAGE30US",
+      "MORTGAGE15US",
+      "TTLCONS",
+      "USSTHPI",
+      "PRFI",
+      "RRVRUSQ156N",
+      "RHVRUSQ156N"
+    ],
+    "inflation": [
+      "CPIAUCSL",
+      "CPILFESL",
+      "CUSR0000SAS",
+      "CUSR0000SAC",
+      "CUSR0000SAH1",
+      "CUSR0000SEHA",
+      "CUSR0000SEHC",
+      "CPITRNSL",
+      "CPIMEDSL",
+      "CPIUFDSL",
+      "CPIENGSL",
+      "CUSR0000SETA02",
+      "CUSR0000SETA01",
+      "CPIAPPSL",
+      "CPIRECSL",
+      "CPIEDUSL",
+      "PCEPI",
+      "PCEPILFE",
+      "DGDSRG3M086SBEA",
+      "DSERRG3M086SBEA",
+      "DPCXRG3M086SBEA",
+      "PPIFIS",
+      "PPIFES",
+      "PPIACO",
+      "PPIITM",
+      "WPSFD49207",
+      "IR",
+      "IQ",
+      "PCETRIM12M159SFRBDAL",
+      "MEDCPIM158SFRBCLE",
+      "CORESTICKM159SFRBATL",
+      "CES0500000003",
+      "MICH",
+      "DHUTRG3Q086SBEA",
+      "ULCNFB",
+      "ECIWAG"
+    ],
+    "labor": [
+      "PAYEMS",
+      "USPRIV",
+      "USGOVT",
+      "MANEMP",
+      "USCONS",
+      "USTRADE",
+      "SRVPRD",
+      "TEMPHELPS",
+      "UNRATE",
+      "U6RATE",
+      "CIVPART",
+      "EMRATIO",
+      "CE16OV",
+      "CLF16OV",
+      "UEMPMEAN",
+      "ICSA",
+      "CCSA",
+      "IURSA",
+      "JTSJOL",
+      "JTSHIR",
+      "JTSQUR",
+      "JTSLDR",
+      "AWHAETP",
+      "AWHMAN",
+      "AWOTMAN",
+      "CES0500000011"
+    ],
+    "liquidity_money": [
+      "M1SL",
+      "M2SL",
+      "M2REAL",
+      "BOGMBASE",
+      "TOTRESNS",
+      "WRESBAL",
+      "WALCL",
+      "WTREGEN",
+      "RRPONTSYD",
+      "DPSACBW027SBOG"
+    ],
+    "manufacturing": [
+      "DGORDER",
+      "AMTMNO",
+      "AMDMUO",
+      "NEWORDER",
+      "AMDMVS",
+      "CFNAI",
+      "USSLIND",
+      "GACDFSA066MSFRBPHI",
+      "BACTSAMFRBDAL",
+      "GACDISA066MSFRBNY"
+    ],
+    "market_expectations": [
+      "T10YIE"
+    ],
+    "output_activity": [
+      "INDPRO",
+      "IPFINAL",
+      "IPCONGD",
+      "IPBUSEQ",
+      "IPMAT",
+      "IPMANSICS",
+      "TCU",
+      "MCUMFN",
+      "BUSINV",
+      "ISRATIO",
+      "WHLSLRIMSA",
+      "RETAILIRSA",
+      "FRGSHPUSM649NCIS",
+      "GDPC1",
+      "GDP",
+      "GDI",
+      "A261RX1Q020SBEA",
+      "GCE",
+      "FINSLC1"
+    ],
+    "productivity": [
+      "OPHNFB",
+      "HOANBS",
+      "OUTNFB",
+      "RCPHBS"
+    ],
+    "trade_external": [
+      "BOPGSTB",
+      "BOPGEXP",
+      "BOPGIMP",
+      "BOPSEXP",
+      "BOPSIMP",
+      "DEXCHUS",
+      "EXPGS",
+      "IMPGS",
+      "EXPGSC1",
+      "IMPGSC1",
+      "IEABC"
+    ]
+  },
+  "n_monthly": 167,
+  "n_panel": 208,
+  "n_quarterly": 41,
+  "n_used": 208
+}

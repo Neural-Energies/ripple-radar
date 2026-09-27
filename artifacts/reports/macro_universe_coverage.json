@@ -1,0 +1,5134 @@
+{
+  "by_family": [
+    {
+      "coverage": 0.5,
+      "family": "output_activity",
+      "n_concepts": 20,
+      "n_covered": 10,
+      "n_gap": 10
+    },
+    {
+      "coverage": 0.3611,
+      "family": "inflation",
+      "n_concepts": 36,
+      "n_covered": 13,
+      "n_gap": 23
+    },
+    {
+      "coverage": 0.5926,
+      "family": "labor",
+      "n_concepts": 27,
+      "n_covered": 16,
+      "n_gap": 11
+    },
+    {
+      "coverage": 0.4375,
+      "family": "consumer",
+      "n_concepts": 16,
+      "n_covered": 7,
+      "n_gap": 9
+    },
+    {
+      "coverage": 0.4286,
+      "family": "housing",
+      "n_concepts": 21,
+      "n_covered": 9,
+      "n_gap": 12
+    },
+    {
+      "coverage": 0.3077,
+      "family": "manufacturing",
+      "n_concepts": 13,
+      "n_covered": 4,
+      "n_gap": 9
+    },
+    {
+      "coverage": 0.5556,
+      "family": "credit",
+      "n_concepts": 18,
+      "n_covered": 10,
+      "n_gap": 8
+    },
+    {
+      "coverage": 0.5455,
+      "family": "financial_conditions",
+      "n_concepts": 22,
+      "n_covered": 12,
+      "n_gap": 10
+    },
+    {
+      "coverage": 0.8,
+      "family": "liquidity_money",
+      "n_concepts": 10,
+      "n_covered": 8,
+      "n_gap": 2
+    },
+    {
+      "coverage": 0.0,
+      "family": "banking",
+      "n_concepts": 5,
+      "n_covered": 0,
+      "n_gap": 5
+    },
+    {
+      "coverage": 0.0,
+      "family": "fiscal",
+      "n_concepts": 8,
+      "n_covered": 0,
+      "n_gap": 8
+    },
+    {
+      "coverage": 0.1429,
+      "family": "trade_external",
+      "n_concepts": 14,
+      "n_covered": 2,
+      "n_gap": 12
+    },
+    {
+      "coverage": 0.3,
+      "family": "commodities",
+      "n_concepts": 10,
+      "n_covered": 3,
+      "n_gap": 7
+    },
+    {
+      "coverage": 0.0,
+      "family": "energy",
+      "n_concepts": 9,
+      "n_covered": 0,
+      "n_gap": 9
+    },
+    {
+      "coverage": 0.1429,
+      "family": "business_investment",
+      "n_concepts": 7,
+      "n_covered": 1,
+      "n_gap": 6
+    },
+    {
+      "coverage": 0.0,
+      "family": "corporate_profits",
+      "n_concepts": 5,
+      "n_covered": 0,
+      "n_gap": 5
+    },
+    {
+      "coverage": 0.0,
+      "family": "productivity",
+      "n_concepts": 5,
+      "n_covered": 0,
+      "n_gap": 5
+    },
+    {
+      "coverage": 0.0,
+      "family": "demographics",
+      "n_concepts": 3,
+      "n_covered": 0,
+      "n_gap": 3
+    },
+    {
+      "coverage": 0.5,
+      "family": "surveys_expectations",
+      "n_concepts": 4,
+      "n_covered": 2,
+      "n_gap": 2
+    },
+    {
+      "coverage": 0.6667,
+      "family": "market_expectations",
+      "n_concepts": 3,
+      "n_covered": 2,
+      "n_gap": 1
+    }
+  ],
+  "concepts": [
+    {
+      "candidates": [
+        "GDPC1"
+      ],
+      "code": 5,
+      "concept": "real GDP",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "GDPC1": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "GDPC1"
+      ],
+      "sub_family": "national accounts",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "GDP"
+      ],
+      "code": 5,
+      "concept": "nominal GDP",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "national accounts",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "GDI"
+      ],
+      "code": 5,
+      "concept": "nominal gross domestic income",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "The income-side estimate of nominal GDP. The GDP-GDI gap is itself a measurement-error signal, so both are worth carrying.",
+      "present": [],
+      "sub_family": "national accounts",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "A261RX1Q020SBEA"
+      ],
+      "code": 5,
+      "concept": "real gross domestic income",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "Kept separate from nominal GDI rather than listed as a substitute for it. A deflated series and its nominal twin are different quantities, and the redundancy detector flagged the original single-concept version of this entry on its first run.",
+      "present": [],
+      "sub_family": "national accounts",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "GCE"
+      ],
+      "code": 5,
+      "concept": "government consumption expenditures (all levels)",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "All levels of government (federal + state + local) \u2014 the G in GDP's C+I+G+NX. Distinct from the fiscal family's federal-only FGCE, which measures federal budget policy specifically.",
+      "present": [],
+      "sub_family": "national accounts",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "FINSLC1"
+      ],
+      "code": 5,
+      "concept": "real final sales",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "GDP less inventory change \u2014 demand without the restocking cycle.",
+      "present": [],
+      "sub_family": "national accounts",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "INDPRO"
+      ],
+      "code": 5,
+      "concept": "industrial production",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "INDPRO": [
+          "ace.macro.quads",
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "INDPRO"
+      ],
+      "sub_family": "production",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "IPFINAL"
+      ],
+      "code": 5,
+      "concept": "IP: final products",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "IPFINAL": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "IPFINAL"
+      ],
+      "sub_family": "production",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "IPCONGD"
+      ],
+      "code": 5,
+      "concept": "IP: consumer goods",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "IPCONGD": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "IPCONGD"
+      ],
+      "sub_family": "production",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "IPBUSEQ"
+      ],
+      "code": 5,
+      "concept": "IP: business equipment",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "IPBUSEQ": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "IPBUSEQ"
+      ],
+      "sub_family": "production",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "IPMAT"
+      ],
+      "code": 5,
+      "concept": "IP: materials",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "IPMAT": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "IPMAT"
+      ],
+      "sub_family": "production",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "IPMANSICS",
+        "IPMAN"
+      ],
+      "code": 5,
+      "concept": "IP: manufacturing",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "IPMANSICS": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "SIC-basis (IPMANSICS) runs back to 1919; NAICS-basis (IPMAN) is the current classification standard but only starts 1972. Same concept, two classification eras.",
+      "present": [
+        "IPMANSICS"
+      ],
+      "sub_family": "production",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "TCU"
+      ],
+      "code": 2,
+      "concept": "capacity utilization",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "TCU": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "TCU"
+      ],
+      "sub_family": "production",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "MCUMFN"
+      ],
+      "code": 2,
+      "concept": "capacity utilization: manufacturing",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "production",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "BUSINV"
+      ],
+      "code": 5,
+      "concept": "business inventories",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "BUSINV": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "BUSINV"
+      ],
+      "sub_family": "inventories",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "ISRATIO"
+      ],
+      "code": 2,
+      "concept": "inventory/sales ratio",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "ISRATIO": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "ISRATIO"
+      ],
+      "sub_family": "inventories",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "WHLSLRIMSA"
+      ],
+      "code": 5,
+      "concept": "wholesale inventories",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "inventories",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "RETAILIRSA"
+      ],
+      "code": 2,
+      "concept": "retail inventories",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "Retail inventory/sales. The channel a demand miss shows up in first.",
+      "present": [],
+      "sub_family": "inventories",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "FRGSHPUSM649NCIS",
+        "TSIFRGHT"
+      ],
+      "code": 5,
+      "concept": "freight activity",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "Cass/BTS freight shipments. A physical-volume cross-check on the survey-based activity measures.",
+      "present": [],
+      "sub_family": "transport",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "RAILFRTCARLOADSD11"
+      ],
+      "code": 5,
+      "concept": "rail carloads",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "output_activity",
+      "layer": "hard",
+      "note": "Weekly and noisy, and its secular decline is a modal-shift story rather than a cycle. Registry context, not a factor input.",
+      "present": [],
+      "sub_family": "transport",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CPIAUCSL"
+      ],
+      "code": 6,
+      "concept": "CPI headline",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "CPIAUCSL": [
+          "ace.macro.quads",
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "CPIAUCSL"
+      ],
+      "sub_family": "CPI",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CPILFESL"
+      ],
+      "code": 6,
+      "concept": "CPI core",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "CPILFESL": [
+          "ace.macro.quads",
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "CPILFESL"
+      ],
+      "sub_family": "CPI",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CUSR0000SAS"
+      ],
+      "code": 6,
+      "concept": "CPI services",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "CUSR0000SAS": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "CUSR0000SAS"
+      ],
+      "sub_family": "CPI",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CUSR0000SAC"
+      ],
+      "code": 6,
+      "concept": "CPI commodities",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "CUSR0000SAC": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "CUSR0000SAC"
+      ],
+      "sub_family": "CPI",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CUSR0000SAH1"
+      ],
+      "code": 6,
+      "concept": "CPI shelter",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "A third of core CPI on its own, and the slowest-moving third.",
+      "present": [],
+      "sub_family": "CPI components",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CUSR0000SEHA"
+      ],
+      "code": 6,
+      "concept": "CPI rent of primary residence",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "CPI components",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CUSR0000SEHC"
+      ],
+      "code": 6,
+      "concept": "CPI owners' equivalent rent",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "Imputed, not transacted, and it lags market rents by roughly a year \u2014 which is why it has to be separable from the rest.",
+      "present": [],
+      "sub_family": "CPI components",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CPITRNSL"
+      ],
+      "code": 6,
+      "concept": "CPI transportation",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "CPI components",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CPIMEDSL"
+      ],
+      "code": 6,
+      "concept": "CPI medical care",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "CPI components",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CPIUFDSL"
+      ],
+      "code": 6,
+      "concept": "CPI food",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "CPIUFDSL": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "CPIUFDSL"
+      ],
+      "sub_family": "CPI components",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CPIENGSL"
+      ],
+      "code": 6,
+      "concept": "CPI energy",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "CPIENGSL": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "CPIENGSL"
+      ],
+      "sub_family": "CPI components",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CUSR0000SETA02"
+      ],
+      "code": 6,
+      "concept": "CPI used vehicles",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "CPI components",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CUSR0000SETA01"
+      ],
+      "code": 6,
+      "concept": "CPI new vehicles",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "CPI components",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CPIAPPSL"
+      ],
+      "code": 6,
+      "concept": "CPI apparel",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "CPI components",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CPIRECSL"
+      ],
+      "code": 6,
+      "concept": "CPI recreation",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "CPI components",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CPIEDUSL"
+      ],
+      "code": 6,
+      "concept": "CPI education and communication",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "CPI components",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PCEPI"
+      ],
+      "code": 6,
+      "concept": "PCE price index",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "PCEPI": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "PCEPI"
+      ],
+      "sub_family": "PCE",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PCEPILFE"
+      ],
+      "code": 6,
+      "concept": "core PCE",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "PCEPILFE": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "The number the FOMC statement refers to.",
+      "present": [
+        "PCEPILFE"
+      ],
+      "sub_family": "PCE",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "DGDSRG3M086SBEA"
+      ],
+      "code": 6,
+      "concept": "PCE goods prices",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "PCE",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "DSERRG3M086SBEA"
+      ],
+      "code": 6,
+      "concept": "PCE services prices",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "PCE",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "DHUTRG3Q086SBEA"
+      ],
+      "code": 6,
+      "concept": "PCE housing services prices",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "Quarterly only \u2014 no monthly cut of this component exists on FRED.",
+      "present": [],
+      "sub_family": "PCE",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "DPCXRG3M086SBEA"
+      ],
+      "code": 6,
+      "concept": "market-based core PCE",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "Excludes imputed prices. If it diverges from core PCE the difference is measurement convention, not inflation.",
+      "present": [],
+      "sub_family": "PCE",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PPIFIS"
+      ],
+      "code": 6,
+      "concept": "PPI final demand",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "PPIFIS": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "PPIFIS"
+      ],
+      "sub_family": "PPI",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PPIFES",
+        "WPSFD4131"
+      ],
+      "code": 6,
+      "concept": "PPI final demand ex food and energy",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "BLS retired the 'finished goods' PPI methodology for 'final demand' in 2014; WPSFD4131 is the older finished-goods cut with deeper history, PPIFES the current final-demand one.",
+      "present": [],
+      "sub_family": "PPI",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PPIACO"
+      ],
+      "code": 6,
+      "concept": "PPI all commodities",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "PPIACO": [
+          "ace.macro.quads",
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "PPIACO"
+      ],
+      "sub_family": "PPI",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "WPUID61",
+        "PPIITM"
+      ],
+      "code": 6,
+      "concept": "PPI intermediate demand",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "PPIITM stopped updating in 2015 (BLS moved to the WPUID6x family); WPUID61 is the current series and listed first.",
+      "present": [],
+      "sub_family": "PPI",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "WPSFD49207"
+      ],
+      "code": 6,
+      "concept": "PPI finished consumer goods",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "WPSFD49207": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "WPSFD49207"
+      ],
+      "sub_family": "PPI",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "IR"
+      ],
+      "code": 6,
+      "concept": "import prices",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "The tariff and dollar channel into goods inflation.",
+      "present": [],
+      "sub_family": "external prices",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "IQ"
+      ],
+      "code": 6,
+      "concept": "export prices",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "external prices",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "ULCNFB"
+      ],
+      "code": 6,
+      "concept": "unit labor costs",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "Compensation per unit of output \u2014 the wage channel net of productivity, which average hourly earnings alone cannot give.",
+      "present": [],
+      "sub_family": "costs",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PCETRIM12M159SFRBDAL"
+      ],
+      "code": 2,
+      "concept": "trimmed mean PCE",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "Already an annualised rate, so differenced rather than double-log-differenced.",
+      "present": [],
+      "sub_family": "robust measures",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "MEDCPIM158SFRBCLE"
+      ],
+      "code": 2,
+      "concept": "median CPI",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "robust measures",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CORESTICKM159SFRBATL"
+      ],
+      "code": 2,
+      "concept": "sticky-price CPI",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "Restricted to slow-repricing components, so it is closer to the persistent part than core is.",
+      "present": [],
+      "sub_family": "robust measures",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CES0500000003"
+      ],
+      "code": 6,
+      "concept": "average hourly earnings",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "CES0500000003": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "CES0500000003"
+      ],
+      "sub_family": "wages",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "ECIWAG"
+      ],
+      "code": 6,
+      "concept": "employment cost index: wages",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "ECIWAG": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "hard",
+      "note": "Holds job mix fixed, so it does not move when the composition of employment shifts. Quarterly.",
+      "present": [
+        "ECIWAG"
+      ],
+      "sub_family": "wages",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "MICH"
+      ],
+      "code": 2,
+      "concept": "1-year inflation expectations (survey)",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "inflation",
+      "layer": "soft",
+      "note": "University of Michigan household expectations. A survey, kept in the soft layer so it never silently substitutes for a price.",
+      "present": [],
+      "sub_family": "expectations",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PAYEMS"
+      ],
+      "code": 5,
+      "concept": "nonfarm payrolls",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "PAYEMS": [
+          "ace.macro.quads",
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "PAYEMS"
+      ],
+      "sub_family": "establishment",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "USPRIV"
+      ],
+      "code": 5,
+      "concept": "private payrolls",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "establishment",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "USGOVT"
+      ],
+      "code": 5,
+      "concept": "government payrolls",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "establishment",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "MANEMP"
+      ],
+      "code": 5,
+      "concept": "manufacturing employment",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "MANEMP": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "MANEMP"
+      ],
+      "sub_family": "establishment",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "USCONS"
+      ],
+      "code": 5,
+      "concept": "construction employment",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "USCONS": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "USCONS"
+      ],
+      "sub_family": "establishment",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "USTRADE"
+      ],
+      "code": 5,
+      "concept": "retail trade employment",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "USTRADE": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "USTRADE"
+      ],
+      "sub_family": "establishment",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "SRVPRD"
+      ],
+      "code": 5,
+      "concept": "service-providing employment",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "SRVPRD": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "SRVPRD"
+      ],
+      "sub_family": "establishment",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "TEMPHELPS"
+      ],
+      "code": 5,
+      "concept": "temporary help employment",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "The first margin employers cut, so it leads the headline.",
+      "present": [],
+      "sub_family": "establishment",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "UNRATE"
+      ],
+      "code": 2,
+      "concept": "unemployment rate",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "UNRATE": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "UNRATE"
+      ],
+      "sub_family": "household",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "U6RATE"
+      ],
+      "code": 2,
+      "concept": "U-6 underemployment",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "U6RATE": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "U6RATE"
+      ],
+      "sub_family": "household",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CIVPART"
+      ],
+      "code": 2,
+      "concept": "labor force participation",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "CIVPART": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "CIVPART"
+      ],
+      "sub_family": "household",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "EMRATIO"
+      ],
+      "code": 2,
+      "concept": "employment-population ratio",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "Free of the participation denominator, so it cannot improve because people stopped looking.",
+      "present": [],
+      "sub_family": "household",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CE16OV"
+      ],
+      "code": 5,
+      "concept": "household employment",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "The other employment survey. A persistent payrolls/household gap is a measurement signal in its own right.",
+      "present": [],
+      "sub_family": "household",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CLF16OV"
+      ],
+      "code": 5,
+      "concept": "labor force",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "household",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "UEMPMEAN"
+      ],
+      "code": 2,
+      "concept": "mean duration unemployed",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "UEMPMEAN": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "UEMPMEAN"
+      ],
+      "sub_family": "household",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "LNS12026620"
+      ],
+      "code": 5,
+      "concept": "multiple jobholders",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "labor",
+      "layer": "hard",
+      "note": "Thin and noisy monthly; registry context.",
+      "present": [],
+      "sub_family": "household",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "ICSA"
+      ],
+      "code": 5,
+      "concept": "initial claims",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "ICSA": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "The highest-frequency labour read there is, five days behind.",
+      "present": [
+        "ICSA"
+      ],
+      "sub_family": "claims",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CCSA"
+      ],
+      "code": 5,
+      "concept": "continuing claims",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "CCSA": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "CCSA"
+      ],
+      "sub_family": "claims",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "IURSA"
+      ],
+      "code": 2,
+      "concept": "insured unemployment rate",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "claims",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "JTSJOL"
+      ],
+      "code": 5,
+      "concept": "JOLTS job openings",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "JTSJOL": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "JTSJOL"
+      ],
+      "sub_family": "JOLTS",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "JTSHIR"
+      ],
+      "code": 5,
+      "concept": "JOLTS hires",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "JOLTS",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "JTSQUR"
+      ],
+      "code": 2,
+      "concept": "JOLTS quits rate",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "JTSQUR": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "JTSQUR"
+      ],
+      "sub_family": "JOLTS",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "JTSLDR"
+      ],
+      "code": 2,
+      "concept": "JOLTS layoffs rate",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "JTSLDR": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "JTSLDR"
+      ],
+      "sub_family": "JOLTS",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "AWHAETP"
+      ],
+      "code": 1,
+      "concept": "average weekly hours",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "hours",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "AWHMAN"
+      ],
+      "code": 1,
+      "concept": "manufacturing weekly hours",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "AWHMAN": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "AWHMAN"
+      ],
+      "sub_family": "hours",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "AWOTMAN"
+      ],
+      "code": 2,
+      "concept": "manufacturing overtime hours",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "AWOTMAN": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "AWOTMAN"
+      ],
+      "sub_family": "hours",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CES0500000011"
+      ],
+      "code": 5,
+      "concept": "average weekly earnings",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "labor",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "earnings",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "RSAFS"
+      ],
+      "code": 5,
+      "concept": "retail sales",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "spending",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "RRSFS"
+      ],
+      "code": 5,
+      "concept": "real retail sales",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "RRSFS": [
+          "ace.macro.quads",
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "RRSFS"
+      ],
+      "sub_family": "spending",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "RSFSXMV"
+      ],
+      "code": 5,
+      "concept": "retail control group",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "hard",
+      "note": "Ex autos, gas and building materials \u2014 the slice that maps into the GDP consumption estimate.",
+      "present": [],
+      "sub_family": "spending",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PCE"
+      ],
+      "code": 5,
+      "concept": "personal consumption",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "spending",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PCEC96"
+      ],
+      "code": 5,
+      "concept": "real personal consumption",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "PCEC96": [
+          "ace.macro.quads",
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "PCEC96"
+      ],
+      "sub_family": "spending",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "TOTALSA"
+      ],
+      "code": 5,
+      "concept": "vehicle sales",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "TOTALSA": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "hard",
+      "note": "The big-ticket, credit-financed end, where a rate shock lands first.",
+      "present": [
+        "TOTALSA"
+      ],
+      "sub_family": "spending",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PI"
+      ],
+      "code": 5,
+      "concept": "personal income",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "income",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "RPI"
+      ],
+      "code": 5,
+      "concept": "real personal income",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "income",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "DSPI"
+      ],
+      "code": 5,
+      "concept": "disposable income",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "income",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "DSPIC96"
+      ],
+      "code": 5,
+      "concept": "real disposable income",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "DSPIC96": [
+          "ace.macro.quads",
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "DSPIC96"
+      ],
+      "sub_family": "income",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "W875RX1"
+      ],
+      "code": 5,
+      "concept": "real income ex transfers",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "W875RX1": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "hard",
+      "note": "Earned income only \u2014 the cut the NBER dating committee watches.",
+      "present": [
+        "W875RX1"
+      ],
+      "sub_family": "income",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PSAVERT"
+      ],
+      "code": 2,
+      "concept": "personal saving rate",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "PSAVERT": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "PSAVERT"
+      ],
+      "sub_family": "income",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "TDSP"
+      ],
+      "code": 2,
+      "concept": "household debt service ratio",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "hard",
+      "note": "Debt payments as a share of disposable income \u2014 the affordability constraint that credit outstanding alone does not show.",
+      "present": [],
+      "sub_family": "balance sheet",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "DRCCLACBS"
+      ],
+      "code": 2,
+      "concept": "credit card delinquency rate",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "balance sheet",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "UMCSENT"
+      ],
+      "code": 2,
+      "concept": "consumer sentiment",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "UMCSENT": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "soft",
+      "note": "",
+      "present": [
+        "UMCSENT"
+      ],
+      "sub_family": "surveys",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CSCICP03USM665S"
+      ],
+      "code": 2,
+      "concept": "consumer confidence",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "consumer",
+      "layer": "soft",
+      "note": "OECD's US confidence indicator. The Conference Board series itself is not redistributable through FRED.",
+      "present": [],
+      "sub_family": "surveys",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "HOUST"
+      ],
+      "code": 4,
+      "concept": "housing starts",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "HOUST": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "HOUST"
+      ],
+      "sub_family": "construction",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "HOUST1F"
+      ],
+      "code": 4,
+      "concept": "housing starts: single family",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "construction",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PERMIT"
+      ],
+      "code": 4,
+      "concept": "building permits",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "PERMIT": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "PERMIT"
+      ],
+      "sub_family": "construction",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "COMPUTSA"
+      ],
+      "code": 4,
+      "concept": "housing completions",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "construction",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "HOUSTNE"
+      ],
+      "code": 4,
+      "concept": "housing starts: Northeast",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "HOUSTNE": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "HOUSTNE"
+      ],
+      "sub_family": "construction regional",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "HOUSTMW"
+      ],
+      "code": 4,
+      "concept": "housing starts: Midwest",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "HOUSTMW": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "HOUSTMW"
+      ],
+      "sub_family": "construction regional",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "HOUSTS"
+      ],
+      "code": 4,
+      "concept": "housing starts: South",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "HOUSTS": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "HOUSTS"
+      ],
+      "sub_family": "construction regional",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "HOUSTW"
+      ],
+      "code": 4,
+      "concept": "housing starts: West",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "HOUSTW": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "HOUSTW"
+      ],
+      "sub_family": "construction regional",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "HSN1F"
+      ],
+      "code": 4,
+      "concept": "new home sales",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "HSN1F": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "HSN1F"
+      ],
+      "sub_family": "sales",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "EXHOSLUSM495S"
+      ],
+      "code": 4,
+      "concept": "existing home sales",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "FRED holds a 13-month rolling window under NAR licensing, so there is no history to fetch. Recorded so the absence is attributable to the licence rather than to an oversight.",
+      "present": [],
+      "sub_family": "sales",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "MSACSR"
+      ],
+      "code": 2,
+      "concept": "months supply of new homes",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "inventory",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "HNFSEPUSSA"
+      ],
+      "code": 4,
+      "concept": "new houses for sale",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "inventory",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CSUSHPINSA"
+      ],
+      "code": 6,
+      "concept": "Case-Shiller national home prices",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "CSUSHPINSA": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "CSUSHPINSA"
+      ],
+      "sub_family": "prices",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "USSTHPI"
+      ],
+      "code": 6,
+      "concept": "FHFA house price index",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "Purchase-only and repeat-sales, quarterly. A second price measurement with different coverage from Case-Shiller.",
+      "present": [],
+      "sub_family": "prices",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "MORTGAGE30US"
+      ],
+      "code": 2,
+      "concept": "30-year mortgage rate",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "MORTGAGE30US": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "MORTGAGE30US"
+      ],
+      "sub_family": "finance",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "MORTGAGE15US"
+      ],
+      "code": 2,
+      "concept": "15-year mortgage rate",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "finance",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "FIXHAI"
+      ],
+      "code": 2,
+      "concept": "housing affordability",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "housing",
+      "layer": "hard",
+      "note": "NAR composite; discontinued/licence-limited on FRED. Carried as a concept so the gap is visible.",
+      "present": [],
+      "sub_family": "finance",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "TTLCONS"
+      ],
+      "code": 5,
+      "concept": "total construction spending",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "investment",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PRFI"
+      ],
+      "code": 5,
+      "concept": "residential fixed investment",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "investment",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "RRVRUSQ156N"
+      ],
+      "code": 2,
+      "concept": "rental vacancy rate",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "vacancy",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "RHVRUSQ156N"
+      ],
+      "code": 2,
+      "concept": "homeowner vacancy rate",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "housing",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "vacancy",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "DGORDER"
+      ],
+      "code": 5,
+      "concept": "durable goods orders",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "DGORDER": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "manufacturing",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "DGORDER"
+      ],
+      "sub_family": "orders",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "AMTMNO"
+      ],
+      "code": 5,
+      "concept": "total manufacturing new orders",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "manufacturing",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "orders",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "AMDMUO"
+      ],
+      "code": 5,
+      "concept": "unfilled orders: durables",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "AMDMUO": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "manufacturing",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "AMDMUO"
+      ],
+      "sub_family": "orders",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "NEWORDER"
+      ],
+      "code": 5,
+      "concept": "core capital goods orders",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "NEWORDER": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "manufacturing",
+      "layer": "hard",
+      "note": "Non-defence ex aircraft \u2014 the same signal with the two worst sources of noise removed.",
+      "present": [
+        "NEWORDER"
+      ],
+      "sub_family": "orders",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "AMDMVS"
+      ],
+      "code": 5,
+      "concept": "manufacturing shipments",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "manufacturing",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "shipments",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CFNAI"
+      ],
+      "code": 1,
+      "concept": "Chicago Fed national activity index",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "manufacturing",
+      "layer": "hard",
+      "note": "Already a standardised composite centred on zero, so level. Built from 85 indicators, which makes it a useful external check on whatever the global factor turns out to be.",
+      "present": [],
+      "sub_family": "composite",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "USSLIND"
+      ],
+      "code": 1,
+      "concept": "leading index",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "manufacturing",
+      "layer": "derived",
+      "note": "",
+      "present": [],
+      "sub_family": "composite",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "GACDFSA066MSFRBPHI"
+      ],
+      "code": 1,
+      "concept": "Philadelphia Fed manufacturing survey",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "manufacturing",
+      "layer": "soft",
+      "note": "",
+      "present": [],
+      "sub_family": "regional surveys",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "BACTSAMFRBDAL"
+      ],
+      "code": 1,
+      "concept": "Dallas Fed manufacturing survey",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "manufacturing",
+      "layer": "soft",
+      "note": "Dallas Fed calls its headline series general business activity, not manufacturing, unlike the other regional surveys here.",
+      "present": [],
+      "sub_family": "regional surveys",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "GACDFNA066MNFRBKC"
+      ],
+      "code": 1,
+      "concept": "Kansas City Fed manufacturing survey",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "manufacturing",
+      "layer": "soft",
+      "note": "Confirmed absent: FRED search returns no Kansas City Fed manufacturing series under any query tried. The Fed publishes it directly; not mirrored through FRED's API.",
+      "present": [],
+      "sub_family": "regional surveys",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "RCMFNO"
+      ],
+      "code": 1,
+      "concept": "Richmond Fed manufacturing survey",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "manufacturing",
+      "layer": "soft",
+      "note": "Confirmed absent from FRED under any query tried; same gap as the Kansas City survey.",
+      "present": [],
+      "sub_family": "regional surveys",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "GACDISA066MSFRBNY"
+      ],
+      "code": 1,
+      "concept": "Empire State manufacturing survey",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "manufacturing",
+      "layer": "soft",
+      "note": "The New York Fed's series has moved on and off FRED. Probed rather than assumed.",
+      "present": [],
+      "sub_family": "regional surveys",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "NAPM",
+        "MANEMP"
+      ],
+      "code": 1,
+      "concept": "ISM manufacturing PMI",
+      "covered": true,
+      "covered_by_substitute": true,
+      "defined_in": {
+        "MANEMP": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "manufacturing",
+      "layer": "soft",
+      "note": "ISM withdrew redistribution rights, so the FRED series ends in 2020 or 404s. Kept as a concept because its ABSENCE is the reason the regional surveys are carried.",
+      "present": [
+        "MANEMP"
+      ],
+      "sub_family": "national surveys",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "BAMLH0A0HYM2"
+      ],
+      "code": 1,
+      "concept": "high yield OAS",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "BAMLH0A0HYM2": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "market",
+      "note": "FRED's ICE BofA licence exposes a rolling window only \u2014 roughly three years, so it cannot anchor a long backtest.",
+      "present": [
+        "BAMLH0A0HYM2"
+      ],
+      "sub_family": "spreads",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "BAMLC0A0CM"
+      ],
+      "code": 1,
+      "concept": "investment grade OAS",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "spreads",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "BAMLC0A4CBBB"
+      ],
+      "code": 1,
+      "concept": "BBB OAS",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "spreads",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "BAA10Y"
+      ],
+      "code": 1,
+      "concept": "Baa - 10y spread",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "BAA10Y": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "market",
+      "note": "Moody's, daily back to 1986 \u2014 the long credit-stress history the ICE series lacks.",
+      "present": [
+        "BAA10Y"
+      ],
+      "sub_family": "spreads",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "AAA10Y"
+      ],
+      "code": 1,
+      "concept": "Aaa - 10y spread",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "AAA10Y": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "market",
+      "note": "Baa minus Aaa is the part of the spread that is default risk rather than duration.",
+      "present": [
+        "AAA10Y"
+      ],
+      "sub_family": "spreads",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "RIFSPPFAAD90NB"
+      ],
+      "code": 1,
+      "concept": "commercial paper spread",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "funding",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "BUSLOANS"
+      ],
+      "code": 6,
+      "concept": "commercial and industrial loans",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "BUSLOANS": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "BUSLOANS"
+      ],
+      "sub_family": "bank lending",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "TOTCI"
+      ],
+      "code": 6,
+      "concept": "C&I loans (weekly)",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "TOTCI": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "hard",
+      "note": "Same concept nine days behind instead of six weeks. Both are carried: one has the history, the other has the edge.",
+      "present": [
+        "TOTCI"
+      ],
+      "sub_family": "bank lending",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "REALLN"
+      ],
+      "code": 6,
+      "concept": "real estate loans",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "REALLN": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "REALLN"
+      ],
+      "sub_family": "bank lending",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CONSUMER"
+      ],
+      "code": 6,
+      "concept": "consumer loans",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "bank lending",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "TOTALSL"
+      ],
+      "code": 6,
+      "concept": "total consumer credit",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "TOTALSL": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "TOTALSL"
+      ],
+      "sub_family": "household credit",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "REVOLSL"
+      ],
+      "code": 6,
+      "concept": "revolving consumer credit",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "REVOLSL": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "REVOLSL"
+      ],
+      "sub_family": "household credit",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "NONREVSL"
+      ],
+      "code": 6,
+      "concept": "nonrevolving consumer credit",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "NONREVSL": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "NONREVSL"
+      ],
+      "sub_family": "household credit",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "DRTSCILM"
+      ],
+      "code": 1,
+      "concept": "loan officer survey: C&I tightening",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "DRTSCILM": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "soft",
+      "note": "The only direct read on credit SUPPLY. Quantities cannot distinguish nobody wanting to borrow from nobody being allowed to.",
+      "present": [
+        "DRTSCILM"
+      ],
+      "sub_family": "standards",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "DRTSRMT"
+      ],
+      "code": 1,
+      "concept": "loan officer survey: mortgage tightening",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "credit",
+      "layer": "soft",
+      "note": "No broad residential-mortgage tightening series on FRED; only narrow post-2015 cuts by loan type (DRTSSP for subprime, and GSE-eligible/QM/non-QM equivalents), none of which covers what this concept means. DRTSCILM (C&I tightening) carries the credit-supply signal for this panel instead.",
+      "present": [],
+      "sub_family": "standards",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "DRSFRMACBS"
+      ],
+      "code": 2,
+      "concept": "single-family mortgage delinquency",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "performance",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CORALACBS"
+      ],
+      "code": 2,
+      "concept": "commercial bank charge-off rate",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "credit",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "performance",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "BUSFIL"
+      ],
+      "code": 5,
+      "concept": "business bankruptcy filings",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "credit",
+      "layer": "hard",
+      "note": "Not on FRED under any query tried; the series would in any case be quarterly and statutorily distorted by the 2005 reform.",
+      "present": [],
+      "sub_family": "performance",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "FEDFUNDS"
+      ],
+      "code": 2,
+      "concept": "effective fed funds (monthly)",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "FEDFUNDS": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "FEDFUNDS"
+      ],
+      "sub_family": "policy",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "DFF"
+      ],
+      "code": 2,
+      "concept": "effective fed funds (daily)",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "policy",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "SOFR"
+      ],
+      "code": 2,
+      "concept": "SOFR",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "Starts 2018. The post-LIBOR funding benchmark.",
+      "present": [],
+      "sub_family": "policy",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "IORB",
+        "IOER"
+      ],
+      "code": 2,
+      "concept": "interest on reserve balances",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "IOER stopped 2021-07-28, IORB started 2021-07-29 \u2014 a direct handoff when the Fed eliminated the required/excess reserve distinction, not two measurements of different things.",
+      "present": [],
+      "sub_family": "policy",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "DGS3MO"
+      ],
+      "code": 2,
+      "concept": "3-month Treasury",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "curve",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "DGS2"
+      ],
+      "code": 2,
+      "concept": "2-year Treasury",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "DGS2": [
+          "ace.data.fred_market",
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "",
+      "present": [
+        "DGS2"
+      ],
+      "sub_family": "curve",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "DGS5"
+      ],
+      "code": 2,
+      "concept": "5-year Treasury",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "curve",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "DGS10"
+      ],
+      "code": 2,
+      "concept": "10-year Treasury",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "DGS10": [
+          "ace.data.fred_market",
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "",
+      "present": [
+        "DGS10"
+      ],
+      "sub_family": "curve",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "DGS30"
+      ],
+      "code": 2,
+      "concept": "30-year Treasury",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "curve",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "T10Y2Y"
+      ],
+      "code": 1,
+      "concept": "10y-2y slope",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "T10Y2Y": [
+          "ace.data.fred_market",
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "",
+      "present": [
+        "T10Y2Y"
+      ],
+      "sub_family": "curve slopes",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "T10Y3M"
+      ],
+      "code": 1,
+      "concept": "10y-3m slope",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "T10Y3M": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "The slope with the better recession record, because its front end is the policy rate rather than an expectation of it.",
+      "present": [
+        "T10Y3M"
+      ],
+      "sub_family": "curve slopes",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "DFII10"
+      ],
+      "code": 2,
+      "concept": "10y TIPS real yield",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "DFII10": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "",
+      "present": [
+        "DFII10"
+      ],
+      "sub_family": "real rates",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "DFII5"
+      ],
+      "code": 2,
+      "concept": "5y TIPS real yield",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "real rates",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "DFII30"
+      ],
+      "code": 2,
+      "concept": "30y TIPS real yield",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "real rates",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "VIXCLS"
+      ],
+      "code": 1,
+      "concept": "VIX",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "VIXCLS": [
+          "ace.data.fred_market",
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "",
+      "present": [
+        "VIXCLS"
+      ],
+      "sub_family": "volatility",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "VXNCLS"
+      ],
+      "code": 1,
+      "concept": "Nasdaq implied volatility",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "volatility",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "NFCI"
+      ],
+      "code": 1,
+      "concept": "Chicago Fed national financial conditions",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "NFCI": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "derived",
+      "note": "105 indicators on one zero-centred scale. Its vintage archive begins 2011-05 whatever start is requested.",
+      "present": [
+        "NFCI"
+      ],
+      "sub_family": "composites",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "ANFCI"
+      ],
+      "code": 1,
+      "concept": "adjusted NFCI",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "ANFCI": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "derived",
+      "note": "NFCI with the part explained by the real economy projected out.",
+      "present": [
+        "ANFCI"
+      ],
+      "sub_family": "composites",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "STLFSI4"
+      ],
+      "code": 1,
+      "concept": "St Louis financial stress",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "STLFSI4": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "derived",
+      "note": "",
+      "present": [
+        "STLFSI4"
+      ],
+      "sub_family": "composites",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "DTWEXBGS"
+      ],
+      "code": 5,
+      "concept": "broad dollar index",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "DTWEXBGS": [
+          "ace.data.fred_market",
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "A CONSTRUCTED index, not a quote: the H.10 basket weights are re-estimated annually and applied backwards, so it disagrees with its own archive on 91% of days. It needs the vintage route.",
+      "present": [
+        "DTWEXBGS"
+      ],
+      "sub_family": "dollar",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "SP500"
+      ],
+      "code": 5,
+      "concept": "S&P 500",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "SP500": [
+          "ace.data.fred_market",
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "FRED serves a rolling ten-year window, so this cannot carry a long backtest.",
+      "present": [
+        "SP500"
+      ],
+      "sub_family": "equity",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "WILL5000INDFC"
+      ],
+      "code": 5,
+      "concept": "Wilshire 5000",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "financial_conditions",
+      "layer": "market",
+      "note": "Confirmed absent from FRED under any query tried; may have been discontinued. S&P 500 is the equity level actually in the panel.",
+      "present": [],
+      "sub_family": "equity",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "M1SL"
+      ],
+      "code": 6,
+      "concept": "M1",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "M1SL": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "liquidity_money",
+      "layer": "hard",
+      "note": "The 2020 definitional change makes the level incomparable across that break; the second log difference survives it.",
+      "present": [
+        "M1SL"
+      ],
+      "sub_family": "aggregates",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "M2SL"
+      ],
+      "code": 6,
+      "concept": "M2",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "M2SL": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "liquidity_money",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "M2SL"
+      ],
+      "sub_family": "aggregates",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "M2REAL"
+      ],
+      "code": 5,
+      "concept": "real M2",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "M2REAL": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "liquidity_money",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "M2REAL"
+      ],
+      "sub_family": "aggregates",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "BOGMBASE"
+      ],
+      "code": 6,
+      "concept": "monetary base",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "BOGMBASE": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "liquidity_money",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "BOGMBASE"
+      ],
+      "sub_family": "aggregates",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "TOTRESNS"
+      ],
+      "code": 6,
+      "concept": "total reserves",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "TOTRESNS": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "liquidity_money",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "TOTRESNS"
+      ],
+      "sub_family": "reserves",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "WRESBAL"
+      ],
+      "code": 5,
+      "concept": "reserve balances at the Fed",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "liquidity_money",
+      "layer": "hard",
+      "note": "The quantity balance-sheet policy operates on directly, weekly.",
+      "present": [],
+      "sub_family": "reserves",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "WALCL"
+      ],
+      "code": 1,
+      "concept": "Fed total assets",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "WALCL": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "liquidity_money",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "WALCL"
+      ],
+      "sub_family": "central bank",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "WTREGEN"
+      ],
+      "code": 1,
+      "concept": "Treasury general account",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "WTREGEN": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "liquidity_money",
+      "layer": "hard",
+      "note": "Moves reserves around without any policy decision, which is why it belongs beside WALCL rather than inside a reading of it.",
+      "present": [
+        "WTREGEN"
+      ],
+      "sub_family": "central bank",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "RRPONTSYD"
+      ],
+      "code": 1,
+      "concept": "overnight reverse repo",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "RRPONTSYD": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "liquidity_money",
+      "layer": "market",
+      "note": "The drain that stood between the balance sheet and reserves through 2022-2024.",
+      "present": [
+        "RRPONTSYD"
+      ],
+      "sub_family": "central bank",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "DPSACBW027SBOG"
+      ],
+      "code": 5,
+      "concept": "commercial bank deposits",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "liquidity_money",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "banking system",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "TOTBKCR"
+      ],
+      "code": 5,
+      "concept": "total bank credit",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "banking",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "assets",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "TLAACBW027SBOG"
+      ],
+      "code": 5,
+      "concept": "bank total assets",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "banking",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "assets",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "USGSEC"
+      ],
+      "code": 5,
+      "concept": "bank securities holdings",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "banking",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "assets",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CREACBM027NBOG"
+      ],
+      "code": 6,
+      "concept": "commercial real estate loans",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "banking",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "lending",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "USNIM"
+      ],
+      "code": 2,
+      "concept": "net interest margin",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "banking",
+      "layer": "hard",
+      "note": "Quarterly and thin; interpretation context.",
+      "present": [],
+      "sub_family": "profitability",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "FGRECPT"
+      ],
+      "code": 5,
+      "concept": "federal receipts",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "fiscal",
+      "layer": "hard",
+      "note": "'Current receipts' (all receipts: taxes, fees, transfers from business). W006RC1Q027SBEA (tax receipts only) is narrower scope, not offered as a substitute.",
+      "present": [],
+      "sub_family": "flows",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "FGEXPND"
+      ],
+      "code": 5,
+      "concept": "federal expenditures",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "fiscal",
+      "layer": "hard",
+      "note": "'Current expenditures'. W019RCQ027SBEA ('total' expenditures) may include capital outlays FGEXPND excludes; not offered as a substitute without confirming the scope.",
+      "present": [],
+      "sub_family": "flows",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "MTSDS133FMS",
+        "FYFSD"
+      ],
+      "code": 1,
+      "concept": "federal surplus/deficit",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "fiscal",
+      "layer": "hard",
+      "note": "A level in dollars that crosses zero, so it cannot be logged.",
+      "present": [],
+      "sub_family": "flows",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "FGCE"
+      ],
+      "code": 5,
+      "concept": "federal consumption expenditures and investment",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "fiscal",
+      "layer": "hard",
+      "note": "Federal only. GCE (all levels of government) is a different, broader quantity \u2014 carried separately under output_activity, since it is literally the G in GDP's C+I+G+NX.",
+      "present": [],
+      "sub_family": "national accounts",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "FYGFDPUN"
+      ],
+      "code": 5,
+      "concept": "federal debt held by the public",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "fiscal",
+      "layer": "hard",
+      "note": "Excludes intragovernmental holdings (e.g. the Social Security trust fund). GFDEBTN (gross federal debt) is a different, larger quantity \u2014 carried as its own concept.",
+      "present": [],
+      "sub_family": "stocks",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "GFDEBTN"
+      ],
+      "code": 5,
+      "concept": "federal debt, gross",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "fiscal",
+      "layer": "hard",
+      "note": "Includes intragovernmental holdings; the debt-ceiling quantity, distinct from debt held by the public.",
+      "present": [],
+      "sub_family": "stocks",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "A091RC1Q027SBEA"
+      ],
+      "code": 5,
+      "concept": "federal interest outlays",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "fiscal",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "debt service",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "USGOVT"
+      ],
+      "code": 5,
+      "concept": "government employment",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "fiscal",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "employment",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "EXPGS"
+      ],
+      "code": 5,
+      "concept": "exports of goods and services",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "trade_external",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "flows",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "IMPGS"
+      ],
+      "code": 5,
+      "concept": "imports of goods and services",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "trade_external",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "flows",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "EXPGSC1"
+      ],
+      "code": 5,
+      "concept": "real exports",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "trade_external",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "flows",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "IMPGSC1"
+      ],
+      "code": 5,
+      "concept": "real imports",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "trade_external",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "flows",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "BOPGSTB"
+      ],
+      "code": 1,
+      "concept": "trade balance",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "trade_external",
+      "layer": "hard",
+      "note": "Crosses zero by construction, so level.",
+      "present": [],
+      "sub_family": "balance",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "BOPGEXP"
+      ],
+      "code": 5,
+      "concept": "goods exports",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "trade_external",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "composition",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "BOPGIMP"
+      ],
+      "code": 5,
+      "concept": "goods imports",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "trade_external",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "composition",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "BOPSEXP"
+      ],
+      "code": 5,
+      "concept": "services exports",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "trade_external",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "composition",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "BOPSIMP"
+      ],
+      "code": 5,
+      "concept": "services imports",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "trade_external",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "composition",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "IEABC"
+      ],
+      "code": 1,
+      "concept": "current account balance",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "trade_external",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "balance",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "IIPUSNETIQ"
+      ],
+      "code": 1,
+      "concept": "net international investment position",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "trade_external",
+      "layer": "hard",
+      "note": "A stock, not a flow, and quarterly. Registry context for the external sector rather than a factor input.",
+      "present": [],
+      "sub_family": "balance",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "DEXUSEU"
+      ],
+      "code": 5,
+      "concept": "EUR/USD",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "DEXUSEU": [
+          "ace.data.fred_market"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "trade_external",
+      "layer": "market",
+      "note": "",
+      "present": [
+        "DEXUSEU"
+      ],
+      "sub_family": "FX",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "DEXJPUS"
+      ],
+      "code": 5,
+      "concept": "USD/JPY",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "DEXJPUS": [
+          "ace.data.fred_market"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "trade_external",
+      "layer": "market",
+      "note": "",
+      "present": [
+        "DEXJPUS"
+      ],
+      "sub_family": "FX",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "DEXCHUS"
+      ],
+      "code": 5,
+      "concept": "USD/CNY",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "trade_external",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "FX",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "DCOILWTICO"
+      ],
+      "code": 5,
+      "concept": "WTI crude",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "DCOILWTICO": [
+          "ace.data.fred_market"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "commodities",
+      "layer": "market",
+      "note": "",
+      "present": [
+        "DCOILWTICO"
+      ],
+      "sub_family": "energy prices",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "DCOILBRENTEU"
+      ],
+      "code": 5,
+      "concept": "Brent crude",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "DCOILBRENTEU": [
+          "ace.data.fred_market"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "commodities",
+      "layer": "market",
+      "note": "",
+      "present": [
+        "DCOILBRENTEU"
+      ],
+      "sub_family": "energy prices",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "GASREGW"
+      ],
+      "code": 5,
+      "concept": "retail gasoline",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "commodities",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "energy prices",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "DHHNGSP"
+      ],
+      "code": 5,
+      "concept": "Henry Hub natural gas",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "DHHNGSP": [
+          "ace.data.fred_market"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "commodities",
+      "layer": "market",
+      "note": "",
+      "present": [
+        "DHHNGSP"
+      ],
+      "sub_family": "energy prices",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "PCOPPUSDM"
+      ],
+      "code": 5,
+      "concept": "copper",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "commodities",
+      "layer": "market",
+      "note": "The classic industrial-demand proxy; monthly on FRED.",
+      "present": [],
+      "sub_family": "industrial metals",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "GOLDPMGBD228NLBM"
+      ],
+      "code": 5,
+      "concept": "gold",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "commodities",
+      "layer": "market",
+      "note": "The LBMA daily fixing FRED used to carry is gone; FRED search returns nothing under 'gold price'. IQ12260 (Export Price Index: Nonmonetary Gold) exists but is a trade-price concept, not a spot quote, so it is not offered as a substitute here.",
+      "present": [],
+      "sub_family": "precious metals",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "PALLFNFINDEXM"
+      ],
+      "code": 5,
+      "concept": "all-commodity price index",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "commodities",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "broad",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "PINDUINDEXM"
+      ],
+      "code": 5,
+      "concept": "industrial inputs price index",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "commodities",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "broad",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "PRAWMINDEXM"
+      ],
+      "code": 5,
+      "concept": "agricultural raw materials index",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "commodities",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "agriculture",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "GSCPI"
+      ],
+      "code": 1,
+      "concept": "global supply chain pressure",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "commodities",
+      "layer": "derived",
+      "note": "New York Fed index. Not served by FRED; recorded so the gap is attributable to the source rather than to the audit.",
+      "present": [],
+      "sub_family": "freight",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "WCRFPUS2"
+      ],
+      "code": 5,
+      "concept": "crude oil production",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "energy",
+      "layer": "hard",
+      "note": "EIA weekly/monthly production series are not mirrored on FRED; they require EIA's own API and a separate key. Out of scope for this pass \u2014 recorded as a known gap, not silently dropped.",
+      "present": [],
+      "sub_family": "supply",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "WCESTUS1"
+      ],
+      "code": 5,
+      "concept": "crude oil stocks",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "energy",
+      "layer": "hard",
+      "note": "Same EIA-API gap as crude production.",
+      "present": [],
+      "sub_family": "inventories",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "WGTSTUS1"
+      ],
+      "code": 5,
+      "concept": "gasoline stocks",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "energy",
+      "layer": "hard",
+      "note": "Same EIA-API gap as crude production.",
+      "present": [],
+      "sub_family": "inventories",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "WDISTUS1"
+      ],
+      "code": 5,
+      "concept": "distillate stocks",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "energy",
+      "layer": "hard",
+      "note": "Same EIA-API gap as crude production.",
+      "present": [],
+      "sub_family": "inventories",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "WPULEUS3"
+      ],
+      "code": 2,
+      "concept": "refinery utilization",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "energy",
+      "layer": "hard",
+      "note": "The utilization rate itself is EIA-API only. IPG32411S (Industrial Production: petroleum refining) is a volume proxy on FRED and is carried as its own concept below instead of being offered as a substitute for a rate.",
+      "present": [],
+      "sub_family": "capacity",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "IPG32411S"
+      ],
+      "code": 5,
+      "concept": "petroleum refining output",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "energy",
+      "layer": "hard",
+      "note": "A volume proxy for refinery activity, since the EIA utilization RATE is not on FRED.",
+      "present": [],
+      "sub_family": "capacity",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "WNGSTUS1"
+      ],
+      "code": 5,
+      "concept": "natural gas storage",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "energy",
+      "layer": "hard",
+      "note": "Same EIA-API gap as crude production.",
+      "present": [],
+      "sub_family": "inventories",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "N9070US2"
+      ],
+      "code": 5,
+      "concept": "natural gas production",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "energy",
+      "layer": "hard",
+      "note": "Same EIA-API gap as crude production.",
+      "present": [],
+      "sub_family": "supply",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "IPUTIL"
+      ],
+      "code": 5,
+      "concept": "electricity generation",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "energy",
+      "layer": "hard",
+      "note": "IP: utilities is the FRED-native proxy for electricity output.",
+      "present": [],
+      "sub_family": "demand",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "NEWORDER"
+      ],
+      "code": 5,
+      "concept": "nondefense capital goods orders ex aircraft",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "NEWORDER": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "business_investment",
+      "layer": "hard",
+      "note": "",
+      "present": [
+        "NEWORDER"
+      ],
+      "sub_family": "orders",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "ANDEVS"
+      ],
+      "code": 5,
+      "concept": "nondefense capital goods shipments",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "business_investment",
+      "layer": "hard",
+      "note": "AMNMNO (originally listed as an alternate) turned out to be nondurable-goods new ORDERS \u2014 a different concept entirely, not a substitute. ANDEVS is total nondefense capital goods shipments; no ex-aircraft cut of shipments (as opposed to orders, where NEWORDER already provides one) was found on FRED.",
+      "present": [],
+      "sub_family": "shipments",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PNFI"
+      ],
+      "code": 5,
+      "concept": "private nonresidential fixed investment",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "business_investment",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "accounts",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "Y033RC1Q027SBEA"
+      ],
+      "code": 5,
+      "concept": "investment in equipment",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "business_investment",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "accounts",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "B009RC1Q027SBEA"
+      ],
+      "code": 5,
+      "concept": "investment in structures",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "business_investment",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "accounts",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "Y001RC1Q027SBEA"
+      ],
+      "code": 5,
+      "concept": "intellectual property investment",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "business_investment",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "accounts",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PNRESCONS"
+      ],
+      "code": 5,
+      "concept": "nonresidential construction spending",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "business_investment",
+      "layer": "hard",
+      "note": "Private only, matching 'business' investment. TLNRESCONS (total, public+private) is a different, broader quantity.",
+      "present": [],
+      "sub_family": "construction",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CP"
+      ],
+      "code": 5,
+      "concept": "corporate profits",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "corporate_profits",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "profits",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CPATAX"
+      ],
+      "code": 5,
+      "concept": "corporate profits after tax",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "corporate_profits",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "profits",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "W273RE1A156NBEA"
+      ],
+      "code": 2,
+      "concept": "profit share of GDP",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "corporate_profits",
+      "layer": "hard",
+      "note": "A ratio, so differenced. The margin measure that does not need constructing from two series.",
+      "present": [],
+      "sub_family": "margins",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "COMPNFB"
+      ],
+      "code": 5,
+      "concept": "nonfarm business compensation",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "corporate_profits",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "costs",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "PROPINC"
+      ],
+      "code": 5,
+      "concept": "proprietors' income",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "corporate_profits",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "income",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "OPHNFB"
+      ],
+      "code": 5,
+      "concept": "labor productivity (output per hour)",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "productivity",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "productivity",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "ULCNFB"
+      ],
+      "code": 6,
+      "concept": "unit labor costs",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "productivity",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "costs",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "HOANBS"
+      ],
+      "code": 5,
+      "concept": "hours worked",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "productivity",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "inputs",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "OUTNFB"
+      ],
+      "code": 5,
+      "concept": "nonfarm business output",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "productivity",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "output",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "RCPHBS"
+      ],
+      "code": 5,
+      "concept": "real compensation per hour",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "productivity",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "compensation",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "LFWA64TTUSM647S"
+      ],
+      "code": 5,
+      "concept": "working-age population",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "demographics",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "population",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "CNP16OV"
+      ],
+      "code": 5,
+      "concept": "civilian noninstitutional population",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "demographics",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "population",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "POPTHM"
+      ],
+      "code": 5,
+      "concept": "total population",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "demographics",
+      "layer": "hard",
+      "note": "",
+      "present": [],
+      "sub_family": "population",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "USEPUINDXD"
+      ],
+      "code": 1,
+      "concept": "economic policy uncertainty",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "USEPUINDXD": [
+          "ace.news.indices"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "surveys_expectations",
+      "layer": "soft",
+      "note": "",
+      "present": [
+        "USEPUINDXD"
+      ],
+      "sub_family": "uncertainty",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "WLEMUINDXD"
+      ],
+      "code": 1,
+      "concept": "equity market uncertainty",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "WLEMUINDXD": [
+          "ace.news.indices"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "surveys_expectations",
+      "layer": "soft",
+      "note": "",
+      "present": [
+        "WLEMUINDXD"
+      ],
+      "sub_family": "uncertainty",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "UMCSENT1"
+      ],
+      "code": 2,
+      "concept": "Michigan current conditions sub-index",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "surveys_expectations",
+      "layer": "soft",
+      "note": "UMCSENT1 is not a current-conditions component \u2014 it is the PREDECESSOR of UMCSENT itself, discontinued in 1977 when UMCSENT began. The current-conditions sub-index is not separately published on FRED; UMCSENT (the composite, already a concept above) is what is actually available.",
+      "present": [],
+      "sub_family": "consumer",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "NFIB"
+      ],
+      "code": 1,
+      "concept": "small business optimism",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": false,
+      "family": "surveys_expectations",
+      "layer": "soft",
+      "note": "NFIB is not redistributed through FRED. Recorded as a known hole.",
+      "present": [],
+      "sub_family": "business",
+      "vintage_matters": true
+    },
+    {
+      "candidates": [
+        "T10YIE"
+      ],
+      "code": 1,
+      "concept": "10-year breakeven",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "T10YIE": [
+          "ace.state.panel"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "market_expectations",
+      "layer": "market",
+      "note": "Not an expectation \u2014 it carries a risk premium \u2014 but it is the daily one, against surveys that are monthly at best.",
+      "present": [
+        "T10YIE"
+      ],
+      "sub_family": "inflation compensation",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "T5YIE"
+      ],
+      "code": 1,
+      "concept": "5-year breakeven",
+      "covered": false,
+      "covered_by_substitute": false,
+      "defined_in": {},
+      "factor_eligible": true,
+      "family": "market_expectations",
+      "layer": "market",
+      "note": "",
+      "present": [],
+      "sub_family": "inflation compensation",
+      "vintage_matters": false
+    },
+    {
+      "candidates": [
+        "T5YIFR"
+      ],
+      "code": 1,
+      "concept": "5y5y forward breakeven",
+      "covered": true,
+      "covered_by_substitute": false,
+      "defined_in": {
+        "T5YIFR": [
+          "ace.data.fred_market"
+        ]
+      },
+      "factor_eligible": true,
+      "family": "market_expectations",
+      "layer": "market",
+      "note": "Strips the near-term energy pass-through out of breakevens.",
+      "present": [
+        "T5YIFR"
+      ],
+      "sub_family": "inflation compensation",
+      "vintage_matters": false
+    }
+  ],
+  "n_concepts": 256,
+  "n_covered": 99,
+  "n_covered_by_substitute": 1,
+  "n_gap": 157,
+  "unclaimed_series": {
+    "DJIA": [
+      "ace.data.fred_market"
+    ],
+    "EMVMACROBUS": [
+      "ace.news.indices"
+    ],
+    "EMVOVERALLEMV": [
+      "ace.news.indices"
+    ],
+    "INFECTDISEMVTRACKD": [
+      "ace.news.indices"
+    ],
+    "NASDAQCOM": [
+      "ace.data.fred_market"
+    ]
+  }
+}
