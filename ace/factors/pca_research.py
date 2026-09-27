@@ -40,9 +40,11 @@ import numpy as np
 import pandas as pd
 
 from ace.config import ROOT
+from ace.factors.factor_state import build_factor_states, load_snapshot, save_snapshot
 from ace.factors.pca import PCAFit, domain_panels, fit as fit_pca
 from ace.factors.stability import WindowResult, compare_loadings, stability_report
 from ace.factors.universe_panel import default_panel
+from ace.jsonutil import to_json_safe
 from ace.state.factors import fit_factors
 from ace.state.panel import build_asof, load_vintages
 
@@ -90,6 +92,39 @@ def run_global_and_domain(build) -> dict:
         "global": global_fit.to_dict(),
         "domains": {k: v.to_dict() for k, v in domain_fits.items()},
     }, global_fit, domain_fits
+
+
+def run_factor_states(
+    build, global_fit: PCAFit, domain_fits: dict[str, PCAFit]
+) -> tuple[dict, tuple]:
+    """Phase 8: turn this run's global + domain PCA fits into the Factor
+    State API's full field contract (`ace.factors.factor_state`).
+
+    `previous` is read from the last run's persisted snapshot BEFORE this
+    run's states are built, so `change_since_previous_run` compares against
+    what the last invocation actually produced rather than against itself.
+    The new snapshot is saved by `main()`, not here, keeping this function
+    free of the one side effect (`save_snapshot`) that would make it
+    unusable from a test without a filesystem.
+    """
+    previous = load_snapshot()
+    all_states = []
+    for fit_result in (global_fit, *domain_fits.values()):
+        all_states.extend(build_factor_states(fit_result, build=build, previous=previous))
+    all_states = tuple(all_states)
+
+    print(f"\nFACTOR STATES ({len(all_states)} factors, "
+          f"{sum(1 for s in all_states if s.change_since_previous_run is not None)} "
+          "with a prior run to compare against):")
+    for s in all_states:
+        prior = (
+            f"{s.change_since_previous_run:+.3f} since last run"
+            if s.change_since_previous_run is not None else "no prior run"
+        )
+        print(f"  {s.factor_id:<28} level={s.level:+.3f}  {s.direction:<7} "
+              f"coverage={s.data_coverage:.0%}  {prior}")
+
+    return {s.factor_id: s.to_dict() for s in all_states}, all_states
 
 
 def _deep_history_columns(frame: pd.DataFrame, cutoff: pd.Timestamp) -> list[str]:
@@ -253,6 +288,7 @@ def main() -> None:
     snapshot, global_fit, domain_fits = run_global_and_domain(build)
     stability, deep_specs = run_stability(vintages, specs, build.frame)
     comparison = run_pca_vs_dfm(vintages, deep_specs, now)
+    factor_states, states = run_factor_states(build, global_fit, domain_fits)
 
     report = {
         "generated": str(now.date()),
@@ -262,11 +298,20 @@ def main() -> None:
         "snapshot": snapshot,
         "stability": stability,
         "pca_vs_dfm": comparison,
+        "factor_states": factor_states,
     }
     path = ROOT / "artifacts" / "reports" / "macro_pca_research.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(report, indent=2, sort_keys=True, default=str))
+    # NaN and Infinity are not valid JSON (`ace.jsonutil`'s docstring) —
+    # `allow_nan=False` makes a spot `to_json_safe` missed raise here rather
+    # than silently writing a `NaN` token into the artifact again.
+    path.write_text(json.dumps(to_json_safe(report), indent=2, sort_keys=True, default=str, allow_nan=False))
     print(f"\nwrote {path}")
+
+    # Persisted AFTER the report is written, using the states this run just
+    # computed — so the NEXT run's `change_since_previous_run` compares
+    # against this one, not against itself.
+    save_snapshot(states)
 
 
 if __name__ == "__main__":

@@ -27,7 +27,7 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | Game theory (Nash + Monte Carlo) | **Exact** | Yes — equilibria computed and verified. Payoffs remain an assumption. |
 | Regime (Markov switching) | **Validated, descriptive. Specification settled: 2 of 10 factors carry LEVEL regimes** | Yes — to label the environment, and only where the label is supported. Not as a forecast. |
 | **Macro data registry** | **208/208 series live**, 256-concept target universe, 39% covered before this work | N/A — infrastructure, not a model. |
-| **Static PCA (global + domain)** | **Domain PCA works on 12/12 blocks. A single GLOBAL fit across the full 165-series breadth does not** (32 overlapping months, 2.3% variance) | Domain loadings — yes, as interpretation alongside the DFM. A flat global PCA factor — no. |
+| **Static PCA (global + domain)** | **Domain PCA works on 12/12 blocks. A single GLOBAL fit across the full 164-series breadth does not** (32 overlapping months, 8.8% variance) | Domain loadings — yes, as interpretation alongside the DFM. A flat global PCA factor — no. |
 | Historical analogs | **Validated, descriptive** | Yes — as a distribution of what followed similar states. |
 | **Growth/inflation quad** | **Classification validated; positioning FAILED 0/6; vol forecast FAILED 0/6** | Yes, as an environment label with its data lag, margin and revision survival stated. **No** as a positioning signal and **no** as a risk-sizing signal. |
 | **Quad revision risk** | **Measured** | **Yes** — 74% of real-time labels survived revision, and the per-margin rates are calibrated. |
@@ -115,30 +115,42 @@ against the full panel window — an earlier version of that measure starved
 four entire domain blocks to zero columns by penalising a series for simply
 starting later than 1980). But the DATE-RANGE OVERLAP those 164 series share —
 the number of months every one of them has data for — is **32 months**. PC1
-explains 2.3% of variance and is not economically legible. This is the
+explains 8.8% of variance and is not economically legible. This is the
 brief's own hypothesis, confirmed empirically: a single PCA cannot explain
 the whole economy at once once the panel is genuinely comprehensive.
 
-**Domain-level PCA works on all twelve blocks**, each with 128-183 overlapping
+**Corrected 2026-09-27** (external audit PR #5, finding A04): the balanced
+matrix the SVD ran on, the one Bai-Ng's factor-count search voted on, and the
+one the reported variance share was measured against used to be three
+different, inconsistently-row/column-matched objects — measured on a 100x4
+synthetic panel, a full-rank fit's `explained_variance_ratio` summed to
+0.6508046967 instead of 1.0. `ace.factors.pca._admit_matrix` now builds ONE
+balanced-and-re-centred matrix every one of those three steps reads from; see
+that function's docstring and `ace.tests.test_pca`'s
+`test_a_full_rank_fit_explains_exactly_all_of_the_variance` for the permanent
+regression. The percentages in this section are the numbers AFTER that fix,
+not the original run's.
+
+**Domain-level PCA works on all twelve blocks**, each with 82-323 overlapping
 months, producing legible first components without being told what to look
 for:
 
 | Domain | PC1 var. | Top loadings |
 |---|---:|---|
-| labor | 46.1% | PAYEMS, USPRIV, SRVPRD, CE16OV (headline + private employment) |
-| commodities | 43.5% | broad price indices, gasoline, copper |
-| output_activity | 37.3% | capacity utilization, industrial production |
-| manufacturing | 31.4% | CFNAI, durable-goods shipments and orders |
-| consumer | 31.4% | personal saving rate, personal income |
-| credit | 28.9% | revolving + non-revolving consumer credit |
-| banking | 22.0% | bank total assets, total bank credit |
-| liquidity_money | 21.2% | M1 (dominant, 0.98 loading) |
-| trade_external | 17.1% | goods exports and imports |
-| inflation | 13.5% | PPI (all-commodity, final-demand, intermediate-demand) |
-| housing | 6.7% | 15y and 30y mortgage rates |
-| financial_conditions | 6.0% | 10y-3m and 10y-2y curve slopes |
+| output_activity | 59.9% | capacity utilization, industrial production, manufacturing output |
+| labor | 58.2% | employment/population ratio, civilian employment, private payrolls |
+| manufacturing | 48.0% | CFNAI, vehicle sales, durable-goods orders |
+| commodities | 47.6% | broad price indices, industrial materials, gasoline, copper |
+| banking | 46.3% | bank credit, total bank assets, Treasury/agency securities |
+| consumer | 45.9% | personal consumption, retail sales (headline and control) |
+| housing | 40.9% | housing starts (total and single-family), permits |
+| financial_conditions | 38.7% | NFCI/ANFCI, SOFR, fed funds rate |
+| trade_external | 38.5% | goods exports and imports |
+| credit | 28.6% | high-yield and BBB credit spreads, business loans |
+| liquidity_money | 24.6% | M2 (real and nominal), bank deposits |
+| inflation | 23.6% | CPI, producer prices (final and intermediate demand) |
 
-Ten of twelve hit the factor-count search's ceiling (`at_boundary=True`) — the
+Most blocks hit the factor-count search's ceiling (`at_boundary=True`) — the
 same "boundary hit, not a selection" finding already documented for the
 production DFM's own count. A domain's total factor count should not be read
 as settled; PC1's loadings are unaffected, since PC1 is the direction of
@@ -147,17 +159,15 @@ maximum variance regardless of how many further components a criterion wants.
 **Loading stability is high in normal periods and breaks at every dated
 crisis, and only there.** On a 67-series deep-history subset (transformed
 history to 2000 or earlier), sign-aligned PC1 loading correlation across
-consecutive windows: mean 0.86 (expanding), 0.82 (rolling). Every transition
-below 0.55 in BOTH tests lands on a macro shock — 2007-01→2009-01 (financial
-crisis, 0.51), 2019-01→2021-01 (COVID, 0.30 / 0.47), 1999-01→2003-01 (dot-com,
-0.54 then 0.41) — while every other transition correlates above 0.87. This is
-the crisis-vs-normal stability test the validation plan calls for, and the
-factor structure the data actually has.
+consecutive windows: mean 0.92 (expanding), 0.79 (rolling); minimum 0.44
+(expanding), 0.03 (rolling). The lowest-correlation transitions land on dated
+macro shocks in both tests — this is the crisis-vs-normal stability test the
+validation plan calls for, and the factor structure the data actually has.
 
 **PCA and DFM substantially agree on the dominant common factor.** On the same
 fair (deep-history, monthly-only, no quarterly) subset: sign-aligned
-correlation of the two methods' global factor LEVEL is 0.82; the LOADING
-correlation — do the two methods agree on which series drive it — is 0.99 over
+correlation of the two methods' global factor LEVEL is 0.84; the LOADING
+correlation — do the two methods agree on which series drive it — is 0.98 over
 67 common series. DFM's advantage is not a different answer on shared ground;
 it is handling the ragged edge and breadth PCA cannot use directly. A first
 attempt to fit DFM on the FULL 206-series, 41-quarterly panel grew past 12GB of
@@ -165,9 +175,51 @@ resident memory before being killed — the quarterly Mariano-Murasawa lag
 expansion combined with 206 idiosyncratic AR(1) terms pushes the Kalman
 filter's state dimension into the hundreds — so the comparison runs on the
 deep-history subset, a stated scope limit rather than a silent downsizing.
+This fit's own `converged` flag now reads `false` (audit finding A05 — the
+flag used to default to `true` unconditionally; see below), which is itself
+new, honest information: the comparison's agreement holds even though the DFM
+side had not fully converged at this run's `maxiter`.
 
 Artifacts: `artifacts/reports/macro_registry.json`,
 `macro_comprehensive_panel_build.json`, `macro_pca_research.json`.
+
+### DFM convergence: the flag was never actually checking anything
+
+External audit PR #5, finding A05: `fit_factors`'s convergence flag read
+`res.mlefit.mle_retvals.get(...)`, defaulting to `True` whenever `res` had no
+`mlefit` attribute. `DynamicFactorMQResults` has no `mlefit` attribute at all
+— confirmed directly against the installed statsmodels (0.15.0) — so EVERY
+fit this stack has ever produced reported `converged=True`, including fits
+that logged "EM reached maximum number of iterations... without achieving
+convergence" in the same call. `ace.state.factors._em_converged` now reads
+`res.mle_retvals["iter"] < res.mle_settings["maxiter"]` — the diagnostics
+statsmodels actually exposes — and fails CLOSED (`False`) when either is
+missing. Regression: `ace.tests.test_state`'s
+`test_converged_reads_em_diagnostics_not_a_nonexistent_mlefit_attribute`,
+which fits the same synthetic panel once starved at `maxiter=1` and once
+generously at `maxiter=500` and asserts the flag actually differs between
+them. This changes what `converged` reads on every existing report that
+carries it; it does not change any factor level, loading, or score, which
+were never derived from this flag.
+
+### Open, high priority: point-in-time vintages may be first-release-forever
+
+External audit PR #5 (originally raised 2026-09-25, reconfirmed as finding
+A11): `ace.data.alfred.release_history` fetches FRED's `output_type=4`
+(initial release only) and never re-fetches a later revision for an
+observation already seen. `ace.state.panel.load_vintages` calls this same
+function for every series on the default point-in-time route — so a value
+revised months after its first release, even a revision that is now itself
+long-since public, is never reflected in ANY as-of build dated after that
+revision. This is the data source underneath every panel this session's
+factor-engine work (Phases 1-10) has built. It is **not fixed as part of this
+cycle** — correcting it means changing what `release_history` fetches (full
+revision history per observation, not the first print) and how `as_of`
+selects among a series' releases, which is a foundational change to the one
+fetch primitive `ace.state.panel`, `ace.macro.quads` and `ace.macro.revisions`
+all depend on, not a bounded, single-file fix like A04/A05 above. Every
+number in this section, and every artifact this cycle produced, should be
+read with that caveat until it is resolved.
 
 ---
 

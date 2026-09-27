@@ -117,9 +117,11 @@ class PCAFit:
     components: tuple[ComponentLoadings, ...]
     #: T x k matrix of factor scores, indexed by date.
     scores: pd.DataFrame
-    #: Training mean/std, so a later date can be scored without leaking its
-    #: own distribution into the fit — the same discipline `ace.state.factors`
-    #: applies for the DFM.
+    #: The ADMITTED matrix's own mean/std (see `_admit_matrix`) — the
+    #: balanced, coverage-filtered subsample this fit actually ran on, not
+    #: the original ragged frame's. A later date scored against the wrong
+    #: moments would not be in the basis the loadings were fit in; see
+    #: `_AdmittedMatrix`'s docstring for the bug this fixed.
     mean: pd.Series
     std: pd.Series
     #: Series dropped for falling below `MIN_COLUMN_COVERAGE`, with their
@@ -243,39 +245,84 @@ def _balanced_matrix(z: pd.DataFrame, *, min_coverage: float = MIN_COLUMN_COVERA
     return BalancedMatrix(frame=balanced, dropped_columns=dropped)
 
 
-def _fit_pca(z: pd.DataFrame, k: int) -> tuple[pd.DataFrame, pd.DataFrame, np.ndarray, dict[str, float]]:
-    """SVD-based PCA on a balanced, standardised matrix.
+@dataclass(frozen=True)
+class _AdmittedMatrix:
+    """The ONE matrix every later step — factor-count selection, the SVD, and
+    the total-variance denominator — must agree on. Building it is two steps:
 
-    Returns (scores T x k, loadings N x k, eigenvalues length k, dropped
-    columns with their coverage share). Loadings are scaled so that
-    `scores @ loadings.T ≈ z` — the observation-equation convention
+      1. `_balanced_matrix` picks the rows and columns (coverage floor,
+         overlap trim, residual-gap drop — see that function).
+      2. The survivors are RE-STANDARDISED on their OWN mean and std.
+
+    Step 2 exists because of a defect an external audit caught by execution,
+    not by inspection: `z` going into step 1 is centred against the FULL
+    panel. Once rows are trimmed away, the surviving subsample's own mean
+    need not be zero any more — dropping 50 of 100 rows for coverage shifts
+    the effective mean of what is left. A PCA fit whose analysed matrix is
+    not actually centred does not have the property its own variance
+    bookkeeping assumes: summing ALL of a full-rank fit's eigenvalues should
+    reproduce the matrix's total variance exactly, and it did not. Measured
+    on a 100x4 seed-123 synthetic panel with one column missing its first 50
+    rows: `explained_variance_ratio` summed to 0.6508046967 across all four
+    (full-rank) components, not 1.0, because the SVD ran on rows 51-100 of an
+    only-globally-centred matrix while the reported ratio's denominator used
+    a mismatched row/column combination on top of that. Re-standardising the
+    admitted matrix — and using THIS SAME matrix for Bai-Ng, the SVD, and the
+    total-variance sum — closes both gaps at once rather than patching the
+    denominator formula in isolation, which would still leave Bai-Ng voting
+    on a different sample than the one actually fit.
+    """
+
+    frame: pd.DataFrame
+    #: This admission's own mean/std, restricted to the columns that
+    #: survived — NOT `standardize(original_frame)`'s moments. A driver
+    #: table built from the wrong moments would report "this month's
+    #: standardised print" in a basis the loadings were never fit in.
+    mean: pd.Series
+    std: pd.Series
+    dropped_columns: dict[str, float]
+
+
+def _admit_matrix(z: pd.DataFrame, *, min_coverage: float = MIN_COLUMN_COVERAGE) -> _AdmittedMatrix:
+    matrix = _balanced_matrix(z, min_coverage=min_coverage)
+    if matrix.frame.shape[0] < 2 or matrix.frame.shape[1] < 2:
+        return _AdmittedMatrix(
+            frame=matrix.frame, mean=pd.Series(dtype=float), std=pd.Series(dtype=float),
+            dropped_columns=matrix.dropped_columns,
+        )
+    re_z, bal_mu, bal_sigma = standardize(matrix.frame)
+    # A column that is constant WITHIN the balanced window (rows the overlap
+    # trim kept happened to be identical) standardises to all-NaN here and is
+    # dropped for the same reason a globally-constant one already is in
+    # `fit()`: it carries no information in this window and would make the
+    # SVD singular. Rare, but the admission has to survive it rather than
+    # hand `_svd_fit` a NaN column.
+    re_z = re_z.dropna(axis=1, how="all")
+    dropped = dict(matrix.dropped_columns)
+    for col in set(matrix.frame.columns) - set(re_z.columns):
+        dropped[str(col)] = 0.0  # not low coverage — constant within this window
+    return _AdmittedMatrix(
+        frame=re_z, mean=bal_mu.reindex(re_z.columns), std=bal_sigma.reindex(re_z.columns),
+        dropped_columns=dropped,
+    )
+
+
+def _svd_fit(x: pd.DataFrame, k: int) -> tuple[pd.DataFrame, pd.DataFrame, np.ndarray]:
+    """Bare SVD on an ALREADY admitted matrix — no balancing decision happens
+    here, so this always runs on exactly the matrix `_admit_matrix` produced,
+    the same one Bai-Ng was handed. Loadings are scaled so that
+    `scores @ loadings.T ≈ x` — the observation-equation convention
     `ace.state.factors` reports its DFM loadings under, so the two are
     comparable without a unit conversion.
     """
-    matrix = _balanced_matrix(z)
-    balanced = matrix.frame
-    if balanced.empty or balanced.shape[0] < 2 or balanced.shape[1] < 2:
-        available = ", ".join(f"{k}={v:.0%}" for k, v in
-                               sorted(matrix.dropped_columns.items(), key=lambda kv: kv[1]))
-        raise ValueError(
-            f"no balanced window survives coverage filtering and overlap-"
-            f"trimming ({balanced.shape[0]} rows x {balanced.shape[1]} cols). "
-            f"Columns dropped for low coverage: {available or 'none'}"
-        )
-    x = balanced.to_numpy(dtype=float)
-    t, n = x.shape
-    u, s, vt = np.linalg.svd(x, full_matrices=False)
+    arr = x.to_numpy(dtype=float)
+    t, n = arr.shape
+    u, s, vt = np.linalg.svd(arr, full_matrices=False)
     k = min(k, len(s))
     eigenvalues = (s[:k] ** 2) / t
-    scores = pd.DataFrame(
-        u[:, :k] * s[:k], index=balanced.index,
-        columns=[f"PC{i+1}" for i in range(k)],
-    )
-    loadings = pd.DataFrame(
-        vt[:k, :].T, index=balanced.columns,
-        columns=[f"PC{i+1}" for i in range(k)],
-    )
-    return scores, loadings, eigenvalues, matrix.dropped_columns
+    scores = pd.DataFrame(u[:, :k] * s[:k], index=x.index, columns=[f"PC{i+1}" for i in range(k)])
+    loadings = pd.DataFrame(vt[:k, :].T, index=x.columns, columns=[f"PC{i+1}" for i in range(k)])
+    return scores, loadings, eigenvalues
 
 
 def fit(
@@ -293,18 +340,32 @@ def fit(
     function adds nothing to the point-in-time discipline; it only decomposes
     what it is handed.
     """
-    z, mu, sigma = standardize(frame)
+    z, _, _ = standardize(frame)
     z = z.dropna(axis=1, how="all")
     if z.shape[1] < 2:
         raise ValueError(f"only {z.shape[1]} usable series after standardising")
 
-    count = bai_ng_factor_count(z, kmax=kmax)
+    admitted = _admit_matrix(z)
+    balanced = admitted.frame
+    if balanced.shape[0] < 2 or balanced.shape[1] < 2:
+        available = ", ".join(f"{k}={v:.0%}" for k, v in
+                               sorted(admitted.dropped_columns.items(), key=lambda kv: kv[1]))
+        raise ValueError(
+            f"no balanced window survives coverage filtering and overlap-"
+            f"trimming ({balanced.shape[0]} rows x {balanced.shape[1]} cols). "
+            f"Columns dropped for low coverage: {available or 'none'}"
+        )
+
+    # Bai-Ng, the SVD and the variance denominator below all run on this SAME
+    # admitted matrix now — see `_AdmittedMatrix`'s docstring for the defect
+    # that existed when they did not.
+    count = bai_ng_factor_count(balanced, kmax=kmax)
     n_factors = int(k if k is not None else count.k)
     n_factors = max(1, min(n_factors, MAX_REPORTED_COMPONENTS))
 
-    scores, loadings, eigenvalues, dropped_for_coverage = _fit_pca(z, n_factors)
+    scores, loadings, eigenvalues = _svd_fit(balanced, n_factors)
     balanced_cols = list(loadings.index)
-    total_var = float(np.nansum(z[balanced_cols].to_numpy(dtype=float) ** 2)) / len(scores)
+    total_var = float(np.nansum(balanced.to_numpy(dtype=float) ** 2)) / len(balanced)
 
     components = []
     cumulative = 0.0
@@ -332,8 +393,9 @@ def fit(
         as_of=as_of, panel_label=label, n_series=len(balanced_cols),
         n_obs=int(len(scores)), series=tuple(balanced_cols),
         dates=tuple(scores.index), factor_count=count,
-        components=tuple(components), scores=scores, mean=mu, std=sigma,
-        dropped_for_coverage=dropped_for_coverage,
+        components=tuple(components), scores=scores,
+        mean=admitted.mean, std=admitted.std,
+        dropped_for_coverage=admitted.dropped_columns,
     )
 
 

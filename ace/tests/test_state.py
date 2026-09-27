@@ -518,6 +518,56 @@ def test_a_quarterly_member_reaches_the_factor_model_through_endog_quarterly():
     assert "GDPC1" in fit.mean.index and "GDPC1" in fit.std.index
 
 
+def test_converged_reads_em_diagnostics_not_a_nonexistent_mlefit_attribute():
+    """An external audit caught this by execution: `DynamicFactorMQResults`
+    has NO `mlefit` attribute at all, so the old
+    `getattr(res.mlefit, "mle_retvals", {}).get("converged", True) if
+    hasattr(res, "mlefit") else True` always took the `else True` branch —
+    `converged` was `True` on every fit this stack has ever produced,
+    including ones that logged "without achieving convergence" in the same
+    call. One `maxiter` far too low to converge, one generous enough to:
+    the flag must actually differ between them.
+    """
+    from ace.state.factors import fit_factors
+
+    specs = _panel_of("PAYEMS", "UNRATE", "MANEMP", "INDPRO", "TCU",
+                       "CPIAUCSL", "CPILFESL", "PPIACO")
+    n, rng = 120, np.random.default_rng(11)
+    common = np.cumsum(rng.normal(0, 1, n))
+    vin = {}
+    for i, s in enumerate(specs):
+        base = 100.0 + 0.4 * common + rng.normal(0, 0.5, n) + 0.05 * i * np.arange(n)
+        obs = pd.date_range("2005-01-01", periods=n, freq="MS", tz="UTC")
+        vin[s.series_id] = pd.DataFrame({
+            "obs_date": obs, "value": np.abs(base) + 10.0,
+            "published": obs + pd.Timedelta(days=45),
+        })
+    build = build_asof("2016-06-30", vin, specs=specs)
+
+    starved = fit_factors(build, k=1, maxiter=1)
+    assert starved.converged is False
+
+    generous = fit_factors(build, k=1, maxiter=500)
+    assert generous.converged is True
+
+
+def test_converged_is_false_when_em_diagnostics_are_missing():
+    """Fails CLOSED, not open: an object with neither diagnostic must never
+    be read as a successful fit."""
+    from ace.state.factors import _em_converged
+
+    class _Bare:
+        pass
+
+    assert _em_converged(_Bare()) is False
+
+    class _PartialSettings:
+        mle_retvals = {"iter": 5}
+        mle_settings = {}  # no "maxiter"
+
+    assert _em_converged(_PartialSettings()) is False
+
+
 # --- the MacroState contract -----------------------------------------------
 
 def _toy_fit(n: int = 120, k: int = 2):

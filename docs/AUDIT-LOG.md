@@ -13,6 +13,148 @@ drift watch, then Now/Next/Later coverage.
 
 ---
 
+## 2026-09-27 — cycle 4 (Factor State API, news decomposition, and an external audit's PCA/DFM findings)
+
+**Checked:** Phases 8-9 of the Macro Factor Engine brief (the Factor State API
+field contract, and `.news()` state-space decomposition), Phase 10's machinery
+(built and unit-tested; live run deferred — see below), and every finding in
+`Neural-Energies/ripple-radar` PR #5 that lands inside this session's own
+work (`ace/factors/`, `ace/state/factors.py`). Findings outside that area are
+listed at the end, unaddressed, so they are not lost.
+
+### Phase 8 — Factor State API (`ace/factors/factor_state.py`)
+
+Extends the brief's full field contract (`factor_id`, `factor_name`,
+`z_score`, `historical_percentile`, `momentum`, `acceleration`, `direction`,
+`volatility`, `uncertainty`, `change_since_previous_run`, `change_1w/1m/3m`,
+`top_positive/negative_loadings`, `number_of_active/missing_series`,
+`data_coverage`, `data_freshness_days`, `as_of_date`, `last_model_fit`) to
+Phase 6/7's global + domain PCA factors — the PRODUCTION 89-series DFM state
+contract (`ace.state.state.MacroState`) is untouched. `uncertainty` is
+reported as NaN for every PCA factor, on purpose: static PCA has no Kalman
+posterior, and inventing one would be exactly the fabricated-confidence
+failure mode the brief forbids; `volatility` (trailing realised spread) is
+a different, answerable question and is computed. `change_1w` is `None` for
+every factor, on purpose too: every fit here is monthly, and a "1-week
+change" read off monthly data would be last month's change wearing the wrong
+label. `change_since_previous_run` is read from a persisted snapshot
+(`artifacts/state/factor_state_snapshot.json`), written after each run.
+Wired live into `ace.factors.pca_research.main()`; run on the comprehensive
+panel: **92 factor states produced**, drivers (loading x this month's
+standardised print) attached from the registry's canonical names. 10 tests.
+
+### Phase 9 — "what changed" news decomposition (`ace/factors/news.py`)
+
+`DynamicFactorMQResults.news()` (Bańbura & Modugno 2014) decomposes a
+revision in one OBSERVED series' forecast into contributions from specific
+new or revised data points — confirmed by reading the installed statsmodels
+(0.15.0) source directly that `impacted_variable` must be an endog series
+name, not a latent factor, in this version; `state_index="common"` restricts
+the decomposition to the channel running through the shared factor states
+(excluding each series' own idiosyncratic term), which is the closest honest
+answer this API has to "what moved the factor" without overclaiming a
+capability that is not actually exposed. `ace.state.factors.FactorFit` now
+retains the fitted `.results` object (additive field, `compare=False`,
+`repr=False`) so two point-in-time fits can be compared this way.
+`ace/factors/news_report.py` picks, per production-panel block, whichever
+series has the largest |loading| on that block's factor (decided by the
+fit's own evidence, never by position) and explains what moved it over the
+last 7 days. Run live on the production panel (two full DFM refits, ~each
+converging by `llf`, one at ~500s): **all 9 blocks produced a decomposition**
+— e.g. housing's proxy (HOUST) moved -0.004 (news) and -0.006 (revisions);
+credit's proxy (TOTALSL) moved +0.058 mostly from a grouped prior revision.
+Artifact: `artifacts/reports/macro_what_changed.json`. 4 tests
+(`ace/tests/test_news.py`) plus 2 (`test_news_report.py`).
+
+### Phase 10 — built, unit-tested, live run deferred
+
+`ace/regime/climatology.py` (Brier score vs. a climatology baseline computed
+from EACH anchor's own causal history, never the evaluation sample — this is
+also WP3's still-open exit condition's missing scorer) and
+`ace/regime/level_regime_validation.py` (expanding-window refits of the
+production DFM's housing/financial-conditions factors AND their Phase 6/7
+domain-PCA counterparts, scored against climatology) are built and pass 6 + 7
+unit tests respectively on synthetic data. **The live run is deliberately not
+executed this cycle** — see the A11 finding below: it would validate a regime
+model against vintage data the same external audit has just shown may not be
+genuinely point-in-time, and running an expensive multi-anchor DFM validation
+against a foundation already flagged as suspect is not where this cycle's
+remaining effort belongs. WP3's exit condition and Phase 10 stay open,
+together, pending A11.
+
+### External audit findings addressed: A04 (PCA) and A05 (DFM convergence)
+
+`Neural-Energies/ripple-radar` PR #5 (an external, independently-executed
+audit, not this session's own work) reproduced two real defects in code this
+project's own Phases 6-7 wrote:
+
+- **A04 (high, confirmed):** the SVD's balanced matrix, Bai-Ng's factor-count
+  matrix, and the total-variance denominator were three inconsistently
+  row/column-matched objects. Reproduced on a 100x4 synthetic panel: a
+  full-rank fit's `explained_variance_ratio` summed to **0.6508046967**, not
+  1.0. Fixed in `ace/factors/pca.py` (`_admit_matrix`, `_svd_fit`): balance
+  once, RE-STANDARDISE the survivors on their own mean/std (a full-panel mean
+  is not the balanced subsample's mean once rows are trimmed away), and feed
+  that one matrix to Bai-Ng, the SVD, and the variance sum alike. Regression:
+  `test_a_full_rank_fit_explains_exactly_all_of_the_variance` (now sums to
+  1.0 to 1e-9) and `test_bai_ng_and_the_svd_see_the_same_admitted_matrix`.
+  `macro_pca_research.json` regenerated; the corrected numbers are in
+  `ace/MODEL-SCORECARD.md`'s PCA section (global PC1 was reported as 2.3%,
+  is actually 8.8%; domain PC1 shares and the PCA-vs-DFM correlation each
+  moved by a few points — same qualitative findings, corrected numbers).
+- **A05 (medium, confirmed):** `fit_factors`'s `converged` flag read
+  `res.mlefit.mle_retvals`, defaulting to `True` whenever `res` had no
+  `mlefit` attribute — which `DynamicFactorMQResults` never has, confirmed
+  directly against the installed statsmodels. `converged` has been `True` on
+  every DFM fit this stack has ever produced, including ones that logged
+  non-convergence in the same call. Fixed (`ace/state/factors.py`,
+  `_em_converged`): read `res.mle_retvals["iter"] < res.mle_settings["maxiter"]`
+  directly, fail CLOSED when either is missing. Regression:
+  `test_converged_reads_em_diagnostics_not_a_nonexistent_mlefit_attribute`
+  (a starved `maxiter=1` fit and a generous `maxiter=500` fit now actually
+  differ) and `test_converged_is_false_when_em_diagnostics_are_missing`.
+
+A byproduct found while regenerating artifacts, not from the audit: `NaN` is
+not valid JSON, and `factor_state.py`'s honest `uncertainty: NaN` and
+`news.py`'s grouped-revision `weight: NaN` were both being written as bare
+`NaN` tokens (Python's `json.dumps` default). `ace/jsonutil.py` (`to_json_safe`,
+6 tests) replaces every non-finite float with `null` before every artifact
+this cycle writes goes to disk, `allow_nan=False` guarding a future miss.
+
+### Open, NOT addressed this cycle: A11 (high priority) and everything outside `ace/factors/` + `ace/state/factors.py`
+
+**A11 (high, reconfirmed) is the most important open item from PR #5.**
+`ace.data.alfred.release_history` fetches `output_type=4` (initial release
+only) and never fetches a later revision for an observation already seen.
+`ace.state.panel.load_vintages` — the point-in-time foundation EVERY phase
+this session has built rests on — calls this same function by default. A
+value revised months after first release, even a revision that is by now
+itself long-public, is never reflected in any as-of build dated after that
+revision: the reverse failure mode from a look-ahead leak, but a real
+point-in-time defect either way, reproduced by the audit with an executed
+January-100-revised-to-August-180 example. Fixing it means changing what
+`release_history` fetches (the full per-observation revision history, not
+the first print) and how `as_of` selects among a series' releases — a
+foundational change to code `ace.macro.quads` and `ace.macro.revisions` also
+depend on, not a bounded single-file fix. Not attempted this cycle. Every
+number this session's factor-engine work has ever produced should be read
+with this caveat until A11 is resolved.
+
+PR #5 also raised fourteen other findings (A01-A03, A06-A10, A12-A15) in
+`src/lib/engine/game.ts`, `forecast-ledger.server.ts`, `probability.ts`,
+`ace/survival/competing.py`, `ace/ensemble/members.py`, `ace/cascade/hawkes.py`,
+`ace/calibration/calibrate.py`, `ace/models/scenario_probability_model.py`,
+`ace/bayesnet/`, and `src/lib/ace/intervene.ts` — Nash equilibrium axes,
+forecast-ledger horizon adjudication, Dirichlet posterior persistence,
+competing-risks calibration, Hawkes first-arrival probability and
+observation-clock handling, cross-fitted calibration, scenario-model
+future-label leakage, DBN missing-data handling, and a latent
+zero-support intervention edge. **None of these are in this session's work
+area and none were investigated or fixed this cycle** — they remain exactly
+as the audit left them, open, on PR #5.
+
+---
+
 ## 2026-09-27 — cycle 3 (comprehensive macro data registry + static PCA)
 
 **Checked:** implementation of the Macro Factor Engine brief's Phases 1-7 —

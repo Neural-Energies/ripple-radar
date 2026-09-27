@@ -172,6 +172,64 @@ def test_cumulative_variance_is_monotonic_and_bounded():
     assert cumulative[-1] <= 1.0 + 1e-9
 
 
+def test_a_full_rank_fit_explains_exactly_all_of_the_variance():
+    """The audit's own counterexample, reproduced as a permanent regression:
+    a 100x4 panel, one column (D) missing its first 50 rows, k=4 (full rank
+    of the balanced 50x4 matrix). Summing `explained_variance_ratio` over
+    every component of a full-rank fit must reproduce the admitted matrix's
+    total variance exactly — before the fix this summed to 0.6508046967, not
+    1.0, because the SVD ran on the balanced (row-trimmed) matrix while the
+    variance denominator used the ORIGINAL frame's rows restricted to the
+    surviving columns, and neither had been re-centred on the balanced
+    subsample's own mean. See `_AdmittedMatrix`'s docstring for the full
+    mechanism.
+    """
+    rng = np.random.default_rng(123)
+    n, cols = 100, 4
+    frame = pd.DataFrame(
+        rng.normal(size=(n, cols)), columns=list("ABCD"),
+        index=pd.date_range("2000-01-01", periods=n, freq="MS", tz="UTC"),
+    )
+    frame.iloc[:50, frame.columns.get_loc("D")] = np.nan
+
+    result = fit(frame, as_of="2020-01-01", label="test", k=4)
+    assert result.n_obs == 50  # the balanced window: D's first 50 rows are gone
+    assert len(result.components) == 4  # full rank of the 50x4 admitted matrix
+
+    total = sum(c.explained_variance_ratio for c in result.components)
+    assert total == pytest.approx(1.0, abs=1e-9)
+    assert result.components[-1].cumulative_variance_ratio == pytest.approx(1.0, abs=1e-9)
+
+
+def test_bai_ng_and_the_svd_see_the_same_admitted_matrix():
+    """The second half of the same defect: factor-count selection used to run
+    on `z` BEFORE coverage filtering, so it could vote on a different (or
+    empty) sample than the one actually fit. A column with sparse-but->=20%
+    coverage used to make Bai-Ng's own naive listwise deletion collapse to
+    very few rows while the real (coverage-filtered) fit used a much larger,
+    denser window — this asserts the count is now decided on the SAME row
+    count the fit reports.
+    """
+    rng = np.random.default_rng(2)
+    n_obs, n_series = 200, 6
+    frame = pd.DataFrame(
+        {f"S{i}": rng.normal(size=n_obs) for i in range(n_series)},
+        index=pd.date_range("2000-01-01", periods=n_obs, freq="MS", tz="UTC"),
+    )
+    # A column with internal holes only rarely populated (~15%): fails the
+    # 90% coverage floor and must be DROPPED before Bai-Ng ever sees it,
+    # rather than dragging a naive full-sample dropna down to a handful of
+    # rows for the count decision while the fit itself uses far more.
+    sparse = rng.normal(size=n_obs)
+    sparse[rng.random(n_obs) > 0.15] = np.nan
+    frame["SPARSE"] = sparse
+
+    result = fit(frame, as_of="2020-01-01", label="test")
+    assert "SPARSE" in result.dropped_for_coverage
+    assert result.factor_count.t == result.n_obs
+    assert result.factor_count.n == result.n_series
+
+
 def test_a_component_is_sign_oriented_to_majority_positive():
     from ace.factors.pca import _orient_component
 

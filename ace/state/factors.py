@@ -187,6 +187,13 @@ class FactorFit:
     #: each block already gets a factor. False means `factor_count` is reported
     #: for the record and did not shape this fit.
     count_binding: bool = True
+    #: The fitted statsmodels results object, kept ONLY so
+    #: `ace.factors.news.what_changed` can call its `.news()` method — which
+    #: needs the actual `MLEResults`, not the frame/series this dataclass
+    #: otherwise exposes. Excluded from `__eq__`/`__repr__`: two fits with
+    #: identical reported numbers should still compare equal, and printing a
+    #: `FactorFit` should not dump the whole fitted model.
+    results: object = field(default=None, repr=False, compare=False)
 
     def describe(self) -> str:
         conv = "converged" if self.converged else "DID NOT CONVERGE"
@@ -321,8 +328,7 @@ def fit_factors(
         blocks=assigned,
         n_factors=int(estimated.shape[1]),
         factor_count=count,
-        converged=bool(getattr(res.mlefit, "mle_retvals", {}).get("converged", True))
-        if hasattr(res, "mlefit") else True,
+        converged=_em_converged(res),
         llf=float(res.llf),
         n_obs=int(z.shape[0]),
         series=tuple(modelled),
@@ -332,7 +338,39 @@ def fit_factors(
         series_monthly=tuple(z.columns),
         series_quarterly=tuple(zq.columns),
         count_binding=count_binding,
+        results=res,
     )
+
+
+def _em_converged(res) -> bool:
+    """Did the EM loop actually stop because its own tolerance was met, or
+    because it hit `maxiter`?
+
+    An earlier version read `res.mlefit.mle_retvals.get("converged", True)`,
+    defaulting to True whenever `res` had no `mlefit` attribute. Confirmed
+    against the installed statsmodels (0.15.0): `DynamicFactorMQResults` has
+    NO `mlefit` attribute at all, so that branch was unconditionally taken —
+    `converged` was `True` on every single fit this stack has ever produced,
+    including fits that emitted "EM reached maximum number of iterations...
+    without achieving convergence" in the very same call. The diagnostics
+    statsmodels actually exposes live directly on `res.mle_retvals` (keyed
+    `iter`, the number of EM steps actually run) and `res.mle_settings`
+    (keyed `maxiter`, the cap) — `fit_em`'s own loop only exits before that
+    cap when its tolerance check passes, so `iter < maxiter` is the same
+    signal the ConvergenceWarning is built from, read directly rather than
+    inferred from an attribute that does not exist.
+
+    Fails CLOSED: `False` whenever either diagnostic is missing, rather than
+    a claimed True with no evidence behind it.
+    """
+    retvals = getattr(res, "mle_retvals", None)
+    settings = getattr(res, "mle_settings", None)
+    if not isinstance(retvals, dict) or not isinstance(settings, dict):
+        return False
+    iters, maxiter = retvals.get("iter"), settings.get("maxiter")
+    if not isinstance(iters, (int, np.integer)) or not isinstance(maxiter, (int, np.integer)):
+        return False
+    return bool(iters < maxiter)
 
 
 def _as_periods(frame: pd.DataFrame, freq: str) -> pd.DataFrame:
