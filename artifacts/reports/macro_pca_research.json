@@ -1,0 +1,6039 @@
+{
+  "as_of": "2026-09-27",
+  "generated": "2026-09-27",
+  "n_panel_series": 206,
+  "n_used": 206,
+  "pca_vs_dfm": {
+    "dfm": {
+      "converged": true,
+      "llf": -24815.18210365952,
+      "n_factors": 12,
+      "n_months": 561,
+      "n_series": 67
+    },
+    "global_factor_comparison": {
+      "correlation": 0.8243,
+      "loading_correlation": 0.9879,
+      "n_common_loadings": 67,
+      "n_common_months": 323
+    },
+    "n_series": 67,
+    "pca": {
+      "n_obs": 323,
+      "n_series": 67,
+      "variance_explained_pc1": 0.18434306215872295
+    },
+    "scope_note": "run on the deep-history monthly-only subset, not the full comprehensive panel \u2014 see this function's docstring"
+  },
+  "snapshot": {
+    "domains": {
+      "banking": {
+        "as_of": "2026-09-27",
+        "components": [
+          {
+            "cumulative_variance_ratio": 0.219893,
+            "eigenvalue": 1.375976,
+            "explained_variance_ratio": 0.219893,
+            "index": 1,
+            "top_negative": [],
+            "top_positive": [
+              [
+                "TLAACBW027SBOG",
+                0.7323
+              ],
+              [
+                "TOTBKCR",
+                0.542
+              ],
+              [
+                "USGSEC",
+                0.3713
+              ],
+              [
+                "CREACBM027NBOG",
+                0.1791
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.377453,
+            "eigenvalue": 0.985932,
+            "explained_variance_ratio": 0.15756,
+            "index": 2,
+            "top_negative": [
+              [
+                "TOTBKCR",
+                -0.0895
+              ],
+              [
+                "TLAACBW027SBOG",
+                -0.1869
+              ]
+            ],
+            "top_positive": [
+              [
+                "CREACBM027NBOG",
+                0.9779
+              ],
+              [
+                "USGSEC",
+                0.0274
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.475279,
+            "eigenvalue": 0.612144,
+            "explained_variance_ratio": 0.097826,
+            "index": 3,
+            "top_negative": [
+              [
+                "CREACBM027NBOG",
+                -0.1064
+              ],
+              [
+                "TLAACBW027SBOG",
+                -0.5415
+              ]
+            ],
+            "top_positive": [
+              [
+                "USGSEC",
+                0.8058
+              ],
+              [
+                "TOTBKCR",
+                0.2148
+              ]
+            ]
+          }
+        ],
+        "dropped_for_coverage": {},
+        "factor_count": {
+          "at_boundary": true,
+          "decisive": true,
+          "k": 3
+        },
+        "n_obs": 167,
+        "n_series": 4,
+        "panel_label": "banking",
+        "series": [
+          "TOTBKCR",
+          "TLAACBW027SBOG",
+          "USGSEC",
+          "CREACBM027NBOG"
+        ]
+      },
+      "commodities": {
+        "as_of": "2026-09-27",
+        "components": [
+          {
+            "cumulative_variance_ratio": 0.435447,
+            "eigenvalue": 2.41537,
+            "explained_variance_ratio": 0.435447,
+            "index": 1,
+            "top_negative": [
+              [
+                "PRAWMINDEXM",
+                -0.1185
+              ]
+            ],
+            "top_positive": [
+              [
+                "PALLFNFINDEXM",
+                0.5504
+              ],
+              [
+                "PINDUINDEXM",
+                0.5186
+              ],
+              [
+                "GASREGW",
+                0.481
+              ],
+              [
+                "PCOPPUSDM",
+                0.4274
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.652975,
+            "eigenvalue": 1.206599,
+            "explained_variance_ratio": 0.217528,
+            "index": 2,
+            "top_negative": [
+              [
+                "PALLFNFINDEXM",
+                -0.2543
+              ],
+              [
+                "GASREGW",
+                -0.2802
+              ]
+            ],
+            "top_positive": [
+              [
+                "PRAWMINDEXM",
+                0.7007
+              ],
+              [
+                "PCOPPUSDM",
+                0.5601
+              ],
+              [
+                "PINDUINDEXM",
+                0.2283
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.814021,
+            "eigenvalue": 0.893302,
+            "explained_variance_ratio": 0.161046,
+            "index": 3,
+            "top_negative": [
+              [
+                "PCOPPUSDM",
+                -0.2103
+              ],
+              [
+                "PINDUINDEXM",
+                -0.411
+              ]
+            ],
+            "top_positive": [
+              [
+                "GASREGW",
+                0.6405
+              ],
+              [
+                "PRAWMINDEXM",
+                0.6018
+              ],
+              [
+                "PALLFNFINDEXM",
+                0.1205
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.871616,
+            "eigenvalue": 0.319475,
+            "explained_variance_ratio": 0.057595,
+            "index": 4,
+            "top_negative": [
+              [
+                "GASREGW",
+                -0.4062
+              ],
+              [
+                "PCOPPUSDM",
+                -0.5465
+              ]
+            ],
+            "top_positive": [
+              [
+                "PALLFNFINDEXM",
+                0.5415
+              ],
+              [
+                "PRAWMINDEXM",
+                0.3617
+              ],
+              [
+                "PINDUINDEXM",
+                0.335
+              ]
+            ]
+          }
+        ],
+        "dropped_for_coverage": {},
+        "factor_count": {
+          "at_boundary": true,
+          "decisive": true,
+          "k": 4
+        },
+        "n_obs": 128,
+        "n_series": 5,
+        "panel_label": "commodities",
+        "series": [
+          "GASREGW",
+          "PCOPPUSDM",
+          "PALLFNFINDEXM",
+          "PINDUINDEXM",
+          "PRAWMINDEXM"
+        ]
+      },
+      "consumer": {
+        "as_of": "2026-09-27",
+        "components": [
+          {
+            "cumulative_variance_ratio": 0.31404,
+            "eigenvalue": 9.585061,
+            "explained_variance_ratio": 0.31404,
+            "index": 1,
+            "top_negative": [
+              [
+                "W875RX1",
+                -0.0757
+              ],
+              [
+                "UMCSENT",
+                -0.0868
+              ],
+              [
+                "PCEC96",
+                -0.0978
+              ],
+              [
+                "TOTALSA",
+                -0.1661
+              ],
+              [
+                "RRSFS",
+                -0.2524
+              ],
+              [
+                "RSAFS",
+                -0.2576
+              ],
+              [
+                "RSFSXMV",
+                -0.2647
+              ],
+              [
+                "PCE",
+                -0.3775
+              ]
+            ],
+            "top_positive": [
+              [
+                "PSAVERT",
+                0.4285
+              ],
+              [
+                "PI",
+                0.408
+              ],
+              [
+                "DSPI",
+                0.4059
+              ],
+              [
+                "RPI",
+                0.2437
+              ],
+              [
+                "DSPIC96",
+                0.1811
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.554705,
+            "eigenvalue": 7.345506,
+            "explained_variance_ratio": 0.240665,
+            "index": 2,
+            "top_negative": [],
+            "top_positive": [
+              [
+                "PI",
+                0.4146
+              ],
+              [
+                "DSPI",
+                0.3897
+              ],
+              [
+                "PCE",
+                0.3758
+              ],
+              [
+                "RRSFS",
+                0.3364
+              ],
+              [
+                "RSAFS",
+                0.336
+              ],
+              [
+                "RSFSXMV",
+                0.3324
+              ],
+              [
+                "RPI",
+                0.249
+              ],
+              [
+                "TOTALSA",
+                0.2149
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.590796,
+            "eigenvalue": 1.101559,
+            "explained_variance_ratio": 0.036091,
+            "index": 3,
+            "top_negative": [
+              [
+                "PCE",
+                -0.0126
+              ],
+              [
+                "TOTALSA",
+                -0.044
+              ],
+              [
+                "PSAVERT",
+                -0.0612
+              ],
+              [
+                "DSPI",
+                -0.1107
+              ],
+              [
+                "PI",
+                -0.1131
+              ],
+              [
+                "RSAFS",
+                -0.1456
+              ],
+              [
+                "RRSFS",
+                -0.1474
+              ],
+              [
+                "RSFSXMV",
+                -0.1552
+              ]
+            ],
+            "top_positive": [
+              [
+                "W875RX1",
+                0.8602
+              ],
+              [
+                "RPI",
+                0.253
+              ],
+              [
+                "PCEC96",
+                0.2191
+              ],
+              [
+                "UMCSENT",
+                0.1607
+              ],
+              [
+                "DSPIC96",
+                0.1564
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.618272,
+            "eigenvalue": 0.838604,
+            "explained_variance_ratio": 0.027476,
+            "index": 4,
+            "top_negative": [
+              [
+                "PSAVERT",
+                -0.0023
+              ],
+              [
+                "DSPIC96",
+                -0.0415
+              ],
+              [
+                "PCEC96",
+                -0.0548
+              ],
+              [
+                "RPI",
+                -0.0568
+              ],
+              [
+                "RRSFS",
+                -0.0593
+              ],
+              [
+                "RSAFS",
+                -0.0751
+              ],
+              [
+                "RSFSXMV",
+                -0.1226
+              ],
+              [
+                "W875RX1",
+                -0.1738
+              ]
+            ],
+            "top_positive": [
+              [
+                "UMCSENT",
+                0.9653
+              ],
+              [
+                "PI",
+                0.0524
+              ],
+              [
+                "TOTALSA",
+                0.0394
+              ],
+              [
+                "DSPI",
+                0.0332
+              ],
+              [
+                "PCE",
+                0.0198
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.633079,
+            "eigenvalue": 0.451953,
+            "explained_variance_ratio": 0.014808,
+            "index": 5,
+            "top_negative": [
+              [
+                "W875RX1",
+                -0.0078
+              ],
+              [
+                "PCEC96",
+                -0.0222
+              ],
+              [
+                "RRSFS",
+                -0.024
+              ],
+              [
+                "PI",
+                -0.0347
+              ],
+              [
+                "RSAFS",
+                -0.0491
+              ],
+              [
+                "UMCSENT",
+                -0.0847
+              ],
+              [
+                "PCE",
+                -0.1043
+              ],
+              [
+                "RSFSXMV",
+                -0.3371
+              ]
+            ],
+            "top_positive": [
+              [
+                "TOTALSA",
+                0.9288
+              ],
+              [
+                "PSAVERT",
+                0.0272
+              ],
+              [
+                "DSPIC96",
+                0.0073
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.638751,
+            "eigenvalue": 0.173093,
+            "explained_variance_ratio": 0.005671,
+            "index": 6,
+            "top_negative": [
+              [
+                "PCEC96",
+                -0.0849
+              ],
+              [
+                "DSPI",
+                -0.1513
+              ],
+              [
+                "PI",
+                -0.2111
+              ],
+              [
+                "PCE",
+                -0.7001
+              ]
+            ],
+            "top_positive": [
+              [
+                "RRSFS",
+                0.4037
+              ],
+              [
+                "RSAFS",
+                0.2867
+              ],
+              [
+                "PSAVERT",
+                0.2774
+              ],
+              [
+                "RSFSXMV",
+                0.2744
+              ],
+              [
+                "UMCSENT",
+                0.1313
+              ],
+              [
+                "W875RX1",
+                0.0944
+              ],
+              [
+                "RPI",
+                0.0876
+              ],
+              [
+                "DSPIC96",
+                0.0468
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.640415,
+            "eigenvalue": 0.050815,
+            "explained_variance_ratio": 0.001665,
+            "index": 7,
+            "top_negative": [
+              [
+                "UMCSENT",
+                -0.0226
+              ],
+              [
+                "DSPI",
+                -0.0578
+              ],
+              [
+                "PSAVERT",
+                -0.1142
+              ],
+              [
+                "PI",
+                -0.1454
+              ],
+              [
+                "TOTALSA",
+                -0.1942
+              ],
+              [
+                "W875RX1",
+                -0.2642
+              ],
+              [
+                "RSFSXMV",
+                -0.6103
+              ]
+            ],
+            "top_positive": [
+              [
+                "RRSFS",
+                0.444
+              ],
+              [
+                "PCEC96",
+                0.3187
+              ],
+              [
+                "RPI",
+                0.3059
+              ],
+              [
+                "DSPIC96",
+                0.2506
+              ],
+              [
+                "RSAFS",
+                0.154
+              ],
+              [
+                "PCE",
+                0.0559
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.641544,
+            "eigenvalue": 0.034437,
+            "explained_variance_ratio": 0.001128,
+            "index": 8,
+            "top_negative": [
+              [
+                "PI",
+                -0.0783
+              ],
+              [
+                "PCE",
+                -0.1173
+              ],
+              [
+                "DSPI",
+                -0.1677
+              ],
+              [
+                "RSAFS",
+                -0.2057
+              ],
+              [
+                "PSAVERT",
+                -0.2147
+              ],
+              [
+                "RRSFS",
+                -0.3111
+              ],
+              [
+                "W875RX1",
+                -0.3408
+              ]
+            ],
+            "top_positive": [
+              [
+                "RPI",
+                0.4653
+              ],
+              [
+                "RSFSXMV",
+                0.4359
+              ],
+              [
+                "PCEC96",
+                0.3685
+              ],
+              [
+                "DSPIC96",
+                0.2973
+              ],
+              [
+                "TOTALSA",
+                0.1387
+              ],
+              [
+                "UMCSENT",
+                0.0262
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.642129,
+            "eigenvalue": 0.01785,
+            "explained_variance_ratio": 0.000585,
+            "index": 9,
+            "top_negative": [
+              [
+                "RSAFS",
+                -0.0392
+              ],
+              [
+                "W875RX1",
+                -0.0394
+              ],
+              [
+                "RRSFS",
+                -0.1016
+              ],
+              [
+                "RPI",
+                -0.2793
+              ],
+              [
+                "PI",
+                -0.628
+              ]
+            ],
+            "top_positive": [
+              [
+                "PSAVERT",
+                0.4122
+              ],
+              [
+                "DSPI",
+                0.4059
+              ],
+              [
+                "DSPIC96",
+                0.3114
+              ],
+              [
+                "PCEC96",
+                0.2095
+              ],
+              [
+                "PCE",
+                0.1799
+              ],
+              [
+                "RSFSXMV",
+                0.0772
+              ],
+              [
+                "UMCSENT",
+                0.0193
+              ],
+              [
+                "TOTALSA",
+                0.0102
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.642357,
+            "eigenvalue": 0.006985,
+            "explained_variance_ratio": 0.000229,
+            "index": 10,
+            "top_negative": [
+              [
+                "UMCSENT",
+                -0.0122
+              ],
+              [
+                "DSPIC96",
+                -0.0284
+              ],
+              [
+                "RPI",
+                -0.075
+              ],
+              [
+                "DSPI",
+                -0.1361
+              ],
+              [
+                "RSAFS",
+                -0.7776
+              ]
+            ],
+            "top_positive": [
+              [
+                "RRSFS",
+                0.5447
+              ],
+              [
+                "PSAVERT",
+                0.175
+              ],
+              [
+                "RSFSXMV",
+                0.1414
+              ],
+              [
+                "PCE",
+                0.109
+              ],
+              [
+                "PI",
+                0.0758
+              ],
+              [
+                "PCEC96",
+                0.063
+              ],
+              [
+                "TOTALSA",
+                0.0343
+              ],
+              [
+                "W875RX1",
+                0.0089
+              ]
+            ]
+          }
+        ],
+        "dropped_for_coverage": {},
+        "factor_count": {
+          "at_boundary": true,
+          "decisive": true,
+          "k": 10
+        },
+        "n_obs": 161,
+        "n_series": 13,
+        "panel_label": "consumer",
+        "series": [
+          "RSAFS",
+          "RRSFS",
+          "RSFSXMV",
+          "PCE",
+          "PCEC96",
+          "TOTALSA",
+          "PI",
+          "RPI",
+          "DSPI",
+          "DSPIC96",
+          "W875RX1",
+          "PSAVERT",
+          "UMCSENT"
+        ]
+      },
+      "credit": {
+        "as_of": "2026-09-27",
+        "components": [
+          {
+            "cumulative_variance_ratio": 0.289176,
+            "eigenvalue": 30.320968,
+            "explained_variance_ratio": 0.289176,
+            "index": 1,
+            "top_negative": [
+              [
+                "BAA10Y",
+                -0.001
+              ],
+              [
+                "AAA10Y",
+                -0.0015
+              ],
+              [
+                "REALLN",
+                -0.0074
+              ]
+            ],
+            "top_positive": [
+              [
+                "REVOLSL",
+                0.5858
+              ],
+              [
+                "TOTALSL",
+                0.5858
+              ],
+              [
+                "NONREVSL",
+                0.5594
+              ],
+              [
+                "BAMLH0A0HYM2",
+                0.0143
+              ],
+              [
+                "CONSUMER",
+                0.0132
+              ],
+              [
+                "TOTCI",
+                0.0112
+              ],
+              [
+                "BUSLOANS",
+                0.0104
+              ],
+              [
+                "BAMLC0A4CBBB",
+                0.0006
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.323743,
+            "eigenvalue": 3.624441,
+            "explained_variance_ratio": 0.034567,
+            "index": 2,
+            "top_negative": [
+              [
+                "AAA10Y",
+                -0.0103
+              ],
+              [
+                "REVOLSL",
+                -0.0118
+              ],
+              [
+                "NONREVSL",
+                -0.0126
+              ],
+              [
+                "TOTALSL",
+                -0.0128
+              ],
+              [
+                "REALLN",
+                -0.0222
+              ]
+            ],
+            "top_positive": [
+              [
+                "BUSLOANS",
+                0.6537
+              ],
+              [
+                "TOTCI",
+                0.556
+              ],
+              [
+                "CONSUMER",
+                0.4311
+              ],
+              [
+                "BAMLH0A0HYM2",
+                0.1645
+              ],
+              [
+                "BAMLC0A4CBBB",
+                0.158
+              ],
+              [
+                "BAMLC0A0CM",
+                0.1562
+              ],
+              [
+                "BAA10Y",
+                0.0102
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.350902,
+            "eigenvalue": 2.847722,
+            "explained_variance_ratio": 0.027159,
+            "index": 3,
+            "top_negative": [
+              [
+                "TOTALSL",
+                -0.0018
+              ],
+              [
+                "REVOLSL",
+                -0.002
+              ],
+              [
+                "REALLN",
+                -0.0157
+              ],
+              [
+                "BAA10Y",
+                -0.0224
+              ],
+              [
+                "AAA10Y",
+                -0.1269
+              ],
+              [
+                "CONSUMER",
+                -0.142
+              ],
+              [
+                "TOTCI",
+                -0.1526
+              ],
+              [
+                "BUSLOANS",
+                -0.1812
+              ]
+            ],
+            "top_positive": [
+              [
+                "BAMLC0A0CM",
+                0.5594
+              ],
+              [
+                "BAMLC0A4CBBB",
+                0.555
+              ],
+              [
+                "BAMLH0A0HYM2",
+                0.5347
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.363059,
+            "eigenvalue": 1.274701,
+            "explained_variance_ratio": 0.012157,
+            "index": 4,
+            "top_negative": [
+              [
+                "BUSLOANS",
+                -0.0129
+              ],
+              [
+                "TOTCI",
+                -0.0155
+              ],
+              [
+                "CONSUMER",
+                -0.0229
+              ]
+            ],
+            "top_positive": [
+              [
+                "BAA10Y",
+                0.8086
+              ],
+              [
+                "AAA10Y",
+                0.5803
+              ],
+              [
+                "BAMLH0A0HYM2",
+                0.0736
+              ],
+              [
+                "BAMLC0A0CM",
+                0.0404
+              ],
+              [
+                "BAMLC0A4CBBB",
+                0.0394
+              ],
+              [
+                "NONREVSL",
+                0.0007
+              ],
+              [
+                "TOTALSL",
+                0.0007
+              ],
+              [
+                "REVOLSL",
+                0.0006
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.363875,
+            "eigenvalue": 0.085572,
+            "explained_variance_ratio": 0.000816,
+            "index": 5,
+            "top_negative": [
+              [
+                "NONREVSL",
+                -0.0037
+              ],
+              [
+                "TOTALSL",
+                -0.004
+              ],
+              [
+                "REVOLSL",
+                -0.0041
+              ],
+              [
+                "BAA10Y",
+                -0.1777
+              ],
+              [
+                "BAMLC0A4CBBB",
+                -0.2142
+              ],
+              [
+                "BAMLC0A0CM",
+                -0.2922
+              ],
+              [
+                "BUSLOANS",
+                -0.4121
+              ]
+            ],
+            "top_positive": [
+              [
+                "BAMLH0A0HYM2",
+                0.5825
+              ],
+              [
+                "TOTCI",
+                0.3904
+              ],
+              [
+                "REALLN",
+                0.3429
+              ],
+              [
+                "AAA10Y",
+                0.2142
+              ],
+              [
+                "CONSUMER",
+                0.1103
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.364519,
+            "eigenvalue": 0.067498,
+            "explained_variance_ratio": 0.000644,
+            "index": 6,
+            "top_negative": [
+              [
+                "REVOLSL",
+                -0.0003
+              ],
+              [
+                "BUSLOANS",
+                -0.3407
+              ],
+              [
+                "AAA10Y",
+                -0.3477
+              ],
+              [
+                "BAMLH0A0HYM2",
+                -0.3734
+              ]
+            ],
+            "top_positive": [
+              [
+                "REALLN",
+                0.566
+              ],
+              [
+                "CONSUMER",
+                0.3973
+              ],
+              [
+                "BAA10Y",
+                0.2753
+              ],
+              [
+                "BAMLC0A0CM",
+                0.1812
+              ],
+              [
+                "BAMLC0A4CBBB",
+                0.1485
+              ],
+              [
+                "TOTCI",
+                0.1212
+              ],
+              [
+                "NONREVSL",
+                0.0062
+              ],
+              [
+                "TOTALSL",
+                0.0047
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.36503,
+            "eigenvalue": 0.053563,
+            "explained_variance_ratio": 0.000511,
+            "index": 7,
+            "top_negative": [
+              [
+                "BUSLOANS",
+                -0.0042
+              ],
+              [
+                "REVOLSL",
+                -0.0177
+              ],
+              [
+                "BAMLC0A0CM",
+                -0.0295
+              ],
+              [
+                "BAMLC0A4CBBB",
+                -0.0624
+              ],
+              [
+                "REALLN",
+                -0.0899
+              ],
+              [
+                "BAA10Y",
+                -0.1336
+              ],
+              [
+                "TOTCI",
+                -0.5929
+              ]
+            ],
+            "top_positive": [
+              [
+                "CONSUMER",
+                0.7467
+              ],
+              [
+                "AAA10Y",
+                0.1858
+              ],
+              [
+                "BAMLH0A0HYM2",
+                0.1591
+              ],
+              [
+                "NONREVSL",
+                0.0071
+              ],
+              [
+                "TOTALSL",
+                0.0009
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.365294,
+            "eigenvalue": 0.027714,
+            "explained_variance_ratio": 0.000264,
+            "index": 8,
+            "top_negative": [
+              [
+                "BAMLC0A4CBBB",
+                -0.0242
+              ],
+              [
+                "AAA10Y",
+                -0.0433
+              ],
+              [
+                "BAMLC0A0CM",
+                -0.1454
+              ],
+              [
+                "CONSUMER",
+                -0.2472
+              ],
+              [
+                "TOTCI",
+                -0.3785
+              ]
+            ],
+            "top_positive": [
+              [
+                "REALLN",
+                0.6969
+              ],
+              [
+                "BUSLOANS",
+                0.502
+              ],
+              [
+                "BAMLH0A0HYM2",
+                0.1846
+              ],
+              [
+                "BAA10Y",
+                0.0163
+              ],
+              [
+                "NONREVSL",
+                0.0035
+              ],
+              [
+                "TOTALSL",
+                0.0031
+              ],
+              [
+                "REVOLSL",
+                0.0018
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.365443,
+            "eigenvalue": 0.015618,
+            "explained_variance_ratio": 0.000149,
+            "index": 9,
+            "top_negative": [
+              [
+                "NONREVSL",
+                -0.0009
+              ],
+              [
+                "BUSLOANS",
+                -0.027
+              ],
+              [
+                "CONSUMER",
+                -0.0496
+              ],
+              [
+                "BAMLH0A0HYM2",
+                -0.3775
+              ],
+              [
+                "BAA10Y",
+                -0.4675
+              ]
+            ],
+            "top_positive": [
+              [
+                "AAA10Y",
+                0.6643
+              ],
+              [
+                "BAMLC0A4CBBB",
+                0.2913
+              ],
+              [
+                "REALLN",
+                0.2464
+              ],
+              [
+                "BAMLC0A0CM",
+                0.209
+              ],
+              [
+                "TOTCI",
+                0.0714
+              ],
+              [
+                "REVOLSL",
+                0.0114
+              ],
+              [
+                "TOTALSL",
+                0.0023
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.365457,
+            "eigenvalue": 0.001425,
+            "explained_variance_ratio": 1.4e-05,
+            "index": 10,
+            "top_negative": [
+              [
+                "TOTALSL",
+                -0.0042
+              ],
+              [
+                "NONREVSL",
+                -0.0095
+              ],
+              [
+                "BAA10Y",
+                -0.0395
+              ],
+              [
+                "CONSUMER",
+                -0.0436
+              ],
+              [
+                "BAMLC0A4CBBB",
+                -0.7129
+              ]
+            ],
+            "top_positive": [
+              [
+                "BAMLC0A0CM",
+                0.6906
+              ],
+              [
+                "REALLN",
+                0.0826
+              ],
+              [
+                "AAA10Y",
+                0.0507
+              ],
+              [
+                "BAMLH0A0HYM2",
+                0.0296
+              ],
+              [
+                "BUSLOANS",
+                0.0282
+              ],
+              [
+                "REVOLSL",
+                0.014
+              ],
+              [
+                "TOTCI",
+                0.0053
+              ]
+            ]
+          }
+        ],
+        "dropped_for_coverage": {},
+        "factor_count": {
+          "at_boundary": true,
+          "decisive": true,
+          "k": 10
+        },
+        "n_obs": 34,
+        "n_series": 12,
+        "panel_label": "credit",
+        "series": [
+          "BAMLH0A0HYM2",
+          "BAMLC0A0CM",
+          "BAMLC0A4CBBB",
+          "BAA10Y",
+          "AAA10Y",
+          "BUSLOANS",
+          "TOTCI",
+          "REALLN",
+          "CONSUMER",
+          "TOTALSL",
+          "REVOLSL",
+          "NONREVSL"
+        ]
+      },
+      "financial_conditions": {
+        "as_of": "2026-09-27",
+        "components": [
+          {
+            "cumulative_variance_ratio": 0.060173,
+            "eigenvalue": 5.156555,
+            "explained_variance_ratio": 0.060173,
+            "index": 1,
+            "top_negative": [
+              [
+                "DGS10",
+                -0.0032
+              ],
+              [
+                "DFII10",
+                -0.0069
+              ],
+              [
+                "STLFSI4",
+                -0.0335
+              ],
+              [
+                "SOFR",
+                -0.0728
+              ],
+              [
+                "FEDFUNDS",
+                -0.1487
+              ],
+              [
+                "NFCI",
+                -0.3523
+              ]
+            ],
+            "top_positive": [
+              [
+                "T10Y3M",
+                0.7481
+              ],
+              [
+                "T10Y2Y",
+                0.5014
+              ],
+              [
+                "VIXCLS",
+                0.1522
+              ],
+              [
+                "DTWEXBGS",
+                0.0839
+              ],
+              [
+                "ANFCI",
+                0.0776
+              ],
+              [
+                "DGS2",
+                0.0072
+              ],
+              [
+                "IORB",
+                0.0046
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.088389,
+            "eigenvalue": 2.418023,
+            "explained_variance_ratio": 0.028216,
+            "index": 2,
+            "top_negative": [
+              [
+                "DGS2",
+                -0.2509
+              ],
+              [
+                "DGS10",
+                -0.3601
+              ],
+              [
+                "DFII10",
+                -0.4004
+              ],
+              [
+                "DTWEXBGS",
+                -0.4749
+              ]
+            ],
+            "top_positive": [
+              [
+                "FEDFUNDS",
+                0.3639
+              ],
+              [
+                "IORB",
+                0.3346
+              ],
+              [
+                "SOFR",
+                0.2714
+              ],
+              [
+                "STLFSI4",
+                0.2212
+              ],
+              [
+                "ANFCI",
+                0.1523
+              ],
+              [
+                "T10Y3M",
+                0.128
+              ],
+              [
+                "VIXCLS",
+                0.0889
+              ],
+              [
+                "NFCI",
+                0.072
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.110736,
+            "eigenvalue": 1.915024,
+            "explained_variance_ratio": 0.022347,
+            "index": 3,
+            "top_negative": [
+              [
+                "T10Y2Y",
+                -0.0474
+              ]
+            ],
+            "top_positive": [
+              [
+                "DFII10",
+                0.4218
+              ],
+              [
+                "STLFSI4",
+                0.3649
+              ],
+              [
+                "IORB",
+                0.3576
+              ],
+              [
+                "FEDFUNDS",
+                0.3454
+              ],
+              [
+                "DGS10",
+                0.3168
+              ],
+              [
+                "SOFR",
+                0.2832
+              ],
+              [
+                "DGS2",
+                0.2725
+              ],
+              [
+                "DTWEXBGS",
+                0.2611
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.120367,
+            "eigenvalue": 0.825316,
+            "explained_variance_ratio": 0.009631,
+            "index": 4,
+            "top_negative": [
+              [
+                "DGS10",
+                -0.0241
+              ],
+              [
+                "T10Y3M",
+                -0.0653
+              ],
+              [
+                "ANFCI",
+                -0.0662
+              ],
+              [
+                "DTWEXBGS",
+                -0.0901
+              ],
+              [
+                "DGS2",
+                -0.1248
+              ],
+              [
+                "SOFR",
+                -0.2016
+              ],
+              [
+                "FEDFUNDS",
+                -0.2992
+              ],
+              [
+                "IORB",
+                -0.3182
+              ]
+            ],
+            "top_positive": [
+              [
+                "STLFSI4",
+                0.8198
+              ],
+              [
+                "VIXCLS",
+                0.2065
+              ],
+              [
+                "NFCI",
+                0.1172
+              ],
+              [
+                "T10Y2Y",
+                0.084
+              ],
+              [
+                "DFII10",
+                0.0151
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.12579,
+            "eigenvalue": 0.464775,
+            "explained_variance_ratio": 0.005424,
+            "index": 5,
+            "top_negative": [
+              [
+                "T10Y2Y",
+                -0.068
+              ],
+              [
+                "T10Y3M",
+                -0.0829
+              ],
+              [
+                "NFCI",
+                -0.0978
+              ],
+              [
+                "DGS2",
+                -0.1839
+              ],
+              [
+                "DGS10",
+                -0.3439
+              ],
+              [
+                "DFII10",
+                -0.3558
+              ]
+            ],
+            "top_positive": [
+              [
+                "DTWEXBGS",
+                0.8155
+              ],
+              [
+                "STLFSI4",
+                0.1252
+              ],
+              [
+                "ANFCI",
+                0.0941
+              ],
+              [
+                "FEDFUNDS",
+                0.0713
+              ],
+              [
+                "SOFR",
+                0.0688
+              ],
+              [
+                "VIXCLS",
+                0.0223
+              ],
+              [
+                "IORB",
+                0.0201
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.12772,
+            "eigenvalue": 0.165344,
+            "explained_variance_ratio": 0.001929,
+            "index": 6,
+            "top_negative": [
+              [
+                "DGS10",
+                -0.0062
+              ],
+              [
+                "FEDFUNDS",
+                -0.0726
+              ],
+              [
+                "SOFR",
+                -0.0865
+              ],
+              [
+                "STLFSI4",
+                -0.1084
+              ],
+              [
+                "IORB",
+                -0.1678
+              ],
+              [
+                "VIXCLS",
+                -0.2479
+              ],
+              [
+                "DGS2",
+                -0.4228
+              ]
+            ],
+            "top_positive": [
+              [
+                "ANFCI",
+                0.6955
+              ],
+              [
+                "NFCI",
+                0.3895
+              ],
+              [
+                "DFII10",
+                0.2353
+              ],
+              [
+                "T10Y3M",
+                0.1233
+              ],
+              [
+                "DTWEXBGS",
+                0.0268
+              ],
+              [
+                "T10Y2Y",
+                0.0224
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.129417,
+            "eigenvalue": 0.145411,
+            "explained_variance_ratio": 0.001697,
+            "index": 7,
+            "top_negative": [
+              [
+                "T10Y2Y",
+                -0.01
+              ],
+              [
+                "STLFSI4",
+                -0.0532
+              ],
+              [
+                "DFII10",
+                -0.0593
+              ],
+              [
+                "T10Y3M",
+                -0.1051
+              ],
+              [
+                "DGS2",
+                -0.1743
+              ],
+              [
+                "FEDFUNDS",
+                -0.7367
+              ]
+            ],
+            "top_positive": [
+              [
+                "IORB",
+                0.5084
+              ],
+              [
+                "SOFR",
+                0.3393
+              ],
+              [
+                "DGS10",
+                0.1314
+              ],
+              [
+                "VIXCLS",
+                0.1157
+              ],
+              [
+                "NFCI",
+                0.0683
+              ],
+              [
+                "ANFCI",
+                0.0165
+              ],
+              [
+                "DTWEXBGS",
+                0.0132
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.130398,
+            "eigenvalue": 0.084087,
+            "explained_variance_ratio": 0.000981,
+            "index": 8,
+            "top_negative": [
+              [
+                "IORB",
+                -0.0271
+              ],
+              [
+                "DTWEXBGS",
+                -0.0443
+              ],
+              [
+                "DGS10",
+                -0.0516
+              ],
+              [
+                "VIXCLS",
+                -0.0691
+              ],
+              [
+                "SOFR",
+                -0.1168
+              ],
+              [
+                "T10Y2Y",
+                -0.218
+              ],
+              [
+                "FEDFUNDS",
+                -0.2198
+              ],
+              [
+                "DFII10",
+                -0.4272
+              ]
+            ],
+            "top_positive": [
+              [
+                "DGS2",
+                0.6996
+              ],
+              [
+                "ANFCI",
+                0.3697
+              ],
+              [
+                "NFCI",
+                0.2098
+              ],
+              [
+                "T10Y3M",
+                0.1616
+              ],
+              [
+                "STLFSI4",
+                0.041
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.131031,
+            "eigenvalue": 0.054216,
+            "explained_variance_ratio": 0.000633,
+            "index": 9,
+            "top_negative": [
+              [
+                "DGS2",
+                -0.003
+              ],
+              [
+                "DFII10",
+                -0.1302
+              ],
+              [
+                "T10Y3M",
+                -0.1817
+              ],
+              [
+                "IORB",
+                -0.2496
+              ],
+              [
+                "STLFSI4",
+                -0.3127
+              ]
+            ],
+            "top_positive": [
+              [
+                "VIXCLS",
+                0.8247
+              ],
+              [
+                "NFCI",
+                0.2198
+              ],
+              [
+                "T10Y2Y",
+                0.1601
+              ],
+              [
+                "ANFCI",
+                0.1449
+              ],
+              [
+                "DGS10",
+                0.0867
+              ],
+              [
+                "FEDFUNDS",
+                0.0738
+              ],
+              [
+                "SOFR",
+                0.043
+              ],
+              [
+                "DTWEXBGS",
+                0.0051
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.131577,
+            "eigenvalue": 0.04681,
+            "explained_variance_ratio": 0.000546,
+            "index": 10,
+            "top_negative": [
+              [
+                "FEDFUNDS",
+                -0.0588
+              ],
+              [
+                "STLFSI4",
+                -0.0642
+              ],
+              [
+                "VIXCLS",
+                -0.163
+              ],
+              [
+                "DGS10",
+                -0.2628
+              ],
+              [
+                "IORB",
+                -0.2751
+              ],
+              [
+                "ANFCI",
+                -0.3907
+              ]
+            ],
+            "top_positive": [
+              [
+                "NFCI",
+                0.5576
+              ],
+              [
+                "SOFR",
+                0.4859
+              ],
+              [
+                "T10Y3M",
+                0.2152
+              ],
+              [
+                "T10Y2Y",
+                0.2151
+              ],
+              [
+                "DGS2",
+                0.1266
+              ],
+              [
+                "DTWEXBGS",
+                0.0864
+              ],
+              [
+                "DFII10",
+                0.0727
+              ]
+            ]
+          }
+        ],
+        "dropped_for_coverage": {},
+        "factor_count": {
+          "at_boundary": true,
+          "decisive": true,
+          "k": 10
+        },
+        "n_obs": 46,
+        "n_series": 13,
+        "panel_label": "financial_conditions",
+        "series": [
+          "FEDFUNDS",
+          "SOFR",
+          "IORB",
+          "DGS2",
+          "DGS10",
+          "T10Y2Y",
+          "T10Y3M",
+          "DFII10",
+          "VIXCLS",
+          "NFCI",
+          "ANFCI",
+          "STLFSI4",
+          "DTWEXBGS"
+        ]
+      },
+      "housing": {
+        "as_of": "2026-09-27",
+        "components": [
+          {
+            "cumulative_variance_ratio": 0.066735,
+            "eigenvalue": 2.523938,
+            "explained_variance_ratio": 0.066735,
+            "index": 1,
+            "top_negative": [],
+            "top_positive": [
+              [
+                "MORTGAGE15US",
+                0.6407
+              ],
+              [
+                "MORTGAGE30US",
+                0.6244
+              ],
+              [
+                "MSACSR",
+                0.2602
+              ],
+              [
+                "HNFSEPUSSA",
+                0.1445
+              ],
+              [
+                "HOUSTS",
+                0.1427
+              ],
+              [
+                "PERMIT",
+                0.1261
+              ],
+              [
+                "HOUST",
+                0.1163
+              ],
+              [
+                "COMPUTSA",
+                0.1161
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.110988,
+            "eigenvalue": 1.673661,
+            "explained_variance_ratio": 0.044253,
+            "index": 2,
+            "top_negative": [
+              [
+                "HOUSTNE",
+                -0.0203
+              ],
+              [
+                "TTLCONS",
+                -0.026
+              ],
+              [
+                "MSACSR",
+                -0.0719
+              ],
+              [
+                "CSUSHPINSA",
+                -0.0741
+              ],
+              [
+                "HOUSTMW",
+                -0.084
+              ],
+              [
+                "MORTGAGE30US",
+                -0.1968
+              ],
+              [
+                "MORTGAGE15US",
+                -0.2071
+              ]
+            ],
+            "top_positive": [
+              [
+                "HNFSEPUSSA",
+                0.5351
+              ],
+              [
+                "COMPUTSA",
+                0.4923
+              ],
+              [
+                "HOUSTS",
+                0.4201
+              ],
+              [
+                "PERMIT",
+                0.2694
+              ],
+              [
+                "HOUST",
+                0.227
+              ],
+              [
+                "HOUST1F",
+                0.1616
+              ],
+              [
+                "HSN1F",
+                0.1576
+              ],
+              [
+                "HOUSTW",
+                0.1389
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.141383,
+            "eigenvalue": 1.149544,
+            "explained_variance_ratio": 0.030395,
+            "index": 3,
+            "top_negative": [
+              [
+                "HOUSTW",
+                -0.0066
+              ],
+              [
+                "HNFSEPUSSA",
+                -0.0453
+              ],
+              [
+                "MSACSR",
+                -0.7292
+              ]
+            ],
+            "top_positive": [
+              [
+                "CSUSHPINSA",
+                0.6334
+              ],
+              [
+                "HSN1F",
+                0.1468
+              ],
+              [
+                "HOUSTMW",
+                0.1105
+              ],
+              [
+                "TTLCONS",
+                0.1026
+              ],
+              [
+                "MORTGAGE30US",
+                0.0927
+              ],
+              [
+                "MORTGAGE15US",
+                0.0556
+              ],
+              [
+                "HOUSTNE",
+                0.0535
+              ],
+              [
+                "HOUST",
+                0.0472
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.170381,
+            "eigenvalue": 1.096709,
+            "explained_variance_ratio": 0.028998,
+            "index": 4,
+            "top_negative": [
+              [
+                "MORTGAGE30US",
+                -0.0619
+              ],
+              [
+                "MORTGAGE15US",
+                -0.0751
+              ],
+              [
+                "MSACSR",
+                -0.0792
+              ],
+              [
+                "COMPUTSA",
+                -0.1327
+              ],
+              [
+                "HNFSEPUSSA",
+                -0.1486
+              ],
+              [
+                "CSUSHPINSA",
+                -0.3349
+              ]
+            ],
+            "top_positive": [
+              [
+                "TTLCONS",
+                0.6353
+              ],
+              [
+                "HOUSTNE",
+                0.4625
+              ],
+              [
+                "HOUSTMW",
+                0.3235
+              ],
+              [
+                "HOUST1F",
+                0.2071
+              ],
+              [
+                "HOUST",
+                0.1854
+              ],
+              [
+                "HOUSTW",
+                0.1462
+              ],
+              [
+                "HSN1F",
+                0.0889
+              ],
+              [
+                "PERMIT",
+                0.0446
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.191816,
+            "eigenvalue": 0.81066,
+            "explained_variance_ratio": 0.021435,
+            "index": 5,
+            "top_negative": [
+              [
+                "COMPUTSA",
+                -0.0303
+              ],
+              [
+                "HNFSEPUSSA",
+                -0.0637
+              ],
+              [
+                "TTLCONS",
+                -0.0763
+              ],
+              [
+                "MORTGAGE15US",
+                -0.1867
+              ],
+              [
+                "MORTGAGE30US",
+                -0.2155
+              ]
+            ],
+            "top_positive": [
+              [
+                "CSUSHPINSA",
+                0.6371
+              ],
+              [
+                "MSACSR",
+                0.5735
+              ],
+              [
+                "HOUSTNE",
+                0.3341
+              ],
+              [
+                "HOUST1F",
+                0.15
+              ],
+              [
+                "HOUSTMW",
+                0.1498
+              ],
+              [
+                "HOUST",
+                0.1057
+              ],
+              [
+                "HOUSTW",
+                0.0641
+              ],
+              [
+                "HOUSTS",
+                0.0252
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.212049,
+            "eigenvalue": 0.765215,
+            "explained_variance_ratio": 0.020233,
+            "index": 6,
+            "top_negative": [
+              [
+                "HOUSTS",
+                -0.023
+              ],
+              [
+                "PERMIT",
+                -0.0355
+              ],
+              [
+                "COMPUTSA",
+                -0.084
+              ],
+              [
+                "MSACSR",
+                -0.1858
+              ],
+              [
+                "CSUSHPINSA",
+                -0.2405
+              ],
+              [
+                "TTLCONS",
+                -0.7295
+              ]
+            ],
+            "top_positive": [
+              [
+                "HOUSTNE",
+                0.4378
+              ],
+              [
+                "HOUSTMW",
+                0.3465
+              ],
+              [
+                "HOUST1F",
+                0.1593
+              ],
+              [
+                "HOUST",
+                0.1146
+              ],
+              [
+                "MORTGAGE30US",
+                0.0899
+              ],
+              [
+                "MORTGAGE15US",
+                0.0632
+              ],
+              [
+                "HSN1F",
+                0.0564
+              ],
+              [
+                "HNFSEPUSSA",
+                0.0328
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.22372,
+            "eigenvalue": 0.441407,
+            "explained_variance_ratio": 0.011671,
+            "index": 7,
+            "top_negative": [
+              [
+                "CSUSHPINSA",
+                -0.0204
+              ],
+              [
+                "MORTGAGE15US",
+                -0.0348
+              ],
+              [
+                "MORTGAGE30US",
+                -0.0361
+              ],
+              [
+                "TTLCONS",
+                -0.0793
+              ],
+              [
+                "COMPUTSA",
+                -0.1205
+              ],
+              [
+                "HNFSEPUSSA",
+                -0.1996
+              ],
+              [
+                "HOUSTNE",
+                -0.6703
+              ]
+            ],
+            "top_positive": [
+              [
+                "HOUSTMW",
+                0.4956
+              ],
+              [
+                "HOUST1F",
+                0.2943
+              ],
+              [
+                "HOUSTW",
+                0.2697
+              ],
+              [
+                "HSN1F",
+                0.2347
+              ],
+              [
+                "HOUST",
+                0.1309
+              ],
+              [
+                "MSACSR",
+                0.077
+              ],
+              [
+                "HOUSTS",
+                0.0616
+              ],
+              [
+                "PERMIT",
+                0.0156
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.228815,
+            "eigenvalue": 0.192668,
+            "explained_variance_ratio": 0.005094,
+            "index": 8,
+            "top_negative": [
+              [
+                "MORTGAGE30US",
+                -0.024
+              ],
+              [
+                "HOUST1F",
+                -0.0341
+              ],
+              [
+                "HOUSTNE",
+                -0.0765
+              ],
+              [
+                "HSN1F",
+                -0.0774
+              ],
+              [
+                "HOUST",
+                -0.1683
+              ],
+              [
+                "PERMIT",
+                -0.2395
+              ],
+              [
+                "HOUSTS",
+                -0.2888
+              ],
+              [
+                "HOUSTW",
+                -0.4465
+              ]
+            ],
+            "top_positive": [
+              [
+                "HOUSTMW",
+                0.5489
+              ],
+              [
+                "HNFSEPUSSA",
+                0.5019
+              ],
+              [
+                "COMPUTSA",
+                0.1809
+              ],
+              [
+                "TTLCONS",
+                0.1657
+              ],
+              [
+                "MSACSR",
+                0.0562
+              ],
+              [
+                "CSUSHPINSA",
+                0.0342
+              ],
+              [
+                "MORTGAGE15US",
+                0.0153
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.231074,
+            "eigenvalue": 0.085455,
+            "explained_variance_ratio": 0.00226,
+            "index": 9,
+            "top_negative": [
+              [
+                "MORTGAGE15US",
+                -0.0087
+              ],
+              [
+                "MSACSR",
+                -0.0377
+              ],
+              [
+                "HOUSTMW",
+                -0.074
+              ],
+              [
+                "PERMIT",
+                -0.1026
+              ],
+              [
+                "HOUST",
+                -0.1398
+              ],
+              [
+                "HOUSTS",
+                -0.637
+              ]
+            ],
+            "top_positive": [
+              [
+                "HOUSTW",
+                0.6701
+              ],
+              [
+                "COMPUTSA",
+                0.2866
+              ],
+              [
+                "HNFSEPUSSA",
+                0.1339
+              ],
+              [
+                "HOUSTNE",
+                0.064
+              ],
+              [
+                "HSN1F",
+                0.0476
+              ],
+              [
+                "HOUST1F",
+                0.0385
+              ],
+              [
+                "CSUSHPINSA",
+                0.0158
+              ],
+              [
+                "MORTGAGE30US",
+                0.0036
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.23283,
+            "eigenvalue": 0.066395,
+            "explained_variance_ratio": 0.001756,
+            "index": 10,
+            "top_negative": [
+              [
+                "TTLCONS",
+                -0.005
+              ],
+              [
+                "CSUSHPINSA",
+                -0.0615
+              ],
+              [
+                "MORTGAGE15US",
+                -0.1375
+              ],
+              [
+                "HOUSTMW",
+                -0.1455
+              ],
+              [
+                "HOUSTS",
+                -0.207
+              ],
+              [
+                "HOUST",
+                -0.2241
+              ],
+              [
+                "HNFSEPUSSA",
+                -0.2286
+              ],
+              [
+                "HOUSTW",
+                -0.36
+              ]
+            ],
+            "top_positive": [
+              [
+                "HSN1F",
+                0.7127
+              ],
+              [
+                "COMPUTSA",
+                0.2478
+              ],
+              [
+                "HOUST1F",
+                0.2016
+              ],
+              [
+                "MORTGAGE30US",
+                0.1854
+              ],
+              [
+                "PERMIT",
+                0.1567
+              ],
+              [
+                "MSACSR",
+                0.0926
+              ],
+              [
+                "HOUSTNE",
+                0.0602
+              ]
+            ]
+          }
+        ],
+        "dropped_for_coverage": {},
+        "factor_count": {
+          "at_boundary": true,
+          "decisive": true,
+          "k": 10
+        },
+        "n_obs": 139,
+        "n_series": 15,
+        "panel_label": "housing",
+        "series": [
+          "HOUST",
+          "HOUST1F",
+          "PERMIT",
+          "COMPUTSA",
+          "HOUSTNE",
+          "HOUSTMW",
+          "HOUSTS",
+          "HOUSTW",
+          "HSN1F",
+          "MSACSR",
+          "HNFSEPUSSA",
+          "CSUSHPINSA",
+          "MORTGAGE30US",
+          "MORTGAGE15US",
+          "TTLCONS"
+        ]
+      },
+      "inflation": {
+        "as_of": "2026-09-27",
+        "components": [
+          {
+            "cumulative_variance_ratio": 0.134514,
+            "eigenvalue": 7.413337,
+            "explained_variance_ratio": 0.134514,
+            "index": 1,
+            "top_negative": [
+              [
+                "CPIUFDSL",
+                -0.0712
+              ],
+              [
+                "CES0500000003",
+                -0.1611
+              ]
+            ],
+            "top_positive": [
+              [
+                "PPIACO",
+                0.3158
+              ],
+              [
+                "WPSFD49207",
+                0.2933
+              ],
+              [
+                "WPUID61",
+                0.2898
+              ],
+              [
+                "PPIFIS",
+                0.2813
+              ],
+              [
+                "IQ",
+                0.2757
+              ],
+              [
+                "CPITRNSL",
+                0.2713
+              ],
+              [
+                "CPILFESL",
+                0.2591
+              ],
+              [
+                "CPIENGSL",
+                0.2558
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.208392,
+            "eigenvalue": 4.071542,
+            "explained_variance_ratio": 0.073878,
+            "index": 2,
+            "top_negative": [
+              [
+                "PPIACO",
+                -0.1067
+              ],
+              [
+                "IQ",
+                -0.1187
+              ],
+              [
+                "WPSFD49207",
+                -0.1381
+              ],
+              [
+                "WPUID61",
+                -0.1574
+              ],
+              [
+                "DGDSRG3M086SBEA",
+                -0.1633
+              ],
+              [
+                "CPITRNSL",
+                -0.1889
+              ],
+              [
+                "CUSR0000SAC",
+                -0.2038
+              ],
+              [
+                "CPIENGSL",
+                -0.2385
+              ]
+            ],
+            "top_positive": [
+              [
+                "CUSR0000SAH1",
+                0.3786
+              ],
+              [
+                "CUSR0000SEHC",
+                0.3571
+              ],
+              [
+                "CPILFESL",
+                0.2945
+              ],
+              [
+                "CUSR0000SAS",
+                0.2654
+              ],
+              [
+                "MEDCPIM158SFRBCLE",
+                0.2498
+              ],
+              [
+                "CUSR0000SEHA",
+                0.2388
+              ],
+              [
+                "CORESTICKM159SFRBATL",
+                0.2076
+              ],
+              [
+                "PCEPILFE",
+                0.1864
+              ]
+            ]
+          }
+        ],
+        "dropped_for_coverage": {},
+        "factor_count": {
+          "at_boundary": false,
+          "decisive": true,
+          "k": 2
+        },
+        "n_obs": 134,
+        "n_series": 33,
+        "panel_label": "inflation",
+        "series": [
+          "CPIAUCSL",
+          "CPILFESL",
+          "CUSR0000SAS",
+          "CUSR0000SAC",
+          "CUSR0000SAH1",
+          "CUSR0000SEHA",
+          "CUSR0000SEHC",
+          "CPITRNSL",
+          "CPIMEDSL",
+          "CPIUFDSL",
+          "CPIENGSL",
+          "CUSR0000SETA02",
+          "CUSR0000SETA01",
+          "CPIAPPSL",
+          "CPIRECSL",
+          "CPIEDUSL",
+          "PCEPI",
+          "PCEPILFE",
+          "DGDSRG3M086SBEA",
+          "DSERRG3M086SBEA",
+          "DPCXRG3M086SBEA",
+          "PPIFIS",
+          "PPIFES",
+          "PPIACO",
+          "WPUID61",
+          "WPSFD49207",
+          "IR",
+          "IQ",
+          "PCETRIM12M159SFRBDAL",
+          "MEDCPIM158SFRBCLE",
+          "CORESTICKM159SFRBATL",
+          "CES0500000003",
+          "MICH"
+        ]
+      },
+      "labor": {
+        "as_of": "2026-09-27",
+        "components": [
+          {
+            "cumulative_variance_ratio": 0.461394,
+            "eigenvalue": 25.41451,
+            "explained_variance_ratio": 0.461394,
+            "index": 1,
+            "top_negative": [
+              [
+                "ICSA",
+                -0.0094
+              ],
+              [
+                "CES0500000011",
+                -0.1287
+              ],
+              [
+                "CCSA",
+                -0.1414
+              ],
+              [
+                "U6RATE",
+                -0.1931
+              ],
+              [
+                "IURSA",
+                -0.1965
+              ],
+              [
+                "UNRATE",
+                -0.3201
+              ]
+            ],
+            "top_positive": [
+              [
+                "SRVPRD",
+                0.3269
+              ],
+              [
+                "PAYEMS",
+                0.326
+              ],
+              [
+                "USPRIV",
+                0.3237
+              ],
+              [
+                "CE16OV",
+                0.3164
+              ],
+              [
+                "EMRATIO",
+                0.2639
+              ],
+              [
+                "MANEMP",
+                0.2233
+              ],
+              [
+                "CIVPART",
+                0.1971
+              ],
+              [
+                "CLF16OV",
+                0.1915
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.521455,
+            "eigenvalue": 3.308231,
+            "explained_variance_ratio": 0.06006,
+            "index": 2,
+            "top_negative": [
+              [
+                "CLF16OV",
+                -0.0905
+              ],
+              [
+                "CIVPART",
+                -0.1005
+              ],
+              [
+                "JTSJOL",
+                -0.1026
+              ],
+              [
+                "AWHAETP",
+                -0.1442
+              ],
+              [
+                "CES0500000011",
+                -0.1559
+              ],
+              [
+                "UEMPMEAN",
+                -0.1941
+              ],
+              [
+                "JTSQUR",
+                -0.2364
+              ],
+              [
+                "JTSHIR",
+                -0.2493
+              ]
+            ],
+            "top_positive": [
+              [
+                "ICSA",
+                0.5247
+              ],
+              [
+                "JTSLDR",
+                0.5214
+              ],
+              [
+                "CCSA",
+                0.3155
+              ],
+              [
+                "USGOVT",
+                0.2258
+              ],
+              [
+                "SRVPRD",
+                0.1197
+              ],
+              [
+                "PAYEMS",
+                0.1108
+              ],
+              [
+                "IURSA",
+                0.097
+              ],
+              [
+                "USPRIV",
+                0.0918
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.547479,
+            "eigenvalue": 1.433455,
+            "explained_variance_ratio": 0.026024,
+            "index": 3,
+            "top_negative": [
+              [
+                "SRVPRD",
+                -0.0039
+              ],
+              [
+                "USTRADE",
+                -0.0146
+              ],
+              [
+                "JTSLDR",
+                -0.0165
+              ],
+              [
+                "IURSA",
+                -0.0371
+              ],
+              [
+                "ICSA",
+                -0.084
+              ],
+              [
+                "JTSHIR",
+                -0.1356
+              ],
+              [
+                "CCSA",
+                -0.1543
+              ],
+              [
+                "UEMPMEAN",
+                -0.74
+              ]
+            ],
+            "top_positive": [
+              [
+                "AWHMAN",
+                0.3985
+              ],
+              [
+                "AWHAETP",
+                0.3771
+              ],
+              [
+                "JTSJOL",
+                0.216
+              ],
+              [
+                "CES0500000011",
+                0.1605
+              ],
+              [
+                "CIVPART",
+                0.0865
+              ],
+              [
+                "CLF16OV",
+                0.0772
+              ],
+              [
+                "USCONS",
+                0.0708
+              ],
+              [
+                "TEMPHELPS",
+                0.0539
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.571613,
+            "eigenvalue": 1.32937,
+            "explained_variance_ratio": 0.024134,
+            "index": 4,
+            "top_negative": [
+              [
+                "IURSA",
+                -0.0812
+              ],
+              [
+                "JTSQUR",
+                -0.0878
+              ],
+              [
+                "CE16OV",
+                -0.0996
+              ],
+              [
+                "USCONS",
+                -0.152
+              ],
+              [
+                "CCSA",
+                -0.173
+              ],
+              [
+                "CIVPART",
+                -0.2445
+              ],
+              [
+                "CLF16OV",
+                -0.2815
+              ],
+              [
+                "JTSHIR",
+                -0.4381
+              ]
+            ],
+            "top_positive": [
+              [
+                "UEMPMEAN",
+                0.4412
+              ],
+              [
+                "AWHAETP",
+                0.3672
+              ],
+              [
+                "USGOVT",
+                0.3039
+              ],
+              [
+                "JTSJOL",
+                0.2374
+              ],
+              [
+                "CES0500000011",
+                0.2215
+              ],
+              [
+                "AWOTMAN",
+                0.137
+              ],
+              [
+                "AWHMAN",
+                0.1302
+              ],
+              [
+                "JTSLDR",
+                0.0891
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.592059,
+            "eigenvalue": 1.126196,
+            "explained_variance_ratio": 0.020446,
+            "index": 5,
+            "top_negative": [
+              [
+                "U6RATE",
+                -0.0116
+              ],
+              [
+                "SRVPRD",
+                -0.0122
+              ],
+              [
+                "EMRATIO",
+                -0.0361
+              ],
+              [
+                "UNRATE",
+                -0.0632
+              ],
+              [
+                "CE16OV",
+                -0.0706
+              ],
+              [
+                "CIVPART",
+                -0.225
+              ],
+              [
+                "CLF16OV",
+                -0.2723
+              ],
+              [
+                "USGOVT",
+                -0.4707
+              ]
+            ],
+            "top_positive": [
+              [
+                "JTSHIR",
+                0.4044
+              ],
+              [
+                "AWHAETP",
+                0.3535
+              ],
+              [
+                "AWHMAN",
+                0.3177
+              ],
+              [
+                "ICSA",
+                0.2458
+              ],
+              [
+                "CCSA",
+                0.2181
+              ],
+              [
+                "USCONS",
+                0.2155
+              ],
+              [
+                "UEMPMEAN",
+                0.1781
+              ],
+              [
+                "MANEMP",
+                0.1705
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.609491,
+            "eigenvalue": 0.960204,
+            "explained_variance_ratio": 0.017432,
+            "index": 6,
+            "top_negative": [
+              [
+                "PAYEMS",
+                -0.0433
+              ],
+              [
+                "SRVPRD",
+                -0.0493
+              ],
+              [
+                "TEMPHELPS",
+                -0.0499
+              ],
+              [
+                "MANEMP",
+                -0.0585
+              ],
+              [
+                "USGOVT",
+                -0.0644
+              ],
+              [
+                "USTRADE",
+                -0.0765
+              ],
+              [
+                "AWHMAN",
+                -0.2573
+              ],
+              [
+                "JTSQUR",
+                -0.4117
+              ]
+            ],
+            "top_positive": [
+              [
+                "CES0500000011",
+                0.4716
+              ],
+              [
+                "CLF16OV",
+                0.3588
+              ],
+              [
+                "CIVPART",
+                0.3196
+              ],
+              [
+                "AWOTMAN",
+                0.2442
+              ],
+              [
+                "ICSA",
+                0.2103
+              ],
+              [
+                "CCSA",
+                0.2075
+              ],
+              [
+                "JTSJOL",
+                0.2066
+              ],
+              [
+                "AWHAETP",
+                0.159
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.623615,
+            "eigenvalue": 0.777999,
+            "explained_variance_ratio": 0.014124,
+            "index": 7,
+            "top_negative": [
+              [
+                "MANEMP",
+                -0.0269
+              ],
+              [
+                "SRVPRD",
+                -0.0297
+              ],
+              [
+                "PAYEMS",
+                -0.0368
+              ],
+              [
+                "USPRIV",
+                -0.0487
+              ],
+              [
+                "USCONS",
+                -0.0798
+              ],
+              [
+                "CES0500000011",
+                -0.0842
+              ],
+              [
+                "TEMPHELPS",
+                -0.1313
+              ],
+              [
+                "AWOTMAN",
+                -0.4841
+              ]
+            ],
+            "top_positive": [
+              [
+                "JTSQUR",
+                0.5143
+              ],
+              [
+                "JTSJOL",
+                0.3363
+              ],
+              [
+                "CIVPART",
+                0.276
+              ],
+              [
+                "AWHAETP",
+                0.2361
+              ],
+              [
+                "CLF16OV",
+                0.2185
+              ],
+              [
+                "UEMPMEAN",
+                0.2018
+              ],
+              [
+                "JTSLDR",
+                0.178
+              ],
+              [
+                "CCSA",
+                0.1694
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.635999,
+            "eigenvalue": 0.682127,
+            "explained_variance_ratio": 0.012384,
+            "index": 8,
+            "top_negative": [
+              [
+                "CES0500000011",
+                -0.0794
+              ],
+              [
+                "CE16OV",
+                -0.0825
+              ],
+              [
+                "JTSLDR",
+                -0.0897
+              ],
+              [
+                "UEMPMEAN",
+                -0.1556
+              ],
+              [
+                "CLF16OV",
+                -0.171
+              ],
+              [
+                "CIVPART",
+                -0.2075
+              ],
+              [
+                "AWHMAN",
+                -0.2182
+              ],
+              [
+                "AWHAETP",
+                -0.345
+              ]
+            ],
+            "top_positive": [
+              [
+                "JTSJOL",
+                0.7866
+              ],
+              [
+                "AWOTMAN",
+                0.1781
+              ],
+              [
+                "JTSHIR",
+                0.1469
+              ],
+              [
+                "USGOVT",
+                0.0799
+              ],
+              [
+                "USCONS",
+                0.0745
+              ],
+              [
+                "JTSQUR",
+                0.0737
+              ],
+              [
+                "SRVPRD",
+                0.0657
+              ],
+              [
+                "ICSA",
+                0.0653
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.646152,
+            "eigenvalue": 0.559246,
+            "explained_variance_ratio": 0.010153,
+            "index": 9,
+            "top_negative": [
+              [
+                "UNRATE",
+                -0.034
+              ],
+              [
+                "USCONS",
+                -0.0417
+              ],
+              [
+                "CLF16OV",
+                -0.0783
+              ],
+              [
+                "MANEMP",
+                -0.1128
+              ],
+              [
+                "CIVPART",
+                -0.1541
+              ],
+              [
+                "UEMPMEAN",
+                -0.2245
+              ],
+              [
+                "JTSJOL",
+                -0.2503
+              ],
+              [
+                "AWHMAN",
+                -0.5469
+              ]
+            ],
+            "top_positive": [
+              [
+                "JTSQUR",
+                0.4969
+              ],
+              [
+                "AWHAETP",
+                0.3177
+              ],
+              [
+                "AWOTMAN",
+                0.2476
+              ],
+              [
+                "CES0500000011",
+                0.2083
+              ],
+              [
+                "USGOVT",
+                0.1681
+              ],
+              [
+                "ICSA",
+                0.1315
+              ],
+              [
+                "JTSLDR",
+                0.1047
+              ],
+              [
+                "JTSHIR",
+                0.1034
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.655734,
+            "eigenvalue": 0.527753,
+            "explained_variance_ratio": 0.009581,
+            "index": 10,
+            "top_negative": [
+              [
+                "EMRATIO",
+                -0.0138
+              ],
+              [
+                "USTRADE",
+                -0.0258
+              ],
+              [
+                "MANEMP",
+                -0.0724
+              ],
+              [
+                "PAYEMS",
+                -0.078
+              ],
+              [
+                "SRVPRD",
+                -0.092
+              ],
+              [
+                "USPRIV",
+                -0.0997
+              ],
+              [
+                "JTSJOL",
+                -0.1041
+              ],
+              [
+                "AWHAETP",
+                -0.3694
+              ]
+            ],
+            "top_positive": [
+              [
+                "AWOTMAN",
+                0.5581
+              ],
+              [
+                "AWHMAN",
+                0.4729
+              ],
+              [
+                "JTSQUR",
+                0.3886
+              ],
+              [
+                "USGOVT",
+                0.1897
+              ],
+              [
+                "CES0500000011",
+                0.1577
+              ],
+              [
+                "CLF16OV",
+                0.1238
+              ],
+              [
+                "CIVPART",
+                0.1217
+              ],
+              [
+                "UEMPMEAN",
+                0.108
+              ]
+            ]
+          }
+        ],
+        "dropped_for_coverage": {},
+        "factor_count": {
+          "at_boundary": true,
+          "decisive": true,
+          "k": 10
+        },
+        "n_obs": 183,
+        "n_series": 26,
+        "panel_label": "labor",
+        "series": [
+          "PAYEMS",
+          "USPRIV",
+          "USGOVT",
+          "MANEMP",
+          "USCONS",
+          "USTRADE",
+          "SRVPRD",
+          "TEMPHELPS",
+          "UNRATE",
+          "U6RATE",
+          "CIVPART",
+          "EMRATIO",
+          "CE16OV",
+          "CLF16OV",
+          "UEMPMEAN",
+          "ICSA",
+          "CCSA",
+          "IURSA",
+          "JTSJOL",
+          "JTSHIR",
+          "JTSQUR",
+          "JTSLDR",
+          "AWHAETP",
+          "AWHMAN",
+          "AWOTMAN",
+          "CES0500000011"
+        ]
+      },
+      "liquidity_money": {
+        "as_of": "2026-09-27",
+        "components": [
+          {
+            "cumulative_variance_ratio": 0.211693,
+            "eigenvalue": 3.666524,
+            "explained_variance_ratio": 0.211693,
+            "index": 1,
+            "top_negative": [
+              [
+                "BOGMBASE",
+                -0.0038
+              ],
+              [
+                "WALCL",
+                -0.0177
+              ]
+            ],
+            "top_positive": [
+              [
+                "M1SL",
+                0.9803
+              ],
+              [
+                "M2SL",
+                0.1558
+              ],
+              [
+                "M2REAL",
+                0.0924
+              ],
+              [
+                "DPSACBW027SBOG",
+                0.0695
+              ],
+              [
+                "TOTRESNS",
+                0.0336
+              ],
+              [
+                "WRESBAL",
+                0.0022
+              ],
+              [
+                "WTREGEN",
+                0.0007
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.343199,
+            "eigenvalue": 2.277681,
+            "explained_variance_ratio": 0.131506,
+            "index": 2,
+            "top_negative": [
+              [
+                "BOGMBASE",
+                -0.0097
+              ],
+              [
+                "WALCL",
+                -0.1276
+              ],
+              [
+                "M1SL",
+                -0.1852
+              ]
+            ],
+            "top_positive": [
+              [
+                "DPSACBW027SBOG",
+                0.5613
+              ],
+              [
+                "M2SL",
+                0.5512
+              ],
+              [
+                "M2REAL",
+                0.5452
+              ],
+              [
+                "WRESBAL",
+                0.1349
+              ],
+              [
+                "TOTRESNS",
+                0.1093
+              ],
+              [
+                "WTREGEN",
+                0.0556
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.443376,
+            "eigenvalue": 1.73506,
+            "explained_variance_ratio": 0.100177,
+            "index": 3,
+            "top_negative": [
+              [
+                "DPSACBW027SBOG",
+                -0.0408
+              ],
+              [
+                "M2SL",
+                -0.0825
+              ],
+              [
+                "M2REAL",
+                -0.0827
+              ]
+            ],
+            "top_positive": [
+              [
+                "WRESBAL",
+                0.7347
+              ],
+              [
+                "WTREGEN",
+                0.6496
+              ],
+              [
+                "WALCL",
+                0.1487
+              ],
+              [
+                "M1SL",
+                0.0239
+              ],
+              [
+                "TOTRESNS",
+                0.0153
+              ],
+              [
+                "BOGMBASE",
+                0.0037
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.504849,
+            "eigenvalue": 1.064721,
+            "explained_variance_ratio": 0.061473,
+            "index": 4,
+            "top_negative": [
+              [
+                "WTREGEN",
+                -0.038
+              ],
+              [
+                "TOTRESNS",
+                -0.1007
+              ],
+              [
+                "WALCL",
+                -0.1318
+              ],
+              [
+                "M2SL",
+                -0.2837
+              ]
+            ],
+            "top_positive": [
+              [
+                "BOGMBASE",
+                0.9184
+              ],
+              [
+                "DPSACBW027SBOG",
+                0.1793
+              ],
+              [
+                "M2REAL",
+                0.1092
+              ],
+              [
+                "WRESBAL",
+                0.0473
+              ],
+              [
+                "M1SL",
+                0.0267
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.560876,
+            "eigenvalue": 0.970394,
+            "explained_variance_ratio": 0.056027,
+            "index": 5,
+            "top_negative": [
+              [
+                "M1SL",
+                -0.0248
+              ],
+              [
+                "M2REAL",
+                -0.1205
+              ],
+              [
+                "WRESBAL",
+                -0.5424
+              ]
+            ],
+            "top_positive": [
+              [
+                "WALCL",
+                0.5506
+              ],
+              [
+                "WTREGEN",
+                0.5086
+              ],
+              [
+                "M2SL",
+                0.2759
+              ],
+              [
+                "BOGMBASE",
+                0.2237
+              ],
+              [
+                "DPSACBW027SBOG",
+                0.0407
+              ],
+              [
+                "TOTRESNS",
+                0.0314
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.610947,
+            "eigenvalue": 0.867228,
+            "explained_variance_ratio": 0.050071,
+            "index": 6,
+            "top_negative": [
+              [
+                "M1SL",
+                -0.0378
+              ],
+              [
+                "DPSACBW027SBOG",
+                -0.2247
+              ],
+              [
+                "M2REAL",
+                -0.2813
+              ],
+              [
+                "WTREGEN",
+                -0.4765
+              ]
+            ],
+            "top_positive": [
+              [
+                "M2SL",
+                0.4972
+              ],
+              [
+                "WALCL",
+                0.3673
+              ],
+              [
+                "WRESBAL",
+                0.3534
+              ],
+              [
+                "BOGMBASE",
+                0.2736
+              ],
+              [
+                "TOTRESNS",
+                0.2451
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.655261,
+            "eigenvalue": 0.767516,
+            "explained_variance_ratio": 0.044314,
+            "index": 7,
+            "top_negative": [
+              [
+                "BOGMBASE",
+                -0.1614
+              ],
+              [
+                "TOTRESNS",
+                -0.1958
+              ],
+              [
+                "WTREGEN",
+                -0.2928
+              ],
+              [
+                "M2SL",
+                -0.3972
+              ]
+            ],
+            "top_positive": [
+              [
+                "WALCL",
+                0.6999
+              ],
+              [
+                "DPSACBW027SBOG",
+                0.3483
+              ],
+              [
+                "M2REAL",
+                0.2536
+              ],
+              [
+                "WRESBAL",
+                0.1243
+              ],
+              [
+                "M1SL",
+                0.0332
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.671048,
+            "eigenvalue": 0.273435,
+            "explained_variance_ratio": 0.015787,
+            "index": 8,
+            "top_negative": [
+              [
+                "WTREGEN",
+                -0.0104
+              ],
+              [
+                "WRESBAL",
+                -0.0382
+              ],
+              [
+                "BOGMBASE",
+                -0.0614
+              ],
+              [
+                "WALCL",
+                -0.0685
+              ],
+              [
+                "M2SL",
+                -0.2276
+              ],
+              [
+                "M2REAL",
+                -0.4698
+              ]
+            ],
+            "top_positive": [
+              [
+                "TOTRESNS",
+                0.6399
+              ],
+              [
+                "DPSACBW027SBOG",
+                0.5547
+              ],
+              [
+                "M1SL",
+                0.0178
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.684289,
+            "eigenvalue": 0.229331,
+            "explained_variance_ratio": 0.013241,
+            "index": 9,
+            "top_negative": [
+              [
+                "M1SL",
+                -0.0077
+              ],
+              [
+                "WRESBAL",
+                -0.0616
+              ],
+              [
+                "M2SL",
+                -0.2273
+              ],
+              [
+                "DPSACBW027SBOG",
+                -0.4065
+              ]
+            ],
+            "top_positive": [
+              [
+                "TOTRESNS",
+                0.6839
+              ],
+              [
+                "M2REAL",
+                0.5448
+              ],
+              [
+                "WALCL",
+                0.1062
+              ],
+              [
+                "WTREGEN",
+                0.0443
+              ],
+              [
+                "BOGMBASE",
+                0.0398
+              ]
+            ]
+          }
+        ],
+        "dropped_for_coverage": {
+          "RRPONTSYD": 0.7361
+        },
+        "factor_count": {
+          "at_boundary": true,
+          "decisive": true,
+          "k": 9
+        },
+        "n_obs": 150,
+        "n_series": 9,
+        "panel_label": "liquidity_money",
+        "series": [
+          "M1SL",
+          "M2SL",
+          "M2REAL",
+          "BOGMBASE",
+          "TOTRESNS",
+          "WRESBAL",
+          "WALCL",
+          "WTREGEN",
+          "DPSACBW027SBOG"
+        ]
+      },
+      "manufacturing": {
+        "as_of": "2026-09-27",
+        "components": [
+          {
+            "cumulative_variance_ratio": 0.314048,
+            "eigenvalue": 4.526273,
+            "explained_variance_ratio": 0.314048,
+            "index": 1,
+            "top_negative": [],
+            "top_positive": [
+              [
+                "CFNAI",
+                0.4958
+              ],
+              [
+                "AMDMVS",
+                0.4425
+              ],
+              [
+                "AMTMNO",
+                0.3722
+              ],
+              [
+                "DGORDER",
+                0.3448
+              ],
+              [
+                "GACDISA066MSFRBNY",
+                0.2968
+              ],
+              [
+                "BACTSAMFRBDAL",
+                0.293
+              ],
+              [
+                "GACDFSA066MSFRBPHI",
+                0.282
+              ],
+              [
+                "NEWORDER",
+                0.1716
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.442204,
+            "eigenvalue": 1.847078,
+            "explained_variance_ratio": 0.128156,
+            "index": 2,
+            "top_negative": [
+              [
+                "NEWORDER",
+                -0.0808
+              ],
+              [
+                "CFNAI",
+                -0.0883
+              ],
+              [
+                "AMDMVS",
+                -0.2041
+              ],
+              [
+                "AMDMUO",
+                -0.2741
+              ],
+              [
+                "DGORDER",
+                -0.3124
+              ],
+              [
+                "AMTMNO",
+                -0.3201
+              ]
+            ],
+            "top_positive": [
+              [
+                "BACTSAMFRBDAL",
+                0.4931
+              ],
+              [
+                "GACDISA066MSFRBNY",
+                0.4632
+              ],
+              [
+                "GACDFSA066MSFRBPHI",
+                0.4596
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.528104,
+            "eigenvalue": 1.238053,
+            "explained_variance_ratio": 0.0859,
+            "index": 3,
+            "top_negative": [
+              [
+                "AMDMVS",
+                -0.2815
+              ],
+              [
+                "CFNAI",
+                -0.2899
+              ]
+            ],
+            "top_positive": [
+              [
+                "AMDMUO",
+                0.8737
+              ],
+              [
+                "BACTSAMFRBDAL",
+                0.1802
+              ],
+              [
+                "NEWORDER",
+                0.1381
+              ],
+              [
+                "GACDISA066MSFRBNY",
+                0.1054
+              ],
+              [
+                "GACDFSA066MSFRBPHI",
+                0.0954
+              ],
+              [
+                "AMTMNO",
+                0.04
+              ],
+              [
+                "DGORDER",
+                0.0037
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.577934,
+            "eigenvalue": 0.718189,
+            "explained_variance_ratio": 0.04983,
+            "index": 4,
+            "top_negative": [
+              [
+                "GACDISA066MSFRBNY",
+                -0.0139
+              ],
+              [
+                "BACTSAMFRBDAL",
+                -0.0735
+              ],
+              [
+                "GACDFSA066MSFRBPHI",
+                -0.1648
+              ],
+              [
+                "AMTMNO",
+                -0.4558
+              ],
+              [
+                "DGORDER",
+                -0.5745
+              ]
+            ],
+            "top_positive": [
+              [
+                "CFNAI",
+                0.3864
+              ],
+              [
+                "AMDMVS",
+                0.3856
+              ],
+              [
+                "AMDMUO",
+                0.2728
+              ],
+              [
+                "NEWORDER",
+                0.239
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.607869,
+            "eigenvalue": 0.43144,
+            "explained_variance_ratio": 0.029935,
+            "index": 5,
+            "top_negative": [
+              [
+                "AMDMUO",
+                -0.0034
+              ],
+              [
+                "CFNAI",
+                -0.0268
+              ],
+              [
+                "AMTMNO",
+                -0.0377
+              ],
+              [
+                "DGORDER",
+                -0.0542
+              ],
+              [
+                "GACDISA066MSFRBNY",
+                -0.7443
+              ]
+            ],
+            "top_positive": [
+              [
+                "GACDFSA066MSFRBPHI",
+                0.6365
+              ],
+              [
+                "NEWORDER",
+                0.142
+              ],
+              [
+                "BACTSAMFRBDAL",
+                0.0965
+              ],
+              [
+                "AMDMVS",
+                0.0796
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.622362,
+            "eigenvalue": 0.208882,
+            "explained_variance_ratio": 0.014493,
+            "index": 6,
+            "top_negative": [
+              [
+                "DGORDER",
+                -0.026
+              ],
+              [
+                "AMDMUO",
+                -0.0581
+              ],
+              [
+                "BACTSAMFRBDAL",
+                -0.5047
+              ],
+              [
+                "CFNAI",
+                -0.5265
+              ]
+            ],
+            "top_positive": [
+              [
+                "AMDMVS",
+                0.4147
+              ],
+              [
+                "GACDISA066MSFRBNY",
+                0.3231
+              ],
+              [
+                "GACDFSA066MSFRBPHI",
+                0.312
+              ],
+              [
+                "NEWORDER",
+                0.3
+              ],
+              [
+                "AMTMNO",
+                0.0184
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.633889,
+            "eigenvalue": 0.166142,
+            "explained_variance_ratio": 0.011527,
+            "index": 7,
+            "top_negative": [
+              [
+                "DGORDER",
+                -0.0435
+              ],
+              [
+                "GACDISA066MSFRBNY",
+                -0.1525
+              ],
+              [
+                "AMDMUO",
+                -0.1792
+              ],
+              [
+                "CFNAI",
+                -0.4105
+              ],
+              [
+                "GACDFSA066MSFRBPHI",
+                -0.411
+              ]
+            ],
+            "top_positive": [
+              [
+                "BACTSAMFRBDAL",
+                0.5795
+              ],
+              [
+                "NEWORDER",
+                0.4304
+              ],
+              [
+                "AMDMVS",
+                0.2678
+              ],
+              [
+                "AMTMNO",
+                0.1116
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.639978,
+            "eigenvalue": 0.087753,
+            "explained_variance_ratio": 0.006089,
+            "index": 8,
+            "top_negative": [
+              [
+                "BACTSAMFRBDAL",
+                -0.147
+              ],
+              [
+                "AMDMUO",
+                -0.1604
+              ],
+              [
+                "AMTMNO",
+                -0.2156
+              ],
+              [
+                "AMDMVS",
+                -0.4684
+              ]
+            ],
+            "top_positive": [
+              [
+                "NEWORDER",
+                0.748
+              ],
+              [
+                "DGORDER",
+                0.2647
+              ],
+              [
+                "CFNAI",
+                0.2318
+              ],
+              [
+                "GACDISA066MSFRBNY",
+                0.0584
+              ],
+              [
+                "GACDFSA066MSFRBPHI",
+                0.001
+              ]
+            ]
+          }
+        ],
+        "dropped_for_coverage": {},
+        "factor_count": {
+          "at_boundary": true,
+          "decisive": true,
+          "k": 8
+        },
+        "n_obs": 126,
+        "n_series": 9,
+        "panel_label": "manufacturing",
+        "series": [
+          "DGORDER",
+          "AMTMNO",
+          "AMDMUO",
+          "NEWORDER",
+          "AMDMVS",
+          "CFNAI",
+          "GACDFSA066MSFRBPHI",
+          "BACTSAMFRBDAL",
+          "GACDISA066MSFRBNY"
+        ]
+      },
+      "output_activity": {
+        "as_of": "2026-09-27",
+        "components": [
+          {
+            "cumulative_variance_ratio": 0.372762,
+            "eigenvalue": 8.719053,
+            "explained_variance_ratio": 0.372762,
+            "index": 1,
+            "top_negative": [
+              [
+                "WHLSLRIMSA",
+                -0.0161
+              ],
+              [
+                "RETAILIRSA",
+                -0.2107
+              ],
+              [
+                "ISRATIO",
+                -0.3733
+              ]
+            ],
+            "top_positive": [
+              [
+                "TCU",
+                0.4052
+              ],
+              [
+                "MCUMFN",
+                0.3921
+              ],
+              [
+                "IPMANSICS",
+                0.3235
+              ],
+              [
+                "IPFINAL",
+                0.3219
+              ],
+              [
+                "IPCONGD",
+                0.3217
+              ],
+              [
+                "IPBUSEQ",
+                0.2691
+              ],
+              [
+                "IPMAT",
+                0.2508
+              ],
+              [
+                "INDPRO",
+                0.2016
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.463339,
+            "eigenvalue": 2.118641,
+            "explained_variance_ratio": 0.090577,
+            "index": 2,
+            "top_negative": [],
+            "top_positive": [
+              [
+                "BUSINV",
+                0.6167
+              ],
+              [
+                "WHLSLRIMSA",
+                0.5378
+              ],
+              [
+                "RETAILIRSA",
+                0.3814
+              ],
+              [
+                "ISRATIO",
+                0.3298
+              ],
+              [
+                "TCU",
+                0.1704
+              ],
+              [
+                "IPMAT",
+                0.1291
+              ],
+              [
+                "FRGSHPUSM649NCIS",
+                0.1024
+              ],
+              [
+                "IPBUSEQ",
+                0.084
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.514236,
+            "eigenvalue": 1.190508,
+            "explained_variance_ratio": 0.050897,
+            "index": 3,
+            "top_negative": [
+              [
+                "MCUMFN",
+                -0.0316
+              ],
+              [
+                "BUSINV",
+                -0.135
+              ],
+              [
+                "WHLSLRIMSA",
+                -0.3856
+              ],
+              [
+                "FRGSHPUSM649NCIS",
+                -0.5982
+              ]
+            ],
+            "top_positive": [
+              [
+                "RETAILIRSA",
+                0.401
+              ],
+              [
+                "ISRATIO",
+                0.3849
+              ],
+              [
+                "IPCONGD",
+                0.231
+              ],
+              [
+                "IPMAT",
+                0.2184
+              ],
+              [
+                "IPFINAL",
+                0.1383
+              ],
+              [
+                "INDPRO",
+                0.1349
+              ],
+              [
+                "TCU",
+                0.1106
+              ],
+              [
+                "IPMANSICS",
+                0.1012
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.546856,
+            "eigenvalue": 0.762975,
+            "explained_variance_ratio": 0.032619,
+            "index": 4,
+            "top_negative": [
+              [
+                "IPFINAL",
+                -0.0173
+              ],
+              [
+                "IPCONGD",
+                -0.0835
+              ],
+              [
+                "BUSINV",
+                -0.1443
+              ],
+              [
+                "WHLSLRIMSA",
+                -0.4489
+              ]
+            ],
+            "top_positive": [
+              [
+                "FRGSHPUSM649NCIS",
+                0.7412
+              ],
+              [
+                "RETAILIRSA",
+                0.3656
+              ],
+              [
+                "ISRATIO",
+                0.2412
+              ],
+              [
+                "IPBUSEQ",
+                0.0969
+              ],
+              [
+                "MCUMFN",
+                0.09
+              ],
+              [
+                "IPMAT",
+                0.0841
+              ],
+              [
+                "TCU",
+                0.061
+              ],
+              [
+                "IPMANSICS",
+                0.0269
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.565593,
+            "eigenvalue": 0.438284,
+            "explained_variance_ratio": 0.018738,
+            "index": 5,
+            "top_negative": [
+              [
+                "TCU",
+                -0.0212
+              ],
+              [
+                "INDPRO",
+                -0.0466
+              ],
+              [
+                "BUSINV",
+                -0.0711
+              ],
+              [
+                "MCUMFN",
+                -0.136
+              ],
+              [
+                "IPBUSEQ",
+                -0.1747
+              ],
+              [
+                "IPMAT",
+                -0.635
+              ]
+            ],
+            "top_positive": [
+              [
+                "IPCONGD",
+                0.6127
+              ],
+              [
+                "IPFINAL",
+                0.3402
+              ],
+              [
+                "FRGSHPUSM649NCIS",
+                0.1488
+              ],
+              [
+                "RETAILIRSA",
+                0.1017
+              ],
+              [
+                "ISRATIO",
+                0.0878
+              ],
+              [
+                "WHLSLRIMSA",
+                0.0857
+              ],
+              [
+                "IPMANSICS",
+                0.0372
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.579855,
+            "eigenvalue": 0.333579,
+            "explained_variance_ratio": 0.014261,
+            "index": 6,
+            "top_negative": [
+              [
+                "IPBUSEQ",
+                -0.1268
+              ],
+              [
+                "RETAILIRSA",
+                -0.1581
+              ],
+              [
+                "TCU",
+                -0.4031
+              ],
+              [
+                "MCUMFN",
+                -0.5255
+              ]
+            ],
+            "top_positive": [
+              [
+                "IPMAT",
+                0.5169
+              ],
+              [
+                "IPCONGD",
+                0.3235
+              ],
+              [
+                "INDPRO",
+                0.2458
+              ],
+              [
+                "FRGSHPUSM649NCIS",
+                0.2027
+              ],
+              [
+                "IPMANSICS",
+                0.1975
+              ],
+              [
+                "WHLSLRIMSA",
+                0.0742
+              ],
+              [
+                "IPFINAL",
+                0.0345
+              ],
+              [
+                "BUSINV",
+                0.0285
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.590834,
+            "eigenvalue": 0.2568,
+            "explained_variance_ratio": 0.010979,
+            "index": 7,
+            "top_negative": [
+              [
+                "IPCONGD",
+                -0.0681
+              ],
+              [
+                "BUSINV",
+                -0.7422
+              ]
+            ],
+            "top_positive": [
+              [
+                "WHLSLRIMSA",
+                0.576
+              ],
+              [
+                "ISRATIO",
+                0.2282
+              ],
+              [
+                "IPBUSEQ",
+                0.1945
+              ],
+              [
+                "IPMAT",
+                0.0999
+              ],
+              [
+                "RETAILIRSA",
+                0.0697
+              ],
+              [
+                "MCUMFN",
+                0.051
+              ],
+              [
+                "FRGSHPUSM649NCIS",
+                0.0423
+              ],
+              [
+                "IPFINAL",
+                0.0361
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.600284,
+            "eigenvalue": 0.221056,
+            "explained_variance_ratio": 0.009451,
+            "index": 8,
+            "top_negative": [
+              [
+                "INDPRO",
+                -0.0112
+              ],
+              [
+                "WHLSLRIMSA",
+                -0.055
+              ],
+              [
+                "FRGSHPUSM649NCIS",
+                -0.0572
+              ],
+              [
+                "RETAILIRSA",
+                -0.0601
+              ],
+              [
+                "IPCONGD",
+                -0.1438
+              ],
+              [
+                "IPMAT",
+                -0.233
+              ],
+              [
+                "TCU",
+                -0.5753
+              ]
+            ],
+            "top_positive": [
+              [
+                "IPBUSEQ",
+                0.6482
+              ],
+              [
+                "IPMANSICS",
+                0.3137
+              ],
+              [
+                "IPFINAL",
+                0.1783
+              ],
+              [
+                "BUSINV",
+                0.1244
+              ],
+              [
+                "ISRATIO",
+                0.1004
+              ],
+              [
+                "MCUMFN",
+                0.0904
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.605957,
+            "eigenvalue": 0.132697,
+            "explained_variance_ratio": 0.005673,
+            "index": 9,
+            "top_negative": [
+              [
+                "IPFINAL",
+                -0.0082
+              ],
+              [
+                "IPMAT",
+                -0.0086
+              ],
+              [
+                "INDPRO",
+                -0.0106
+              ],
+              [
+                "WHLSLRIMSA",
+                -0.0874
+              ],
+              [
+                "IPBUSEQ",
+                -0.1125
+              ],
+              [
+                "RETAILIRSA",
+                -0.6665
+              ]
+            ],
+            "top_positive": [
+              [
+                "ISRATIO",
+                0.6891
+              ],
+              [
+                "MCUMFN",
+                0.1841
+              ],
+              [
+                "TCU",
+                0.1293
+              ],
+              [
+                "BUSINV",
+                0.0695
+              ],
+              [
+                "FRGSHPUSM649NCIS",
+                0.049
+              ],
+              [
+                "IPMANSICS",
+                0.0439
+              ],
+              [
+                "IPCONGD",
+                0.0258
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.609721,
+            "eigenvalue": 0.088036,
+            "explained_variance_ratio": 0.003764,
+            "index": 10,
+            "top_negative": [
+              [
+                "IPCONGD",
+                -0.0177
+              ],
+              [
+                "ISRATIO",
+                -0.0188
+              ],
+              [
+                "IPMAT",
+                -0.0229
+              ],
+              [
+                "FRGSHPUSM649NCIS",
+                -0.0352
+              ],
+              [
+                "BUSINV",
+                -0.0584
+              ],
+              [
+                "IPFINAL",
+                -0.2316
+              ],
+              [
+                "TCU",
+                -0.2843
+              ],
+              [
+                "IPBUSEQ",
+                -0.5178
+              ]
+            ],
+            "top_positive": [
+              [
+                "IPMANSICS",
+                0.5884
+              ],
+              [
+                "MCUMFN",
+                0.4622
+              ],
+              [
+                "RETAILIRSA",
+                0.1638
+              ],
+              [
+                "WHLSLRIMSA",
+                0.0696
+              ],
+              [
+                "INDPRO",
+                0.0077
+              ]
+            ]
+          }
+        ],
+        "dropped_for_coverage": {},
+        "factor_count": {
+          "at_boundary": true,
+          "decisive": true,
+          "k": 10
+        },
+        "n_obs": 146,
+        "n_series": 13,
+        "panel_label": "output_activity",
+        "series": [
+          "INDPRO",
+          "IPFINAL",
+          "IPCONGD",
+          "IPBUSEQ",
+          "IPMAT",
+          "IPMANSICS",
+          "TCU",
+          "MCUMFN",
+          "BUSINV",
+          "ISRATIO",
+          "WHLSLRIMSA",
+          "RETAILIRSA",
+          "FRGSHPUSM649NCIS"
+        ]
+      },
+      "trade_external": {
+        "as_of": "2026-09-27",
+        "components": [
+          {
+            "cumulative_variance_ratio": 0.171379,
+            "eigenvalue": 2.2233,
+            "explained_variance_ratio": 0.171379,
+            "index": 1,
+            "top_negative": [
+              [
+                "DEXCHUS",
+                -0.079
+              ],
+              [
+                "BOPGSTB",
+                -0.2891
+              ]
+            ],
+            "top_positive": [
+              [
+                "BOPGEXP",
+                0.658
+              ],
+              [
+                "BOPGIMP",
+                0.5804
+              ],
+              [
+                "BOPSEXP",
+                0.3562
+              ],
+              [
+                "BOPSIMP",
+                0.1158
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.269964,
+            "eigenvalue": 1.278937,
+            "explained_variance_ratio": 0.098585,
+            "index": 2,
+            "top_negative": [
+              [
+                "DEXCHUS",
+                -0.0303
+              ],
+              [
+                "BOPGIMP",
+                -0.3697
+              ]
+            ],
+            "top_positive": [
+              [
+                "BOPGSTB",
+                0.732
+              ],
+              [
+                "BOPGEXP",
+                0.436
+              ],
+              [
+                "BOPSEXP",
+                0.3643
+              ],
+              [
+                "BOPSIMP",
+                0.0613
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.35482,
+            "eigenvalue": 1.10083,
+            "explained_variance_ratio": 0.084856,
+            "index": 3,
+            "top_negative": [
+              [
+                "BOPGEXP",
+                -0.0998
+              ],
+              [
+                "BOPGIMP",
+                -0.3577
+              ],
+              [
+                "BOPGSTB",
+                -0.3837
+              ]
+            ],
+            "top_positive": [
+              [
+                "DEXCHUS",
+                0.6234
+              ],
+              [
+                "BOPSEXP",
+                0.5635
+              ],
+              [
+                "BOPSIMP",
+                0.0936
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.427535,
+            "eigenvalue": 0.943339,
+            "explained_variance_ratio": 0.072716,
+            "index": 4,
+            "top_negative": [
+              [
+                "BOPSIMP",
+                -0.0442
+              ],
+              [
+                "BOPSEXP",
+                -0.3033
+              ]
+            ],
+            "top_positive": [
+              [
+                "DEXCHUS",
+                0.7631
+              ],
+              [
+                "BOPGIMP",
+                0.4274
+              ],
+              [
+                "BOPGSTB",
+                0.3721
+              ],
+              [
+                "BOPGEXP",
+                0.0502
+              ]
+            ]
+          },
+          {
+            "cumulative_variance_ratio": 0.473154,
+            "eigenvalue": 0.591805,
+            "explained_variance_ratio": 0.045618,
+            "index": 5,
+            "top_negative": [
+              [
+                "DEXCHUS",
+                -0.1478
+              ],
+              [
+                "BOPGEXP",
+                -0.6025
+              ]
+            ],
+            "top_positive": [
+              [
+                "BOPSEXP",
+                0.5453
+              ],
+              [
+                "BOPGIMP",
+                0.4633
+              ],
+              [
+                "BOPGSTB",
+                0.3077
+              ],
+              [
+                "BOPSIMP",
+                0.0916
+              ]
+            ]
+          }
+        ],
+        "dropped_for_coverage": {},
+        "factor_count": {
+          "at_boundary": true,
+          "decisive": true,
+          "k": 5
+        },
+        "n_obs": 148,
+        "n_series": 6,
+        "panel_label": "trade_external",
+        "series": [
+          "BOPGSTB",
+          "BOPGEXP",
+          "BOPGIMP",
+          "BOPSEXP",
+          "BOPSIMP",
+          "DEXCHUS"
+        ]
+      }
+    },
+    "global": {
+      "as_of": "2026-09-27",
+      "components": [
+        {
+          "cumulative_variance_ratio": 0.023079,
+          "eigenvalue": 34.462379,
+          "explained_variance_ratio": 0.023079,
+          "index": 1,
+          "top_negative": [
+            [
+              "BOPGEXP",
+              -0.0381
+            ],
+            [
+              "CUSR0000SAH1",
+              -0.0459
+            ],
+            [
+              "CPILFESL",
+              -0.0474
+            ],
+            [
+              "PPIFES",
+              -0.0531
+            ],
+            [
+              "BOPGIMP",
+              -0.0532
+            ],
+            [
+              "CPIRECSL",
+              -0.0645
+            ],
+            [
+              "GACDFSA066MSFRBPHI",
+              -0.0725
+            ],
+            [
+              "CLF16OV",
+              -0.0729
+            ]
+          ],
+          "top_positive": [
+            [
+              "TOTALSL",
+              0.5648
+            ],
+            [
+              "REVOLSL",
+              0.5647
+            ],
+            [
+              "NONREVSL",
+              0.5393
+            ],
+            [
+              "PCETRIM12M159SFRBDAL",
+              0.0506
+            ],
+            [
+              "BOPGSTB",
+              0.0414
+            ],
+            [
+              "UEMPMEAN",
+              0.041
+            ],
+            [
+              "TEMPHELPS",
+              0.0391
+            ],
+            [
+              "DTWEXBGS",
+              0.038
+            ]
+          ]
+        },
+        {
+          "cumulative_variance_ratio": 0.033689,
+          "eigenvalue": 15.843865,
+          "explained_variance_ratio": 0.01061,
+          "index": 2,
+          "top_negative": [
+            [
+              "T10YIE",
+              -0.1166
+            ],
+            [
+              "PRAWMINDEXM",
+              -0.1287
+            ],
+            [
+              "WRESBAL",
+              -0.1299
+            ],
+            [
+              "HOUSTS",
+              -0.1303
+            ],
+            [
+              "WALCL",
+              -0.1839
+            ],
+            [
+              "WTREGEN",
+              -0.2072
+            ],
+            [
+              "COMPUTSA",
+              -0.2528
+            ],
+            [
+              "HNFSEPUSSA",
+              -0.2925
+            ]
+          ],
+          "top_positive": [
+            [
+              "T10Y3M",
+              0.3558
+            ],
+            [
+              "BOPGSTB",
+              0.3553
+            ],
+            [
+              "AWHAETP",
+              0.2447
+            ],
+            [
+              "BAA10Y",
+              0.2169
+            ],
+            [
+              "T10Y2Y",
+              0.1952
+            ],
+            [
+              "AAA10Y",
+              0.1559
+            ],
+            [
+              "PCETRIM12M159SFRBDAL",
+              0.1423
+            ],
+            [
+              "CORESTICKM159SFRBATL",
+              0.1333
+            ]
+          ]
+        }
+      ],
+      "dropped_for_coverage": {
+        "RRPONTSYD": 0.7361
+      },
+      "factor_count": {
+        "at_boundary": false,
+        "decisive": true,
+        "k": 2
+      },
+      "n_obs": 32,
+      "n_series": 164,
+      "panel_label": "global",
+      "series": [
+        "INDPRO",
+        "IPFINAL",
+        "IPCONGD",
+        "IPBUSEQ",
+        "IPMAT",
+        "IPMANSICS",
+        "TCU",
+        "MCUMFN",
+        "BUSINV",
+        "ISRATIO",
+        "WHLSLRIMSA",
+        "RETAILIRSA",
+        "FRGSHPUSM649NCIS",
+        "CPIAUCSL",
+        "CPILFESL",
+        "CUSR0000SAS",
+        "CUSR0000SAC",
+        "CUSR0000SAH1",
+        "CUSR0000SEHA",
+        "CUSR0000SEHC",
+        "CPITRNSL",
+        "CPIMEDSL",
+        "CPIUFDSL",
+        "CPIENGSL",
+        "CUSR0000SETA02",
+        "CUSR0000SETA01",
+        "CPIAPPSL",
+        "CPIRECSL",
+        "CPIEDUSL",
+        "PCEPI",
+        "PCEPILFE",
+        "DGDSRG3M086SBEA",
+        "DSERRG3M086SBEA",
+        "DPCXRG3M086SBEA",
+        "PPIFIS",
+        "PPIFES",
+        "PPIACO",
+        "WPUID61",
+        "WPSFD49207",
+        "IR",
+        "IQ",
+        "PCETRIM12M159SFRBDAL",
+        "MEDCPIM158SFRBCLE",
+        "CORESTICKM159SFRBATL",
+        "CES0500000003",
+        "MICH",
+        "PAYEMS",
+        "USPRIV",
+        "USGOVT",
+        "MANEMP",
+        "USCONS",
+        "USTRADE",
+        "SRVPRD",
+        "TEMPHELPS",
+        "UNRATE",
+        "U6RATE",
+        "CIVPART",
+        "EMRATIO",
+        "CE16OV",
+        "CLF16OV",
+        "UEMPMEAN",
+        "ICSA",
+        "CCSA",
+        "IURSA",
+        "JTSJOL",
+        "JTSHIR",
+        "JTSQUR",
+        "JTSLDR",
+        "AWHAETP",
+        "AWHMAN",
+        "AWOTMAN",
+        "CES0500000011",
+        "RSAFS",
+        "RRSFS",
+        "RSFSXMV",
+        "PCE",
+        "PCEC96",
+        "TOTALSA",
+        "PI",
+        "RPI",
+        "DSPI",
+        "DSPIC96",
+        "W875RX1",
+        "PSAVERT",
+        "UMCSENT",
+        "HOUST",
+        "HOUST1F",
+        "PERMIT",
+        "COMPUTSA",
+        "HOUSTNE",
+        "HOUSTMW",
+        "HOUSTS",
+        "HOUSTW",
+        "HSN1F",
+        "MSACSR",
+        "HNFSEPUSSA",
+        "CSUSHPINSA",
+        "MORTGAGE30US",
+        "MORTGAGE15US",
+        "TTLCONS",
+        "DGORDER",
+        "AMTMNO",
+        "AMDMUO",
+        "NEWORDER",
+        "AMDMVS",
+        "CFNAI",
+        "GACDFSA066MSFRBPHI",
+        "BACTSAMFRBDAL",
+        "GACDISA066MSFRBNY",
+        "BAMLH0A0HYM2",
+        "BAMLC0A0CM",
+        "BAMLC0A4CBBB",
+        "BAA10Y",
+        "AAA10Y",
+        "BUSLOANS",
+        "TOTCI",
+        "REALLN",
+        "CONSUMER",
+        "TOTALSL",
+        "REVOLSL",
+        "NONREVSL",
+        "FEDFUNDS",
+        "SOFR",
+        "IORB",
+        "DGS2",
+        "DGS10",
+        "T10Y2Y",
+        "T10Y3M",
+        "DFII10",
+        "VIXCLS",
+        "NFCI",
+        "ANFCI",
+        "STLFSI4",
+        "DTWEXBGS",
+        "M1SL",
+        "M2SL",
+        "M2REAL",
+        "BOGMBASE",
+        "TOTRESNS",
+        "WRESBAL",
+        "WALCL",
+        "WTREGEN",
+        "DPSACBW027SBOG",
+        "TOTBKCR",
+        "TLAACBW027SBOG",
+        "USGSEC",
+        "CREACBM027NBOG",
+        "MTSDS133FMS",
+        "BOPGSTB",
+        "BOPGEXP",
+        "BOPGIMP",
+        "BOPSEXP",
+        "BOPSIMP",
+        "DEXCHUS",
+        "GASREGW",
+        "PCOPPUSDM",
+        "PALLFNFINDEXM",
+        "PINDUINDEXM",
+        "PRAWMINDEXM",
+        "IPG32411S",
+        "IPUTIL",
+        "ANDEVS",
+        "PNRESCONS",
+        "T10YIE"
+      ]
+    }
+  },
+  "stability": {
+    "deep_history_cutoff": "2000-01-01",
+    "deep_series": [
+      "AAA10Y",
+      "AWHMAN",
+      "AWOTMAN",
+      "BAA10Y",
+      "BOPGEXP",
+      "BOPGIMP",
+      "BOPGSTB",
+      "BOPSEXP",
+      "BOPSIMP",
+      "BUSINV",
+      "BUSLOANS",
+      "CE16OV",
+      "CIVPART",
+      "CLF16OV",
+      "CONSUMER",
+      "CPIAUCSL",
+      "CPIENGSL",
+      "CPILFESL",
+      "CPIUFDSL",
+      "DGORDER",
+      "DGS10",
+      "DGS2",
+      "DSPI",
+      "DSPIC96",
+      "EMRATIO",
+      "FEDFUNDS",
+      "HOUST",
+      "HOUST1F",
+      "HOUSTMW",
+      "HOUSTNE",
+      "HOUSTS",
+      "HOUSTW",
+      "HSN1F",
+      "INDPRO",
+      "ISRATIO",
+      "M1SL",
+      "M2SL",
+      "MANEMP",
+      "MICH",
+      "NEWORDER",
+      "NONREVSL",
+      "PAYEMS",
+      "PCE",
+      "PCEC96",
+      "PERMIT",
+      "PI",
+      "PPIACO",
+      "PSAVERT",
+      "REALLN",
+      "REVOLSL",
+      "SRVPRD",
+      "T10Y2Y",
+      "T10Y3M",
+      "TCU",
+      "TOTALSL",
+      "TOTBKCR",
+      "TOTCI",
+      "TOTRESNS",
+      "UEMPMEAN",
+      "UMCSENT",
+      "UNRATE",
+      "USCONS",
+      "USGOVT",
+      "USGSEC",
+      "USPRIV",
+      "USTRADE",
+      "VIXCLS"
+    ],
+    "expanding_window": {
+      "k_ever_changed": true,
+      "mean_loading_correlation": 0.8585,
+      "min_loading_correlation": 0.3036,
+      "n_transitions": 10,
+      "n_windows": 11,
+      "share_stable_transitions": 0.8,
+      "transitions": [
+        {
+          "from": "2005-01-01",
+          "k_after": 4,
+          "k_before": 4,
+          "k_changed": false,
+          "loading_correlation": 0.8833,
+          "mean_abs_shape_difference": 0.0358,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2007-01-01"
+        },
+        {
+          "from": "2007-01-01",
+          "k_after": 4,
+          "k_before": 4,
+          "k_changed": false,
+          "loading_correlation": 0.5063,
+          "mean_abs_shape_difference": 0.0768,
+          "n_common_series": 67,
+          "stable": false,
+          "to": "2009-01-01"
+        },
+        {
+          "from": "2009-01-01",
+          "k_after": 2,
+          "k_before": 4,
+          "k_changed": true,
+          "loading_correlation": 0.913,
+          "mean_abs_shape_difference": 0.0359,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2011-01-01"
+        },
+        {
+          "from": "2011-01-01",
+          "k_after": 2,
+          "k_before": 2,
+          "k_changed": false,
+          "loading_correlation": 0.9908,
+          "mean_abs_shape_difference": 0.0115,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2013-01-01"
+        },
+        {
+          "from": "2013-01-01",
+          "k_after": 2,
+          "k_before": 2,
+          "k_changed": false,
+          "loading_correlation": 0.9986,
+          "mean_abs_shape_difference": 0.004,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2015-01-01"
+        },
+        {
+          "from": "2015-01-01",
+          "k_after": 2,
+          "k_before": 2,
+          "k_changed": false,
+          "loading_correlation": 0.9997,
+          "mean_abs_shape_difference": 0.0017,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2017-01-01"
+        },
+        {
+          "from": "2017-01-01",
+          "k_after": 2,
+          "k_before": 2,
+          "k_changed": false,
+          "loading_correlation": 0.9997,
+          "mean_abs_shape_difference": 0.0019,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2019-01-01"
+        },
+        {
+          "from": "2019-01-01",
+          "k_after": 4,
+          "k_before": 2,
+          "k_changed": true,
+          "loading_correlation": 0.3036,
+          "mean_abs_shape_difference": 0.1088,
+          "n_common_series": 67,
+          "stable": false,
+          "to": "2021-01-01"
+        },
+        {
+          "from": "2021-01-01",
+          "k_after": 5,
+          "k_before": 4,
+          "k_changed": true,
+          "loading_correlation": 0.9899,
+          "mean_abs_shape_difference": 0.0097,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2023-01-01"
+        },
+        {
+          "from": "2023-01-01",
+          "k_after": 5,
+          "k_before": 5,
+          "k_changed": false,
+          "loading_correlation": 0.9999,
+          "mean_abs_shape_difference": 0.001,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2025-01-01"
+        }
+      ]
+    },
+    "n_deep_series": 67,
+    "rolling_window": {
+      "k_ever_changed": true,
+      "mean_loading_correlation": 0.8159,
+      "min_loading_correlation": 0.2569,
+      "n_transitions": 15,
+      "n_windows": 16,
+      "share_stable_transitions": 0.7333,
+      "transitions": [
+        {
+          "from": "1995-01-01",
+          "k_after": 10,
+          "k_before": 10,
+          "k_changed": false,
+          "loading_correlation": 0.9674,
+          "mean_abs_shape_difference": 0.0273,
+          "n_common_series": 35,
+          "stable": true,
+          "to": "1997-01-01"
+        },
+        {
+          "from": "1997-01-01",
+          "k_after": 2,
+          "k_before": 10,
+          "k_changed": true,
+          "loading_correlation": 0.9411,
+          "mean_abs_shape_difference": 0.0333,
+          "n_common_series": 35,
+          "stable": true,
+          "to": "1999-01-01"
+        },
+        {
+          "from": "1999-01-01",
+          "k_after": 1,
+          "k_before": 2,
+          "k_changed": true,
+          "loading_correlation": 0.5354,
+          "mean_abs_shape_difference": 0.109,
+          "n_common_series": 35,
+          "stable": false,
+          "to": "2001-01-01"
+        },
+        {
+          "from": "2001-01-01",
+          "k_after": 2,
+          "k_before": 1,
+          "k_changed": true,
+          "loading_correlation": 0.4078,
+          "mean_abs_shape_difference": 0.0953,
+          "n_common_series": 61,
+          "stable": false,
+          "to": "2003-01-01"
+        },
+        {
+          "from": "2003-01-01",
+          "k_after": 1,
+          "k_before": 2,
+          "k_changed": true,
+          "loading_correlation": 0.9307,
+          "mean_abs_shape_difference": 0.0369,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2005-01-01"
+        },
+        {
+          "from": "2005-01-01",
+          "k_after": 1,
+          "k_before": 1,
+          "k_changed": false,
+          "loading_correlation": 0.2569,
+          "mean_abs_shape_difference": 0.0895,
+          "n_common_series": 67,
+          "stable": false,
+          "to": "2007-01-01"
+        },
+        {
+          "from": "2007-01-01",
+          "k_after": 1,
+          "k_before": 1,
+          "k_changed": false,
+          "loading_correlation": 0.8746,
+          "mean_abs_shape_difference": 0.0428,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2009-01-01"
+        },
+        {
+          "from": "2009-01-01",
+          "k_after": 1,
+          "k_before": 1,
+          "k_changed": false,
+          "loading_correlation": 0.9099,
+          "mean_abs_shape_difference": 0.0365,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2011-01-01"
+        },
+        {
+          "from": "2011-01-01",
+          "k_after": 2,
+          "k_before": 1,
+          "k_changed": true,
+          "loading_correlation": 0.9957,
+          "mean_abs_shape_difference": 0.0072,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2013-01-01"
+        },
+        {
+          "from": "2013-01-01",
+          "k_after": 2,
+          "k_before": 2,
+          "k_changed": false,
+          "loading_correlation": 0.9971,
+          "mean_abs_shape_difference": 0.0057,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2015-01-01"
+        },
+        {
+          "from": "2015-01-01",
+          "k_after": 3,
+          "k_before": 2,
+          "k_changed": true,
+          "loading_correlation": 0.9956,
+          "mean_abs_shape_difference": 0.0056,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2017-01-01"
+        },
+        {
+          "from": "2017-01-01",
+          "k_after": 3,
+          "k_before": 3,
+          "k_changed": false,
+          "loading_correlation": 0.9857,
+          "mean_abs_shape_difference": 0.0103,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2019-01-01"
+        },
+        {
+          "from": "2019-01-01",
+          "k_after": 5,
+          "k_before": 3,
+          "k_changed": true,
+          "loading_correlation": 0.4659,
+          "mean_abs_shape_difference": 0.0998,
+          "n_common_series": 67,
+          "stable": false,
+          "to": "2021-01-01"
+        },
+        {
+          "from": "2021-01-01",
+          "k_after": 6,
+          "k_before": 5,
+          "k_changed": true,
+          "loading_correlation": 0.9865,
+          "mean_abs_shape_difference": 0.0126,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2023-01-01"
+        },
+        {
+          "from": "2023-01-01",
+          "k_after": 6,
+          "k_before": 6,
+          "k_changed": false,
+          "loading_correlation": 0.9882,
+          "mean_abs_shape_difference": 0.012,
+          "n_common_series": 67,
+          "stable": true,
+          "to": "2025-01-01"
+        }
+      ]
+    }
+  }
+}

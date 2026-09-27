@@ -27,20 +27,20 @@
       "reason": "point-in-time route, deepest vintage history"
     },
     {
-      "chosen": "PPIITM",
+      "chosen": "WPUID61",
       "dropped": [
-        "WPUID61"
+        "PPIITM"
       ],
       "group": "concept:PPI intermediate demand",
-      "reason": "point-in-time route, deepest vintage history"
+      "reason": "point-in-time route, deepest vintage history; excluded as discontinued: ['PPIITM']"
     },
     {
-      "chosen": "IOER",
+      "chosen": "IORB",
       "dropped": [
-        "IORB"
+        "IOER"
       ],
       "group": "concept:interest on reserve balances",
-      "reason": "point-in-time route, deepest vintage history"
+      "reason": "point-in-time route, deepest vintage history; excluded as discontinued: ['IOER']"
     }
   ],
   "fetch_errors": {},
@@ -80,7 +80,6 @@
       "W875RX1",
       "PSAVERT",
       "UMCSENT",
-      "CSCICP03USM665S",
       "TDSP",
       "DRCCLACBS"
     ],
@@ -114,7 +113,7 @@
     "financial_conditions": [
       "FEDFUNDS",
       "SOFR",
-      "IOER",
+      "IORB",
       "DGS2",
       "DGS10",
       "T10Y2Y",
@@ -181,7 +180,7 @@
       "PPIFIS",
       "PPIFES",
       "PPIACO",
-      "PPIITM",
+      "WPUID61",
       "WPSFD49207",
       "IR",
       "IQ",
@@ -241,7 +240,6 @@
       "NEWORDER",
       "AMDMVS",
       "CFNAI",
-      "USSLIND",
       "GACDFSA066MSFRBPHI",
       "BACTSAMFRBDAL",
       "GACDISA066MSFRBNY"
@@ -290,8 +288,8 @@
       "IEABC"
     ]
   },
-  "n_monthly": 167,
-  "n_panel": 208,
+  "n_monthly": 165,
+  "n_panel": 206,
   "n_quarterly": 41,
-  "n_used": 208
+  "n_used": 206
 }

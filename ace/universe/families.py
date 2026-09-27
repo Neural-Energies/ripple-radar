@@ -291,8 +291,14 @@ CONSUMER: tuple[Concept, ...] = (
     _c("credit card delinquency rate", "consumer", "balance sheet", "DRCCLACBS", 2),
     _c("consumer sentiment", "consumer", "surveys", "UMCSENT", 2, layer="soft"),
     _c("consumer confidence", "consumer", "surveys", "CSCICP03USM665S", 2, layer="soft",
-       note="OECD's US confidence indicator. The Conference Board series "
-            "itself is not redistributable through FRED."),
+       factor_eligible=False,
+       note="OECD's US confidence indicator, and the Conference Board "
+            "series itself is not redistributable through FRED — but this "
+            "substitute stopped producing new observations in 2024-01 "
+            "despite FRED's own metadata record being touched as recently "
+            "as 2025-11 (a mirror refresh, not a new reading). UMCSENT "
+            "(University of Michigan, live) is what actually carries "
+            "consumer sentiment in this panel."),
 )
 
 # ---------------------------------------------------------------------------
@@ -344,7 +350,13 @@ MANUFACTURING: tuple[Concept, ...] = (
        note="Already a standardised composite centred on zero, so level. "
             "Built from 85 indicators, which makes it a useful external check "
             "on whatever the global factor turns out to be."),
-    _c("leading index", "manufacturing", "composite", "USSLIND", 1, layer="derived"),
+    _c("leading index", "manufacturing", "composite", "USSLIND", 1, layer="derived",
+       factor_eligible=False,
+       note="Confirmed discontinued: FRED metadata shows no observation "
+            "after 2020-02, last updated 2020-04-14. A frozen series in a "
+            "live factor panel contributes nothing going forward and, at "
+            "this panel's breadth, is exactly the kind of gap that can "
+            "crush a balanced-matrix PCA fit to zero usable rows."),
     _c("Philadelphia Fed manufacturing survey", "manufacturing", "regional surveys",
        "GACDFSA066MSFRBPHI", 1, layer="soft"),
     _c("Dallas Fed manufacturing survey", "manufacturing", "regional surveys",
@@ -521,7 +533,10 @@ BANKING: tuple[Concept, ...] = (
     _c("bank securities holdings", "banking", "assets", "USGSEC", 5),
     _c("commercial real estate loans", "banking", "lending", "CREACBM027NBOG", 6),
     _c("net interest margin", "banking", "profitability", "USNIM", 2,
-       factor_eligible=False, note="Quarterly and thin; interpretation context."),
+       factor_eligible=False,
+       note="FRED's own title marks this (DISCONTINUED); no observation "
+            "after 2020-07. The FDIC Quarterly Banking Profile is the "
+            "stated replacement source, not yet on FRED under a plain id."),
 )
 
 # ---------------------------------------------------------------------------
@@ -683,8 +698,15 @@ CORPORATE: tuple[Concept, ...] = (
     _c("corporate profits", "corporate_profits", "profits", "CP", 5),
     _c("corporate profits after tax", "corporate_profits", "profits", "CPATAX", 5),
     _c("profit share of GDP", "corporate_profits", "margins", "W273RE1A156NBEA", 2,
-       note="A ratio, so differenced. The margin measure that does not need "
-            "constructing from two series."),
+       factor_eligible=False,
+       note="ANNUAL frequency (confirmed via FRED metadata: frequency_short "
+            "'A', BEA Account Code W273RE) — genuinely current, not "
+            "discontinued, but `ace.state.panel` only supports {daily, "
+            "weekly, monthly, quarterly}. Registering this as 'quarterly' "
+            "would silently corrupt DynamicFactorMQ's Mariano-Murasawa "
+            "aggregation, which assumes true quarterly periodicity. "
+            "Excluded until the panel gains an annual frequency bucket, "
+            "rather than mislabelled to fit the buckets that exist."),
     _c("nonfarm business compensation", "corporate_profits", "costs", "COMPNFB", 5),
     _c("proprietors' income", "corporate_profits", "income", "PROPINC", 5),
 )

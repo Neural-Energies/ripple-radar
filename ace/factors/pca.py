@@ -25,6 +25,22 @@ same way the quad work's historical replay is built — never today's revised
 panel sliced by date, which would leak revisions the same way a naive backtest
 does.
 
+WHAT "BALANCED" ACTUALLY MEANS HERE
+
+Naive full-panel listwise deletion — drop any row with a NaN anywhere — does
+not degrade gracefully as the panel widens. Measured on the 167-series
+comprehensive monthly panel: with 166 of 167 columns carrying a NaN SOMEWHERE
+in their history (different start dates, a handful of discontinued series
+before the registry excluded them, isolated gaps), not one of 561 months was
+ever fully complete. `dropna(how="any")` on the whole sample returns ZERO
+rows, silently, and only shows up as a division-by-zero several lines later.
+
+The fix is the same three-step admission standard applied macro-PCA work uses:
+drop a column below a stated COVERAGE floor first (report which, and why),
+trim the survivors to the date range where ALL of them are non-null (their
+overlap, not their union), and only then drop any still-isolated gap. See
+`_balanced_matrix` for the implementation and exactly what it reports.
+
 HIERARCHICAL FACTORS: GLOBAL PANEL vs DOMAIN PANELS
 
 `fit_global` runs PCA across the whole panel; `fit_domain` runs it separately
@@ -106,6 +122,10 @@ class PCAFit:
     #: applies for the DFM.
     mean: pd.Series
     std: pd.Series
+    #: Series dropped for falling below `MIN_COLUMN_COVERAGE`, with their
+    #: coverage share — the accounting `ace.factors.pca_research` reports
+    #: rather than silently losing.
+    dropped_for_coverage: dict[str, float] = field(default_factory=dict)
 
     def describe(self) -> str:
         return (
@@ -127,6 +147,7 @@ class PCAFit:
                 "at_boundary": self.factor_count.at_boundary,
             },
             "components": [c.to_dict() for c in self.components],
+            "dropped_for_coverage": self.dropped_for_coverage,
         }
 
 
@@ -146,15 +167,101 @@ def _orient_component(loading: pd.Series, score: pd.Series) -> tuple[pd.Series, 
     return loading, score
 
 
-def _fit_pca(z: pd.DataFrame, k: int) -> tuple[pd.DataFrame, pd.DataFrame, np.ndarray]:
+#: A column below this share of non-null observations, WITHIN ITS OWN ACTIVE
+#: RANGE (first valid observation to last), is dropped before the balanced
+#: matrix is built — reported, never silently. 0.90 is a floor, not a target.
+#:
+#: Measured against a series' OWN range, not the full panel window, on
+#: purpose. An earlier version measured coverage against the whole 561-month
+#: window, and it starved four entire domain panels (banking, commodities,
+#: manufacturing, trade_external) to zero surviving columns: a commodity index
+#: starting in 2015 is perfectly dense from 2015 onward, but covers only 23%
+#: of a panel that starts in 1980, so the full-window measure flagged it as
+#: "low coverage" and dropped it before the overlap-trim step — the step
+#: BUILT to handle a late start gracefully — ever got a chance to run. A
+#: series failing the WITHIN-RANGE measure by more than a rounding gap has an
+#: internal hole, which is the actual defect this floor exists to catch.
+MIN_COLUMN_COVERAGE = 0.90
+
+
+def _within_range_coverage(column: pd.Series) -> float:
+    """Share of non-null values between a column's own first and last observation.
+
+    A column that has not started yet, or has already ended, is not a "gap" in
+    the sense this function measures — that is what the overlap-trim step in
+    `_balanced_matrix` is for. This measures whether the column has holes
+    WITHIN the range it is actually active.
+    """
+    first, last = column.first_valid_index(), column.last_valid_index()
+    if first is None or last is None:
+        return 0.0
+    span = column.loc[first:last]
+    return float(span.notna().mean()) if len(span) else 0.0
+
+
+@dataclass(frozen=True)
+class BalancedMatrix:
+    frame: pd.DataFrame
+    dropped_columns: dict[str, float]  # series_id -> within-range coverage, for the report
+
+
+def _balanced_matrix(z: pd.DataFrame, *, min_coverage: float = MIN_COLUMN_COVERAGE) -> BalancedMatrix:
+    """Coverage floor, then trim to the survivors' overlap, then drop any gap.
+
+    Full listwise deletion over the WHOLE sample (`z.dropna(how="any")` with no
+    prior column filter) does not degrade gracefully as a panel widens — see
+    the module docstring for the measured failure at 167 columns. This is the
+    three-step admission standard applied macro-PCA work uses instead:
+
+      1. drop any column whose WITHIN-RANGE coverage is below `min_coverage`
+         (see `_within_range_coverage` for why that and not the full window);
+      2. trim remaining rows to the date range where every SURVIVING column has
+         data (their overlap — not the union, which would still have holes);
+      3. drop any still-isolated gap inside that trimmed range.
+
+    Step 3 exists for a genuinely isolated single-month outage; if it removes
+    more than a handful of rows, that is itself worth noticing, and the caller
+    sees it in the row count either way.
+    """
+    coverage = z.apply(_within_range_coverage)
+    keep = coverage[coverage >= min_coverage].index
+    dropped = {str(c): round(float(coverage[c]), 4) for c in z.columns if c not in keep}
+    trimmed = z[keep]
+    if trimmed.empty:
+        return BalancedMatrix(frame=trimmed, dropped_columns=dropped)
+
+    starts = trimmed.apply(lambda col: col.first_valid_index())
+    ends = trimmed.apply(lambda col: col.last_valid_index())
+    if starts.isna().any() or ends.isna().any():
+        return BalancedMatrix(frame=trimmed.iloc[0:0], dropped_columns=dropped)
+    overlap_start, overlap_end = starts.max(), ends.min()
+    if overlap_start > overlap_end:
+        return BalancedMatrix(frame=trimmed.iloc[0:0], dropped_columns=dropped)
+
+    windowed = trimmed.loc[overlap_start:overlap_end]
+    balanced = windowed.dropna(axis=0, how="any")
+    return BalancedMatrix(frame=balanced, dropped_columns=dropped)
+
+
+def _fit_pca(z: pd.DataFrame, k: int) -> tuple[pd.DataFrame, pd.DataFrame, np.ndarray, dict[str, float]]:
     """SVD-based PCA on a balanced, standardised matrix.
 
-    Returns (scores T x k, loadings N x k, eigenvalues length k). Loadings are
-    scaled so that `scores @ loadings.T ≈ z` — the observation-equation
-    convention `ace.state.factors` reports its DFM loadings under, so the two
-    are comparable without a unit conversion.
+    Returns (scores T x k, loadings N x k, eigenvalues length k, dropped
+    columns with their coverage share). Loadings are scaled so that
+    `scores @ loadings.T ≈ z` — the observation-equation convention
+    `ace.state.factors` reports its DFM loadings under, so the two are
+    comparable without a unit conversion.
     """
-    balanced = z.dropna(axis=0, how="any")
+    matrix = _balanced_matrix(z)
+    balanced = matrix.frame
+    if balanced.empty or balanced.shape[0] < 2 or balanced.shape[1] < 2:
+        available = ", ".join(f"{k}={v:.0%}" for k, v in
+                               sorted(matrix.dropped_columns.items(), key=lambda kv: kv[1]))
+        raise ValueError(
+            f"no balanced window survives coverage filtering and overlap-"
+            f"trimming ({balanced.shape[0]} rows x {balanced.shape[1]} cols). "
+            f"Columns dropped for low coverage: {available or 'none'}"
+        )
     x = balanced.to_numpy(dtype=float)
     t, n = x.shape
     u, s, vt = np.linalg.svd(x, full_matrices=False)
@@ -168,7 +275,7 @@ def _fit_pca(z: pd.DataFrame, k: int) -> tuple[pd.DataFrame, pd.DataFrame, np.nd
         vt[:k, :].T, index=balanced.columns,
         columns=[f"PC{i+1}" for i in range(k)],
     )
-    return scores, loadings, eigenvalues
+    return scores, loadings, eigenvalues, matrix.dropped_columns
 
 
 def fit(
@@ -195,7 +302,7 @@ def fit(
     n_factors = int(k if k is not None else count.k)
     n_factors = max(1, min(n_factors, MAX_REPORTED_COMPONENTS))
 
-    scores, loadings, eigenvalues = _fit_pca(z, n_factors)
+    scores, loadings, eigenvalues, dropped_for_coverage = _fit_pca(z, n_factors)
     balanced_cols = list(loadings.index)
     total_var = float(np.nansum(z[balanced_cols].to_numpy(dtype=float) ** 2)) / len(scores)
 
@@ -226,6 +333,7 @@ def fit(
         n_obs=int(len(scores)), series=tuple(balanced_cols),
         dates=tuple(scores.index), factor_count=count,
         components=tuple(components), scores=scores, mean=mu, std=sigma,
+        dropped_for_coverage=dropped_for_coverage,
     )
 
 

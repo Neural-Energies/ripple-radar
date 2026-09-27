@@ -428,6 +428,82 @@ def test_the_committed_registry_is_internally_consistent():
 
 # --- ace.factors.universe_panel ----------------------------------------------
 
+def test_duplicate_resolution_excludes_a_discontinued_candidate():
+    """The defect this guards: `_pick_representative` chose PPIITM
+    (discontinued 2015) over WPUID61 (current) and IOER (discontinued 2021)
+    over IORB (current), because 'deepest vintage history' measures total
+    observation COUNT, which a long-dead series can still win on. Running
+    static PCA on the resulting 167-series panel found that these frozen
+    columns, at that breadth, crushed the balanced-matrix requirement to zero
+    usable rows."""
+    from ace.factors.universe_panel import _pick_representative
+    from ace.universe.registry import SeriesRecord
+
+    base = dict(
+        source="FRED", source_url="", concept="c", economic_category="credit",
+        sub_category="s", layer="hard", frequency="monthly", units="",
+        seasonal_adjustment="", availability_status="vintage",
+        route="alfred_first_release", vintage_support=True,
+        revision_behaviour="archive_present", factor_eligible=True,
+        in_production_panel=False, last_update="",
+    )
+    by_id = {
+        "DEAD": SeriesRecord(series_id="DEAD", canonical_name="Dead",
+                              observation_start="1947-01-01", observation_end="2015-12-01",
+                              n_vintage_observations=800, **base),
+        "LIVE": SeriesRecord(series_id="LIVE", canonical_name="Live",
+                              observation_start="1947-01-01", observation_end="2026-08-01",
+                              n_vintage_observations=200, **base),
+    }
+    choice = _pick_representative(("DEAD", "LIVE"), by_id, now="2026-09-27")
+    assert choice.chosen == "LIVE", "a discontinued series must not win on raw history depth"
+    assert "discontinued" in choice.reason
+
+
+def test_duplicate_resolution_falls_back_when_every_candidate_is_stale():
+    """A duplicate group where NOTHING is fresh must still return a choice —
+    silently returning nothing would be worse than picking a stale one and
+    saying so."""
+    from ace.factors.universe_panel import _pick_representative
+    from ace.universe.registry import SeriesRecord
+
+    base = dict(
+        source="FRED", source_url="", concept="c", economic_category="credit",
+        sub_category="s", layer="hard", frequency="monthly", units="",
+        seasonal_adjustment="", availability_status="vintage",
+        route="alfred_first_release", vintage_support=True,
+        revision_behaviour="archive_present", factor_eligible=True,
+        in_production_panel=False, last_update="",
+        observation_start="1947-01-01",
+    )
+    by_id = {
+        "A": SeriesRecord(series_id="A", canonical_name="A",
+                           observation_end="2010-01-01", n_vintage_observations=500, **base),
+        "B": SeriesRecord(series_id="B", canonical_name="B",
+                           observation_end="2011-01-01", n_vintage_observations=100, **base),
+    }
+    choice = _pick_representative(("A", "B"), by_id, now="2026-09-27")
+    assert choice.chosen in ("A", "B")
+
+
+def test_is_fresh_treats_a_blank_observation_end_as_fresh():
+    """A production-panel record was never re-probed for its end date;
+    absence of the field must not read as evidence of staleness for the one
+    class of record already validated by its own panel membership."""
+    from ace.factors.universe_panel import _is_fresh
+    from ace.universe.registry import SeriesRecord
+
+    record = SeriesRecord(
+        series_id="X", canonical_name="X", source="FRED", source_url="",
+        concept="c", economic_category="growth", sub_category="s", layer="hard",
+        frequency="monthly", units="", seasonal_adjustment="",
+        observation_start="", observation_end="", last_update="",
+        availability_status="vintage", route="alfred_first_release",
+        vintage_support=True, in_production_panel=True,
+    )
+    assert _is_fresh(record, now="2026-09-27") is True
+
+
 def test_duplicate_resolution_prefers_the_production_panel_member():
     from ace.factors.universe_panel import _pick_representative
     from ace.universe.registry import SeriesRecord

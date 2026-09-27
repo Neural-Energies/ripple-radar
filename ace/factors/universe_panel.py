@@ -38,7 +38,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ace.state.panel import GROUPS as PRODUCTION_GROUPS, SeriesSpec
+import pandas as pd
+
+from ace.state.panel import SeriesSpec
 from ace.universe.registry import SeriesRecord, eligible_for_panel, load
 
 
@@ -74,24 +76,60 @@ class DuplicateChoice:
     reason: str
 
 
+#: A candidate whose newest observation is this many days behind "now" is
+#: treated as discontinued for duplicate-resolution purposes, regardless of how
+#: much HISTORY it has. Found by running the comprehensive panel through static
+#: PCA: `PPIITM` (stopped 2015) and `IOER` (stopped 2021, superseded by `IORB`
+#: the day after) were both chosen over their live successors because "deepest
+#: vintage history" measures total observation COUNT, which a long-dead series
+#: can still win on. A frozen column does not just fail to help a live factor
+#: reading — at this panel's breadth it is exactly the kind of gap that crushed
+#: static PCA's balanced-matrix requirement to zero usable rows (see
+#: `ace.factors.pca`). 550 days is generous enough for an annual-cadence series
+#: revised late without flagging normal lag as discontinuation.
+STALE_AFTER_DAYS = 550
+
+
+def _is_fresh(record: SeriesRecord, *, now: str | None = None) -> bool:
+    """Best-effort freshness check from the registry's own `observation_end`.
+
+    Returns True (assume fresh) when the field is blank — a production-panel
+    series was never probed for it, and absence of evidence should not read as
+    evidence of staleness for the one class of record that is already
+    validated by its own membership in the panel.
+    """
+    if not record.observation_end:
+        return True
+    try:
+        end = pd.Timestamp(record.observation_end)
+    except (ValueError, TypeError):
+        return True
+    reference = pd.Timestamp(now) if now else pd.Timestamp.now()
+    return bool((reference - end).days <= STALE_AFTER_DAYS)
+
+
 def _pick_representative(
-    members: tuple[str, ...], by_id: dict[str, SeriesRecord]
+    members: tuple[str, ...], by_id: dict[str, SeriesRecord], *, now: str | None = None
 ) -> DuplicateChoice:
-    """Rule 1-2-3 from the module docstring, applied and recorded."""
-    in_production = [m for m in members if by_id[m].in_production_panel]
+    """Rule 0-1-2-3 from the module docstring, applied and recorded."""
+    fresh = [m for m in members if _is_fresh(by_id[m], now=now)]
+    pool = fresh or list(members)  # if EVERY candidate is stale, don't return nothing
+    stale_dropped = set(members) - set(pool)
+
+    in_production = [m for m in pool if by_id[m].in_production_panel]
     if in_production:
         chosen = in_production[0]
         reason = "already validated in the production panel"
     else:
-        vintage = [m for m in members if by_id[m].route == "alfred_first_release"]
-        pool = vintage or list(members)
-        chosen = max(
-            pool, key=lambda m: by_id[m].n_vintage_observations or 0
-        )
+        vintage = [m for m in pool if by_id[m].route == "alfred_first_release"]
+        candidates = vintage or pool
+        chosen = max(candidates, key=lambda m: by_id[m].n_vintage_observations or 0)
         reason = (
             "point-in-time route, deepest vintage history"
             if vintage else "deepest observation history (no point-in-time route in this group)"
         )
+    if stale_dropped:
+        reason += f"; excluded as discontinued: {sorted(stale_dropped)}"
     dropped = tuple(m for m in members if m != chosen)
     label = by_id[chosen].redundancy_group or chosen
     return DuplicateChoice(group=label, chosen=chosen, dropped=dropped, reason=reason)
@@ -130,6 +168,26 @@ def research_panel() -> tuple[SeriesSpec, ...]:
 
 
 def main() -> None:
+    """Print the duplicate-resolution summary, then fetch and build the
+    comprehensive panel live and write `macro_comprehensive_panel_build.json`.
+
+    This is the reproducible entry point for that artifact — following
+    `ace.state.panel.main()` and `ace.universe.registry.main()`'s own
+    convention of a real module `main()` rather than a one-off scratch script,
+    so the committed artifact cannot drift from what the current code actually
+    produces the way an earlier version of it did (still showing `PPIITM` and
+    `IOER` chosen over their live successors after the duplicate-resolution
+    freshness fix landed, because nothing had re-run it).
+
+    Run: `python -m ace.factors.universe_panel`
+    """
+    import json
+
+    import pandas as pd
+
+    from ace.config import ROOT
+    from ace.state.panel import PANEL as PRODUCTION_PANEL, build_asof, load_vintages
+
     specs, choices = default_panel()
     research = research_panel()
     print(f"default panel:  {len(specs)} series")
@@ -138,7 +196,6 @@ def main() -> None:
     for c in choices:
         print(f"  {c.group:<40} kept {c.chosen:<16} dropped {c.dropped}  ({c.reason})")
 
-    from ace.state.panel import PANEL as PRODUCTION_PANEL
     production_ids = {s.series_id for s in PRODUCTION_PANEL}
     new_ids = {s.series_id for s in specs} - production_ids
     print(f"\n{len(production_ids)} in the production panel today")
@@ -149,6 +206,41 @@ def main() -> None:
             by_group.setdefault(spec.group, []).append(spec.series_id)
     for group in sorted(by_group):
         print(f"  {group:<24} {len(by_group[group]):>3}  {' '.join(sorted(by_group[group]))}")
+
+    print("\nfetching and building the comprehensive panel live...")
+    vintages = load_vintages(specs)
+    from ace.state.panel import LOAD_ERRORS
+    if LOAD_ERRORS:
+        print(f"{len(LOAD_ERRORS)} fetch failures:")
+        for sid, why in sorted(LOAD_ERRORS.items()):
+            print(f"  FAIL {sid:<20} {why[:100]}")
+
+    now = pd.Timestamp.now(tz="UTC")
+    build = build_asof(now, vintages, specs=specs)
+    print(build.describe())
+    if build.dropped:
+        print(f"{len(build.dropped)} DROPPED:")
+        for sid, why in sorted(build.dropped.items()):
+            print(f"  {sid:<20} {why[:100]}")
+
+    report = {
+        "as_of": build.as_of,
+        "n_panel": len(specs),
+        "n_used": build.n_series,
+        "n_monthly": build.n_monthly,
+        "n_quarterly": build.n_quarterly,
+        "groups": {k: list(v) for k, v in build.groups.items()},
+        "dropped": build.dropped,
+        "fetch_errors": dict(LOAD_ERRORS),
+        "duplicate_choices": [
+            {"group": c.group, "chosen": c.chosen, "dropped": list(c.dropped), "reason": c.reason}
+            for c in choices
+        ],
+    }
+    path = ROOT / "artifacts" / "reports" / "macro_comprehensive_panel_build.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(report, indent=2, sort_keys=True))
+    print(f"\nwrote {path}")
 
 
 if __name__ == "__main__":

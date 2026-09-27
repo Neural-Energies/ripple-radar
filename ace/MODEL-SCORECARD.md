@@ -26,6 +26,8 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | **Conflict cascade (GDELT Hawkes)** | **PASSES — 15/20 countries, shape unverified** | Partly — that escalation clusters, yes. Not the branching ratio to three digits. |
 | Game theory (Nash + Monte Carlo) | **Exact** | Yes — equilibria computed and verified. Payoffs remain an assumption. |
 | Regime (Markov switching) | **Validated, descriptive. Specification settled: 2 of 10 factors carry LEVEL regimes** | Yes — to label the environment, and only where the label is supported. Not as a forecast. |
+| **Macro data registry** | **208/208 series live**, 256-concept target universe, 39% covered before this work | N/A — infrastructure, not a model. |
+| **Static PCA (global + domain)** | **Domain PCA works on 12/12 blocks. A single GLOBAL fit across the full 165-series breadth does not** (32 overlapping months, 2.3% variance) | Domain loadings — yes, as interpretation alongside the DFM. A flat global PCA factor — no. |
 | Historical analogs | **Validated, descriptive** | Yes — as a distribution of what followed similar states. |
 | **Growth/inflation quad** | **Classification validated; positioning FAILED 0/6; vol forecast FAILED 0/6** | Yes, as an environment label with its data lag, margin and revision survival stated. **No** as a positioning signal and **no** as a risk-sizing signal. |
 | **Quad revision risk** | **Measured** | **Yes** — 74% of real-time labels survived revision, and the per-margin rates are calibrated. |
@@ -88,6 +90,84 @@ housing and financial-conditions regimes are supported as ENVIRONMENT LABELS
 with their probabilities. Whether those probabilities beat climatology on Brier
 is a separate, unrun test, and nothing may drive a user-facing number until it
 does.
+
+---
+
+### Macro data registry and static PCA: what the comprehensive universe found
+
+`ace/universe/` builds a 256-concept target universe across the twenty
+economic families a comprehensive macro factor engine needs, probes every
+candidate against FRED/ALFRED, and merges the result into a registry —
+`artifacts/reports/macro_registry.json` — carrying measured publication lag,
+revision behaviour, redundancy relationships, and which route (point-in-time
+archive vs. standard endpoint) each series is safe to read on. Coverage before
+this work: 99/256 concepts (39%), with banking, fiscal, energy, corporate
+profits, productivity and demographics at zero. `ace/factors/universe_panel.py`
+turns the 211-213 panel-eligible records into the same `SeriesSpec` shape the
+production panel uses and resolves duplicates (one representative per
+redundant concept, freshness-checked first). Built live: **208/208 series
+join, nothing dropped.**
+
+**A single global PCA cannot explain the whole comprehensive panel, and this
+is a measurement, not a limitation of the code.** 164 of 165 monthly series
+clear a coverage floor measured within each series' own active range (not
+against the full panel window — an earlier version of that measure starved
+four entire domain blocks to zero columns by penalising a series for simply
+starting later than 1980). But the DATE-RANGE OVERLAP those 164 series share —
+the number of months every one of them has data for — is **32 months**. PC1
+explains 2.3% of variance and is not economically legible. This is the
+brief's own hypothesis, confirmed empirically: a single PCA cannot explain
+the whole economy at once once the panel is genuinely comprehensive.
+
+**Domain-level PCA works on all twelve blocks**, each with 128-183 overlapping
+months, producing legible first components without being told what to look
+for:
+
+| Domain | PC1 var. | Top loadings |
+|---|---:|---|
+| labor | 46.1% | PAYEMS, USPRIV, SRVPRD, CE16OV (headline + private employment) |
+| commodities | 43.5% | broad price indices, gasoline, copper |
+| output_activity | 37.3% | capacity utilization, industrial production |
+| manufacturing | 31.4% | CFNAI, durable-goods shipments and orders |
+| consumer | 31.4% | personal saving rate, personal income |
+| credit | 28.9% | revolving + non-revolving consumer credit |
+| banking | 22.0% | bank total assets, total bank credit |
+| liquidity_money | 21.2% | M1 (dominant, 0.98 loading) |
+| trade_external | 17.1% | goods exports and imports |
+| inflation | 13.5% | PPI (all-commodity, final-demand, intermediate-demand) |
+| housing | 6.7% | 15y and 30y mortgage rates |
+| financial_conditions | 6.0% | 10y-3m and 10y-2y curve slopes |
+
+Ten of twelve hit the factor-count search's ceiling (`at_boundary=True`) — the
+same "boundary hit, not a selection" finding already documented for the
+production DFM's own count. A domain's total factor count should not be read
+as settled; PC1's loadings are unaffected, since PC1 is the direction of
+maximum variance regardless of how many further components a criterion wants.
+
+**Loading stability is high in normal periods and breaks at every dated
+crisis, and only there.** On a 67-series deep-history subset (transformed
+history to 2000 or earlier), sign-aligned PC1 loading correlation across
+consecutive windows: mean 0.86 (expanding), 0.82 (rolling). Every transition
+below 0.55 in BOTH tests lands on a macro shock — 2007-01→2009-01 (financial
+crisis, 0.51), 2019-01→2021-01 (COVID, 0.30 / 0.47), 1999-01→2003-01 (dot-com,
+0.54 then 0.41) — while every other transition correlates above 0.87. This is
+the crisis-vs-normal stability test the validation plan calls for, and the
+factor structure the data actually has.
+
+**PCA and DFM substantially agree on the dominant common factor.** On the same
+fair (deep-history, monthly-only, no quarterly) subset: sign-aligned
+correlation of the two methods' global factor LEVEL is 0.82; the LOADING
+correlation — do the two methods agree on which series drive it — is 0.99 over
+67 common series. DFM's advantage is not a different answer on shared ground;
+it is handling the ragged edge and breadth PCA cannot use directly. A first
+attempt to fit DFM on the FULL 206-series, 41-quarterly panel grew past 12GB of
+resident memory before being killed — the quarterly Mariano-Murasawa lag
+expansion combined with 206 idiosyncratic AR(1) terms pushes the Kalman
+filter's state dimension into the hundreds — so the comparison runs on the
+deep-history subset, a stated scope limit rather than a silent downsizing.
+
+Artifacts: `artifacts/reports/macro_registry.json`,
+`macro_comprehensive_panel_build.json`, `macro_pca_research.json`.
 
 ---
 

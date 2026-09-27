@@ -180,3 +180,131 @@ def test_a_component_is_sign_oriented_to_majority_positive():
     out_loading, out_score = _orient_component(loading, score)
     assert out_loading.sum() > 0
     pd.testing.assert_series_equal(out_score, -score)
+
+
+# --- the balanced-matrix construction: coverage floor + overlap trim --------
+
+def test_a_column_with_internal_gaps_is_dropped_and_reported():
+    """A column that is patchy WITHIN its own active range — real values, then
+    holes, scattered throughout, the signature of a genuinely broken feed —
+    must be dropped and named, not allowed to veto every other column's data
+    via a naive full-panel listwise deletion (see the module docstring for the
+    measured 166-of-167-columns failure this replaced)."""
+    from ace.factors.pca import _balanced_matrix
+
+    idx = pd.date_range("2000-01-01", periods=200, freq="MS", tz="UTC")
+    rng = np.random.default_rng(1)
+    frame = pd.DataFrame({f"S{i}": rng.normal(size=200) for i in range(10)}, index=idx)
+    # Active the whole window, but only 40% of months inside it are non-null —
+    # scattered, not a late start, so this must fail the WITHIN-RANGE coverage
+    # measure rather than surviving via a late-start exemption.
+    patchy = rng.normal(size=200)
+    mask = rng.random(200) < 0.6
+    patchy[mask] = np.nan
+    frame["PATCHY"] = patchy
+
+    result = _balanced_matrix(frame)
+    assert "PATCHY" in result.dropped_columns
+    assert result.dropped_columns["PATCHY"] < 0.90
+    assert "PATCHY" not in result.frame.columns
+    assert len(result.frame) > 0
+    assert len(result.frame.columns) == 10
+
+
+def test_a_column_that_simply_started_late_is_NOT_dropped_for_coverage():
+    """The regression this guards directly: on the live comprehensive panel, a
+    coverage measure taken against the FULL panel window (rather than each
+    column's own active range) starved four entire domain blocks — banking,
+    commodities, manufacturing, trade_external — to zero surviving columns.
+    A commodity index starting in 2015 inside a panel that starts in 1980 is
+    perfectly dense once it exists; it must clear the coverage floor and be
+    handled by the overlap-trim step, not be treated as low-quality data."""
+    from ace.factors.pca import _balanced_matrix
+
+    idx = pd.date_range("1980-01-01", periods=561, freq="MS", tz="UTC")
+    rng = np.random.default_rng(2)
+    frame = pd.DataFrame({f"S{i}": rng.normal(size=561) for i in range(5)}, index=idx)
+    late = np.full(561, np.nan)
+    late[500:] = rng.normal(size=61)  # starts in month 501 of 561 (~11% of the window)
+    frame["LATE_START"] = late
+
+    result = _balanced_matrix(frame)
+    assert "LATE_START" not in result.dropped_columns, (
+        "a late-starting but internally dense column must not be dropped for coverage"
+    )
+    assert "LATE_START" in result.frame.columns
+
+
+def test_survivors_are_trimmed_to_their_overlap_not_the_union():
+    """A column starting late must not just be admitted with leading NaN —
+    the balanced frame must contain no NaN at all, on the overlap of every
+    surviving column's own valid range. The gap is 9 of 100 months (91%
+    coverage): enough to clear the coverage floor, so this exercises the
+    OVERLAP TRIM specifically rather than the coverage drop the next test
+    covers."""
+    from ace.factors.pca import _balanced_matrix
+
+    idx = pd.date_range("2000-01-01", periods=100, freq="MS", tz="UTC")
+    rng = np.random.default_rng(2)
+    early = pd.Series(rng.normal(size=100), index=idx)
+    late = pd.Series(rng.normal(size=100), index=idx)
+    late.iloc[:9] = np.nan  # starts 9 months later; 91% coverage clears the floor
+    frame = pd.DataFrame({"EARLY": early, "LATE": late})
+
+    result = _balanced_matrix(frame)
+    assert result.dropped_columns == {}
+    assert not result.frame.isna().any().any()
+    assert result.frame.index.min() == idx[9]
+    assert result.frame.index.max() == idx[-1]
+
+
+def test_an_empty_balanced_matrix_raises_a_clear_error_not_a_crash():
+    """The original defect, reproduced directly: a panel where no column
+    clears the coverage floor must fail with a message naming the columns and
+    their coverage, never with an unrelated ZeroDivisionError three calls away
+    from the actual cause. Each column is scattered-patchy throughout its own
+    active range (not merely late-starting, which the coverage floor now
+    correctly tolerates — see the test above), so it genuinely fails the 90%
+    WITHIN-RANGE floor rather than being exempted by a late start."""
+    from ace.factors.pca import fit
+
+    idx = pd.date_range("2000-01-01", periods=100, freq="MS", tz="UTC")
+    rng = np.random.default_rng(9)
+    frame = pd.DataFrame(index=idx)
+    for i in range(5):
+        col = rng.normal(size=100)
+        mask = rng.random(100) < 0.4  # ~60% coverage, scattered, under the floor
+        col[mask] = np.nan
+        frame[f"S{i}"] = col
+
+    with pytest.raises(ValueError, match="no balanced window survives"):
+        fit(frame, as_of="2020-01-01", label="test")
+
+
+def test_a_fully_dense_panel_drops_nothing_for_coverage():
+    rng = np.random.default_rng(3)
+    idx = pd.date_range("2000-01-01", periods=150, freq="MS", tz="UTC")
+    frame = pd.DataFrame(
+        {f"S{i}": rng.normal(size=150) for i in range(10)}, index=idx
+    )
+    result = fit(frame, as_of="2020-01-01", label="test", k=1)
+    assert result.dropped_for_coverage == {}
+    assert result.n_series == 10
+
+
+def test_dropped_for_coverage_reaches_the_serialised_dict():
+    """SPARSE is scattered-patchy across its whole active range (86.7% of 150
+    months present, at random positions) rather than merely late-starting —
+    the case the coverage floor is actually meant to catch."""
+    idx = pd.date_range("2000-01-01", periods=150, freq="MS", tz="UTC")
+    rng = np.random.default_rng(4)
+    frame = pd.DataFrame({f"S{i}": rng.normal(size=150) for i in range(10)}, index=idx)
+    sparse = rng.normal(size=150)
+    mask = rng.random(150) < 0.133  # ~86.7% coverage, scattered, below the floor
+    sparse[mask] = np.nan
+    frame["SPARSE"] = sparse
+
+    result = fit(frame, as_of="2020-01-01", label="test", k=1)
+    assert "SPARSE" in result.dropped_for_coverage
+    assert "SPARSE" in result.to_dict()["dropped_for_coverage"]
+    assert "SPARSE" not in result.series

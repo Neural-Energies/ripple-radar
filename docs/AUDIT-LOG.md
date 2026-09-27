@@ -13,6 +13,146 @@ drift watch, then Now/Next/Later coverage.
 
 ---
 
+## 2026-09-27 — cycle 3 (comprehensive macro data registry + static PCA)
+
+**Checked:** implementation of the Macro Factor Engine brief's Phases 1-7 —
+audit the existing macro data, build a 256-concept target universe and gap
+analysis, build a Macro Data Registry from FRED/ALFRED metadata and measured
+publication behaviour, derive a registry-driven comprehensive panel with
+duplicate resolution, run static PCA (global and per-domain) with expanding-
+and rolling-window stability tests, and compare PCA against the production
+`DynamicFactorMQ` fit on the same data.
+
+### Coverage: 39% before, 208/208 live after
+
+99 of 256 target concepts (39%) were served by the 102 series already defined
+somewhere in the repo; six families (banking, fiscal, energy, corporate
+profits, productivity, demographics) were at zero. Probing every uncovered
+candidate against FRED/ALFRED — with `no_such_series`, `licence_limited`,
+`vintage`, `observation_only`, `metadata_only` as four distinct outcomes
+instead of one "unavailable" bucket — and merging the result with the concept
+catalogue and `ace.state.panel`'s own hand-argued transforms produced a
+242-record registry, 211-213 panel-eligible depending on the freshness rule
+below. Building the resulting panel live: **208/208 series join, nothing
+dropped.**
+
+### Defects found by building the registry, not just designing it
+
+- The concept catalogue itself had real errors the duplicate detector caught:
+  a nominal and a real series (gross domestic income) listed as substitutes
+  for one concept; federal-only spending (FGCE) conflated with all-levels
+  spending (GCE); "debt held by the public" conflated with gross federal debt;
+  a candidate for capital-goods SHIPMENTS that turned out, against FRED's own
+  metadata, to be nondurable-goods new ORDERS. Each was split or corrected
+  rather than kept as a weak substitute.
+- The redundancy grouping rule was merging real/nominal pairs into one
+  "pick one representative" group — exactly the "discard a useful variant
+  blindly" the brief forbids. Fixed to merge only genuine interchangeable
+  pairs (shared concept, SA/NSA pair, measured near-duplicate).
+- Registering a production-panel series' unprobed vintage count (`None`) as
+  zero observations excluded all 89 of them from their own registry.
+- `PPIITM` (discontinued 2015) and `IOER` (discontinued 2021, superseded by
+  `IORB` the next day) were chosen over their live successors by a duplicate-
+  resolution rule that measured total observation COUNT, which a long-dead
+  series can still win on. Caught by running static PCA on the resulting
+  panel: with those two frozen columns among 167, not one of 561 months was
+  ever fully complete, and naive listwise deletion returned **zero rows**,
+  surfacing only as a division-by-zero. Fixed the duplicate-resolution rule to
+  check freshness first, and separately confirmed via FRED metadata that
+  `USSLIND`, `USNIM` and a mislabelled-frequency OECD series are also
+  discontinued or unsupported and excluded them with stated reasons.
+
+### The coverage metric itself needed a second correction
+
+The first fix — drop a column below 90% coverage before building the balanced
+matrix — measured coverage against the FULL 561-month panel window. That
+starved four entire domain blocks (banking, commodities, manufacturing,
+trade_external) to zero surviving columns, because a commodity index starting
+in 2015 is perfectly dense from 2015 onward but covers only 23% of a panel
+that starts in 1980 — the full-window measure flagged it as low-coverage
+before the overlap-trim step, built specifically to handle a late start, ever
+ran. Fixed to measure coverage WITHIN each column's own active range; a
+regression test (`test_a_column_that_simply_started_late_is_NOT_dropped_for_coverage`)
+encodes the fix directly.
+
+### What static PCA actually found
+
+**A single global PCA across the full comprehensive breadth is not viable.**
+164 of 165 monthly series clear the (corrected) coverage floor, but their
+DATE-RANGE OVERLAP — the shared history every one of them has, given how
+differently they start — is **32 months**. PC1 explains 2.3% of variance and
+is not economically legible. This is the direct, measured answer to the
+brief's own question about whether one PCA can explain the whole economy at
+once: it cannot, once the panel is genuinely comprehensive rather than
+curated to already share deep history.
+
+**Domain-level PCA works cleanly on all twelve blocks**, each with 128-183
+overlapping months, and produces first components that are legible without
+being told what to look for: labor's PC1 (46% of variance) loads on
+PAYEMS/USPRIV/SRVPRD/CE16OV — headline and private employment together;
+commodities' PC1 (44%) loads on the broad price indices and gasoline; housing's
+loads on the 15- and 30-year mortgage rates; credit's loads almost entirely on
+revolving and non-revolving consumer credit. Ten of twelve blocks hit the
+factor-count search's ceiling (`at_boundary=True`) — the same "boundary hit,
+not a selection" finding already documented for the production DFM's own
+count — so a domain's total factor count should not be read as a settled
+number; PC1's loadings are unaffected by this, since it is the direction of
+maximum variance regardless of how many further components a criterion wants.
+
+**Loading stability is high in normal periods and breaks at every crisis.**
+Sign-aligned PC1 loading correlation across consecutive windows, on a
+67-series deep-history subset (transformed history reaching back to 2000):
+mean 0.86 (expanding) / 0.82 (rolling), but EVERY transition with correlation
+below 0.55 in both tests lands on a dated macro shock — 2007-01→2009-01 (the
+financial crisis, 0.51), 2019-01→2021-01 (COVID, 0.30 expanding / 0.47
+rolling), 1999-01→2003-01 (the dot-com bust, 0.54 then 0.41) — while every
+other transition correlates above 0.87. This is exactly the crisis-vs-normal
+stability test the brief's `<validation>` section asks for, and the factor
+structure the data actually has: stable in normal times, genuinely
+reorganising during a shock rather than merely getting noisier.
+
+**PCA and DFM substantially agree on the dominant common factor**, on the same
+fair (deep-history, monthly-only) subset: sign-aligned correlation of the two
+methods' global factor level is 0.82, and the loading correlation — do the two
+methods agree on WHICH series drive it — is 0.99 over 67 common series. DFM's
+real advantage is not a different answer; it is handling the breadth and
+ragged edge PCA cannot use directly.
+
+### A near-miss: fitting DFM on the full comprehensive panel
+
+A first attempt fit `DynamicFactorMQ` on the full 206-series, 41-quarterly
+panel. Resident memory grew past 12GB (of 15GB available) before being killed.
+The quarterly members' Mariano-Murasawa lag expansion, combined with an
+idiosyncratic AR(1) term per series across 206 series, pushes the Kalman
+filter's state dimension into the hundreds; EM then iterates that many times
+over 561 months. The PCA-vs-DFM comparison runs on the deep-history,
+monthly-only subset instead (~67-90 series, the same scale as the 89-series
+fit that converged in 468 seconds earlier in this project), and this is a
+stated scope limitation, not a silent downsizing — full-panel DFM at this
+breadth needs either a longer compute budget or a narrower block specification
+than the registry's ~19 economic categories currently produce.
+
+### Coverage after this cycle
+
+89 production-panel series, unchanged; 208-series comprehensive panel proven
+to build live end-to-end; 12 domain PCA fits; one honest negative result
+(global flat PCA on full breadth); one honest agreement result (PCA vs DFM).
+73 new tests across `ace/tests/test_pca.py`, `test_stability.py`,
+`test_pca_research.py`, plus the universe-registry regression tests from the
+prior cycle's fixes, all green. Full pre-existing suite unchanged.
+
+### Open, with reasons
+
+| Item | Why not this cycle |
+|---|---|
+| Full comprehensive-panel DFM fit | Needs either a longer compute/memory budget than this session's container allows, or a coarser block specification (fewer than ~19 economic-category factors) to keep the Kalman state dimension tractable. |
+| Naming components ("this is the labor factor") | Deliberately not done in code — `ace.factors.pca`'s loadings are reported, not interpreted; a reader names a factor from what actually loads on it, per the brief's explicit instruction that the data decides. |
+| Factor State API extension (brief's `<factor_state>` field list) | Scoped as Phase 8, not started this cycle. |
+| News decomposition (`.news()` wrapper) | Scoped as Phase 9, not started this cycle. |
+| Does the broader factor set improve the existing regime/quad models | Scoped as Phase 10, not started this cycle. |
+
+---
+
 ## 2026-09-26 — cycle 2 (macro panel completeness)
 
 **Checked:** `ace/state/` and `ace/regime/` against the commissioning brief's
