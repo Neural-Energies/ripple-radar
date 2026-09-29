@@ -39,6 +39,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 warnings.filterwarnings("ignore")
 
 from ace.config import REPORTS
+from ace.data.alfred import first_releases
 from ace.macro.durations import duration_report
 from ace.macro.quads import (
     DEFAULT_SPEC,
@@ -67,7 +68,7 @@ from ace.macro.revisions import (
 )
 
 MODEL_ID = "ace_macro_quad"
-MODEL_VERSION = "v1"
+MODEL_VERSION = "v2"
 #: Month-ends shown in the app's timeline. The full history still feeds the
 #: transition matrix, the duration curves and the revision calibration.
 DISPLAY_MONTHS = 120
@@ -77,6 +78,9 @@ def publication_lags(vintages: dict[str, pd.DataFrame]) -> dict[str, dict]:
     """How late each input publishes — the reason a nowcast is not an almanac."""
     out = {}
     for sid, hist in vintages.items():
+        # First prints only: a revision published years later is not a
+        # publication lag, and would drag the median out by months.
+        hist = first_releases(hist)
         lag = (hist["published"] - hist["obs_date"]).dt.days
         meta = SERIES_BY_ID.get(sid)
         out[sid] = {

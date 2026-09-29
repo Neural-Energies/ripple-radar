@@ -7,8 +7,9 @@ quad is it, and how often does that answer survive?"
 
 This module answers that empirically, by running the SAME arithmetic twice:
 
-    real-time   — first-release vintages, filtered to what was published then
-    answer key  — today's fully revised series, cut to the same months
+    real-time   — each month as it stood on the date, from the vintage archive
+    answer key  — today's fully revised series, on exactly the same months and
+                  contributing series
 
 The gap between them is revision risk. It is measurable, it is large, and
 almost nobody who sells this framework publishes it.
@@ -20,6 +21,9 @@ THREE THINGS FALL OUT OF THE COMPARISON
    which series go into the composite stops being taste. `select_spec()` picks
    the winner on a training window and re-checks it on a holdout, because
    picking the best of eight on the full sample is selection, not evidence.
+   The split is one calendar date for every candidate, and everything the
+   choice uses — survival, the persistence floor, the tie-break, and the
+   revised answer key itself — is what existed at that date.
 
 2. A CALIBRATION ON MARGIN — bin readings by how far the rates of change sat
    from the boundary, and measure survival within each bin. A reading whose
@@ -51,7 +55,8 @@ from ace.macro.quads import (
     QUAD_NAMES,
     SPECS,
     Spec,
-    final_reading_at,
+    final_reading_like,
+    known_at,
     quad_history,
     reading_at,
     runs,
@@ -135,9 +140,9 @@ def compare(
 ) -> pd.DataFrame:
     """Real-time label against the revised answer for the same months.
 
-    The answer key is cut to the real-time reading's own newest observation
-    month, so the two differ only in how revised the values are — not in how
-    much data each one saw.
+    The answer key is computed on each axis's own months and contributing
+    series (`quads.final_reading_like`), so the two differ only in how revised
+    the values are — not in how much data each one saw.
     """
     spec = SPECS[spec] if isinstance(spec, str) else spec
     rows = []
@@ -148,11 +153,7 @@ def compare(
                          "final": None, "survived": None, "margin": None,
                          "bin": None, "data_lag_days": None})
             continue
-        through = max(
-            pd.Timestamp(rt.growth_through, tz="UTC"),
-            pd.Timestamp(rt.inflation_through, tz="UTC"),
-        )
-        fin = final_reading_at(d, finals, spec=spec, through=through)
+        fin = final_reading_like(rt, finals, spec=spec)
         rows.append({
             "as_of": str(pd.Timestamp(d).date()),
             "realtime": rt.quad,
@@ -187,32 +188,65 @@ def settled(cmp: pd.DataFrame, now: pd.Timestamp | None = None) -> pd.DataFrame:
     return cmp[(idx <= cutoff) & cmp["survived"].notna()]
 
 
+def calendar_cutoff(
+    dates: pd.DatetimeIndex, *, train_frac: float = 0.70, now: pd.Timestamp | None = None
+) -> pd.Timestamp:
+    """The one date that separates selection from holdout for every candidate.
+
+    `train_frac` of the month-ends settled by `now`. A per-candidate split —
+    each spec cut at 70% of its OWN scorable rows — puts the boundary on a
+    different date for a spec that starts classifying later, so candidates
+    would be chosen on different windows and checked on different holdouts.
+    """
+    now = pd.Timestamp.now(tz="UTC") if now is None else pd.Timestamp(now)
+    idx = dates if dates.tz is not None else dates.tz_localize("UTC")
+    ready = idx[idx <= now - pd.DateOffset(months=SETTLING_MONTHS)]
+    if len(ready) == 0:
+        raise ValueError("no month-end has settled yet")
+    return ready[max(int(len(ready) * train_frac) - 1, 0)]
+
+
+def answer_key_at(
+    vintages: dict[str, pd.DataFrame], when: pd.Timestamp
+) -> dict[str, pd.Series]:
+    """The revised series as they stood at `when` — the only answer key a
+    selection made on that date could have scored itself against."""
+    return {sid: known_at(hist, when) for sid, hist in vintages.items()}
+
+
 def score_spec(
     cmp: pd.DataFrame,
+    train_cmp: pd.DataFrame,
     name: str,
     *,
-    train_frac: float = 0.70,
+    cutoff: pd.Timestamp,
     now: pd.Timestamp | None = None,
 ) -> SpecScore:
-    """Survival rate for one spec, split chronologically."""
+    """Survival for one spec: training as measurable AT the cutoff, holdout after.
+
+    `train_cmp` compares real-time readings on or before the cutoff against
+    the answer key as it stood at the cutoff (`answer_key_at`), and only rows
+    that had settled by then count. The holdout is `cmp` — today's answer key
+    — on settled rows strictly after the cutoff. The pooled `survival` is over
+    every row settled today and is reported, never used to choose.
+    """
     sel_all = settled(cmp, now)
+    tr = settled(train_cmp, cutoff)
+    idx = sel_all.index if sel_all.index.tz is not None else sel_all.index.tz_localize("UTC")
+    ho = sel_all[idx > cutoff]
     n = int(len(sel_all))
-    if n == 0:
-        return SpecScore(name, 0, 0, float("nan"), 0, float("nan"), 0, float("nan"),
-                         float("nan"), int(cmp["realtime"].isna().sum()))
-    cut = int(n * train_frac)
-    tr, ho = sel_all.iloc[:cut], sel_all.iloc[cut:]
-    surv = int(sel_all["survived"].sum())
+    surv = int(sel_all["survived"].sum()) if n else 0
     return SpecScore(
         name=name,
         n=n,
         survived=surv,
-        survival=surv / n,
+        survival=surv / n if n else float("nan"),
         n_train=int(len(tr)),
         survival_train=float(tr["survived"].mean()) if len(tr) else float("nan"),
         n_holdout=int(len(ho)),
         survival_holdout=float(ho["survived"].mean()) if len(ho) else float("nan"),
-        median_lag_days=float(sel_all["data_lag_days"].median()),
+        # The tie-break, so from the training rows only.
+        median_lag_days=float(tr["data_lag_days"].median()) if len(tr) else float("nan"),
         unclassified=int(cmp["realtime"].isna().sum()),
     )
 
@@ -228,26 +262,42 @@ def select_spec(
 ) -> dict:
     """Pick the specification whose real-time label most often survives.
 
-    Chosen on the TRAINING window only. The holdout number is then reported for
-    the winner and for every rival, so a reader can see whether the choice held
-    up or whether eight candidates on one sample simply produced a lucky one.
+    Chosen with only what existed at one calendar cutoff: real-time readings on
+    or before it, scored against the vintages as they stood at it, on rows
+    that had settled by it; the persistence floor and the lag tie-break are
+    measured on the same window. Nothing after the cutoff — neither later
+    readings nor later revisions — can change the choice. The holdout number
+    is then reported for the winner and for every rival against today's
+    answer key, so a reader can see whether the choice held up or whether
+    eight candidates on one sample simply produced a lucky one.
 
     Ties go to the spec with the shorter publication lag: if two composites are
     equally durable, the one that knows sooner is worth more.
     """
     specs = SPECS if specs is None else specs
+    now = pd.Timestamp.now(tz="UTC") if now is None else pd.Timestamp(now)
+    dates = dates if dates.tz is not None else dates.tz_localize("UTC")
+    cutoff = calendar_cutoff(dates, train_frac=train_frac, now=now)
+    train_dates = dates[dates <= cutoff]
+    key_then = answer_key_at(vintages, cutoff)
+
     comparisons = {name: compare(dates, vintages, finals, spec=s) for name, s in specs.items()}
-    scores = {name: score_spec(c, name, train_frac=train_frac, now=now)
-              for name, c in comparisons.items()}
-    persistence = {name: spell_stats(dates, vintages, spec=s) for name, s in specs.items()}
+    train_comparisons = {name: compare(train_dates, vintages, key_then, spec=s)
+                         for name, s in specs.items()}
+    scores = {name: score_spec(comparisons[name], train_comparisons[name], name,
+                               cutoff=cutoff, now=now)
+              for name in specs}
+    persistence = {name: spell_stats(train_dates, vintages, spec=s) for name, s in specs.items()}
+    persistence_full = {name: spell_stats(dates, vintages, spec=s) for name, s in specs.items()}
 
     eligible: dict[str, str | None] = {}
     for name in specs:
         med = persistence[name]["median_months"]
         if med is None or med < MIN_MEDIAN_SPELL_MONTHS:
             eligible[name] = (
-                f"median spell {med if med is not None else 'unmeasurable'} months is below "
-                f"the {MIN_MEDIAN_SPELL_MONTHS:g}-month floor — this labels months, not regimes"
+                f"median spell {med if med is not None else 'unmeasurable'} months "
+                f"(training window) is below the {MIN_MEDIAN_SPELL_MONTHS:g}-month floor "
+                "— this labels months, not regimes"
             )
         else:
             eligible[name] = None
@@ -269,15 +319,22 @@ def select_spec(
     )
     return {
         "chosen": best.name,
-        "criterion": "among specifications whose median spell clears the persistence "
-                     f"floor of {MIN_MEDIAN_SPELL_MONTHS:g} months, the highest share of "
-                     "real-time labels that survived revision, measured on the training "
-                     "window; ties to the shorter publication lag",
+        "criterion": "among specifications whose training-window median spell clears the "
+                     f"persistence floor of {MIN_MEDIAN_SPELL_MONTHS:g} months, the highest "
+                     "share of real-time labels that survived revision, measured with only "
+                     "what existed at the calendar cutoff (readings on or before it, the "
+                     "vintages as they stood at it, rows settled by it); ties to the "
+                     "shorter training-window publication lag",
         "train_frac": train_frac,
+        "cutoff": str(cutoff.date()),
+        "train_settled_through": str((cutoff - pd.DateOffset(months=SETTLING_MONTHS)).date()),
+        "train_answer_key": "ALFRED vintages as they stood at the cutoff",
+        "holdout_answer_key": "today's revised series",
         "settling_months": SETTLING_MONTHS,
         "persistence_floor_months": MIN_MEDIAN_SPELL_MONTHS,
         "scores": {n: s.to_dict() for n, s in scores.items()},
         "persistence": persistence,
+        "persistence_full_sample": persistence_full,
         "eligible": {n: (r is None) for n, r in eligible.items()},
         "disqualified": {n: r for n, r in eligible.items() if r is not None},
         "chosen_holdout_rank": holdout_rank,

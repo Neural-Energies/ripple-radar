@@ -70,7 +70,7 @@ from ace.macro.quads import (
 from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, retire, utcnow
 
 MODEL_ID = "ace_macro_quad_vol"
-MODEL_VERSION = "v1"
+MODEL_VERSION = "v2"
 HOLDOUT_FRAC = 0.30
 #: Trading days a month must contain before its realised vol is trusted.
 MIN_DAYS_IN_MONTH = 15

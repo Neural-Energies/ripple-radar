@@ -60,7 +60,7 @@ from ace.macro.quads import (
 from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
 
 MODEL_ID = "ace_macro_quad"
-MODEL_VERSION = "v1"
+MODEL_VERSION = "v2"
 HOLDOUT_FRAC = 0.30
 #: A quad cell below this many months is reported but never acted on.
 MIN_MONTHS = 8
@@ -268,7 +268,8 @@ def main() -> int:
                                "channels_beating": winners},
             model_artifact_path="", creation_timestamp=utcnow(),
             production_status="CANDIDATE" if passes else "FAILED",
-            notes="Point-in-time ALFRED first-release vintages; GDP excluded for a "
+            notes="Point-in-time ALFRED vintages, each month as it stood on the date; "
+                  "GDP excluded for a "
                   "119-day publication lag. Classification is real either way; the "
                   "verdict is only about whether it positions.",
         ),

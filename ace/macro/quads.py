@@ -17,9 +17,11 @@ payrolls, 59 for the real consumption and income series, and 119 for real GDP �
 so on 31 March 2020 nobody knew Q1 GDP, and would not until late July.
 
 Classify March 2020 as Quad 4 using today's revised figures and you did not
-nowcast a regime, you read an almanac. Every quad here is built from ALFRED
-first-release vintages filtered to what had actually been PUBLISHED by the
-classification date.
+nowcast a regime, you read an almanac. Every quad here is built from the ALFRED
+vintage archive, each month taken as it stood on the classification date: the
+newest release of it PUBLISHED by then, never a later one. (Keeping the first
+print of every month forever is not the same thing — once a month has been
+revised, its first print is no longer what anyone could see.)
 
 It is also why GDP is not used at all: a 119-day lag means the print describes
 a quarter that ended four months ago.
@@ -56,7 +58,7 @@ from dataclasses import asdict, dataclass, field
 import numpy as np
 import pandas as pd
 
-from ace.data.alfred import current_vintage, release_history
+from ace.data.alfred import current_vintage, vintage_at, vintage_history
 
 
 @dataclass(frozen=True)
@@ -69,7 +71,7 @@ class SeriesSpec:
     #: Median publication lag in days, measured from the vintage archive. Kept
     #: here as documentation; the live number is recomputed on every export.
     typical_lag_days: int
-    #: First observation month ALFRED's first-release archive covers.
+    #: First observation month ALFRED's vintage archive covers.
     vintage_from: str
     note: str
 
@@ -186,6 +188,10 @@ class AxisReading:
     #: Each contributing series' own yoy and roc, so a reader can see whether
     #: the composite is a consensus or one series outvoting the rest.
     contributions: dict[str, dict[str, float]] = field(default_factory=dict)
+    #: The month the rate of change was differenced against. With `through`
+    #: and `used` it pins exactly which numbers produced the reading, so the
+    #: revised-data answer key can be computed on the same ones.
+    base: str | None = None
 
     @property
     def dispersion(self) -> float | None:
@@ -245,6 +251,8 @@ class QuadReading:
     growth_dispersion: float | None = None
     inflation_dispersion: float | None = None
     contributions: dict[str, dict[str, float]] = field(default_factory=dict)
+    growth_base: str | None = None
+    inflation_base: str | None = None
 
     def to_dict(self) -> dict:
         d = asdict(self)
@@ -259,8 +267,8 @@ def _yoy(values: pd.Series) -> pd.Series:
 
 
 def vintage_frame(series_id: str, start: str = "1998-01-01") -> pd.DataFrame:
-    """First-release history for a series: obs_date, value, published."""
-    return release_history(series_id, start)
+    """Every vintage of a series: obs_date, value, published, superseded."""
+    return vintage_history(series_id, start)
 
 
 def final_frame(series_id: str, start: str = "1998-01-01") -> pd.Series:
@@ -276,15 +284,11 @@ def known_at(hist: pd.DataFrame, when: pd.Timestamp) -> pd.Series:
     """The series as it stood at `when`, indexed by observation month.
 
     Filters on the PUBLICATION timestamp. A value observed in March but
-    published in May does not exist on an April classification date.
+    published in May does not exist on an April classification date; a
+    revision published in August replaces the first print from August on, and
+    not a day before. See `ace.data.alfred.vintage_at`.
     """
-    seen = hist[hist["published"] <= when]
-    if seen.empty:
-        return pd.Series(dtype=float)
-    # Keep the first release per observation month; a later revision of the
-    # same month is a different number that was not known at `when` either.
-    out = seen.sort_values("published").groupby("obs_date")["value"].first()
-    return out.sort_index()
+    return vintage_at(hist, when)
 
 
 def classify(growth_roc: float, inflation_roc: float) -> int:
@@ -346,6 +350,7 @@ def _axis_reading(
         used=tuple(frame.columns),
         missing=tuple(missing),
         contributions=contributions,
+        base=str(frame.index[-1 - lookback].date()),
     )
 
 
@@ -360,12 +365,17 @@ def reading_from_levels(
     here, so a difference between them is a difference in the DATA and never a
     difference in the method.
     """
+    g = _axis_reading(levels, spec.growth, spec.lookback)
+    i = _axis_reading(levels, spec.inflation, spec.lookback)
+    return _reading_from_axes(g, i, when, spec)
+
+
+def _reading_from_axes(
+    g: AxisReading, i: AxisReading, when: pd.Timestamp, spec: Spec
+) -> QuadReading:
     when = pd.Timestamp(when)
     if when.tzinfo is None:
         when = when.tz_localize("UTC")
-
-    g = _axis_reading(levels, spec.growth, spec.lookback)
-    i = _axis_reading(levels, spec.inflation, spec.lookback)
 
     if g.roc is None or i.roc is None:
         missing = sorted({*g.missing, *i.missing})
@@ -411,6 +421,8 @@ def reading_from_levels(
         growth_dispersion=None if g.dispersion is None else round(g.dispersion, 4),
         inflation_dispersion=None if i.dispersion is None else round(i.dispersion, 4),
         contributions={**g.contributions, **i.contributions},
+        growth_base=g.base,
+        inflation_base=i.base,
     )
 
 
@@ -433,31 +445,57 @@ def reading_at(
     return reading_from_levels(levels, when, spec)
 
 
-def final_reading_at(
-    when: pd.Timestamp,
+def final_reading_like(
+    rt: QuadReading,
     finals: dict[str, pd.Series],
     *,
     spec: Spec | str = DEFAULT_SPEC,
-    through: pd.Timestamp | None = None,
 ) -> QuadReading:
-    """The same classification from today's revised data — the answer key.
+    """The answer key for one real-time reading, on exactly its numbers.
 
-    `through` says which observation month to cut the revised series at, so the
-    comparison is like for like: the real-time reading saw months up to X, and
-    the answer key is asked what it now says about the very same months.
+    Each axis keeps the real-time reading's own contributing series and its
+    own months: the revised series are cut at that axis's `through`, and the
+    rate of change must difference the same `base` month. Only the values may
+    differ. Cutting every series at the later of the two axes instead advances
+    the slower axis by a month on the answer-key side, so a staggered release
+    calendar with no revision at all can "flip" a label; rebuilding membership
+    from the revised data lets a series that was not yet usable in real time
+    join the composite. Either is a change in what was measured, booked as
+    revision.
+
+    Returns an unclassified reading with the reason when the revised series
+    cannot reproduce those months.
     """
     spec = SPECS[spec] if isinstance(spec, str) else spec
-    levels = {}
-    for sid in spec.series_ids:
-        s = finals.get(sid)
-        if s is None:
-            continue
-        levels[sid] = s if through is None else s[s.index <= through]
-    return reading_from_levels(levels, when, spec)
+    if rt.quad is None:
+        return rt
+
+    def axis(used: tuple[str, ...], through: str | None, base: str | None) -> AxisReading | str:
+        missing = [sid for sid in used if sid not in finals]
+        if missing or through is None:
+            return f"no revised series for {', '.join(missing) or 'this axis'}"
+        cut = pd.Timestamp(through, tz="UTC")
+        levels = {sid: finals[sid][finals[sid].index <= cut] for sid in used}
+        a = _axis_reading(levels, tuple(used), spec.lookback)
+        if a.through != through or a.base != base or tuple(a.used) != tuple(used):
+            return (f"revised data does not cover {base}..{through} for "
+                    f"{', '.join(used)}")
+        return a
+
+    g = axis(rt.growth_used, rt.growth_through, rt.growth_base)
+    i = axis(rt.inflation_used, rt.inflation_through, rt.inflation_base)
+    if isinstance(g, str) or isinstance(i, str):
+        return QuadReading(
+            as_of=rt.as_of, spec=spec.name, quad=None, name="unclassified",
+            growth_yoy=None, inflation_yoy=None, growth_roc=None, inflation_roc=None,
+            growth_through=None, inflation_through=None, data_lag_days=None,
+            reason=g if isinstance(g, str) else str(i),
+        )
+    return _reading_from_axes(g, i, pd.Timestamp(rt.as_of, tz="UTC"), spec)
 
 
 def load_vintages(spec: Spec | str = DEFAULT_SPEC, start: str = "1998-01-01") -> dict[str, pd.DataFrame]:
-    """Fetch first-release archives for one spec's inputs."""
+    """Fetch the vintage archives for one spec's inputs."""
     spec = SPECS[spec] if isinstance(spec, str) else spec
     return {sid: vintage_frame(sid, start) for sid in spec.series_ids}
 

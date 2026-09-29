@@ -72,22 +72,68 @@ def test_known_at_hides_values_not_yet_published():
     assert str(later.index.max().date()) == "2020-03-01"
 
 
-def test_known_at_keeps_the_first_release_not_the_revision():
+def _revised_january() -> pd.DataFrame:
+    """PR #5 A11's fixture: January first prints 100 in February and is
+    revised to 180 in August."""
     obs = pd.Timestamp("2020-01-01", tz="UTC")
-    hist = pd.DataFrame(
+    return pd.DataFrame(
         {
             "obs_date": [obs, obs],
             "value": [100.0, 180.0],
-            "published": [
-                pd.Timestamp("2020-02-15", tz="UTC"),
-                pd.Timestamp("2020-08-15", tz="UTC"),
-            ],
+            "published": [pd.Timestamp("2020-02-15", tz="UTC"),
+                          pd.Timestamp("2020-08-15", tz="UTC")],
+            "superseded": [pd.Timestamp("2020-08-15", tz="UTC"), pd.NaT],
         }
     )
-    seen = known_at(hist, pd.Timestamp("2021-01-01", tz="UTC"))
-    # The revision is public by 2021, but it was not the number anyone acted
-    # on — a backtest that uses 180 is trading on hindsight.
-    assert seen.loc[obs] == 100.0
+
+
+def test_known_at_uses_a_revision_once_it_is_public():
+    obs = pd.Timestamp("2020-01-01", tz="UTC")
+    hist = _revised_january()
+    # Before the revision: the first print, and nothing from August leaks in.
+    assert known_at(hist, pd.Timestamp("2020-03-01", tz="UTC")).loc[obs] == 100.0
+    assert known_at(hist, pd.Timestamp("2020-08-14", tz="UTC")).loc[obs] == 100.0
+    # From the day it is published the revision IS the information set; a
+    # first print kept forever is a number nobody could see any more.
+    assert known_at(hist, pd.Timestamp("2020-08-15", tz="UTC")).loc[obs] == 180.0
+    assert known_at(hist, pd.Timestamp("2021-01-01", tz="UTC")).loc[obs] == 180.0
+    assert known_at(hist, pd.Timestamp("2020-02-14", tz="UTC")).empty
+
+
+def test_known_at_takes_the_newest_published_row_without_validity_dates():
+    hist = _revised_january().drop(columns="superseded")
+    assert known_at(hist, pd.Timestamp("2021-01-01", tz="UTC")).iloc[0] == 180.0
+    assert known_at(hist, pd.Timestamp("2020-05-01", tz="UTC")).iloc[0] == 100.0
+
+
+def test_known_at_drops_a_value_while_it_is_withdrawn():
+    hist = _revised_january()
+    # January is withdrawn on 2020-06-01 and republished at 180 in August.
+    hist.loc[0, "superseded"] = pd.Timestamp("2020-06-01", tz="UTC")
+    assert known_at(hist, pd.Timestamp("2020-07-01", tz="UTC")).empty
+    assert known_at(hist, pd.Timestamp("2020-09-01", tz="UTC")).iloc[0] == 180.0
+
+
+def test_a_rebasing_never_mixes_units_inside_one_reading():
+    # Every month is republished ×1.07 (a new base year) on 2023-09-29. Any
+    # reading must take all its months from one side of that date, so the
+    # year-on-year rate never shows the rebasing as 7% growth.
+    months = pd.date_range("2021-01-01", "2024-06-01", freq="MS", tz="UTC")
+    rebase = pd.Timestamp("2023-09-29", tz="UTC")
+    rows = []
+    for i, m in enumerate(months):
+        first = m + pd.Timedelta(days=45)
+        v = 100.0 * 1.02 ** (i / 12)
+        if first < rebase:
+            rows.append((m, v, first, rebase))
+            rows.append((m, v * 1.07, rebase, pd.NaT))
+        else:
+            rows.append((m, v * 1.07, first, pd.NaT))
+    hist = pd.DataFrame(rows, columns=["obs_date", "value", "published", "superseded"])
+    for when in pd.date_range("2023-06-30", "2024-06-30", freq="ME", tz="UTC"):
+        s = known_at(hist, when)
+        yoy = s.pct_change(12).dropna() * 100
+        assert yoy.between(1.9, 2.1).all(), (when, yoy.tail(3))
 
 
 def test_reading_uses_only_published_months():

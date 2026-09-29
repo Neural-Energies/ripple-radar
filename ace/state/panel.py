@@ -61,7 +61,7 @@ from dataclasses import dataclass, field
 
 import pandas as pd
 
-from ace.data.alfred import release_history, unrevised_history
+from ace.data.alfred import unrevised_history, vintage_history
 from ace.macro.quads import known_at
 from ace.state.transforms import TRANSFORM_NAMES, apply_code, lags_consumed
 
@@ -122,7 +122,8 @@ class SeriesSpec:
     typical_lag_days: int
     note: str = ""
     #: True for a statistical release that gets revised — read from ALFRED's
-    #: first-release archive. False ONLY for a series whose observation is its
+    #: vintage archive, each month as it stood on the build date. False ONLY
+    #: for a series whose observation is its
     #: own first release, read from the standard endpoint. Defaulting to True
     #: means the unsafe route is never the accident.
     #:
@@ -574,9 +575,10 @@ def load_vintages(
     Fetching once and filtering per date is what makes a historical replay
     cheap: a 300-month backtest is 300 filters, not 300 x 88 API calls.
 
-    The route per series is `spec.revised`: ALFRED's first-release archive for a
-    statistical release, the standard endpoint for a never-revised quote. See
-    the module docstring and `ace.data.alfred.unrevised_history`.
+    The route per series is `spec.revised`: ALFRED's full vintage archive for a
+    statistical release — every value each month has had, with when it was in
+    force — and the standard endpoint for a never-revised quote. See the module
+    docstring, `ace.data.alfred.vintage_history` and `unrevised_history`.
 
     `start` is the default archive depth; a spec may pull its own start forward
     via `vintage_start` when the full archive exceeds what FRED will serve.
@@ -594,7 +596,7 @@ def load_vintages(
         try:
             begin = spec.vintage_start or start
             if spec.revised:
-                out[spec.series_id] = release_history(spec.series_id, begin)
+                out[spec.series_id] = vintage_history(spec.series_id, begin)
             else:
                 out[spec.series_id] = unrevised_history(spec.series_id, begin)
         except Exception as exc:  # noqa: BLE001 — a missing series is data
@@ -691,7 +693,8 @@ def build_asof(
             )
             continue
 
-        # (1) point-in-time filter — first releases published on or before `when`
+        # (1) point-in-time filter — each month as it stood at `when`: the
+        # newest vintage published by then, never a later one
         published = known_at(hist, when)
         if published.empty:
             dropped[spec.series_id] = "nothing published by this date"
@@ -753,7 +756,7 @@ def build_asof(
             "n_published": int(len(published)),
             "n_usable": int(len(usable)),
             "frequency": spec.frequency,
-            "route": "alfred_first_release" if spec.revised else "unrevised_observation",
+            "route": "alfred_vintage" if spec.revised else "unrevised_observation",
         }
         if spec.frequency in MONTH_COVERAGE:
             # How many native prints stand behind the monthly column, so a

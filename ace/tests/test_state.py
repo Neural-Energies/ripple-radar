@@ -168,13 +168,37 @@ def test_a_later_vintage_cannot_change_an_earlier_panel():
 
     extended = {}
     for sid, hist in base.items():
-        extra = _vintage(24, start="2003-01-01", lag_days=45, first=9_999.0, step=-500.0)
+        # A LATER vintage: every row published after `when` — revisions of
+        # months the panel already holds and months it has not seen yet. (Until
+        # PR #5 A11 these rows were stamped obs+45 days, i.e. published BEFORE
+        # `when` at the same instant as the base rows, and the test passed only
+        # because first-print-forever tie-breaking ignored them.)
+        extra = _vintage(24, start="2003-01-01", lag_days=400, first=9_999.0, step=-500.0)
+        assert (extra["published"] > when).all()
         extended[sid] = pd.concat([hist, extra], ignore_index=True)
     after = build_asof(when, extended, specs=specs)
 
     assert before.used == after.used
     pd.testing.assert_frame_equal(before.frame, after.frame)
     assert before.edge == after.edge
+
+
+def test_a_revision_already_published_is_in_the_panel():
+    """The other half: a revision public by `when` is part of what was known."""
+    specs = _panel_of("PAYEMS")
+    n = MIN_USABLE_OBS + 24
+    base = {"PAYEMS": _vintage(n, lag_days=45)}
+    when = pd.Timestamp("2003-06-30", tz="UTC")
+    revised_month = pd.Timestamp("2002-06-01", tz="UTC")
+    rev = pd.DataFrame({"obs_date": [revised_month], "value": [5_000.0],
+                        "published": [pd.Timestamp("2003-03-01", tz="UTC")]})
+    build = build_asof(when, {"PAYEMS": pd.concat([base["PAYEMS"], rev], ignore_index=True)},
+                       specs=specs)
+    assert build.levels["PAYEMS"].loc[revised_month] == 5_000.0
+    before_rev = build_asof(pd.Timestamp("2003-02-28", tz="UTC"),
+                            {"PAYEMS": pd.concat([base["PAYEMS"], rev], ignore_index=True)},
+                            specs=specs)
+    assert before_rev.levels["PAYEMS"].loc[revised_month] != 5_000.0
 
 
 def test_the_filter_runs_before_the_transform():
@@ -319,7 +343,7 @@ def test_the_route_actually_called_matches_the_spec(monkeypatch):
         called[sid] = f"plain:{start}"
         return _vintage(48)
 
-    monkeypatch.setattr(panel_mod, "release_history", fake_release)
+    monkeypatch.setattr(panel_mod, "vintage_history", fake_release)
     monkeypatch.setattr(panel_mod, "unrevised_history", fake_plain)
     specs = _panel_of("PAYEMS", "DGS10", "NFCI")
     load_vintages(specs, start="1980-01-01")
@@ -338,7 +362,7 @@ def test_a_failed_fetch_is_attributable_to_its_series(monkeypatch):
             raise RuntimeError("HTTP Error 504: Gateway Time-out")
         return _vintage(MIN_USABLE_OBS + 24)
 
-    monkeypatch.setattr(panel_mod, "release_history", fake_release)
+    monkeypatch.setattr(panel_mod, "vintage_history", fake_release)
     specs = _panel_of("PAYEMS", "INDPRO")
     vin = load_vintages(specs)
     build = build_asof("2003-06-30", vin, specs=specs)
