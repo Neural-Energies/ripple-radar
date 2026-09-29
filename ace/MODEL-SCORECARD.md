@@ -604,7 +604,7 @@ indistinguishable from the holdout everywhere.
 
 ---
 
-## 9. ace_dbn_event v2 — FAILED on 6 of 6 channels
+## 9. ace_dbn_event v3 — FAILED on 6 of 6 channels
 
 **The claim.** Tomorrow's probability of a material event (|return| ≥ 2σ)
 depends on today's state *across* variables — realized vol, implied vol, news
@@ -631,8 +631,12 @@ Pooled over six channels, 4,300 sealed-holdout rows:
 Pooled BSS lift over Markov **+0.0013**, CI **[−0.0062, +0.0085]**. Channels
 where the DBN beats Markov with a CI excluding zero: **0 of 6**. (v1, whose
 calibrators were chosen in-sample — PR #5 A09: lift −0.0036,
-CI [−0.0105, +0.0028], also 0 of 6.) The two-slice pairing and missing-target
-handling are under PR #5 A14 and this section is re-run after that fix.
+CI [−0.0105, +0.0028], also 0 of 6.) v3 (PR #5 A14) forms two-slice pairs
+from adjacent sessions BEFORE dropping incomplete ones, and excludes missing
+targets from every count in a conditional table. On the live state frames no
+session after the warm-up is incomplete (0 of 1,760–3,454 per channel), so no
+pair was ever bridged: v3's pairs and every number above are identical to v2.
+The defect was real and latent on this data.
 
 **Why it was not dismissed on the first result.** A single-channel run showed
 dbn_core with the best AUC (0.586) and the worst Brier — a model that orders

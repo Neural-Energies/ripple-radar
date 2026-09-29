@@ -56,7 +56,7 @@ from ace.validation.leakage import assert_probabilities, assert_split_is_chronol
 from ace.validation.walkforward import walk_forward_folds
 
 MODEL_ID = "ace_dbn_event"
-MODEL_VERSION = "v2"
+MODEL_VERSION = "v3"
 HOLDOUT_FRAC = 0.25
 LABEL_HORIZON_DAYS = 1   # the label is tomorrow's state
 EMBARGO_DAYS = 2

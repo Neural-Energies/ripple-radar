@@ -202,3 +202,66 @@ def test_fit_dbn_conditions_slice_one_on_slice_zero():
     assert cpt.target == "stress_t1"
     assert cpt.parents == ["vol_t0", "stress_t0"]
     assert set(flatten(two).columns) == {"vol_t0", "vol_t1", "stress_t0", "stress_t1"}
+
+
+# ------------------------------------------ PR #5 A14: horizon and normalization
+
+
+def _labelled(n: int = 205) -> pd.DataFrame:
+    rng = np.random.default_rng(0)
+    return pd.DataFrame(
+        {"vol": rng.choice(["low", "mid", "high"], n), "stress": rng.choice(["no", "yes"], n)},
+        index=pd.date_range("2020-01-01", periods=n, freq="B"),
+        dtype=object,
+    )
+
+
+def test_an_incomplete_session_breaks_the_pair_rather_than_bridging_it():
+    # The audit's fixture: 205 business days, session 100 incomplete.
+    frame = _labelled()
+    frame.iloc[100, 0] = None
+    two = to_two_slice(frame, ["vol", "stress"])
+    idx = frame.index
+    # (99,100) and (100,101) are both gone; nothing pairs 99 with 101.
+    assert idx[99] not in two.index and idx[100] not in two.index
+    assert len(two) == len(frame) - 1 - 2
+    # Every kept pair is two ADJACENT sessions of the frame's own calendar.
+    for t in two.index:
+        i = idx.get_loc(t)
+        assert two.at[t, ("vol", 1)] == frame.iloc[i + 1]["vol"]
+        assert two.at[t, ("stress", 1)] == frame.iloc[i + 1]["stress"]
+
+
+def test_leading_warmup_rows_drop_their_pairs_only():
+    frame = _labelled(260)
+    frame.iloc[:10, 0] = None
+    two = to_two_slice(frame, ["vol", "stress"])
+    assert two.index[0] == frame.index[10]
+    assert len(two) == 260 - 1 - 10
+
+
+def test_a_missing_target_neither_counts_nor_leaks_mass():
+    # The audit's direct-function case: four identical-parent rows, targets
+    # [a, b, None, None]. The row summed to 0.75.
+    data = pd.DataFrame({"p": ["x"] * 4, "t": ["a", "b", None, None]}, dtype=object)
+    cpt = fit_cpt(data, "t", ["p"])
+    row = cpt.table[("x",)]
+    assert sum(row.values()) == pytest.approx(1.0)
+    assert row == pytest.approx({"a": 0.5, "b": 0.5})
+    assert cpt.counts[("x",)] == 2
+    assert sum(cpt.table["__prior__"].values()) == pytest.approx(1.0)
+
+
+def test_every_row_normalizes_with_missing_targets_scattered_through():
+    rng = np.random.default_rng(3)
+    n = 400
+    data = pd.DataFrame({
+        "p": rng.choice(["x", "y", "z"], n),
+        "q": rng.choice(["u", "v"], n),
+        "t": rng.choice(["no", "yes"], n).astype(object),
+    }, dtype=object)
+    data.loc[rng.choice(n, 90, replace=False), "t"] = None
+    cpt = fit_cpt(data, "t", ["p", "q"])
+    for key, dist in cpt.table.items():
+        assert sum(dist.values()) == pytest.approx(1.0), key
+    assert sum(cpt.counts.values()) == int(data["t"].notna().sum())

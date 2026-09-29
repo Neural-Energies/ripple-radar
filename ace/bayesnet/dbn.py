@@ -57,12 +57,19 @@ def fit_cpt(
     *,
     prior_strength: float = 4.0,
 ) -> ConditionalTable:
-    """Estimate P(target | parents) with Dirichlet smoothing toward the marginal."""
+    """Estimate P(target | parents) with Dirichlet smoothing toward the marginal.
+
+    Rows whose target is missing are excluded before anything is counted — the
+    marginal prior, every configuration's n, and the category counts all come
+    from the same rows. Counting them in n but in no category (as this did
+    until PR #5 A14) left each row's probabilities summing to less than one.
+    """
     if target not in data.columns:
         raise KeyError(f"target {target} not in data")
     missing = [p for p in parents if p not in data.columns]
     if missing:
         raise KeyError(f"parents not in data: {missing}")
+    data = data.loc[data[target].notna()]
 
     states = sorted(data[target].dropna().unique().tolist())
     if len(states) < 2:
