@@ -202,3 +202,66 @@ test("the result reports both the confidence and the weight it actually used", (
     assert.equal(out.links[0]!.support, "asserted");
   }
 });
+
+// ------------------------------------------- PR #5 A15: zero is not "no edge"
+
+const zeroLink = (support: CausalLink["support"], dest = "n1"): CausalLink => ({
+  source: "n0", dest, direction: 1, distance: 1, confidence: support === "measured" ? 0 : null,
+  support, evidence: "", expectedLag: "", invalidation: "", historicalSupport: "",
+});
+
+const PLAIN_NODES: RippleNode[] = [
+  NODES[0]!,
+  { ...NODES[1]!, impact: 50 },
+];
+
+for (const support of ["no_material_coupling", "degenerate"] as const) {
+  test(`a node whose only incoming edge is ${support} keeps its impact under any play`, () => {
+    for (const col of GT.columns) {
+      const r = intervene({
+        gameTheory: GT, scenarios: SCENARIOS, nodes: PLAIN_NODES,
+        links: [zeroLink(support)], play: { row: "Landfall cat", col },
+      })!;
+      const n1 = r.nodes.find((n) => n.id === "n1")!;
+      assert.equal(n1.conditional, 50, `${col}: ${n1.conditional}`);
+      assert.equal(n1.delta, 0);
+    }
+  });
+}
+
+test("the audit's case: severe play, impact 50, only a no-coupling edge → still 50", () => {
+  const r = intervene({
+    gameTheory: GT, scenarios: SCENARIOS, nodes: PLAIN_NODES,
+    links: [zeroLink("no_material_coupling")], play: { row: "Landfall cat", col: "Regional halt" },
+  })!;
+  assert.ok(severityOf(GT, "Regional halt") > 0.9);
+  assert.equal(r.nodes.find((n) => n.id === "n1")!.conditional, 50);
+});
+
+test("a measured zero-confidence edge is a zero too", () => {
+  const r = intervene({
+    gameTheory: GT, scenarios: SCENARIOS, nodes: PLAIN_NODES,
+    links: [zeroLink("measured")], play: { row: "Landfall cat", col: "Regional halt" },
+  })!;
+  assert.equal(r.nodes.find((n) => n.id === "n1")!.delta, 0);
+});
+
+test("mixed zero and non-zero edges into one node take the strongest, in either order", () => {
+  const measured = { ...LINKS[0]!, confidence: 0.9 };
+  const zero = zeroLink("no_material_coupling");
+  const severe = { row: "Landfall cat", col: "Regional halt" };
+  const a = intervene({ gameTheory: GT, scenarios: SCENARIOS, nodes: PLAIN_NODES, links: [zero, measured], play: severe })!;
+  const b = intervene({ gameTheory: GT, scenarios: SCENARIOS, nodes: PLAIN_NODES, links: [measured, zero], play: severe })!;
+  const only = intervene({ gameTheory: GT, scenarios: SCENARIOS, nodes: PLAIN_NODES, links: [measured], play: severe })!;
+  const c = (r: typeof a) => r.nodes.find((n) => n.id === "n1")!.conditional;
+  assert.equal(c(a), c(only));
+  assert.equal(c(b), c(only));
+  assert.ok(c(only) > 50);
+});
+
+test("a node with no incoming edge at all still gets the stated 0.5 fallback", () => {
+  const severe = { row: "Landfall cat", col: "Regional halt" };
+  const r = intervene({ gameTheory: GT, scenarios: SCENARIOS, nodes: PLAIN_NODES, links: [], play: severe })!;
+  const s = severityOf(GT, "Regional halt");
+  assert.equal(r.nodes.find((n) => n.id === "n1")!.conditional, Math.round(50 * (1 + s * 0.4 * 0.5)));
+});

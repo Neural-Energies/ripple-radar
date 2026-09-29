@@ -179,15 +179,25 @@ export function intervene(opts: {
   // the graph from this analysis; treating them as measured would launder an
   // assertion into a number. They get a named, discounted weight instead, and
   // measured edges outrank them.
+  //
+  // The destination is set by its FIRST incoming edge, zero included, and
+  // later edges can only raise it. Starting from `prev ?? 0` made an explicit
+  // zero (no_material_coupling, degenerate) indistinguishable from no edge,
+  // so such a node fell through to the no-edge fallback below and was
+  // amplified at 0.5 — the opposite of what its only evidence says
+  // (PR #5 A15).
   const confByDest = new Map<string, number>();
   for (const l of links) {
-    const prev = confByDest.get(l.dest) ?? 0;
+    const prev = confByDest.get(l.dest);
     const w = linkWeight(l);
-    if (w > prev) confByDest.set(l.dest, w);
+    if (prev === undefined || w > prev) confByDest.set(l.dest, w);
   }
   const conditionalNodes: ConditionalNode[] = nodes
     .filter((n) => n.level > 0) // level 0 is the event itself; the play is not evidence about it
     .map((n) => {
+      // 0.5 only for a node with NO incoming edge at all — intentional: the
+      // graph says nothing about its path, which is not the same as saying
+      // there is none.
       const conf = confByDest.get(n.id) ?? 0.5;
       const scaled = n.impact * (1 + severity * NODE_SENSITIVITY * conf);
       const conditional = Math.round(Math.min(100, Math.max(0, scaled)));
