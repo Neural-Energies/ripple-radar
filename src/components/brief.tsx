@@ -165,6 +165,7 @@ export function BriefView({
     <div className="grid gap-3 xl:grid-cols-[1fr_22rem]">
       <div className="flex flex-col gap-3">
         <Panel
+          className="h-auto"
           title={brief.since ? `What changed since ${clock(brief.since)}` : "What changed this session"}
           action={
             <Button type="button" size="sm" variant="secondary" onClick={onMarkRead} title="Compare the next brief against the books and prices as they are now">
@@ -191,7 +192,7 @@ export function BriefView({
           )}
         </Panel>
         {brief.elsewhere.length ? (
-          <Panel title="Elsewhere on the tape">
+          <Panel className="h-auto" title="Elsewhere on the tape">
             <ul className="flex flex-col">
               {brief.elsewhere.map((b) => (
                 <li key={b.eventId} className="flex items-baseline justify-between gap-2 border-b border-border/50 py-1 text-caption last:border-b-0">
@@ -210,7 +211,7 @@ export function BriefView({
       </div>
 
       <div className="flex flex-col gap-3">
-        <Panel title="Theses needing attention" action={<Link to="/theses" className="text-micro text-primary hover:underline">All</Link>}>
+        <Panel className="h-auto" title="Theses needing attention" action={<Link to="/theses" className="text-micro text-primary hover:underline">All</Link>}>
           {brief.theses.length === 0 ? (
             <p className="text-caption text-muted">Nothing due and nothing broken.</p>
           ) : (
@@ -231,7 +232,7 @@ export function BriefView({
             </ul>
           )}
         </Panel>
-        <Panel title="Your names moving without a book">
+        <Panel className="h-auto" title="Your names moving without a book">
           {brief.unexplained.length === 0 ? (
             <p className="text-caption text-muted">No unexplained moves in your names.</p>
           ) : (
@@ -245,7 +246,7 @@ export function BriefView({
             </ul>
           )}
         </Panel>
-        <Panel title="Macro · what changed">
+        <Panel className="h-auto" title="Macro · what changed">
           <MacroReleases macro={macro} />
         </Panel>
       </div>
