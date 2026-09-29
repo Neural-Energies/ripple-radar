@@ -1,0 +1,2777 @@
+{
+ "generatedAt": "2026-09-29T17:35:59.299Z",
+ "provenance": {
+  "pca": {
+   "file": "artifacts/reports/macro_pca_research.json",
+   "sha256": "e982e9c6dae621d1"
+  },
+  "news": {
+   "file": "artifacts/reports/macro_what_changed.json",
+   "sha256": "f6acb0be357b7f12"
+  },
+  "regimes": {
+   "file": "artifacts/reports/macro_regime_mean_vs_variance.json",
+   "sha256": "767c6985b89da011"
+  },
+  "panel": {
+   "file": "artifacts/reports/macro_panel_build.json",
+   "sha256": "90b39c24b51ddfb3"
+  },
+  "registry": {
+   "file": "artifacts/reports/macro_registry.json",
+   "sha256": "eda35c7c6397f7c5"
+  }
+ },
+ "panel": {
+  "asOf": "2026-09-29",
+  "used": 89,
+  "size": 89,
+  "groups": [
+   "consumer",
+   "credit",
+   "financial",
+   "growth",
+   "housing",
+   "inflation",
+   "labor",
+   "liquidity",
+   "manufacturing"
+  ]
+ },
+ "factorModel": {
+  "asOf": "2026-09-29",
+  "lastFit": "2026-09-29",
+  "method": "Static PCA on the point-in-time panel (global + 12 domains)",
+  "version": "factor_state v1",
+  "validation": "Descriptive. Levels, percentiles and drivers are computed; static PCA has no posterior, so no uncertainty band is claimed."
+ },
+ "factors": [
+  {
+   "id": "global.PC1",
+   "domain": "global",
+   "name": "global PC1",
+   "asOf": "2026-06-01",
+   "lastFit": "2026-09-29",
+   "modelVersion": "v1",
+   "level": 4.8128,
+   "percentile": 90,
+   "direction": "falling",
+   "momentum": -0.1326,
+   "acceleration": -3.6337,
+   "change1m": 0.4164,
+   "change3m": -0.1326,
+   "changeSincePreviousRun": 1.7035,
+   "freshnessDays": 120,
+   "coverage": 0.994,
+   "activeSeries": 164,
+   "missingSeries": 1,
+   "varianceShare": 0.1157,
+   "path": [
+    {
+     "at": "3m ago",
+     "level": 4.9454
+    },
+    {
+     "at": "1m ago",
+     "level": 4.3963
+    },
+    {
+     "at": "now",
+     "level": 4.8128
+    }
+   ],
+   "drivers": [
+    {
+     "seriesId": "WALCL",
+     "label": "Fed balance sheet",
+     "loading": -0.1756,
+     "z": 42515065.7261,
+     "contribution": -7463805.0191,
+     "through": "2026-09-23",
+     "daysBehind": 6
+    },
+    {
+     "seriesId": "WTREGEN",
+     "label": "Treasury general account",
+     "loading": -0.0276,
+     "z": 2095545.7483,
+     "contribution": -57782.6544,
+     "through": "2026-09-23",
+     "daysBehind": 6
+    },
+    {
+     "seriesId": "MTSDS133FMS",
+     "label": "Federal Surplus or Deficit [-]",
+     "loading": -0.0366,
+     "z": -71102.333,
+     "contribution": 2603.9442,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "BOPGSTB",
+     "label": "Trade Balance: Goods and Services, Balance of Payments Basis",
+     "loading": -0.0061,
+     "z": -77154.2942,
+     "contribution": 469.7722,
+     "through": "2026-07-01",
+     "daysBehind": 90
+    }
+   ]
+  },
+  {
+   "id": "banking.PC1",
+   "domain": "banking",
+   "name": "banking PC1",
+   "asOf": "2026-08-01",
+   "lastFit": "2026-09-29",
+   "modelVersion": "v1",
+   "level": -0.4955,
+   "percentile": 27.92,
+   "direction": "falling",
+   "momentum": -0.6213,
+   "acceleration": -0.2426,
+   "change1m": -0.5754,
+   "change3m": -0.6213,
+   "changeSincePreviousRun": 0.0481,
+   "freshnessDays": 59,
+   "coverage": 1,
+   "activeSeries": 4,
+   "missingSeries": 0,
+   "varianceShare": 0.4815,
+   "path": [
+    {
+     "at": "3m ago",
+     "level": 0.1258
+    },
+    {
+     "at": "1m ago",
+     "level": 0.0799
+    },
+    {
+     "at": "now",
+     "level": -0.4955
+    }
+   ],
+   "drivers": [
+    {
+     "seriesId": "TOTBKCR",
+     "label": "Bank Credit, All Commercial Banks",
+     "loading": 0.6279,
+     "z": 0.1089,
+     "contribution": 0.0684,
+     "through": "2026-09-16",
+     "daysBehind": 13
+    },
+    {
+     "seriesId": "TLAACBW027SBOG",
+     "label": "Total Assets, All Commercial Banks",
+     "loading": 0.5743,
+     "z": 0.076,
+     "contribution": 0.0437,
+     "through": "2026-09-16",
+     "daysBehind": 13
+    },
+    {
+     "seriesId": "USGSEC",
+     "label": "Treasury and Agency Securities, All Commercial Banks",
+     "loading": 0.3645,
+     "z": 0.0842,
+     "contribution": 0.0307,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "CREACBM027NBOG",
+     "label": "Real Estate Loans: Commercial Real Estate Loans, All Commercial Banks",
+     "loading": 0.3782,
+     "z": 0.0007,
+     "contribution": 0.0003,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    }
+   ]
+  },
+  {
+   "id": "commodities.PC1",
+   "domain": "commodities",
+   "name": "commodities PC1",
+   "asOf": "2026-07-01",
+   "lastFit": "2026-09-29",
+   "modelVersion": "v1",
+   "level": -0.122,
+   "percentile": 44.2,
+   "direction": "falling",
+   "momentum": -1.1645,
+   "acceleration": 0.0602,
+   "change1m": 2.4086,
+   "change3m": -1.1645,
+   "changeSincePreviousRun": -4.1764,
+   "freshnessDays": 90,
+   "coverage": 1,
+   "activeSeries": 5,
+   "missingSeries": 0,
+   "varianceShare": 0.598,
+   "path": [
+    {
+     "at": "3m ago",
+     "level": 1.0424
+    },
+    {
+     "at": "1m ago",
+     "level": -2.5307
+    },
+    {
+     "at": "now",
+     "level": -0.122
+    }
+   ],
+   "drivers": [
+    {
+     "seriesId": "GASREGW",
+     "label": "US Regular All Formulations Gas Price",
+     "loading": 0.4078,
+     "z": 0.0637,
+     "contribution": 0.026,
+     "through": "2026-09-28",
+     "daysBehind": 1
+    },
+    {
+     "seriesId": "PINDUINDEXM",
+     "label": "Global price of Industrial Materials index",
+     "loading": 0.4907,
+     "z": -0.0169,
+     "contribution": -0.0083,
+     "through": "2026-07-01",
+     "daysBehind": 90
+    },
+    {
+     "seriesId": "PALLFNFINDEXM",
+     "label": "Global Price Index of All Commodities",
+     "loading": 0.4891,
+     "z": -0.0073,
+     "contribution": -0.0036,
+     "through": "2026-07-01",
+     "daysBehind": 90
+    },
+    {
+     "seriesId": "PRAWMINDEXM",
+     "label": "Global price of Agr. Raw Material Index",
+     "loading": 0.3956,
+     "z": -0.0068,
+     "contribution": -0.0027,
+     "through": "2026-07-01",
+     "daysBehind": 90
+    }
+   ]
+  },
+  {
+   "id": "consumer.PC1",
+   "domain": "consumer",
+   "name": "consumer PC1",
+   "asOf": "2026-07-01",
+   "lastFit": "2026-09-29",
+   "modelVersion": "v1",
+   "level": -0.4818,
+   "percentile": 18.53,
+   "direction": "falling",
+   "momentum": -0.676,
+   "acceleration": -1.9118,
+   "change1m": -0.8398,
+   "change3m": -0.676,
+   "changeSincePreviousRun": -0.0943,
+   "freshnessDays": 90,
+   "coverage": 1,
+   "activeSeries": 13,
+   "missingSeries": 0,
+   "varianceShare": 0.4776,
+   "path": [
+    {
+     "at": "3m ago",
+     "level": 0.1942
+    },
+    {
+     "at": "1m ago",
+     "level": 0.358
+    },
+    {
+     "at": "now",
+     "level": -0.4818
+    }
+   ],
+   "drivers": [
+    {
+     "seriesId": "UMCSENT",
+     "label": "U Michigan sentiment",
+     "loading": 0.1261,
+     "z": 5.4371,
+     "contribution": 0.6858,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "PSAVERT",
+     "label": "Personal saving rate",
+     "loading": -0.3182,
+     "z": 0.2695,
+     "contribution": -0.0858,
+     "through": "2026-07-01",
+     "daysBehind": 90
+    },
+    {
+     "seriesId": "PCE",
+     "label": "Personal Consumption Expenditures",
+     "loading": 0.3676,
+     "z": 0.0814,
+     "contribution": 0.0299,
+     "through": "2026-07-01",
+     "daysBehind": 90
+    },
+    {
+     "seriesId": "W875RX1",
+     "label": "Real income ex transfers",
+     "loading": 0.2223,
+     "z": 0.0672,
+     "contribution": 0.0149,
+     "through": "2026-07-01",
+     "daysBehind": 90
+    }
+   ]
+  },
+  {
+   "id": "credit.PC1",
+   "domain": "credit",
+   "name": "credit PC1",
+   "asOf": "2026-07-01",
+   "lastFit": "2026-09-29",
+   "modelVersion": "v1",
+   "level": -0.9556,
+   "percentile": 11.76,
+   "direction": "falling",
+   "momentum": -0.6846,
+   "acceleration": 0.0255,
+   "change1m": 0.4271,
+   "change3m": -0.6846,
+   "changeSincePreviousRun": -0.0919,
+   "freshnessDays": 90,
+   "coverage": 1,
+   "activeSeries": 12,
+   "missingSeries": 0,
+   "varianceShare": 0.3043,
+   "path": [
+    {
+     "at": "3m ago",
+     "level": -0.271
+    },
+    {
+     "at": "1m ago",
+     "level": -1.3828
+    },
+    {
+     "at": "now",
+     "level": -0.9556
+    }
+   ],
+   "drivers": [
+    {
+     "seriesId": "BAA10Y",
+     "label": "Baa - 10y spread",
+     "loading": 0.1542,
+     "z": 12.8199,
+     "contribution": 1.9763,
+     "through": "2026-09-24",
+     "daysBehind": 5
+    },
+    {
+     "seriesId": "BAMLH0A0HYM2",
+     "label": "High yield OAS",
+     "loading": 0.1973,
+     "z": 2.7996,
+     "contribution": 0.5523,
+     "through": "2026-09-24",
+     "daysBehind": 5
+    },
+    {
+     "seriesId": "BAMLC0A4CBBB",
+     "label": "ICE BofA BBB US Corporate Index Option-Adjusted Spread",
+     "loading": 0.1882,
+     "z": 0.9345,
+     "contribution": 0.1759,
+     "through": "2026-09-28",
+     "daysBehind": 1
+    },
+    {
+     "seriesId": "BAMLC0A0CM",
+     "label": "ICE BofA US Corporate Index Option-Adjusted Spread",
+     "loading": 0.1851,
+     "z": 0.7403,
+     "contribution": 0.137,
+     "through": "2026-09-28",
+     "daysBehind": 1
+    }
+   ]
+  },
+  {
+   "id": "financial_conditions.PC1",
+   "domain": "financial_conditions",
+   "name": "financial_conditions PC1",
+   "asOf": "2026-08-01",
+   "lastFit": "2026-09-29",
+   "modelVersion": "v1",
+   "level": -1.9733,
+   "percentile": 15,
+   "direction": "falling",
+   "momentum": -0.6238,
+   "acceleration": -0.6927,
+   "change1m": -0.8473,
+   "change3m": -0.6238,
+   "changeSincePreviousRun": -0.3941,
+   "freshnessDays": 59,
+   "coverage": 1,
+   "activeSeries": 13,
+   "missingSeries": 0,
+   "varianceShare": 0.4089,
+   "path": [
+    {
+     "at": "3m ago",
+     "level": -1.3495
+    },
+    {
+     "at": "1m ago",
+     "level": -1.126
+    },
+    {
+     "at": "now",
+     "level": -1.9733
+    }
+   ],
+   "drivers": [
+    {
+     "seriesId": "VIXCLS",
+     "label": "VIX",
+     "loading": 0.2779,
+     "z": 21.7644,
+     "contribution": 6.0483,
+     "through": "2026-09-22",
+     "daysBehind": 7
+    },
+    {
+     "seriesId": "NFCI",
+     "label": "Chicago Fed financial conditions",
+     "loading": 0.3571,
+     "z": -1.789,
+     "contribution": -0.6388,
+     "through": "2026-09-18",
+     "daysBehind": 11
+    },
+    {
+     "seriesId": "ANFCI",
+     "label": "Adjusted NFCI",
+     "loading": 0.3843,
+     "z": -1.5936,
+     "contribution": -0.6124,
+     "through": "2026-09-18",
+     "daysBehind": 11
+    },
+    {
+     "seriesId": "T10Y2Y",
+     "label": "10y-2y slope",
+     "loading": -0.2165,
+     "z": 2.185,
+     "contribution": -0.473,
+     "through": "2026-09-25",
+     "daysBehind": 4
+    }
+   ]
+  },
+  {
+   "id": "housing.PC1",
+   "domain": "housing",
+   "name": "housing PC1",
+   "asOf": "2026-06-01",
+   "lastFit": "2026-09-29",
+   "modelVersion": "v1",
+   "level": 0.7794,
+   "percentile": 50.87,
+   "direction": "falling",
+   "momentum": -0.5492,
+   "acceleration": -0.994,
+   "change1m": 0.7753,
+   "change3m": -0.5492,
+   "changeSincePreviousRun": -0.1113,
+   "freshnessDays": 120,
+   "coverage": 1,
+   "activeSeries": 15,
+   "missingSeries": 0,
+   "varianceShare": 0.5693,
+   "path": [
+    {
+     "at": "3m ago",
+     "level": 1.3286
+    },
+    {
+     "at": "1m ago",
+     "level": 0.0041
+    },
+    {
+     "at": "now",
+     "level": 0.7794
+    }
+   ],
+   "drivers": [
+    {
+     "seriesId": "HOUST",
+     "label": "Housing starts",
+     "loading": 0.3389,
+     "z": 6.7896,
+     "contribution": 2.3011,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "PERMIT",
+     "label": "Building permits",
+     "loading": 0.3343,
+     "z": 6.7495,
+     "contribution": 2.2562,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "COMPUTSA",
+     "label": "New Privately-Owned Housing Units Completed: Total Units",
+     "loading": 0.3231,
+     "z": 6.6832,
+     "contribution": 2.1593,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "HOUST1F",
+     "label": "New Privately-Owned Housing Units Started: Single-Family Units",
+     "loading": 0.3346,
+     "z": 6.1052,
+     "contribution": 2.0429,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    }
+   ]
+  },
+  {
+   "id": "inflation.PC1",
+   "domain": "inflation",
+   "name": "inflation PC1",
+   "asOf": "2026-07-01",
+   "lastFit": "2026-09-29",
+   "modelVersion": "v1",
+   "level": 4.3477,
+   "percentile": 95.29,
+   "direction": "rising",
+   "momentum": 4.8075,
+   "acceleration": 5.6905,
+   "change1m": 15.9969,
+   "change3m": 4.8075,
+   "changeSincePreviousRun": 0.704,
+   "freshnessDays": 90,
+   "coverage": 1,
+   "activeSeries": 33,
+   "missingSeries": 0,
+   "varianceShare": 0.2996,
+   "path": [
+    {
+     "at": "3m ago",
+     "level": -0.4598
+    },
+    {
+     "at": "1m ago",
+     "level": -11.6492
+    },
+    {
+     "at": "now",
+     "level": 4.3477
+    }
+   ],
+   "drivers": [
+    {
+     "seriesId": "MEDCPIM158SFRBCLE",
+     "label": "Median Consumer Price Index",
+     "loading": 0.1085,
+     "z": 1.1426,
+     "contribution": 0.124,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "MICH",
+     "label": "University of Michigan: Inflation Expectation",
+     "loading": 0.0461,
+     "z": -0.4947,
+     "contribution": -0.0228,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "CORESTICKM159SFRBATL",
+     "label": "Sticky Price Consumer Price Index less Food and Energy",
+     "loading": 0.0522,
+     "z": -0.3566,
+     "contribution": -0.0186,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "PCETRIM12M159SFRBDAL",
+     "label": "Trimmed Mean PCE Inflation Rate",
+     "loading": 0.0722,
+     "z": -0.1753,
+     "contribution": -0.0127,
+     "through": "2026-07-01",
+     "daysBehind": 90
+    }
+   ]
+  },
+  {
+   "id": "labor.PC1",
+   "domain": "labor",
+   "name": "labor PC1",
+   "asOf": "2026-08-01",
+   "lastFit": "2026-09-29",
+   "modelVersion": "v1",
+   "level": 0.9041,
+   "percentile": 87.24,
+   "direction": "rising",
+   "momentum": 0.6131,
+   "acceleration": -0.0881,
+   "change1m": 1.3539,
+   "change3m": 0.6131,
+   "changeSincePreviousRun": 1.6305,
+   "freshnessDays": 59,
+   "coverage": 1,
+   "activeSeries": 26,
+   "missingSeries": 0,
+   "varianceShare": 0.5736,
+   "path": [
+    {
+     "at": "3m ago",
+     "level": 0.291
+    },
+    {
+     "at": "1m ago",
+     "level": -0.4498
+    },
+    {
+     "at": "now",
+     "level": 0.9041
+    }
+   ],
+   "drivers": [
+    {
+     "seriesId": "AWHMAN",
+     "label": "Mfg weekly hours",
+     "loading": 0.0852,
+     "z": 46.7771,
+     "contribution": 3.9875,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "AWHAETP",
+     "label": "Average Weekly Hours of All Employees, Total Private",
+     "loading": 0.066,
+     "z": 34.3045,
+     "contribution": 2.2656,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "UEMPMEAN",
+     "label": "Mean duration unemployed",
+     "loading": 0.1459,
+     "z": 0.9887,
+     "contribution": 0.1442,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "CIVPART",
+     "label": "Labor force participation",
+     "loading": 0.2117,
+     "z": 0.2266,
+     "contribution": 0.048,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    }
+   ]
+  },
+  {
+   "id": "liquidity_money.PC1",
+   "domain": "liquidity_money",
+   "name": "liquidity_money PC1",
+   "asOf": "2026-08-01",
+   "lastFit": "2026-09-29",
+   "modelVersion": "v1",
+   "level": -0.7652,
+   "percentile": 20.92,
+   "direction": "falling",
+   "momentum": -1.7092,
+   "acceleration": -2.348,
+   "change1m": -0.5064,
+   "change3m": -1.7092,
+   "changeSincePreviousRun": -0.9783,
+   "freshnessDays": 59,
+   "coverage": 0.9,
+   "activeSeries": 9,
+   "missingSeries": 1,
+   "varianceShare": 0.2792,
+   "path": [
+    {
+     "at": "3m ago",
+     "level": 0.944
+    },
+    {
+     "at": "1m ago",
+     "level": -0.2588
+    },
+    {
+     "at": "now",
+     "level": -0.7652
+    }
+   ],
+   "drivers": [
+    {
+     "seriesId": "WALCL",
+     "label": "Fed balance sheet",
+     "loading": -0.1451,
+     "z": 6739428.4782,
+     "contribution": -978156.6653,
+     "through": "2026-09-23",
+     "daysBehind": 6
+    },
+    {
+     "seriesId": "WTREGEN",
+     "label": "Treasury general account",
+     "loading": -0.1152,
+     "z": 960157.1717,
+     "contribution": -110634.8237,
+     "through": "2026-09-23",
+     "daysBehind": 6
+    },
+    {
+     "seriesId": "M2REAL",
+     "label": "Real M2",
+     "loading": 0.3698,
+     "z": -0.0589,
+     "contribution": -0.0218,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "TOTRESNS",
+     "label": "Total reserves",
+     "loading": 0.416,
+     "z": -0.0378,
+     "contribution": -0.0157,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    }
+   ]
+  },
+  {
+   "id": "manufacturing.PC1",
+   "domain": "manufacturing",
+   "name": "manufacturing PC1",
+   "asOf": "2026-07-01",
+   "lastFit": "2026-09-29",
+   "modelVersion": "v1",
+   "level": 1.2986,
+   "percentile": 79.7,
+   "direction": "falling",
+   "momentum": -0.8344,
+   "acceleration": -2.7882,
+   "change1m": 0.9362,
+   "change3m": -0.8344,
+   "changeSincePreviousRun": 0.0842,
+   "freshnessDays": 90,
+   "coverage": 1,
+   "activeSeries": 9,
+   "missingSeries": 0,
+   "varianceShare": 0.4801,
+   "path": [
+    {
+     "at": "3m ago",
+     "level": 2.133
+    },
+    {
+     "at": "1m ago",
+     "level": 0.3624
+    },
+    {
+     "at": "now",
+     "level": 1.2986
+    }
+   ],
+   "drivers": [
+    {
+     "seriesId": "GACDFSA066MSFRBPHI",
+     "label": "Current General Activity; Diffusion Index for Federal Reserve District 3: Philadelphia",
+     "loading": 0.3307,
+     "z": 43.88,
+     "contribution": 14.5103,
+     "through": "2026-09-01",
+     "daysBehind": 28
+    },
+    {
+     "seriesId": "GACDISA066MSFRBNY",
+     "label": "Current General Business Conditions; Diffusion Index for New York",
+     "loading": 0.3317,
+     "z": 15.9441,
+     "contribution": 5.2883,
+     "through": "2026-09-01",
+     "daysBehind": 28
+    },
+    {
+     "seriesId": "BACTSAMFRBDAL",
+     "label": "Current General Business Activity; Diffusion Index for Texas",
+     "loading": 0.3379,
+     "z": 1.3002,
+     "contribution": 0.4393,
+     "through": "2026-09-01",
+     "daysBehind": 28
+    },
+    {
+     "seriesId": "CFNAI",
+     "label": "Chicago Fed National Activity Index",
+     "loading": 0.3735,
+     "z": 0.1152,
+     "contribution": 0.043,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    }
+   ]
+  },
+  {
+   "id": "output_activity.PC1",
+   "domain": "output_activity",
+   "name": "output_activity PC1",
+   "asOf": "2026-07-01",
+   "lastFit": "2026-09-29",
+   "modelVersion": "v1",
+   "level": 0.0197,
+   "percentile": 50,
+   "direction": "falling",
+   "momentum": -1.4161,
+   "acceleration": -3.7016,
+   "change1m": 0.0517,
+   "change3m": -1.4161,
+   "changeSincePreviousRun": -0.6284,
+   "freshnessDays": 90,
+   "coverage": 1,
+   "activeSeries": 13,
+   "missingSeries": 0,
+   "varianceShare": 0.6817,
+   "path": [
+    {
+     "at": "3m ago",
+     "level": 1.4358
+    },
+    {
+     "at": "1m ago",
+     "level": -0.032
+    },
+    {
+     "at": "now",
+     "level": 0.0197
+    }
+   ],
+   "drivers": [
+    {
+     "seriesId": "IPMANSICS",
+     "label": "IP: manufacturing",
+     "loading": 0.3318,
+     "z": 0.0706,
+     "contribution": 0.0234,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "IPBUSEQ",
+     "label": "IP: business equipment",
+     "loading": 0.321,
+     "z": 0.0657,
+     "contribution": 0.0211,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "IPFINAL",
+     "label": "IP: final products",
+     "loading": 0.3274,
+     "z": 0.0613,
+     "contribution": 0.0201,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    },
+    {
+     "seriesId": "INDPRO",
+     "label": "Industrial production",
+     "loading": 0.3303,
+     "z": 0.0597,
+     "contribution": 0.0197,
+     "through": "2026-08-01",
+     "daysBehind": 59
+    }
+   ]
+  },
+  {
+   "id": "trade_external.PC1",
+   "domain": "trade_external",
+   "name": "trade_external PC1",
+   "asOf": "2026-07-01",
+   "lastFit": "2026-09-29",
+   "modelVersion": "v1",
+   "level": -0.4207,
+   "percentile": 31.64,
+   "direction": "falling",
+   "momentum": -1.5243,
+   "acceleration": -1.7926,
+   "change1m": -0.0598,
+   "change3m": -1.5243,
+   "changeSincePreviousRun": -0.9439,
+   "freshnessDays": 90,
+   "coverage": 1,
+   "activeSeries": 6,
+   "missingSeries": 0,
+   "varianceShare": 0.3581,
+   "path": [
+    {
+     "at": "3m ago",
+     "level": 1.1036
+    },
+    {
+     "at": "1m ago",
+     "level": -0.3608
+    },
+    {
+     "at": "now",
+     "level": -0.4207
+    }
+   ],
+   "drivers": [
+    {
+     "seriesId": "BOPGSTB",
+     "label": "Trade Balance: Goods and Services, Balance of Payments Basis",
+     "loading": -0.1197,
+     "z": -88791.4216,
+     "contribution": 10632.5035,
+     "through": "2026-07-01",
+     "daysBehind": 90
+    },
+    {
+     "seriesId": "BOPGIMP",
+     "label": "Imports of Goods: Balance of Payments Basis",
+     "loading": 0.4406,
+     "z": 0.0362,
+     "contribution": 0.016,
+     "through": "2026-07-01",
+     "daysBehind": 90
+    },
+    {
+     "seriesId": "BOPGEXP",
+     "label": "Exports of Goods, Balance of Payments Basis",
+     "loading": 0.4978,
+     "z": -0.0304,
+     "contribution": -0.0152,
+     "through": "2026-07-01",
+     "daysBehind": 90
+    },
+    {
+     "seriesId": "DEXCHUS",
+     "label": "Chinese Yuan Renminbi to U.S. Dollar Spot Exchange Rate",
+     "loading": -0.1065,
+     "z": 0.0919,
+     "contribution": -0.0098,
+     "through": "2026-09-25",
+     "daysBehind": 4
+    }
+   ]
+  }
+ ],
+ "whatChanged": {
+  "previousAsOf": "2026-09-22",
+  "updatedAsOf": "2026-09-29",
+  "lookbackDays": 7,
+  "method": "Dynamic factor model news decomposition (statsmodels DynamicFactorMQ.news)",
+  "units": "Standardized, transformed units of each series: observed is the print, expected is the model's forecast of it before the print.",
+  "validation": "Decomposition is exact given the fit; the fit is not validated as a forecaster.",
+  "blocks": [
+   {
+    "block": "consumer",
+    "proxySeries": "DSPIC96",
+    "proxyLabel": "Real disposable income",
+    "impactDate": "2026-09-01",
+    "estimatePrevious": -0.0923,
+    "estimateUpdated": -0.0908,
+    "news": 0.004922,
+    "revisions": 0.000405,
+    "total": 0.005327,
+    "releases": [
+     {
+      "seriesId": "CCSA",
+      "label": "Continuing claims",
+      "block": "consumer",
+      "observationDate": "2026-09-01",
+      "observed": -0.2903,
+      "expected": -0.3723,
+      "surprise": 0.0821,
+      "weight": 0.062846,
+      "impact": 0.005157
+     },
+     {
+      "seriesId": "JTSJOL",
+      "label": "JOLTS job openings",
+      "block": "consumer",
+      "observationDate": "2026-08-01",
+      "observed": -0.6545,
+      "expected": -0.14,
+      "surprise": -0.5145,
+      "weight": 0.000398,
+      "impact": -0.000205
+     },
+     {
+      "seriesId": "JTSQUR",
+      "label": "JOLTS quits rate",
+      "block": "consumer",
+      "observationDate": "2026-08-01",
+      "observed": 0.0096,
+      "expected": 0.4581,
+      "surprise": -0.4485,
+      "weight": 0.000359,
+      "impact": -0.000161
+     },
+     {
+      "seriesId": "JTSLDR",
+      "label": "JOLTS layoffs rate",
+      "block": "consumer",
+      "observationDate": "2026-08-01",
+      "observed": -0.1836,
+      "expected": -0.0243,
+      "surprise": -0.1593,
+      "weight": -0.000525,
+      "impact": 0.000084
+     },
+     {
+      "seriesId": "HSN1F",
+      "label": "New one-family houses sold",
+      "block": "consumer",
+      "observationDate": "2026-08-01",
+      "observed": 0.188,
+      "expected": -0.0714,
+      "surprise": 0.2594,
+      "weight": 0.000152,
+      "impact": 0.00004
+     },
+     {
+      "seriesId": "AMDMUO",
+      "label": "Unfilled orders: durables",
+      "block": "consumer",
+      "observationDate": "2026-08-01",
+      "observed": 0.3387,
+      "expected": 0.1878,
+      "surprise": 0.1508,
+      "weight": -0.000093,
+      "impact": -0.000014
+     },
+     {
+      "seriesId": "NEWORDER",
+      "label": "Core capital goods orders",
+      "block": "consumer",
+      "observationDate": "2026-08-01",
+      "observed": 0.4541,
+      "expected": -0.1062,
+      "surprise": 0.5603,
+      "weight": 0.000021,
+      "impact": 0.000012
+     },
+     {
+      "seriesId": "DGORDER",
+      "label": "Durable goods orders",
+      "block": "consumer",
+      "observationDate": "2026-08-01",
+      "observed": -0.0635,
+      "expected": -0.1175,
+      "surprise": 0.054,
+      "weight": 0.000191,
+      "impact": 0.00001
+     }
+    ]
+   },
+   {
+    "block": "credit",
+    "proxySeries": "TOTALSL",
+    "proxyLabel": "Total consumer credit",
+    "impactDate": "2026-09-01",
+    "estimatePrevious": -0.25,
+    "estimateUpdated": -0.3074,
+    "news": -0.008668,
+    "revisions": -0.055183,
+    "total": -0.063851,
+    "releases": [
+     {
+      "seriesId": "CCSA",
+      "label": "Continuing claims",
+      "block": "credit",
+      "observationDate": "2026-09-01",
+      "observed": -0.2903,
+      "expected": -0.3723,
+      "surprise": 0.0821,
+      "weight": -0.110367,
+      "impact": -0.009056
+     },
+     {
+      "seriesId": "JTSLDR",
+      "label": "JOLTS layoffs rate",
+      "block": "credit",
+      "observationDate": "2026-08-01",
+      "observed": -0.1836,
+      "expected": -0.0243,
+      "surprise": -0.1593,
+      "weight": -0.011529,
+      "impact": 0.001836
+     },
+     {
+      "seriesId": "JTSJOL",
+      "label": "JOLTS job openings",
+      "block": "credit",
+      "observationDate": "2026-08-01",
+      "observed": -0.6545,
+      "expected": -0.14,
+      "surprise": -0.5145,
+      "weight": 0.002136,
+      "impact": -0.001099
+     },
+     {
+      "seriesId": "JTSQUR",
+      "label": "JOLTS quits rate",
+      "block": "credit",
+      "observationDate": "2026-08-01",
+      "observed": 0.0096,
+      "expected": 0.4581,
+      "surprise": -0.4485,
+      "weight": 0.001706,
+      "impact": -0.000765
+     },
+     {
+      "seriesId": "NEWORDER",
+      "label": "Core capital goods orders",
+      "block": "credit",
+      "observationDate": "2026-08-01",
+      "observed": 0.4541,
+      "expected": -0.1062,
+      "surprise": 0.5603,
+      "weight": 0.000905,
+      "impact": 0.000507
+     },
+     {
+      "seriesId": "HSN1F",
+      "label": "New one-family houses sold",
+      "block": "credit",
+      "observationDate": "2026-08-01",
+      "observed": 0.188,
+      "expected": -0.0714,
+      "surprise": 0.2594,
+      "weight": -0.001172,
+      "impact": -0.000304
+     },
+     {
+      "seriesId": "AMDMUO",
+      "label": "Unfilled orders: durables",
+      "block": "credit",
+      "observationDate": "2026-08-01",
+      "observed": 0.3387,
+      "expected": 0.1878,
+      "surprise": 0.1508,
+      "weight": 0.00086,
+      "impact": 0.00013
+     },
+     {
+      "seriesId": "DGORDER",
+      "label": "Durable goods orders",
+      "block": "credit",
+      "observationDate": "2026-08-01",
+      "observed": -0.0635,
+      "expected": -0.1175,
+      "surprise": 0.054,
+      "weight": 0.001542,
+      "impact": 0.000083
+     }
+    ]
+   },
+   {
+    "block": "financial",
+    "proxySeries": "STLFSI4",
+    "proxyLabel": "St Louis financial stress",
+    "impactDate": "2026-09-01",
+    "estimatePrevious": -0.8646,
+    "estimateUpdated": -0.9259,
+    "news": 0.001492,
+    "revisions": -0.061362,
+    "total": -0.05987,
+    "releases": [
+     {
+      "seriesId": "CCSA",
+      "label": "Continuing claims",
+      "block": "financial",
+      "observationDate": "2026-09-01",
+      "observed": -0.2903,
+      "expected": -0.3723,
+      "surprise": 0.0821,
+      "weight": 0.018944,
+      "impact": 0.001555
+     },
+     {
+      "seriesId": "JTSLDR",
+      "label": "JOLTS layoffs rate",
+      "block": "financial",
+      "observationDate": "2026-08-01",
+      "observed": -0.1836,
+      "expected": -0.0243,
+      "surprise": -0.1593,
+      "weight": 0.004407,
+      "impact": -0.000702
+     },
+     {
+      "seriesId": "JTSJOL",
+      "label": "JOLTS job openings",
+      "block": "financial",
+      "observationDate": "2026-08-01",
+      "observed": -0.6545,
+      "expected": -0.14,
+      "surprise": -0.5145,
+      "weight": -0.000923,
+      "impact": 0.000475
+     },
+     {
+      "seriesId": "JTSQUR",
+      "label": "JOLTS quits rate",
+      "block": "financial",
+      "observationDate": "2026-08-01",
+      "observed": 0.0096,
+      "expected": 0.4581,
+      "surprise": -0.4485,
+      "weight": -0.000752,
+      "impact": 0.000337
+     },
+     {
+      "seriesId": "NEWORDER",
+      "label": "Core capital goods orders",
+      "block": "financial",
+      "observationDate": "2026-08-01",
+      "observed": 0.4541,
+      "expected": -0.1062,
+      "surprise": 0.5603,
+      "weight": -0.000328,
+      "impact": -0.000184
+     },
+     {
+      "seriesId": "HSN1F",
+      "label": "New one-family houses sold",
+      "block": "financial",
+      "observationDate": "2026-08-01",
+      "observed": 0.188,
+      "expected": -0.0714,
+      "surprise": 0.2594,
+      "weight": 0.000342,
+      "impact": 0.000089
+     },
+     {
+      "seriesId": "AMDMUO",
+      "label": "Unfilled orders: durables",
+      "block": "financial",
+      "observationDate": "2026-08-01",
+      "observed": 0.3387,
+      "expected": 0.1878,
+      "surprise": 0.1508,
+      "weight": -0.000291,
+      "impact": -0.000044
+     },
+     {
+      "seriesId": "DGORDER",
+      "label": "Durable goods orders",
+      "block": "financial",
+      "observationDate": "2026-08-01",
+      "observed": -0.0635,
+      "expected": -0.1175,
+      "surprise": 0.054,
+      "weight": -0.00062,
+      "impact": -0.000033
+     }
+    ]
+   },
+   {
+    "block": "growth",
+    "proxySeries": "TCU",
+    "proxyLabel": "Capacity utilization",
+    "impactDate": "2026-09-01",
+    "estimatePrevious": 0.3178,
+    "estimateUpdated": 0.3096,
+    "news": -0.016487,
+    "revisions": -0.004075,
+    "total": -0.020563,
+    "releases": [
+     {
+      "seriesId": "CCSA",
+      "label": "Continuing claims",
+      "block": "growth",
+      "observationDate": "2026-09-01",
+      "observed": -0.2903,
+      "expected": -0.3723,
+      "surprise": 0.0821,
+      "weight": -0.208179,
+      "impact": -0.017082
+     },
+     {
+      "seriesId": "JTSLDR",
+      "label": "JOLTS layoffs rate",
+      "block": "growth",
+      "observationDate": "2026-08-01",
+      "observed": -0.1836,
+      "expected": -0.0243,
+      "surprise": -0.1593,
+      "weight": -0.064519,
+      "impact": 0.010277
+     },
+     {
+      "seriesId": "JTSJOL",
+      "label": "JOLTS job openings",
+      "block": "growth",
+      "observationDate": "2026-08-01",
+      "observed": -0.6545,
+      "expected": -0.14,
+      "surprise": -0.5145,
+      "weight": 0.013903,
+      "impact": -0.007152
+     },
+     {
+      "seriesId": "JTSQUR",
+      "label": "JOLTS quits rate",
+      "block": "growth",
+      "observationDate": "2026-08-01",
+      "observed": 0.0096,
+      "expected": 0.4581,
+      "surprise": -0.4485,
+      "weight": 0.011369,
+      "impact": -0.0051
+     },
+     {
+      "seriesId": "NEWORDER",
+      "label": "Core capital goods orders",
+      "block": "growth",
+      "observationDate": "2026-08-01",
+      "observed": 0.4541,
+      "expected": -0.1062,
+      "surprise": 0.5603,
+      "weight": 0.004677,
+      "impact": 0.00262
+     },
+     {
+      "seriesId": "HSN1F",
+      "label": "New one-family houses sold",
+      "block": "growth",
+      "observationDate": "2026-08-01",
+      "observed": 0.188,
+      "expected": -0.0714,
+      "surprise": 0.2594,
+      "weight": -0.004541,
+      "impact": -0.001178
+     },
+     {
+      "seriesId": "AMDMUO",
+      "label": "Unfilled orders: durables",
+      "block": "growth",
+      "observationDate": "2026-08-01",
+      "observed": 0.3387,
+      "expected": 0.1878,
+      "surprise": 0.1508,
+      "weight": 0.004208,
+      "impact": 0.000635
+     },
+     {
+      "seriesId": "DGORDER",
+      "label": "Durable goods orders",
+      "block": "growth",
+      "observationDate": "2026-08-01",
+      "observed": -0.0635,
+      "expected": -0.1175,
+      "surprise": 0.054,
+      "weight": 0.009128,
+      "impact": 0.000493
+     }
+    ]
+   },
+   {
+    "block": "housing",
+    "proxySeries": "HOUST",
+    "proxyLabel": "Housing starts",
+    "impactDate": "2026-09-01",
+    "estimatePrevious": 0.0581,
+    "estimateUpdated": 0.0833,
+    "news": 0.010392,
+    "revisions": 0.003777,
+    "total": 0.014168,
+    "releases": [
+     {
+      "seriesId": "HSN1F",
+      "label": "New one-family houses sold",
+      "block": "housing",
+      "observationDate": "2026-08-01",
+      "observed": 0.188,
+      "expected": -0.0714,
+      "surprise": 0.2594,
+      "weight": 0.065101,
+      "impact": 0.016886
+     },
+     {
+      "seriesId": "CCSA",
+      "label": "Continuing claims",
+      "block": "housing",
+      "observationDate": "2026-09-01",
+      "observed": -0.2903,
+      "expected": -0.3723,
+      "surprise": 0.0821,
+      "weight": -0.077864,
+      "impact": -0.006389
+     },
+     {
+      "seriesId": "JTSLDR",
+      "label": "JOLTS layoffs rate",
+      "block": "housing",
+      "observationDate": "2026-08-01",
+      "observed": -0.1836,
+      "expected": -0.0243,
+      "surprise": -0.1593,
+      "weight": 0.00542,
+      "impact": -0.000863
+     },
+     {
+      "seriesId": "JTSJOL",
+      "label": "JOLTS job openings",
+      "block": "housing",
+      "observationDate": "2026-08-01",
+      "observed": -0.6545,
+      "expected": -0.14,
+      "surprise": -0.5145,
+      "weight": -0.001224,
+      "impact": 0.000629
+     },
+     {
+      "seriesId": "JTSQUR",
+      "label": "JOLTS quits rate",
+      "block": "housing",
+      "observationDate": "2026-08-01",
+      "observed": 0.0096,
+      "expected": 0.4581,
+      "surprise": -0.4485,
+      "weight": -0.001006,
+      "impact": 0.000451
+     },
+     {
+      "seriesId": "NEWORDER",
+      "label": "Core capital goods orders",
+      "block": "housing",
+      "observationDate": "2026-08-01",
+      "observed": 0.4541,
+      "expected": -0.1062,
+      "surprise": 0.5603,
+      "weight": -0.000407,
+      "impact": -0.000228
+     },
+     {
+      "seriesId": "AMDMUO",
+      "label": "Unfilled orders: durables",
+      "block": "housing",
+      "observationDate": "2026-08-01",
+      "observed": 0.3387,
+      "expected": 0.1878,
+      "surprise": 0.1508,
+      "weight": -0.000337,
+      "impact": -0.000051
+     },
+     {
+      "seriesId": "DGORDER",
+      "label": "Durable goods orders",
+      "block": "housing",
+      "observationDate": "2026-08-01",
+      "observed": -0.0635,
+      "expected": -0.1175,
+      "surprise": 0.054,
+      "weight": -0.00081,
+      "impact": -0.000044
+     }
+    ]
+   },
+   {
+    "block": "inflation",
+    "proxySeries": "CPIAUCSL",
+    "proxyLabel": "CPI",
+    "impactDate": "2026-09-01",
+    "estimatePrevious": -0.1188,
+    "estimateUpdated": -0.1204,
+    "news": -0.003364,
+    "revisions": -0.000705,
+    "total": -0.004069,
+    "releases": [
+     {
+      "seriesId": "CCSA",
+      "label": "Continuing claims",
+      "block": "inflation",
+      "observationDate": "2026-09-01",
+      "observed": -0.2903,
+      "expected": -0.3723,
+      "surprise": 0.0821,
+      "weight": -0.042767,
+      "impact": -0.003509
+     },
+     {
+      "seriesId": "JTSLDR",
+      "label": "JOLTS layoffs rate",
+      "block": "inflation",
+      "observationDate": "2026-08-01",
+      "observed": -0.1836,
+      "expected": -0.0243,
+      "surprise": -0.1593,
+      "weight": -0.013825,
+      "impact": 0.002202
+     },
+     {
+      "seriesId": "JTSJOL",
+      "label": "JOLTS job openings",
+      "block": "inflation",
+      "observationDate": "2026-08-01",
+      "observed": -0.6545,
+      "expected": -0.14,
+      "surprise": -0.5145,
+      "weight": 0.002958,
+      "impact": -0.001522
+     },
+     {
+      "seriesId": "JTSQUR",
+      "label": "JOLTS quits rate",
+      "block": "inflation",
+      "observationDate": "2026-08-01",
+      "observed": 0.0096,
+      "expected": 0.4581,
+      "surprise": -0.4485,
+      "weight": 0.002416,
+      "impact": -0.001084
+     },
+     {
+      "seriesId": "NEWORDER",
+      "label": "Core capital goods orders",
+      "block": "inflation",
+      "observationDate": "2026-08-01",
+      "observed": 0.4541,
+      "expected": -0.1062,
+      "surprise": 0.5603,
+      "weight": 0.001009,
+      "impact": 0.000565
+     },
+     {
+      "seriesId": "HSN1F",
+      "label": "New one-family houses sold",
+      "block": "inflation",
+      "observationDate": "2026-08-01",
+      "observed": 0.188,
+      "expected": -0.0714,
+      "surprise": 0.2594,
+      "weight": -0.000999,
+      "impact": -0.000259
+     },
+     {
+      "seriesId": "AMDMUO",
+      "label": "Unfilled orders: durables",
+      "block": "inflation",
+      "observationDate": "2026-08-01",
+      "observed": 0.3387,
+      "expected": 0.1878,
+      "surprise": 0.1508,
+      "weight": 0.000908,
+      "impact": 0.000137
+     },
+     {
+      "seriesId": "DGORDER",
+      "label": "Durable goods orders",
+      "block": "inflation",
+      "observationDate": "2026-08-01",
+      "observed": -0.0635,
+      "expected": -0.1175,
+      "surprise": 0.054,
+      "weight": 0.001953,
+      "impact": 0.000105
+     }
+    ]
+   },
+   {
+    "block": "labor",
+    "proxySeries": "ICSA",
+    "proxyLabel": "Initial claims",
+    "impactDate": "2026-09-01",
+    "estimatePrevious": -0.3301,
+    "estimateUpdated": -0.2986,
+    "news": 0.020436,
+    "revisions": 0.031467,
+    "total": 0.051904,
+    "releases": [
+     {
+      "seriesId": "CCSA",
+      "label": "Continuing claims",
+      "block": "labor",
+      "observationDate": "2026-09-01",
+      "observed": -0.2903,
+      "expected": -0.3723,
+      "surprise": 0.0821,
+      "weight": 0.251212,
+      "impact": 0.020613
+     },
+     {
+      "seriesId": "JTSLDR",
+      "label": "JOLTS layoffs rate",
+      "block": "labor",
+      "observationDate": "2026-08-01",
+      "observed": -0.1836,
+      "expected": -0.0243,
+      "surprise": -0.1593,
+      "weight": 0.014462,
+      "impact": -0.002304
+     },
+     {
+      "seriesId": "JTSJOL",
+      "label": "JOLTS job openings",
+      "block": "labor",
+      "observationDate": "2026-08-01",
+      "observed": -0.6545,
+      "expected": -0.14,
+      "surprise": -0.5145,
+      "weight": -0.003048,
+      "impact": 0.001568
+     },
+     {
+      "seriesId": "JTSQUR",
+      "label": "JOLTS quits rate",
+      "block": "labor",
+      "observationDate": "2026-08-01",
+      "observed": 0.0096,
+      "expected": 0.4581,
+      "surprise": -0.4485,
+      "weight": -0.00249,
+      "impact": 0.001117
+     },
+     {
+      "seriesId": "NEWORDER",
+      "label": "Core capital goods orders",
+      "block": "labor",
+      "observationDate": "2026-08-01",
+      "observed": 0.4541,
+      "expected": -0.1062,
+      "surprise": 0.5603,
+      "weight": -0.001033,
+      "impact": -0.000579
+     },
+     {
+      "seriesId": "HSN1F",
+      "label": "New one-family houses sold",
+      "block": "labor",
+      "observationDate": "2026-08-01",
+      "observed": 0.188,
+      "expected": -0.0714,
+      "surprise": 0.2594,
+      "weight": 0.001025,
+      "impact": 0.000266
+     },
+     {
+      "seriesId": "AMDMUO",
+      "label": "Unfilled orders: durables",
+      "block": "labor",
+      "observationDate": "2026-08-01",
+      "observed": 0.3387,
+      "expected": 0.1878,
+      "surprise": 0.1508,
+      "weight": -0.000917,
+      "impact": -0.000138
+     },
+     {
+      "seriesId": "DGORDER",
+      "label": "Durable goods orders",
+      "block": "labor",
+      "observationDate": "2026-08-01",
+      "observed": -0.0635,
+      "expected": -0.1175,
+      "surprise": 0.054,
+      "weight": -0.001993,
+      "impact": -0.000108
+     }
+    ]
+   },
+   {
+    "block": "liquidity",
+    "proxySeries": "WALCL",
+    "proxyLabel": "Fed balance sheet",
+    "impactDate": "2026-09-01",
+    "estimatePrevious": 1.0617,
+    "estimateUpdated": 1.0621,
+    "news": -0.000118,
+    "revisions": 0.000444,
+    "total": 0.000326,
+    "releases": [
+     {
+      "seriesId": "JTSLDR",
+      "label": "JOLTS layoffs rate",
+      "block": "liquidity",
+      "observationDate": "2026-08-01",
+      "observed": -0.1836,
+      "expected": -0.0243,
+      "surprise": -0.1593,
+      "weight": 0.00101,
+      "impact": -0.000161
+     },
+     {
+      "seriesId": "CCSA",
+      "label": "Continuing claims",
+      "block": "liquidity",
+      "observationDate": "2026-09-01",
+      "observed": -0.2903,
+      "expected": -0.3723,
+      "surprise": 0.0821,
+      "weight": -0.001885,
+      "impact": -0.000155
+     },
+     {
+      "seriesId": "JTSJOL",
+      "label": "JOLTS job openings",
+      "block": "liquidity",
+      "observationDate": "2026-08-01",
+      "observed": -0.6545,
+      "expected": -0.14,
+      "surprise": -0.5145,
+      "weight": -0.000274,
+      "impact": 0.000141
+     },
+     {
+      "seriesId": "JTSQUR",
+      "label": "JOLTS quits rate",
+      "block": "liquidity",
+      "observationDate": "2026-08-01",
+      "observed": 0.0096,
+      "expected": 0.4581,
+      "surprise": -0.4485,
+      "weight": -0.00023,
+      "impact": 0.000103
+     },
+     {
+      "seriesId": "NEWORDER",
+      "label": "Core capital goods orders",
+      "block": "liquidity",
+      "observationDate": "2026-08-01",
+      "observed": 0.4541,
+      "expected": -0.1062,
+      "surprise": 0.5603,
+      "weight": -0.000052,
+      "impact": -0.000029
+     },
+     {
+      "seriesId": "AMDMUO",
+      "label": "Unfilled orders: durables",
+      "block": "liquidity",
+      "observationDate": "2026-08-01",
+      "observed": 0.3387,
+      "expected": 0.1878,
+      "surprise": 0.1508,
+      "weight": -0.000067,
+      "impact": -0.00001
+     },
+     {
+      "seriesId": "DGORDER",
+      "label": "Durable goods orders",
+      "block": "liquidity",
+      "observationDate": "2026-08-01",
+      "observed": -0.0635,
+      "expected": -0.1175,
+      "surprise": 0.054,
+      "weight": -0.000147,
+      "impact": -0.000008
+     },
+     {
+      "seriesId": "HSN1F",
+      "label": "New one-family houses sold",
+      "block": "liquidity",
+      "observationDate": "2026-08-01",
+      "observed": 0.188,
+      "expected": -0.0714,
+      "surprise": 0.2594,
+      "weight": 0.000002,
+      "impact": 0.000001
+     }
+    ]
+   },
+   {
+    "block": "manufacturing",
+    "proxySeries": "BUSINV",
+    "proxyLabel": "Business inventories",
+    "impactDate": "2026-09-01",
+    "estimatePrevious": 0.5435,
+    "estimateUpdated": 0.5412,
+    "news": -0.006481,
+    "revisions": 0.001188,
+    "total": -0.005293,
+    "releases": [
+     {
+      "seriesId": "NEWORDER",
+      "label": "Core capital goods orders",
+      "block": "manufacturing",
+      "observationDate": "2026-08-01",
+      "observed": 0.4541,
+      "expected": -0.1062,
+      "surprise": 0.5603,
+      "weight": -0.024742,
+      "impact": -0.013864
+     },
+     {
+      "seriesId": "AMDMUO",
+      "label": "Unfilled orders: durables",
+      "block": "manufacturing",
+      "observationDate": "2026-08-01",
+      "observed": 0.3387,
+      "expected": 0.1878,
+      "surprise": 0.1508,
+      "weight": 0.087145,
+      "impact": 0.013144
+     },
+     {
+      "seriesId": "CCSA",
+      "label": "Continuing claims",
+      "block": "manufacturing",
+      "observationDate": "2026-09-01",
+      "observed": -0.2903,
+      "expected": -0.3723,
+      "surprise": 0.0821,
+      "weight": -0.049021,
+      "impact": -0.004022
+     },
+     {
+      "seriesId": "JTSLDR",
+      "label": "JOLTS layoffs rate",
+      "block": "manufacturing",
+      "observationDate": "2026-08-01",
+      "observed": -0.1836,
+      "expected": -0.0243,
+      "surprise": -0.1593,
+      "weight": -0.013481,
+      "impact": 0.002147
+     },
+     {
+      "seriesId": "DGORDER",
+      "label": "Durable goods orders",
+      "block": "manufacturing",
+      "observationDate": "2026-08-01",
+      "observed": -0.0635,
+      "expected": -0.1175,
+      "surprise": 0.054,
+      "weight": -0.024622,
+      "impact": -0.00133
+     },
+     {
+      "seriesId": "JTSJOL",
+      "label": "JOLTS job openings",
+      "block": "manufacturing",
+      "observationDate": "2026-08-01",
+      "observed": -0.6545,
+      "expected": -0.14,
+      "surprise": -0.5145,
+      "weight": 0.002551,
+      "impact": -0.001312
+     },
+     {
+      "seriesId": "JTSQUR",
+      "label": "JOLTS quits rate",
+      "block": "manufacturing",
+      "observationDate": "2026-08-01",
+      "observed": 0.0096,
+      "expected": 0.4581,
+      "surprise": -0.4485,
+      "weight": 0.002043,
+      "impact": -0.000916
+     },
+     {
+      "seriesId": "HSN1F",
+      "label": "New one-family houses sold",
+      "block": "manufacturing",
+      "observationDate": "2026-08-01",
+      "observed": 0.188,
+      "expected": -0.0714,
+      "surprise": 0.2594,
+      "weight": -0.001261,
+      "impact": -0.000327
+     }
+    ]
+   }
+  ],
+  "releases": [
+   {
+    "seriesId": "CCSA",
+    "label": "Continuing claims",
+    "block": "labor",
+    "observationDate": "2026-09-01",
+    "observed": -0.2903,
+    "expected": -0.3723,
+    "surprise": 0.0821,
+    "weight": 0.251212,
+    "impact": 0.020613
+   },
+   {
+    "seriesId": "CCSA",
+    "label": "Continuing claims",
+    "block": "growth",
+    "observationDate": "2026-09-01",
+    "observed": -0.2903,
+    "expected": -0.3723,
+    "surprise": 0.0821,
+    "weight": -0.208179,
+    "impact": -0.017082
+   },
+   {
+    "seriesId": "HSN1F",
+    "label": "New one-family houses sold",
+    "block": "housing",
+    "observationDate": "2026-08-01",
+    "observed": 0.188,
+    "expected": -0.0714,
+    "surprise": 0.2594,
+    "weight": 0.065101,
+    "impact": 0.016886
+   },
+   {
+    "seriesId": "NEWORDER",
+    "label": "Core capital goods orders",
+    "block": "manufacturing",
+    "observationDate": "2026-08-01",
+    "observed": 0.4541,
+    "expected": -0.1062,
+    "surprise": 0.5603,
+    "weight": -0.024742,
+    "impact": -0.013864
+   },
+   {
+    "seriesId": "AMDMUO",
+    "label": "Unfilled orders: durables",
+    "block": "manufacturing",
+    "observationDate": "2026-08-01",
+    "observed": 0.3387,
+    "expected": 0.1878,
+    "surprise": 0.1508,
+    "weight": 0.087145,
+    "impact": 0.013144
+   },
+   {
+    "seriesId": "JTSLDR",
+    "label": "JOLTS layoffs rate",
+    "block": "growth",
+    "observationDate": "2026-08-01",
+    "observed": -0.1836,
+    "expected": -0.0243,
+    "surprise": -0.1593,
+    "weight": -0.064519,
+    "impact": 0.010277
+   },
+   {
+    "seriesId": "CCSA",
+    "label": "Continuing claims",
+    "block": "credit",
+    "observationDate": "2026-09-01",
+    "observed": -0.2903,
+    "expected": -0.3723,
+    "surprise": 0.0821,
+    "weight": -0.110367,
+    "impact": -0.009056
+   },
+   {
+    "seriesId": "JTSJOL",
+    "label": "JOLTS job openings",
+    "block": "growth",
+    "observationDate": "2026-08-01",
+    "observed": -0.6545,
+    "expected": -0.14,
+    "surprise": -0.5145,
+    "weight": 0.013903,
+    "impact": -0.007152
+   },
+   {
+    "seriesId": "CCSA",
+    "label": "Continuing claims",
+    "block": "housing",
+    "observationDate": "2026-09-01",
+    "observed": -0.2903,
+    "expected": -0.3723,
+    "surprise": 0.0821,
+    "weight": -0.077864,
+    "impact": -0.006389
+   },
+   {
+    "seriesId": "CCSA",
+    "label": "Continuing claims",
+    "block": "consumer",
+    "observationDate": "2026-09-01",
+    "observed": -0.2903,
+    "expected": -0.3723,
+    "surprise": 0.0821,
+    "weight": 0.062846,
+    "impact": 0.005157
+   },
+   {
+    "seriesId": "JTSQUR",
+    "label": "JOLTS quits rate",
+    "block": "growth",
+    "observationDate": "2026-08-01",
+    "observed": 0.0096,
+    "expected": 0.4581,
+    "surprise": -0.4485,
+    "weight": 0.011369,
+    "impact": -0.0051
+   },
+   {
+    "seriesId": "CCSA",
+    "label": "Continuing claims",
+    "block": "manufacturing",
+    "observationDate": "2026-09-01",
+    "observed": -0.2903,
+    "expected": -0.3723,
+    "surprise": 0.0821,
+    "weight": -0.049021,
+    "impact": -0.004022
+   },
+   {
+    "seriesId": "CCSA",
+    "label": "Continuing claims",
+    "block": "inflation",
+    "observationDate": "2026-09-01",
+    "observed": -0.2903,
+    "expected": -0.3723,
+    "surprise": 0.0821,
+    "weight": -0.042767,
+    "impact": -0.003509
+   },
+   {
+    "seriesId": "NEWORDER",
+    "label": "Core capital goods orders",
+    "block": "growth",
+    "observationDate": "2026-08-01",
+    "observed": 0.4541,
+    "expected": -0.1062,
+    "surprise": 0.5603,
+    "weight": 0.004677,
+    "impact": 0.00262
+   },
+   {
+    "seriesId": "JTSLDR",
+    "label": "JOLTS layoffs rate",
+    "block": "labor",
+    "observationDate": "2026-08-01",
+    "observed": -0.1836,
+    "expected": -0.0243,
+    "surprise": -0.1593,
+    "weight": 0.014462,
+    "impact": -0.002304
+   }
+  ]
+ },
+ "regimes": {
+  "asOf": "2026-09-29",
+  "method": "Two-state Markov switching per factor: switching mean vs switching variance, BIC",
+  "converged": false,
+  "status": "provisional",
+  "validation": "Descriptive. No regime probability is published until the climatology test (WP3) passes; the factor model behind it reports non-convergence when converged is false.",
+  "series": 89,
+  "factors": [
+   {
+    "factor": "global",
+    "levelRegime": false,
+    "verdict": "mean buys nothing over switching variance; means 0.21 SD apart",
+    "meanSeparation": 0.215,
+    "meanBuysBic": 5,
+    "varianceRatio": 139,
+    "durations": [
+     57.5,
+     7.3
+    ]
+   },
+   {
+    "factor": "growth",
+    "levelRegime": false,
+    "verdict": "mean buys nothing over switching variance; means 0.34 SD apart; shortest state 3.9 months",
+    "meanSeparation": 0.343,
+    "meanBuysBic": 4.5,
+    "varianceRatio": 11.27,
+    "durations": [
+     59.9,
+     3.9
+    ]
+   },
+   {
+    "factor": "manufacturing",
+    "levelRegime": false,
+    "verdict": "mean buys nothing over switching variance; means 0.10 SD apart",
+    "meanSeparation": 0.096,
+    "meanBuysBic": 6,
+    "varianceRatio": 51.47,
+    "durations": [
+     61.3,
+     10.1
+    ]
+   },
+   {
+    "factor": "labor",
+    "levelRegime": false,
+    "verdict": "mean buys nothing over switching variance; means 0.11 SD apart; shortest state 2.5 months",
+    "meanSeparation": 0.113,
+    "meanBuysBic": 6.2,
+    "varianceRatio": 268.9,
+    "durations": [
+     100.5,
+     2.5
+    ]
+   },
+   {
+    "factor": "consumer",
+    "levelRegime": false,
+    "verdict": "mean buys nothing over switching variance; means 0.04 SD apart; shortest state 2.7 months",
+    "meanSeparation": 0.036,
+    "meanBuysBic": 6.3,
+    "varianceRatio": 161.4,
+    "durations": [
+     28.3,
+     2.7
+    ]
+   },
+   {
+    "factor": "housing",
+    "levelRegime": true,
+    "verdict": "LEVEL REGIME",
+    "meanSeparation": 2.064,
+    "meanBuysBic": -155.6,
+    "varianceRatio": 5.38,
+    "durations": [
+     77.8,
+     44.9
+    ]
+   },
+   {
+    "factor": "inflation",
+    "levelRegime": false,
+    "verdict": "mean buys nothing over switching variance; means 0.05 SD apart",
+    "meanSeparation": 0.054,
+    "meanBuysBic": 6.1,
+    "varianceRatio": 8.25,
+    "durations": [
+     18,
+     8.8
+    ]
+   },
+   {
+    "factor": "liquidity",
+    "levelRegime": true,
+    "verdict": "LEVEL REGIME",
+    "meanSeparation": 1.417,
+    "meanBuysBic": -97.9,
+    "varianceRatio": 22.43,
+    "durations": [
+     111.6,
+     65.5
+    ]
+   },
+   {
+    "factor": "credit",
+    "levelRegime": false,
+    "verdict": "mean buys nothing over switching variance; means 0.28 SD apart; shortest state 3.0 months",
+    "meanSeparation": 0.282,
+    "meanBuysBic": 5.1,
+    "varianceRatio": 37.58,
+    "durations": [
+     47.9,
+     3
+    ]
+   },
+   {
+    "factor": "financial",
+    "levelRegime": true,
+    "verdict": "LEVEL REGIME",
+    "meanSeparation": 1.407,
+    "meanBuysBic": -38.4,
+    "varianceRatio": 10.83,
+    "durations": [
+     43,
+     11.7
+    ]
+   }
+  ]
+ },
+ "series": {
+  "CCSA": {
+   "label": "Continuing claims",
+   "units": null,
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 12,
+   "through": "2026-09-12",
+   "daysBehind": 17,
+   "frequency": "weekly"
+  },
+  "HSN1F": {
+   "label": "New one-family houses sold",
+   "units": null,
+   "source": "FRED",
+   "transformation": 4,
+   "releaseLagDays": 55,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "NEWORDER": {
+   "label": "Core capital goods orders",
+   "units": null,
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 56,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "AMDMUO": {
+   "label": "Unfilled orders: durables",
+   "units": null,
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 55,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "JTSLDR": {
+   "label": "JOLTS layoffs rate",
+   "units": null,
+   "source": "FRED",
+   "transformation": 2,
+   "releaseLagDays": 68,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "JTSJOL": {
+   "label": "JOLTS job openings",
+   "units": null,
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 68,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "JTSQUR": {
+   "label": "JOLTS quits rate",
+   "units": null,
+   "source": "FRED",
+   "transformation": 2,
+   "releaseLagDays": 68,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "WALCL": {
+   "label": "Fed balance sheet",
+   "units": null,
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 5,
+   "through": "2026-09-23",
+   "daysBehind": 6,
+   "frequency": "weekly"
+  },
+  "WTREGEN": {
+   "label": "Treasury general account",
+   "units": null,
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 1,
+   "through": "2026-09-23",
+   "daysBehind": 6,
+   "frequency": "weekly"
+  },
+  "MTSDS133FMS": {
+   "label": "Federal Surplus or Deficit [-]",
+   "units": "Millions of Dollars",
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 41,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "BOPGSTB": {
+   "label": "Trade Balance: Goods and Services, Balance of Payments Basis",
+   "units": "Millions of Dollars",
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 70,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "TOTBKCR": {
+   "label": "Bank Credit, All Commercial Banks",
+   "units": "Billions of U.S. Dollars",
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 9,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "TLAACBW027SBOG": {
+   "label": "Total Assets, All Commercial Banks",
+   "units": "Billions of U.S. Dollars",
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 9,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "USGSEC": {
+   "label": "Treasury and Agency Securities, All Commercial Banks",
+   "units": "Billions of U.S. Dollars",
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 41,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "CREACBM027NBOG": {
+   "label": "Real Estate Loans: Commercial Real Estate Loans, All Commercial Banks",
+   "units": "Billions of U.S. Dollars",
+   "source": "FRED",
+   "transformation": 6,
+   "releaseLagDays": 41,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "GASREGW": {
+   "label": "US Regular All Formulations Gas Price",
+   "units": "Dollars per Gallon",
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 0,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "PINDUINDEXM": {
+   "label": "Global price of Industrial Materials index",
+   "units": "Index 2016 = 100",
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 44,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "PALLFNFINDEXM": {
+   "label": "Global Price Index of All Commodities",
+   "units": "Index 2016 = 100",
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 45,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "PRAWMINDEXM": {
+   "label": "Global price of Agr. Raw Material Index",
+   "units": "Index 2016 = 100",
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 44,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "UMCSENT": {
+   "label": "U Michigan sentiment",
+   "units": null,
+   "source": "FRED",
+   "transformation": 2,
+   "releaseLagDays": 27,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "PSAVERT": {
+   "label": "Personal saving rate",
+   "units": null,
+   "source": "FRED",
+   "transformation": 2,
+   "releaseLagDays": 59,
+   "through": "2026-07-01",
+   "daysBehind": 90,
+   "frequency": "monthly"
+  },
+  "PCE": {
+   "label": "Personal Consumption Expenditures",
+   "units": "Billions of Dollars",
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 58,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "W875RX1": {
+   "label": "Real income ex transfers",
+   "units": null,
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 59,
+   "through": "2026-07-01",
+   "daysBehind": 90,
+   "frequency": "monthly"
+  },
+  "BAA10Y": {
+   "label": "Baa - 10y spread",
+   "units": null,
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 0,
+   "through": "2026-09-24",
+   "daysBehind": 5,
+   "frequency": "daily"
+  },
+  "BAMLH0A0HYM2": {
+   "label": "High yield OAS",
+   "units": null,
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 0,
+   "through": "2026-09-24",
+   "daysBehind": 5,
+   "frequency": "daily"
+  },
+  "BAMLC0A4CBBB": {
+   "label": "ICE BofA BBB US Corporate Index Option-Adjusted Spread",
+   "units": "Percent",
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 0,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "BAMLC0A0CM": {
+   "label": "ICE BofA US Corporate Index Option-Adjusted Spread",
+   "units": "Percent",
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 0,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "VIXCLS": {
+   "label": "VIX",
+   "units": null,
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 0,
+   "through": "2026-09-22",
+   "daysBehind": 7,
+   "frequency": "daily"
+  },
+  "NFCI": {
+   "label": "Chicago Fed financial conditions",
+   "units": null,
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 5,
+   "through": "2026-09-18",
+   "daysBehind": 11,
+   "frequency": "weekly"
+  },
+  "ANFCI": {
+   "label": "Adjusted NFCI",
+   "units": null,
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 5,
+   "through": "2026-09-18",
+   "daysBehind": 11,
+   "frequency": "weekly"
+  },
+  "T10Y2Y": {
+   "label": "10y-2y slope",
+   "units": null,
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 0,
+   "through": "2026-09-25",
+   "daysBehind": 4,
+   "frequency": "daily"
+  },
+  "HOUST": {
+   "label": "Housing starts",
+   "units": null,
+   "source": "FRED",
+   "transformation": 4,
+   "releaseLagDays": 47,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "PERMIT": {
+   "label": "Building permits",
+   "units": null,
+   "source": "FRED",
+   "transformation": 4,
+   "releaseLagDays": 47,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "COMPUTSA": {
+   "label": "New Privately-Owned Housing Units Completed: Total Units",
+   "units": "Thousands of Units",
+   "source": "FRED",
+   "transformation": 4,
+   "releaseLagDays": 47,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "HOUST1F": {
+   "label": "New Privately-Owned Housing Units Started: Single-Family Units",
+   "units": "Thousands of Units",
+   "source": "FRED",
+   "transformation": 4,
+   "releaseLagDays": 47,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "MEDCPIM158SFRBCLE": {
+   "label": "Median Consumer Price Index",
+   "units": "Percent Change at Annual Rate",
+   "source": "FRED",
+   "transformation": 2,
+   "releaseLagDays": 42,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "MICH": {
+   "label": "University of Michigan: Inflation Expectation",
+   "units": "Percent",
+   "source": "FRED",
+   "transformation": 2,
+   "releaseLagDays": 26.5,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "CORESTICKM159SFRBATL": {
+   "label": "Sticky Price Consumer Price Index less Food and Energy",
+   "units": "Percent Change from Year Ago",
+   "source": "FRED",
+   "transformation": 2,
+   "releaseLagDays": 42,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "PCETRIM12M159SFRBDAL": {
+   "label": "Trimmed Mean PCE Inflation Rate",
+   "units": "Percent Change from Year Ago",
+   "source": "FRED",
+   "transformation": 2,
+   "releaseLagDays": 59,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "AWHMAN": {
+   "label": "Mfg weekly hours",
+   "units": null,
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 34,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "AWHAETP": {
+   "label": "Average Weekly Hours of All Employees, Total Private",
+   "units": "Hours",
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 34,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "UEMPMEAN": {
+   "label": "Mean duration unemployed",
+   "units": null,
+   "source": "FRED",
+   "transformation": 2,
+   "releaseLagDays": 34,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "CIVPART": {
+   "label": "Labor force participation",
+   "units": null,
+   "source": "FRED",
+   "transformation": 2,
+   "releaseLagDays": 34,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "M2REAL": {
+   "label": "Real M2",
+   "units": null,
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 49,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "TOTRESNS": {
+   "label": "Total reserves",
+   "units": null,
+   "source": "FRED",
+   "transformation": 6,
+   "releaseLagDays": 39,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "GACDFSA066MSFRBPHI": {
+   "label": "Current General Activity; Diffusion Index for Federal Reserve District 3: Philadelphia",
+   "units": "Index",
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 17,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "GACDISA066MSFRBNY": {
+   "label": "Current General Business Conditions; Diffusion Index for New York",
+   "units": "Index",
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 14,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "BACTSAMFRBDAL": {
+   "label": "Current General Business Activity; Diffusion Index for Texas",
+   "units": "Index",
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 27,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "CFNAI": {
+   "label": "Chicago Fed National Activity Index",
+   "units": "Index",
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 53,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "IPMANSICS": {
+   "label": "IP: manufacturing",
+   "units": null,
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 45,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "IPBUSEQ": {
+   "label": "IP: business equipment",
+   "units": null,
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 45,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "IPFINAL": {
+   "label": "IP: final products",
+   "units": null,
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 45,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "INDPRO": {
+   "label": "Industrial production",
+   "units": null,
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 45,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "BOPGIMP": {
+   "label": "Imports of Goods: Balance of Payments Basis",
+   "units": "Millions of Dollars",
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 70,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "BOPGEXP": {
+   "label": "Exports of Goods, Balance of Payments Basis",
+   "units": "Millions of Dollars",
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 70,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "DEXCHUS": {
+   "label": "Chinese Yuan Renminbi to U.S. Dollar Spot Exchange Rate",
+   "units": "Chinese Yuan Renminbi to One U.S. Dollar",
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 5,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  }
+ }
+}

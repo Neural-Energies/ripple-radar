@@ -13,6 +13,7 @@ import {
   directionOf,
   lastOfMonth,
   legPath,
+  median,
   parseFredCsv,
   QUAD_NAME,
   yearOverYear,
@@ -37,6 +38,8 @@ const INFLATION = [
 
 const POLICY = [
   { id: "FEDFUNDS", label: "Fed funds", unit: "%" },
+  { id: "DGS10", label: "10y Treasury", unit: "%" },
+  { id: "DGS2", label: "2y Treasury", unit: "%" },
   { id: "T10Y2Y", label: "10y–2y", unit: "pp" },
   { id: "VIXCLS", label: "VIX", unit: "" },
   { id: "BAA10Y", label: "Baa spread", unit: "pp" },
@@ -62,7 +65,22 @@ export type MacroRead = {
   inflation?: { yoy: number; delta: number; direction: string; up: number; n: number };
   legs?: MacroLeg[];
   path?: { date: string; quad: Quad }[];
-  prints?: { id: string; label: string; date: string; value: number; unit: string }[];
+  /** Latest print, and the print on or before the same day a month earlier. */
+  prints?: { id: string; label: string; date: string; value: number; unit: string; monthAgo?: number }[];
+  /** Monthly paths for charts: basket medians and the individual series. */
+  history?: {
+    date: string;
+    growthYoy: number | null;
+    inflationYoy: number | null;
+    cpi: number | null;
+    core: number | null;
+    pceCore: number | null;
+    dgs10: number | null;
+    funds: number | null;
+  }[];
+  nfci?: { value: number; date: string; monthAgo?: number };
+  /** When FRED was read for this payload. */
+  fetchedAt?: string;
   sahm?: {
     value: number;
     date: string;
@@ -163,6 +181,46 @@ function onOrBefore(points: { date: string; value: number }[], date: string) {
   return best;
 }
 
+/** The same calendar day one month earlier (clamped to the month's end). */
+function monthBefore(date: string): string {
+  const [y, m, d] = date.split("-").map(Number) as [number, number, number];
+  const year = m === 1 ? y - 1 : y;
+  const month = m === 1 ? 12 : m - 1;
+  const last = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  return `${year}-${String(month).padStart(2, "0")}-${String(Math.min(d, last)).padStart(2, "0")}`;
+}
+
+function historyOf(
+  path: { date: string }[],
+  growthPaths: { date: string; rate: number }[][],
+  inflationPaths: { date: string; rate: number }[][],
+  points: Record<string, { date: string; value: number }[]>,
+): NonNullable<MacroRead["history"]> {
+  const rateOn = (rows: { date: string; rate: number }[], date: string) =>
+    rows.find((row) => row.date === date)?.rate ?? null;
+  const mid = (values: (number | null)[]) => {
+    const xs = values.filter((v): v is number => v != null);
+    return xs.length ? median(xs) : null;
+  };
+  const cpi = yearOverYear(lastOfMonth(points.CPIAUCSL ?? []));
+  const core = yearOverYear(lastOfMonth(points.CPILFESL ?? []));
+  const pce = yearOverYear(lastOfMonth(points.PCEPILFE ?? []));
+  const dgs10 = lastOfMonth(points.DGS10 ?? []);
+  const funds = lastOfMonth(points.FEDFUNDS ?? []);
+  const valueOn = (rows: { date: string; value: number }[], date: string) =>
+    rows.find((row) => row.date === date)?.value ?? null;
+  return path.map(({ date }) => ({
+    date,
+    growthYoy: mid(growthPaths.map((rows) => rateOn(rows, date))),
+    inflationYoy: mid(inflationPaths.map((rows) => rateOn(rows, date))),
+    cpi: rateOn(cpi, date),
+    core: rateOn(core, date),
+    pceCore: rateOn(pce, date),
+    dgs10: valueOn(dgs10, date),
+    funds: valueOn(funds, date),
+  }));
+}
+
 function volFields(points: Record<string, { date: string; value: number }[]>): Pick<MacroRead, "vol"> {
   const vol = volRead(points.VIXCLS ?? [], points.VXVCLS ?? [], points.SP500 ?? []);
   return vol ? { vol } : {};
@@ -224,7 +282,7 @@ async function liveModels(points: Record<string, { date: string; value: number }
 export async function loadMacroRegime(): Promise<MacroRead> {
   if (cache && Date.now() - cache.at < TTL_MS) return cache.read;
   try {
-    const extra = ["SAHMREALTIME", "CFNAIMA3", "RECPROUSM156N", "STLFSI4", "T10Y3M", "USREC", "UNRATE", "NROU", "CES0500000003", "PCEPILFE", "VXVCLS", "SP500"] as const;
+    const extra = ["SAHMREALTIME", "CFNAIMA3", "RECPROUSM156N", "STLFSI4", "T10Y3M", "USREC", "UNRATE", "NROU", "CES0500000003", "PCEPILFE", "VXVCLS", "SP500", "NFCI"] as const;
     const ids = [...GROWTH.map((s) => s.id), ...INFLATION.map((s) => s.id), ...POLICY.map((s) => s.id), ...extra];
     const loaded = await Promise.all(ids.map((id) => loadCsv(id)));
     const points = Object.fromEntries(ids.map((id, i) => [id, loaded[i] ?? []]));
@@ -271,8 +329,19 @@ export async function loadMacroRegime(): Promise<MacroRead> {
     const prints = POLICY.map((spec) => {
       const last = points[spec.id]?.at(-1);
       if (!last) return null;
-      return { id: spec.id, label: spec.label, date: last.date, value: last.value, unit: spec.unit };
+      const prior = onOrBefore(points[spec.id] ?? [], monthBefore(last.date));
+      return {
+        id: spec.id,
+        label: spec.label,
+        date: last.date,
+        value: last.value,
+        unit: spec.unit,
+        ...(prior ? { monthAgo: prior.value } : {}),
+      };
     }).filter((row): row is NonNullable<typeof row> => row != null);
+
+    const nfciLast = points.NFCI?.at(-1);
+    const nfciPrior = nfciLast ? onOrBefore(points.NFCI ?? [], monthBefore(nfciLast.date)) : undefined;
 
     const read: MacroRead = {
       status: "ok",
@@ -298,6 +367,11 @@ export async function loadMacroRegime(): Promise<MacroRead> {
       legs,
       path: regime.path.slice(-36),
       prints,
+      history: historyOf(regime.path.slice(-36), growthPaths, inflationPaths, points),
+      ...(nfciLast
+        ? { nfci: { value: nfciLast.value, date: nfciLast.date, ...(nfciPrior ? { monthAgo: nfciPrior.value } : {}) } }
+        : {}),
+      fetchedAt: new Date().toISOString(),
       ...monitors(points),
       ...(await liveModels(points)),
       ...volFields(points),

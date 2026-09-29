@@ -19,11 +19,6 @@ export const UNWIRED = [
     detail: "The 10-year is not split into expected rates and a term premium.",
   },
   {
-    id: "nfci",
-    title: "Chicago Fed NFCI",
-    detail: "NFCI and ANFCI are not on this book. Stress is the St. Louis index only.",
-  },
-  {
     id: "persist",
     title: "Inflation persistence",
     detail: "Persistence is not measured. Direction is the 3-month change in the year-over-year rate.",

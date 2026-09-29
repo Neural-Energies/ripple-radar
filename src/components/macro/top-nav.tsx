@@ -11,8 +11,7 @@ const NAV = [
   { to: "/events", label: "Events" },
   { to: "/game-theory", label: "ACE" },
   { to: "/scenarios", label: "Scenarios" },
-  { to: "/events", label: "World" },
-  { to: "/watchlists", label: "Options" },
+  { to: "/maps", label: "World" },
   { to: "/watchlists", label: "Watchlist" },
 ] as const;
 

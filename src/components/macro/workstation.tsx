@@ -358,7 +358,19 @@ export function ConditionsPage() {
             </Panel>
           ),
         },
-        { id: "nfci", label: "NFCI", body: <Hole id="nfci" /> },
+        {
+          id: "nfci",
+          label: "NFCI",
+          body: (
+            <Panel title="Chicago Fed NFCI" action={<Badge tone="primary">Live</Badge>}>
+              <p className="text-caption">
+                {read?.nfci
+                  ? `${read.nfci.value.toFixed(3)} for the week of ${read.nfci.date}. ${read.nfci.value > 0 ? "Tighter" : "Looser"} than average. Zero is average.`
+                  : "NFCI is not in yet."}
+              </p>
+            </Panel>
+          ),
+        },
       ]}
     />
   );
