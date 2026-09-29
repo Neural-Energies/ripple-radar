@@ -138,7 +138,17 @@ export interface ScenarioUpdate {
  */
 export function updateScenarios(opts: {
   current: Scenario[];
-  prior?: { id: string; probability: number }[];
+  /**
+   * The last frozen state. `alpha` is the unrounded posterior concentration
+   * it was frozen with; when every current scenario has one, the update
+   * resumes from exactly that. Rebuilding it from the rounded percentages at
+   * PRIOR_STRENGTH instead (the only option before PR #5 A03) forgot every
+   * piece of evidence the book had absorbed on each poll: [9, 6] displayed as
+   * 60/40 came back as [7.2, 4.8] with no new information, and its bands
+   * widened. Snapshots without `alpha` (first sighting, legacy rows) still
+   * take that reconstruction, because it is the prior's defined strength.
+   */
+  prior?: { id: string; probability: number; alpha?: number }[];
   evidence: EvidenceItem[];
   nodes?: RippleNode[];
   trades?: TradeIdea[];
@@ -147,10 +157,14 @@ export function updateScenarios(opts: {
   if (current.length === 0)
     return { scenarios: [], audits: [], appliedMass: 0, alpha: [], provenance: "heuristic" };
 
-  const priorById = new Map((opts.prior ?? []).map((p) => [p.id, p.probability]));
-  const priorProbs = current.map((s) => priorById.get(s.id) ?? s.probability);
+  const priorById = new Map((opts.prior ?? []).map((p) => [p.id, p]));
+  const priorProbs = current.map((s) => priorById.get(s.id)?.probability ?? s.probability);
+  const carried = current.map((s) => priorById.get(s.id)?.alpha);
+  const resumes = carried.every((a) => typeof a === "number" && Number.isFinite(a) && a > 0);
 
-  const alpha = priorProbs.map((p) => (p / 100) * PRIOR_STRENGTH);
+  const alpha = resumes
+    ? carried.map((a) => a as number)
+    : priorProbs.map((p) => (p / 100) * PRIOR_STRENGTH);
   const gained = current.map(() => 0);
 
   let applied = 0;
@@ -164,11 +178,15 @@ export function updateScenarios(opts: {
 
     // Affinity across the materialization → fade axis, normalized so one item
     // contributes exactly `w` of mass regardless of how many scenarios exist.
+    const alphaNow = alpha.reduce((a, n) => a + n, 0);
     const raw = current.map((_, i) => {
       const pos = axisPosition(i, current.length);
       if (e.direction === "up") return 1 - pos;
       if (e.direction === "down") return pos;
-      return priorProbs[i]! / 100; // neutral: sharpen the prior, do not tilt it
+      // neutral: sharpen the current (unrounded) mean, do not tilt it — read
+      // at the moment it applies, so one batch and the same evidence spread
+      // over several polls end in the same place
+      return alpha[i]! / alphaNow;
     });
     const rawTotal = raw.reduce((a, n) => a + n, 0);
     if (rawTotal <= 0) continue;
@@ -219,7 +237,7 @@ export function updateScenarios(opts: {
       rescoredAssets,
     };
 
-    return { ...s, probability: updated, prevProbability: previous, audit };
+    return { ...s, probability: updated, prevProbability: previous, audit, concentration: alpha[i]! };
   });
 
   return {

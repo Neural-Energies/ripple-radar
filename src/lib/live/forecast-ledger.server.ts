@@ -17,7 +17,9 @@
 import type { RadarEvent } from "@/data/types";
 import type { LiveHeadline } from "./types";
 
-type ScenarioRow = { id: string; name: string; probability: number };
+/** `alpha` is the unrounded Dirichlet concentration (PR #5 A03); absent on
+ * snapshots frozen before it was persisted. */
+type ScenarioRow = { id: string; name: string; probability: number; alpha?: number };
 
 function snapshotId(eventId: string, atMs: number) {
   return `snap-${eventId}-${atMs.toString(36)}`;
@@ -79,17 +81,27 @@ export function horizonHoursFor(event: {
   return Math.round(Math.min(MAX_HORIZON_HOURS, Math.max(MIN_HORIZON_HOURS, shortest)));
 }
 
+/**
+ * The rows a snapshot freezes. The unrounded concentration travels with them,
+ * so a change in it (evidence that sharpened the book without moving a rounded
+ * percentage) is a change worth freezing, and the next poll resumes from it
+ * rather than from the rounded display.
+ */
+export function snapshotRows(scenarios: RadarEvent["scenarios"]): ScenarioRow[] {
+  return scenarios.map((s) => ({
+    id: s.id,
+    name: s.name,
+    probability: s.probability,
+    ...(typeof s.concentration === "number" ? { alpha: s.concentration } : {}),
+  }));
+}
+
 export async function freezeIfChanged(event: RadarEvent): Promise<void> {
   try {
     if (!event.id || !event.scenarios?.length) return;
     const { getSql } = await import("@/lib/db");
     const sql = await getSql();
-    const nextScenarios: ScenarioRow[] = event.scenarios.map((s) => ({
-      id: s.id,
-      name: s.name,
-      probability: s.probability,
-    }));
-    const nextJson = JSON.stringify(nextScenarios);
+    const nextJson = JSON.stringify(snapshotRows(event.scenarios));
 
     const latest = await sql<{ scenarios: string }>`
       select scenarios from forecast_snapshots
@@ -112,7 +124,7 @@ export async function freezeIfChanged(event: RadarEvent): Promise<void> {
 
 export interface PriorSnapshot {
   asOfMs: number;
-  scenarios: { id: string; probability: number }[];
+  scenarios: { id: string; probability: number; alpha?: number }[];
 }
 
 /**
@@ -134,7 +146,7 @@ export async function latestSnapshots(eventIds: string[]): Promise<Map<string, P
     for (const r of rows) {
       out.set(r.event_id, {
         asOfMs: new Date(r.as_of).getTime(),
-        scenarios: JSON.parse(r.scenarios) as { id: string; probability: number }[],
+        scenarios: JSON.parse(r.scenarios) as { id: string; probability: number; alpha?: number }[],
       });
     }
   } catch (err) {

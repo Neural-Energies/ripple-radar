@@ -146,6 +146,12 @@ export interface Scenario {
   keyOutcomes: string;
   audit: ProbabilityAudit;
   /**
+   * Unrounded Dirichlet concentration for this row after the latest update.
+   * Frozen with the snapshot so the next poll resumes from it; `probability`
+   * is its rounded presentation. Absent before the first update.
+   */
+  concentration?: number;
+  /**
    * Where this row's PRIOR came from, before any evidence update.
    *
    * It used to come from `clamp(16 + esc*6 + hits*2 - de*4, 8, 42)` — a
