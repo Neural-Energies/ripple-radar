@@ -19,6 +19,7 @@
  *    derived from, so a stale export fails the suite instead of shipping.
  */
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
   AGREEMENT,
@@ -107,12 +108,15 @@ test("the volatility signature is reported even though the forecast failed", () 
     (e) => Object.keys(e.volRatios).length === 4,
   );
   assert.ok(withRatios.length > 0, "no channel carries its per-quad vol ratios");
-  assert.ok(
-    (VOL_TEST.signsHeld ?? 0) / (VOL_TEST.usableCells ?? 1) >
-      (RETURNS_TEST.signsHeld ?? 0) / (RETURNS_TEST.usableCells ?? 1),
-    "the vol signature should be more sign-stable than the returns one — if that " +
-      "ever reverses, the copy describing it is wrong",
-  );
+  // Whether the signature held out of sample is a measurement, and the copy
+  // must follow it. (Until PR #5 A11 this asserted vol > returns stability,
+  // which held on first-print vintages — 14/18 vs 8/12 — and reversed on
+  // as-of vintages, 10/20 vs 11/17. The copy was what was wrong.)
+  const share = (VOL_TEST.signsHeld ?? 0) / (VOL_TEST.usableCells ?? 1);
+  assert.equal(VOL_TEST.signStable, share >= 0.75, "the sign-stability flag must follow the counts");
+  const header = readFileSync(new URL("./macro-quads.ts", import.meta.url), "utf8").slice(0, 4000);
+  assert.equal(/vol SIGNATURE is sign-stable/.test(header), VOL_TEST.signStable,
+    "the module copy calls the vol signature sign-stable only when the counts say so");
 });
 
 // --- 2. point-in-time discipline -------------------------------------------

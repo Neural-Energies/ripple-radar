@@ -1,0 +1,489 @@
+{
+  "n_classified": 201,
+  "median_data_lag_days": 60.0,
+  "distribution": {
+    "1": 37,
+    "2": 50,
+    "3": 57,
+    "4": 57
+  },
+  "horizon_months": 1,
+  "channels": {
+    "NASDAQ": {
+      "skipped": null,
+      "n": 200,
+      "n_train": 140,
+      "n_holdout": 60,
+      "cells": {
+        "1": {
+          "quad": 1,
+          "name": "Goldilocks",
+          "train_n": 35,
+          "holdout_n": 1,
+          "train_mean": 1.0362,
+          "holdout_mean": 3.3119,
+          "train_ci": [
+            -0.201,
+            2.8219
+          ],
+          "actionable": false,
+          "sign_held": true
+        },
+        "2": {
+          "quad": 2,
+          "name": "Reflation",
+          "train_n": 40,
+          "holdout_n": 10,
+          "train_mean": 2.0985,
+          "holdout_mean": -0.5624,
+          "train_ci": [
+            1.0924,
+            2.8691
+          ],
+          "actionable": true,
+          "sign_held": false
+        },
+        "3": {
+          "quad": 3,
+          "name": "Stagflation",
+          "train_n": 37,
+          "holdout_n": 20,
+          "train_mean": 0.9868,
+          "holdout_mean": 0.141,
+          "train_ci": [
+            0.069,
+            2.3017
+          ],
+          "actionable": true,
+          "sign_held": true
+        },
+        "4": {
+          "quad": 4,
+          "name": "Deflation",
+          "train_n": 28,
+          "holdout_n": 29,
+          "train_mean": 1.7815,
+          "holdout_mean": 2.5302,
+          "train_ci": [
+            -0.3884,
+            3.1504
+          ],
+          "actionable": true,
+          "sign_held": true
+        }
+      },
+      "usable_cells": 3,
+      "signs_held": 2,
+      "holdout_long_only_mean": 1.2314,
+      "holdout_quad_positioned_mean": 1.2314,
+      "edge_over_long_only": 0.0,
+      "edge_ci": [
+        0.0,
+        0.0
+      ],
+      "beats_long_only": false
+    },
+    "SP500": {
+      "skipped": null,
+      "n": 120,
+      "n_train": 84,
+      "n_holdout": 36,
+      "cells": {
+        "1": {
+          "quad": 1,
+          "name": "Goldilocks",
+          "train_n": 9,
+          "holdout_n": 1,
+          "train_mean": 0.3219,
+          "holdout_mean": 1.0213,
+          "train_ci": [
+            -2.1428,
+            2.9969
+          ],
+          "actionable": false,
+          "sign_held": true
+        },
+        "2": {
+          "quad": 2,
+          "name": "Reflation",
+          "train_n": 22,
+          "holdout_n": 7,
+          "train_mean": 0.7417,
+          "holdout_mean": 1.1989,
+          "train_ci": [
+            -0.4012,
+            2.5758
+          ],
+          "actionable": false,
+          "sign_held": true
+        },
+        "3": {
+          "quad": 3,
+          "name": "Stagflation",
+          "train_n": 27,
+          "holdout_n": 11,
+          "train_mean": 0.7799,
+          "holdout_mean": 1.3534,
+          "train_ci": [
+            -0.3157,
+            2.1094
+          ],
+          "actionable": true,
+          "sign_held": true
+        },
+        "4": {
+          "quad": 4,
+          "name": "Deflation",
+          "train_n": 26,
+          "holdout_n": 17,
+          "train_mean": 1.4478,
+          "holdout_mean": 2.2201,
+          "train_ci": [
+            0.133,
+            3.4962
+          ],
+          "actionable": true,
+          "sign_held": true
+        }
+      },
+      "usable_cells": 2,
+      "signs_held": 2,
+      "holdout_long_only_mean": 1.7234,
+      "holdout_quad_positioned_mean": 1.7234,
+      "edge_over_long_only": 0.0,
+      "edge_ci": [
+        0.0,
+        0.0
+      ],
+      "beats_long_only": false
+    },
+    "UST10Y": {
+      "skipped": null,
+      "n": 200,
+      "n_train": 140,
+      "n_holdout": 60,
+      "cells": {
+        "1": {
+          "quad": 1,
+          "name": "Goldilocks",
+          "train_n": 35,
+          "holdout_n": 1,
+          "train_mean": -0.2003,
+          "holdout_mean": 4.4211,
+          "train_ci": [
+            -4.1225,
+            2.6712
+          ],
+          "actionable": false,
+          "sign_held": false
+        },
+        "2": {
+          "quad": 2,
+          "name": "Reflation",
+          "train_n": 40,
+          "holdout_n": 10,
+          "train_mean": -0.5413,
+          "holdout_mean": 4.874,
+          "train_ci": [
+            -4.522,
+            2.6458
+          ],
+          "actionable": true,
+          "sign_held": false
+        },
+        "3": {
+          "quad": 3,
+          "name": "Stagflation",
+          "train_n": 37,
+          "holdout_n": 20,
+          "train_mean": -0.3093,
+          "holdout_mean": 1.8936,
+          "train_ci": [
+            -3.2365,
+            2.8919
+          ],
+          "actionable": true,
+          "sign_held": false
+        },
+        "4": {
+          "quad": 4,
+          "name": "Deflation",
+          "train_n": 28,
+          "holdout_n": 29,
+          "train_mean": 1.4795,
+          "holdout_mean": 1.6719,
+          "train_ci": [
+            -2.9719,
+            4.3997
+          ],
+          "actionable": true,
+          "sign_held": true
+        }
+      },
+      "usable_cells": 3,
+      "signs_held": 1,
+      "holdout_long_only_mean": 2.3253,
+      "holdout_quad_positioned_mean": -0.7092,
+      "edge_over_long_only": -3.0345,
+      "edge_ci": [
+        -7.8104,
+        0.8359
+      ],
+      "beats_long_only": false
+    },
+    "WTI": {
+      "skipped": null,
+      "n": 200,
+      "n_train": 140,
+      "n_holdout": 60,
+      "cells": {
+        "1": {
+          "quad": 1,
+          "name": "Goldilocks",
+          "train_n": 35,
+          "holdout_n": 1,
+          "train_mean": -0.8645,
+          "holdout_mean": 22.9691,
+          "train_ci": [
+            -5.5422,
+            2.9196
+          ],
+          "actionable": false,
+          "sign_held": false
+        },
+        "2": {
+          "quad": 2,
+          "name": "Reflation",
+          "train_n": 40,
+          "holdout_n": 10,
+          "train_mean": 0.0731,
+          "holdout_mean": 1.9694,
+          "train_ci": [
+            -4.614,
+            3.7455
+          ],
+          "actionable": true,
+          "sign_held": true
+        },
+        "3": {
+          "quad": 3,
+          "name": "Stagflation",
+          "train_n": 37,
+          "holdout_n": 20,
+          "train_mean": 1.0954,
+          "holdout_mean": -3.5712,
+          "train_ci": [
+            -1.586,
+            3.4731
+          ],
+          "actionable": true,
+          "sign_held": false
+        },
+        "4": {
+          "quad": 4,
+          "name": "Deflation",
+          "train_n": 28,
+          "holdout_n": 29,
+          "train_mean": 3.2875,
+          "holdout_mean": 3.4844,
+          "train_ci": [
+            -2.5965,
+            10.8912
+          ],
+          "actionable": true,
+          "sign_held": true
+        }
+      },
+      "usable_cells": 3,
+      "signs_held": 2,
+      "holdout_long_only_mean": 1.2048,
+      "holdout_quad_positioned_mean": 0.4392,
+      "edge_over_long_only": -0.7656,
+      "edge_ci": [
+        -1.5313,
+        0.0
+      ],
+      "beats_long_only": false
+    },
+    "USD_BROAD": {
+      "skipped": null,
+      "n": 200,
+      "n_train": 140,
+      "n_holdout": 60,
+      "cells": {
+        "1": {
+          "quad": 1,
+          "name": "Goldilocks",
+          "train_n": 35,
+          "holdout_n": 1,
+          "train_mean": 0.2465,
+          "holdout_mean": 0.7973,
+          "train_ci": [
+            -0.4142,
+            0.835
+          ],
+          "actionable": false,
+          "sign_held": true
+        },
+        "2": {
+          "quad": 2,
+          "name": "Reflation",
+          "train_n": 40,
+          "holdout_n": 10,
+          "train_mean": 0.3213,
+          "holdout_mean": 0.0425,
+          "train_ci": [
+            -0.2083,
+            0.9035
+          ],
+          "actionable": true,
+          "sign_held": true
+        },
+        "3": {
+          "quad": 3,
+          "name": "Stagflation",
+          "train_n": 37,
+          "holdout_n": 20,
+          "train_mean": 0.0384,
+          "holdout_mean": 0.1376,
+          "train_ci": [
+            -0.5529,
+            0.6176
+          ],
+          "actionable": true,
+          "sign_held": true
+        },
+        "4": {
+          "quad": 4,
+          "name": "Deflation",
+          "train_n": 28,
+          "holdout_n": 29,
+          "train_mean": -0.0306,
+          "holdout_mean": 0.0335,
+          "train_ci": [
+            -0.529,
+            0.7299
+          ],
+          "actionable": true,
+          "sign_held": false
+        }
+      },
+      "usable_cells": 3,
+      "signs_held": 2,
+      "holdout_long_only_mean": 0.0824,
+      "holdout_quad_positioned_mean": 0.05,
+      "edge_over_long_only": -0.0324,
+      "edge_ci": [
+        -0.6364,
+        0.5641
+      ],
+      "beats_long_only": false
+    },
+    "VIX": {
+      "skipped": null,
+      "n": 200,
+      "n_train": 140,
+      "n_holdout": 60,
+      "cells": {
+        "1": {
+          "quad": 1,
+          "name": "Goldilocks",
+          "train_n": 35,
+          "holdout_n": 1,
+          "train_mean": 2.4673,
+          "holdout_mean": -0.3351,
+          "train_ci": [
+            -4.4204,
+            7.7119
+          ],
+          "actionable": false,
+          "sign_held": false
+        },
+        "2": {
+          "quad": 2,
+          "name": "Reflation",
+          "train_n": 40,
+          "holdout_n": 10,
+          "train_mean": 0.2125,
+          "holdout_mean": 6.6448,
+          "train_ci": [
+            -4.1805,
+            5.8694
+          ],
+          "actionable": true,
+          "sign_held": true
+        },
+        "3": {
+          "quad": 3,
+          "name": "Stagflation",
+          "train_n": 37,
+          "holdout_n": 20,
+          "train_mean": 6.2578,
+          "holdout_mean": 2.782,
+          "train_ci": [
+            -3.4712,
+            12.7872
+          ],
+          "actionable": true,
+          "sign_held": true
+        },
+        "4": {
+          "quad": 4,
+          "name": "Deflation",
+          "train_n": 28,
+          "holdout_n": 29,
+          "train_mean": 2.7255,
+          "holdout_mean": -0.6953,
+          "train_ci": [
+            -2.737,
+            11.4694
+          ],
+          "actionable": true,
+          "sign_held": false
+        }
+      },
+      "usable_cells": 3,
+      "signs_held": 2,
+      "holdout_long_only_mean": 1.6931,
+      "holdout_quad_positioned_mean": 1.6931,
+      "edge_over_long_only": 0.0,
+      "edge_ci": [
+        0.0,
+        0.0
+      ],
+      "beats_long_only": false
+    }
+  },
+  "sign_stability": {
+    "held": 11,
+    "usable": 17
+  },
+  "channels_beating_long_only": [],
+  "transitions": {
+    "1": {
+      "1": 0.0,
+      "2": 0.2857142857142857,
+      "3": 0.041666666666666664,
+      "4": 0.2727272727272727
+    },
+    "2": {
+      "1": 0.3333333333333333,
+      "2": 0.0,
+      "3": 0.4583333333333333,
+      "4": 0.22727272727272727
+    },
+    "3": {
+      "1": 0.25,
+      "2": 0.47619047619047616,
+      "3": 0.0,
+      "4": 0.5
+    },
+    "4": {
+      "1": 0.4166666666666667,
+      "2": 0.23809523809523808,
+      "3": 0.5,
+      "4": 0.0
+    }
+  },
+  "passes": false
+}

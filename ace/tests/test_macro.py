@@ -306,3 +306,13 @@ def test_every_named_spec_is_internally_consistent():
         assert not set(spec.growth) & set(spec.inflation), \
             f"{name} uses a series on both axes"
         assert len(spec.rationale) > 20, f"{name} has no stated rationale"
+
+
+def test_dominant_share_is_the_share_the_bar_draws_even_in_a_three_way_tie():
+    # Twelve months split 4/4/4: largest-remainder gives 0.3334/0.3333/0.3333,
+    # and the dominant share must be the first of those, not 4/12 rounded.
+    hist = _history([1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3])
+    occ = occupancy(hist, 12)
+    assert occ["tied"] and occ["dominant"] == 1
+    assert occ["dominant_share"] == max(occ["shares"].values()) == occ["shares"]["1"]
+    assert sum(occ["shares"].values()) == pytest.approx(1.0)

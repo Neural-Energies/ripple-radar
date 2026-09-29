@@ -4,9 +4,10 @@ A factor model is only as honest as the panel under it. Two things can ruin one
 and neither is visible in the output:
 
 1. A value that had not been PUBLISHED on the date being modelled. The quad
-   work measured what this costs on this exact data — 74.2% of real-time labels
-   survived contact with the revised series, and 72% of the failures flipped
-   the growth axis. A panel built from today's revised figures does not nowcast
+   work measured what this costs on this exact data — 12% of real-time labels
+   (as-of vintages) did not survive contact with the revised series, and 92%
+   of those failures flipped the growth axis. A panel built from today's
+   revised figures does not nowcast
    a state, it reads an almanac.
 
 2. A transform applied before the point-in-time filter. Differencing the full

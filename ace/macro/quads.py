@@ -626,7 +626,10 @@ def occupancy(history: pd.DataFrame, months: int = 12) -> dict:
         "shares": shares,
         "counts": {str(int(k)): int(v) for k, v in counts.sort_index().items()},
         "dominant": leaders[0],
-        "dominant_share": round(top / n, 4),
+        # From the same largest-remainder shares the bar is drawn with: a
+        # three-way tie over 12 months is 0.3334/0.3333/0.3333 on the bar, and
+        # an independently rounded 0.3333 here disagreed with it.
+        "dominant_share": shares[str(leaders[0])],
         "tied": len(leaders) > 1,
         "tied_with": leaders[1:],
         "distinct_quads": int(counts.size),
