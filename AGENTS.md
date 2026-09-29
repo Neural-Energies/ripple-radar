@@ -46,3 +46,16 @@ npm run build
 - Don't add comments or docs on code you didn't change.
 - Prefer editing an existing module over creating a new helper for a one-off.
 - Keep ontology/transmission rules generic; put new domain knowledge in `ontology.ts` / `extract.ts`, never in a page component.
+
+## Audit → comments → fixes → verification → roadmap
+
+Joshua's requested workflow (2026-09-25): make audit feedback visible to the implementing AI on GitHub, then repeat the loop on the resulting changes.
+
+1. Read the roadmap and identify the exact target commit and scope.
+2. Publish actionable findings as GitHub PR review comments (inline where a relevant diff exists), or as linked issue/PR discussion comments for existing code. Include severity, commit/file/line, evidence, impact, smallest fix and acceptance check. Chat-only findings are not a completed handoff.
+3. Keep a durable audit record in the repository. The current macro audit is [docs/audits/2026-09-25-macro-engine.md](docs/audits/2026-09-25-macro-engine.md).
+4. The implementing AI addresses findings in bounded commits, adds necessary regression checks and replies to each finding with commit SHA, checks/results and unresolved limitations. Rejected findings need evidence, not silent dismissal.
+5. The reviewer rechecks the actual new commit, reruns the reproductions and relevant tests, and posts verified/residual findings on GitHub. An implementation claim or a green unrelated test does not resolve a finding.
+6. Reconcile roadmap status with verified results after each pass. Mark completed only when acceptance evidence exists; keep data/environment blockers explicit. Repeat within the authorized scope until findings are verified resolved or explicitly deferred with a reason.
+
+Publishing review comments and audit documentation is explicitly requested even when the reviewed source is unchanged. Keep explanatory source comments purposeful; do not fill production files with audit logs. This review workflow does not authorize unrelated roadmap expansion, automatic merges, deployment, or claiming unavailable-data validation.
