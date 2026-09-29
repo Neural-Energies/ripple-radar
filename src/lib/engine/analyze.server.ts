@@ -1,133 +1,194 @@
+import { createHash } from "node:crypto";
 import type { RadarEvent } from "@/data/types";
+import type { Sql } from "@/lib/db";
+import type { LiveDesk } from "@/lib/live/types";
 import { composeFromText } from "./compose";
+import { claimCompute, claimNotice, paidAccess } from "./compute-access.server";
 import { tagsFromText } from "./ontology";
-import {
-  defaultBudgetGate,
-  isModelRoutingEnabled,
-  route,
-  routeContextFromEnv,
-} from "./routing";
+import { route, routeContextFromEnv } from "./routing";
 
-const MIN_GAP_MS = 45_000;
-let lastCall = 0;
-const cache = new Map<string, RadarEvent>();
+/**
+ * Analyze: build a research object for a described event (PR #5 B05).
+ *
+ * Paid-model analysis runs only for a signed-in account with paid access and
+ * allowance left (see compute-access.server). Everyone else, and any model
+ * failure, gets the engine's own construction with a notice saying why.
+ *
+ * The cache used to be process-global and keyed on the first 280 characters,
+ * with no expiry: two theses sharing a prefix collided, and the same thesis
+ * after new evidence returned the old object. A cached result is now reused
+ * only for the same account, the same full description, the same evidence
+ * (the related headlines that went into the prompt) and the same model and
+ * prompt version, within CACHE_TTL_MS. The cache is bounded.
+ */
 
-function fingerprint(text: string) {
-  return text.toLowerCase().replace(/\s+/g, " ").trim().slice(0, 280);
+/** Bump when the prompt or hydration changes: results from another version are not reused. */
+export const ANALYZE_PROMPT_VERSION = "analyze-v2";
+export const CACHE_TTL_MS = 30 * 60_000;
+export const CACHE_MAX = 200;
+export const MAX_TEXT = 4_000;
+const LEGACY_PLAN = { model: "grok-4.5", maxTokens: 2400, temperature: 0.25, timeoutMs: 28_000 };
+
+export interface ModelRequest {
+  model: string;
+  maxTokens: number;
+  temperature: number;
+  timeoutMs: number;
+  prompt: string;
+  apiKey: string;
 }
 
-export async function analyze(
-  text: string,
-): Promise<{ ok: true; event: RadarEvent; source: "model" | "engine" } | { ok: false; error: string }> {
-  const q = text.trim();
-  if (q.length < 8) return { ok: false, error: "Describe the event in a sentence." };
+export interface AnalyzeDeps {
+  sql: () => Promise<Sql>;
+  desk: () => Promise<Pick<LiveDesk, "headlines" | "quotes">>;
+  /** One model call; resolves to the reply's JSON text, or throws. */
+  callModel: (req: ModelRequest) => Promise<string>;
+  now: () => number;
+  env: Record<string, string | undefined>;
+}
 
-  const { buildDesk } = await import("@/lib/live/build.server");
-  const desk = await buildDesk();
-  const fallback = composeFromText(q, desk.headlines, desk.quotes);
+export type AnalyzeResult =
+  | { ok: true; event: RadarEvent; source: "model" | "engine"; notice?: string; cached?: boolean }
+  | { ok: false; error: string };
 
-  const fp = fingerprint(q);
-  const hit = cache.get(fp);
-  if (hit) return { ok: true, event: { ...hit, id: "desk-" + Date.now().toString(36) }, source: "model" };
+const cache = new Map<string, { event: RadarEvent; at: number }>();
 
-  const apiKey = process.env.XAI_API_KEY;
-  const routingOn = isModelRoutingEnabled();
+export function clearAnalyzeCache() {
+  cache.clear();
+}
 
-  if (routingOn) {
-    const ctx = routeContextFromEnv({ hasXaiKey: Boolean(apiKey?.trim()) });
-    const decision = defaultBudgetGate.allow("analyze", fp, ctx);
-    if (!decision.allow) return { ok: true, event: fallback, source: "engine" };
+function normalize(text: string) {
+  return text.toLowerCase().replace(/\s+/g, " ").trim();
+}
 
-    const plan = route("analyze", { ...ctx, budgetOk: true });
-    if (!plan.model || !apiKey) return { ok: true, event: fallback, source: "engine" };
+/** Account, full description, evidence, model and prompt version: all of it, hashed. */
+export function analyzeCacheKey(parts: {
+  userId: string;
+  text: string;
+  model: string;
+  evidence: { id?: string; title: string; published?: number }[];
+}): string {
+  return createHash("sha256")
+    .update(
+      JSON.stringify({
+        v: ANALYZE_PROMPT_VERSION,
+        model: parts.model,
+        user: parts.userId,
+        text: normalize(parts.text),
+        evidence: parts.evidence.map((h) => [h.id ?? null, h.title, h.published ?? null]),
+      }),
+    )
+    .digest("hex");
+}
 
-    const related = relatedHeadlines(desk.headlines, q);
-    const prompt = buildAnalyzePrompt(q, related);
-
-    defaultBudgetGate.beginFlight();
-    try {
-      const res = await fetch("https://api.x.ai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: plan.model,
-          max_tokens: plan.maxTokens,
-          temperature: plan.temperature,
-          response_format: { type: "json_object" },
-          messages: [{ role: "user", content: prompt }],
-        }),
-        signal: AbortSignal.timeout(plan.timeoutMs || 28_000),
-      });
-
-      if (!res.ok) return { ok: true, event: fallback, source: "engine" };
-      const body = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-      const raw = body.choices?.[0]?.message?.content ?? "";
-      let parsed: Record<string, unknown>;
-      try {
-        parsed = JSON.parse(raw) as Record<string, unknown>;
-      } catch {
-        return { ok: true, event: fallback, source: "engine" };
-      }
-
-      const event = hydrate(parsed, fallback);
-      cache.set(fp, event);
-      defaultBudgetGate.markAccepted("analyze", fp);
-      return { ok: true, event, source: "model" };
-    } catch {
-      return { ok: true, event: fallback, source: "engine" };
-    } finally {
-      defaultBudgetGate.endFlight();
-    }
+function readCache(key: string, now: number) {
+  const hit = cache.get(key);
+  if (!hit) return null;
+  if (now - hit.at > CACHE_TTL_MS) {
+    cache.delete(key);
+    return null;
   }
+  // Refresh recency for the size bound.
+  cache.delete(key);
+  cache.set(key, hit);
+  return hit;
+}
 
-  // Legacy path (flag OFF) — behavior unchanged, including pre-flight cooldown stamp.
-  if (!apiKey) return { ok: true, event: fallback, source: "engine" };
+function writeCache(key: string, value: { event: RadarEvent; at: number }) {
+  cache.set(key, value);
+  while (cache.size > CACHE_MAX) cache.delete(cache.keys().next().value!);
+}
 
-  const now = Date.now();
-  if (now - lastCall < MIN_GAP_MS) return { ok: true, event: fallback, source: "engine" };
-  lastCall = now;
+function modelPlan(env: Record<string, string | undefined>) {
+  if (env.RIPPLE_MODEL_ROUTING !== "1") return LEGACY_PLAN;
+  const plan = route("analyze", routeContextFromEnv({ hasXaiKey: true }));
+  return plan.model ? { model: plan.model, maxTokens: plan.maxTokens, temperature: plan.temperature, timeoutMs: plan.timeoutMs || 28_000 } : null;
+}
 
-  const related = relatedHeadlines(desk.headlines, q);
-  const prompt = buildAnalyzePrompt(q, related);
-
+export async function callXai(req: ModelRequest): Promise<string> {
   const res = await fetch("https://api.x.ai/v1/chat/completions", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${req.apiKey}` },
     body: JSON.stringify({
-      model: "grok-4.5",
-      max_tokens: 2400,
-      temperature: 0.25,
+      model: req.model,
+      max_tokens: req.maxTokens,
+      temperature: req.temperature,
       response_format: { type: "json_object" },
-      messages: [{ role: "user", content: prompt }],
+      messages: [{ role: "user", content: req.prompt }],
     }),
-    signal: AbortSignal.timeout(28000),
+    signal: AbortSignal.timeout(req.timeoutMs),
   });
-
-  if (!res.ok) return { ok: true, event: fallback, source: "engine" };
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const body = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-  const raw = body.choices?.[0]?.message?.content ?? "";
+  return body.choices?.[0]?.message?.content ?? "";
+}
+
+function defaultDeps(): AnalyzeDeps {
+  return {
+    sql: async () => (await import("@/lib/db")).getSql(),
+    desk: async () => (await import("@/lib/live/build.server")).buildDesk(),
+    callModel: callXai,
+    now: () => Date.now(),
+    env: process.env,
+  };
+}
+
+function deskId(now: number) {
+  return "desk-" + now.toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+export async function analyze(text: string, userId: string, deps: AnalyzeDeps = defaultDeps()): Promise<AnalyzeResult> {
+  const q = typeof text === "string" ? text.trim() : "";
+  if (q.length < 8) return { ok: false, error: "Describe the event in a sentence." };
+  if (q.length > MAX_TEXT) return { ok: false, error: `Keep the description under ${MAX_TEXT} characters.` };
+  if (!userId) return { ok: false, error: "Sign in to analyze an event." };
+
+  const desk = await deps.desk();
+  const fallback = composeFromText(q, desk.headlines, desk.quotes);
+  const apiKey = deps.env.XAI_API_KEY?.trim();
+  const plan = apiKey ? modelPlan(deps.env) : null;
+  if (!apiKey || !plan) return { ok: true, event: fallback, source: "engine" };
+
+  const sql = await deps.sql();
+  const now = deps.now();
+  const access = await paidAccess(sql, userId, now, deps.env);
+  if (!access.ok) return { ok: true, event: fallback, source: "engine", notice: access.reason };
+
+  const related = relatedHeadlines(desk.headlines, q);
+  const key = analyzeCacheKey({ userId, text: q, model: plan.model, evidence: related });
+  const hit = readCache(key, now);
+  if (hit) {
+    return {
+      ok: true,
+      event: { ...hit.event, id: deskId(now) },
+      source: "model",
+      cached: true,
+      notice: `Same description and evidence as ${Math.round((now - hit.at) / 60_000)} min ago: that analysis is reused.`,
+    };
+  }
+
+  const claim = await claimCompute(sql, userId, "analyze", now);
+  if (!claim.ok) return { ok: true, event: fallback, source: "engine", notice: claimNotice(claim) };
+
+  let raw: string;
+  try {
+    raw = await deps.callModel({ ...plan, apiKey, prompt: buildAnalyzePrompt(q, related) });
+  } catch (err) {
+    const why = err instanceof Error ? err.message : "request failed";
+    return { ok: true, event: fallback, source: "engine", notice: `Model call failed (${why}); showing the engine's construction.` };
+  }
   let parsed: Record<string, unknown>;
   try {
     parsed = JSON.parse(raw) as Record<string, unknown>;
   } catch {
-    return { ok: true, event: fallback, source: "engine" };
+    return { ok: true, event: fallback, source: "engine", notice: "The model's reply was not valid JSON; showing the engine's construction." };
   }
-
   const event = hydrate(parsed, fallback);
-  cache.set(fp, event);
+  writeCache(key, { event, at: now });
   return { ok: true, event, source: "model" };
 }
 
-function relatedHeadlines(
-  headlines: { title: string; source: string }[],
-  q: string,
-) {
+function relatedHeadlines<T extends { title: string; source: string }>(headlines: T[], q: string): T[] {
   return headlines
     .filter((h) => {
       const hay = h.title.toLowerCase();

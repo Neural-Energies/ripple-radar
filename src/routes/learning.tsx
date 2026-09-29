@@ -45,11 +45,16 @@ function LiveCalibrationPanel({ onResolved }: { onResolved?: () => void }) {
     setRunning(true);
     setRunResult(null);
     try {
-      const res = await runForecastResolution();
+      const res = await runForecastResolution().catch((err: unknown) => ({
+        ok: false as const,
+        error: err instanceof Error ? err.message : "Sign in to run resolution.",
+      }));
       setRunResult(
-        res.checked === 0
-          ? "Nothing due yet — either no snapshots have passed their 72h horizon, or no XAI_API_KEY is configured."
-          : `Checked ${res.checked} due snapshot${res.checked === 1 ? "" : "s"}, resolved ${res.resolved}.`,
+        !res.ok
+          ? res.error
+          : res.checked === 0
+            ? "Nothing due yet — either no snapshot has reached its book's own review horizon, or no XAI_API_KEY is configured."
+            : `Checked ${res.checked} due snapshot${res.checked === 1 ? "" : "s"}, resolved ${res.resolved}.`,
       );
       setData(await getLiveCalibration());
       onResolved?.();

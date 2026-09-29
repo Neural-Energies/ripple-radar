@@ -230,7 +230,7 @@ export async function runRescore(eventId: string) {
     const out = await rescoreBook({ data: { eventId, snapshot: snapshot.id ? snapshot : undefined } });
     if (out.ok) {
       setRescore(out.result);
-      toast("Book rescored", { description: out.result.takeaway });
+      toast("Book rescored", { description: out.notice ?? out.result.takeaway });
       return out.result;
     }
     toast("Rescore failed", { description: out.error });
@@ -261,8 +261,10 @@ export async function runAnalyze(text: string) {
       created: new Date().toLocaleString("en-GB", { timeZone: "America/New_York" }),
       payload: event,
     });
+    // A notice says why the model was not used (plan, allowance, failure) or
+    // that an earlier identical analysis was reused. It is never swallowed.
     toast(out.source === "model" ? "Book constructed" : "Book constructed from the tape", {
-      description: event.summary,
+      description: out.notice ?? event.summary,
     });
     return event;
   } catch (err) {
