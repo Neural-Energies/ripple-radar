@@ -21,7 +21,7 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 |---|---|---|
 | **Scenario probability** | **PASSES 2/4 on held-back windows (WTI, USD_BROAD, both FHS). SP500 and NASDAQ FAIL** — v1's 4/4 retired (PR #5 A12/A13) | **Yes** for WTI and USD_BROAD only. |
 | **Volatility forecast (HAR)** | **PASSES — 3/6 channels** | **Yes**, for SP500, DJIA, UST10Y. Withheld elsewhere. |
-| **Event cascade (Hawkes)** | **PASSES — 2/3 channels** | **Yes**, for NASDAQ and WTI. |
+| **Event cascade (Hawkes)** | **PASSES — 2/3 channels (v2); WTI's intensity shape rejected out of sample** | **Yes**, for NASDAQ; WTI that clustering exists, not its exact intensity. |
 | **Competing risks (Aalen-Johansen)** | **PASSES (v2, censor-aware holdout) — on earthquake aftershock data** | **Yes** — cumulative incidence by horizon, for that population. As a news-book prior it is a cross-domain transfer, and the app says so. |
 | **Conflict cascade (GDELT Hawkes)** | **PASSES — 15/20 countries, shape unverified** | Partly — that escalation clusters, yes. Not the branching ratio to three digits. |
 | Game theory (Nash + Monte Carlo) | **Exact** | Yes — equilibria computed and verified. Payoffs remain an assumption. |
@@ -498,18 +498,29 @@ The ripple thesis stated as a testable claim: does a shock raise the intensity
 of the next shock? A self-exciting point process answers it with a number —
 the branching ratio α, the expected offspring per event.
 
-| Channel | events | α | half-life | LR vs Poisson | OOS log-lik gain | Ogata KS (test) | cascade multiplier | |
+| Channel | events | α | half-life | LR vs Poisson | OOS log-lik gain | Ogata KS (test, frozen params) | cascade multiplier | |
 |---|---|---|---|---|---|---|---|---|
-| NASDAQ | 253 | 0.349 | 5.7d | p = 2.2e-07 | **+18.1** | p = 0.217 ✓ | 1.54× | **passes** |
-| WTI | 233 | 0.276 | 6.5d | p = 0.0002 | **+17.8** | p = 0.733 ✓ | 1.38× | **passes** |
-| USD_BROAD | 216 | 0.115 | 11.7d | p = 0.51 | +2.7 | p = 0.908 | 1.13× | withheld |
+| NASDAQ | 253 | 0.349 | 5.7d | p = 2.2e-07 | **+18.1** | p = 0.332 ✓ | 1.54× | **passes** |
+| WTI | 233 | 0.276 | 6.5d | p = 0.0002 | **+18.0** | **p = 0.0055 ✗** | 1.38× | **passes** — shape rejected OOS |
+| USD_BROAD | 216 | 0.115 | 11.7d | p = 0.51 | +2.8 | p = 0.150 | 1.13× | withheld |
 
-Three separate checks had to agree, which is why this is trustworthy. The
-likelihood-ratio test says the excitation term is real. The **out-of-sample**
-log-likelihood gain says it still is on data the fit never saw. And Ogata's
-time-rescaling residuals say the fitted intensity is correctly specified: if
-it is, the rescaled inter-event times are iid Exp(1), and the KS test does not
-reject that on either channel.
+**v2, 2026-09-29** (external audit PR #5 A10). Two corrections, same
+parameters. The out-of-sample Hawkes likelihood had shifted the test events
+to start at the first test event while scoring them over a window measured
+from the split — the Poisson comparator used the split window — so both are
+now scored on the same window. And the "test" time-rescaling KS was computed
+on a model REFIT to the test events, which says only that some Hawkes process
+fits that period; it is now computed under the frozen training parameters
+(the refit is kept in the scorecard under its own name).
+
+Read with the correction: the excitation term is real in-sample (LR) and
+still earns its keep on data the fit never saw (OOS log-likelihood gain) on
+both channels. The frozen-parameter time-rescaling test does NOT reject on
+NASDAQ, and DOES reject on WTI (v1's p = 0.733 was the refit): WTI's shocks
+cluster out of sample, but not with the intensity shape fitted before 2020.
+The LR p-values assume a chi-square(2) null that the boundary at α = 0 (where
+β is unidentified) does not guarantee; the out-of-sample gain is the test
+that does not lean on it.
 
 α < 1 on every channel, so the process is stationary — shocks amplify and die
 out, they do not run away. NASDAQ's 1.54× multiplier means: for every 100

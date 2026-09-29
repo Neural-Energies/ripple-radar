@@ -102,7 +102,8 @@ def _fit_members(train: pd.DataFrame, predict_on: pd.DataFrame, panel: pd.DataFr
         origin,
     )
     try:
-        fit = fit_hawkes(train_events, float(_days_since(train.index[-1:], origin)[0]) + 1.0)
+        fit = fit_hawkes(train_events, float(_days_since(train.index[-1:], origin)[0]) + 1.0,
+                         start=0.0)
         out["hawkes"] = hawkes_event_probability(
             fit, all_events, _days_since(idx, origin), float(HORIZON * 7 / 5)
         )

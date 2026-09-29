@@ -230,3 +230,47 @@ def test_apply_ensemble_reproduces_the_selected_pool():
 def test_log_score_prefers_the_better_forecast():
     y, P = _members()
     assert log_score(y, P[:, 0]) > log_score(y, P[:, 1])
+
+
+# ------------------------------------------- exact first-arrival probability (A08) --
+
+def test_with_no_history_the_first_event_must_be_an_immigrant():
+    """PR #5 A08: expected-count-as-compensator gave 0.4609 here; the first
+    arrival of a self-exciting process with no history is Poisson(mu)."""
+    fit = _known_fit(mu=0.05, alpha=0.8, beta=1.0)
+    p = hawkes_event_probability(fit, np.array([]), np.array([0.0]), 5.0)[0]
+    assert p == pytest.approx(1 - np.exp(-0.05 * 5), abs=1e-12)
+
+
+def test_with_no_excitation_the_probability_is_the_poisson_identity():
+    fit = _known_fit(mu=0.07, alpha=0.0, beta=2.0)
+    history = np.array([1.0, 2.0, 9.5])
+    for h in (0.5, 3.0, 20.0):
+        p = hawkes_event_probability(fit, history, np.array([10.0]), h)[0]
+        assert p == pytest.approx(1 - np.exp(-0.07 * h), abs=1e-12)
+
+
+def test_history_enters_through_the_kernel_integral():
+    fit = _known_fit(mu=0.05, alpha=0.4, beta=0.5)
+    history = np.array([8.0, 9.0])
+    s, h = 10.0, 3.0
+    excess = fit.alpha * fit.beta * np.sum(np.exp(-fit.beta * (s - history)))
+    lam0 = fit.mu * h + excess * (1 - np.exp(-fit.beta * h)) / fit.beta
+    p = hawkes_event_probability(fit, history, np.array([s]), h)[0]
+    assert p == pytest.approx(1 - np.exp(-lam0), abs=1e-12)
+
+
+def test_an_event_at_the_origin_is_in_the_conditioning_history():
+    """The forecast is made at the close of s for (s, s+h]; an event on s is known."""
+    fit = _known_fit()
+    without = hawkes_event_probability(fit, np.array([5.0]), np.array([10.0]), 3.0)[0]
+    with_origin = hawkes_event_probability(fit, np.array([5.0, 10.0]), np.array([10.0]), 3.0)[0]
+    assert with_origin > without
+
+
+def test_zero_horizon_is_zero_and_probability_rises_with_horizon():
+    fit = _known_fit()
+    history = np.array([9.0])
+    assert hawkes_event_probability(fit, history, np.array([10.0]), 0.0)[0] == 0.0
+    p = [hawkes_event_probability(fit, history, np.array([10.0]), h)[0] for h in (0.1, 1, 5, 50)]
+    assert p == sorted(p)

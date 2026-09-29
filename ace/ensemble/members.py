@@ -52,17 +52,21 @@ def markov_probability(flags: pd.Series, index: pd.Index, *,
     return pd.Series(np.where(today > 0, p_after_event, p_after_calm), index=index)
 
 
-def hawkes_intensity_now(fit: HawkesFit, history: np.ndarray, s: np.ndarray) -> np.ndarray:
+def hawkes_intensity_now(fit: HawkesFit, history: np.ndarray, s: np.ndarray,
+                         *, include_origin: bool = False) -> np.ndarray:
     """Conditional intensity at each time in `s`, given events strictly before.
 
     lambda(s) = mu + alpha*beta*sum_{t_i < s} exp(-beta*(s - t_i))
+
+    `include_origin=True` also counts events AT s — the right limit, which is
+    the state a forecast of (s, s+h] made at the close of s starts from.
     """
     history = np.sort(np.asarray(history, dtype=float))
     s = np.asarray(s, dtype=float)
     out = np.full(len(s), fit.mu, dtype=float)
     if len(history) == 0:
         return out
-    idx = np.searchsorted(history, s, side="left")
+    idx = np.searchsorted(history, s, side="right" if include_origin else "left")
     for k, (si, upto) in enumerate(zip(s, idx)):
         if upto == 0:
             continue
@@ -73,28 +77,33 @@ def hawkes_intensity_now(fit: HawkesFit, history: np.ndarray, s: np.ndarray) -> 
 
 def hawkes_event_probability(fit: HawkesFit, history: np.ndarray, s: np.ndarray,
                              horizon: float) -> np.ndarray:
-    """P(at least one event in (s, s+h]) from the fitted cascade.
+    """P(at least one event in (s, s+h]) from the fitted cascade — exact.
 
-    For an exponential-kernel Hawkes process the expected intensity ahead has a
-    closed form that already includes every generation of offspring:
+    The FIRST arrival after s can only be driven by what is already known:
+    until it happens, no new event exists to excite anything, so along the
+    no-arrival path the intensity simply decays from its value just after s,
 
-        E[lambda(s+u) | F_s] = m + (lambda(s) - m) * exp(-beta(1-alpha) u)
-        m = mu / (1 - alpha)
+        lambda(s+u) = mu + (lambda(s+) - mu) * exp(-beta u),
 
-    Integrating over the horizon gives the expected count. Converting that to
-    P(N >= 1) via 1 - exp(-Lambda) is the Poisson step, and it is an
-    approximation here: a clustered process puts more mass on "several at once"
-    and so slightly more on "none at all". It understates the probability, in
-    a direction that calibration corrects and that never flatters the model.
+    and P(no event in (s, s+h]) = exp(-Lambda0) with
+
+        Lambda0 = mu h + (lambda(s+) - mu) (1 - exp(-beta h)) / beta.
+
+    An earlier version integrated the EXPECTED intensity including every
+    generation of offspring and used that expected count as the compensator,
+    which is not the first-arrival probability of a self-exciting process: with
+    no history and mu=.05, alpha=.8, beta=1, h=5 it gave 0.4609 where the
+    answer is 1 - exp(-.05*5) = 0.2212 (the first event must be an immigrant).
+
+    Conditioning: events AT s are included. The forecast is made at the close
+    of s and the window it answers for starts after s.
     """
     if not (0 <= fit.alpha < 1):
         raise ValueError(f"branching ratio {fit.alpha} outside [0, 1) — not stationary")
-    lam = hawkes_intensity_now(fit, history, s)
-    m = fit.mu / (1.0 - fit.alpha)
-    decay = fit.beta * (1.0 - fit.alpha)
-    if decay <= 0:
+    if fit.beta <= 0:
         raise ValueError("degenerate decay; the fit is not usable for forecasting")
-    compensator = m * horizon + (lam - m) * (1.0 - np.exp(-decay * horizon)) / decay
+    lam = hawkes_intensity_now(fit, history, s, include_origin=True)
+    compensator = fit.mu * horizon + (lam - fit.mu) * (1.0 - np.exp(-fit.beta * horizon)) / fit.beta
     compensator = np.clip(compensator, 0.0, None)
     return 1.0 - np.exp(-compensator)
 

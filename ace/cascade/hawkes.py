@@ -85,14 +85,31 @@ def poisson_log_likelihood(t: np.ndarray, T: float) -> tuple[float, float]:
     return float(n * np.log(rate) - rate * T), float(rate)
 
 
-def fit_hawkes(event_times: np.ndarray, T: float | None = None) -> HawkesFit:
-    """Fit an exponential-kernel Hawkes process by maximum likelihood."""
+def fit_hawkes(
+    event_times: np.ndarray, T: float | None = None, *, start: float | None = None
+) -> HawkesFit:
+    """Fit an exponential-kernel Hawkes process by maximum likelihood.
+
+    The observation window is [start, T] on the caller's clock. Leaving
+    `start` out conditions on the first event (window opens there). Either
+    way both ends are moved together: an earlier version shifted the events
+    to begin at zero and left an explicit T where it was, which moved the
+    event-free stretch before the first event to after the last one and fitted
+    a different likelihood than the one reported — on 100 events starting at
+    1000 it reported -127.752 for parameters whose likelihood on the supplied
+    window is -125.918.
+    """
     t = np.sort(np.asarray(event_times, dtype=float))
     t = t[np.isfinite(t)]
     if len(t) < 30:
         raise ValueError(f"need >=30 events to fit, got {len(t)}")
-    t = t - t[0]
-    T = float(T if T is not None else t[-1] * 1.001)
+    origin = float(t[0] if start is None else start)
+    if t[0] < origin:
+        raise ValueError(f"an event at {t[0]} precedes the observation start {origin}")
+    t = t - origin
+    T = float(T - origin if T is not None else t[-1] * 1.001)
+    if T < t[-1]:
+        raise ValueError(f"observation end {T + origin} precedes the last event")
     n = len(t)
 
     ll_pois, rate = poisson_log_likelihood(t, T)

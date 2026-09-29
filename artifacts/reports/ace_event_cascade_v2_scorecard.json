@@ -32,6 +32,16 @@
     "gof_test": {
       "available": true,
       "n": 104,
+      "ks_stat": 0.09125,
+      "ks_p_value": 0.331687,
+      "exponential_by_ks": true,
+      "mean": 1.0186,
+      "expected_mean": 1.0,
+      "note": "iid Exp(1) residuals => the fitted intensity is correctly specified"
+    },
+    "gof_test_period_refit": {
+      "available": true,
+      "n": 104,
       "ks_stat": 0.10169,
       "ks_p_value": 0.217141,
       "exponential_by_ks": true,
@@ -39,9 +49,9 @@
       "expected_mean": 1.0,
       "note": "iid Exp(1) residuals => the fitted intensity is correctly specified"
     },
-    "oos_loglik_hawkes": -417.997,
+    "oos_loglik_hawkes": -417.968,
     "oos_loglik_poisson": -436.07,
-    "oos_gain": 18.073,
+    "oos_gain": 18.103,
     "cascade": {
       "available": true,
       "direct_offspring_within_horizon": 0.2456,
@@ -86,6 +96,16 @@
     "gof_test": {
       "available": true,
       "n": 102,
+      "ks_stat": 0.1679,
+      "ks_p_value": 0.005546,
+      "exponential_by_ks": false,
+      "mean": 0.9221,
+      "expected_mean": 1.0,
+      "note": "iid Exp(1) residuals => the fitted intensity is correctly specified"
+    },
+    "gof_test_period_refit": {
+      "available": true,
+      "n": 102,
       "ks_stat": 0.06643,
       "ks_p_value": 0.733385,
       "exponential_by_ks": true,
@@ -93,9 +113,9 @@
       "expected_mean": 1.0,
       "note": "iid Exp(1) residuals => the fitted intensity is correctly specified"
     },
-    "oos_loglik_hawkes": -410.711,
+    "oos_loglik_hawkes": -410.573,
     "oos_loglik_poisson": -428.558,
-    "oos_gain": 17.847,
+    "oos_gain": 17.985,
     "cascade": {
       "available": true,
       "direct_offspring_within_horizon": 0.1805,
@@ -140,6 +160,16 @@
     "gof_test": {
       "available": true,
       "n": 96,
+      "ks_stat": 0.11437,
+      "ks_p_value": 0.150099,
+      "exponential_by_ks": true,
+      "mean": 0.8586,
+      "expected_mean": 1.0,
+      "note": "iid Exp(1) residuals => the fitted intensity is correctly specified"
+    },
+    "gof_test_period_refit": {
+      "available": true,
+      "n": 96,
       "ks_stat": 0.05598,
       "ks_p_value": 0.90773,
       "exponential_by_ks": true,
@@ -147,9 +177,9 @@
       "expected_mean": 1.0,
       "note": "iid Exp(1) residuals => the fitted intensity is correctly specified"
     },
-    "oos_loglik_hawkes": -408.381,
+    "oos_loglik_hawkes": -408.266,
     "oos_loglik_poisson": -411.092,
-    "oos_gain": 2.711,
+    "oos_gain": 2.826,
     "cascade": {
       "available": true,
       "direct_offspring_within_horizon": 0.0513,

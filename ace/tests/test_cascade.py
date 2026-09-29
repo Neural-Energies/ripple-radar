@@ -103,3 +103,51 @@ def test_cascade_multiplier_grows_with_the_branching_ratio():
 def test_too_few_events_are_refused_rather_than_fitted():
     with pytest.raises(ValueError):
         fit_hawkes(np.array([1.0, 2.0, 3.0]))
+
+
+# ------------------------------------------------ observation clock (A10) --
+
+def _late_start_events():
+    """The audit's reproduction: seed-3 exponential gaps, 100 events shifted
+    by 1000, observation end five units after the last event."""
+    rng = np.random.default_rng(3)
+    t = np.cumsum(rng.exponential(1.0, 100)) + 1000.0
+    return t, float(t[-1] + 5.0)
+
+
+def test_reported_likelihood_is_the_likelihood_on_the_window_it_was_fitted_on():
+    """PR #5 A10: shifting the events but not T moved the pre-first-event
+    stretch to after the last event; the fit reported -127.752 while its
+    parameters score -125.918 on the supplied history."""
+    from ace.cascade.hawkes import hawkes_log_likelihood
+
+    t, T = _late_start_events()
+    fit = fit_hawkes(t, T, start=0.0)
+    params = np.array([fit.mu, fit.alpha, fit.beta])
+    assert fit.log_likelihood == pytest.approx(-hawkes_log_likelihood(params, t, T), abs=1e-3)
+
+    conditional = fit_hawkes(t, T)  # window opens at the first event
+    params = np.array([conditional.mu, conditional.alpha, conditional.beta])
+    assert conditional.log_likelihood == pytest.approx(
+        -hawkes_log_likelihood(params, t - t[0], T - t[0]), abs=1e-3)
+
+
+def test_jointly_translating_start_events_and_end_changes_nothing():
+    t, T = _late_start_events()
+    a = fit_hawkes(t, T, start=900.0)
+    b = fit_hawkes(t + 5000.0, T + 5000.0, start=5900.0)
+    assert (a.mu, a.alpha, a.beta, a.log_likelihood) == pytest.approx(
+        (b.mu, b.alpha, b.beta, b.log_likelihood), rel=1e-4)
+
+
+def test_long_terminal_silence_is_charged_as_exposure():
+    t, T = _late_start_events()
+    short = fit_hawkes(t, T, start=t[0])
+    long = fit_hawkes(t, T + 500.0, start=t[0])
+    assert long.mu < short.mu  # 500 more event-free units must lower the background rate
+
+
+def test_an_event_before_the_window_opens_is_refused():
+    t, T = _late_start_events()
+    with pytest.raises(ValueError, match="precedes the observation start"):
+        fit_hawkes(t, T, start=1050.0)

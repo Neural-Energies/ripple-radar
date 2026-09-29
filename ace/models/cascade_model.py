@@ -41,7 +41,7 @@ from ace.registry.registry import ModelRecord, dataframe_hash, promote, register
 from ace.ripple.transmission import to_returns
 
 MODEL_ID = "ace_event_cascade"
-MODEL_VERSION = "v1"
+MODEL_VERSION = "v2"
 THRESHOLD_Z = 2.0
 SPLIT = "2020-01-01"
 
@@ -98,10 +98,14 @@ def main() -> int:
         fit = fit_hawkes(t_tr)
         gof_in = goodness_of_fit(t_tr, fit)
 
-        # Out of sample: score the TRAIN parameters on TEST events.
+        # Out of sample: score the TRAIN parameters on TEST events, on the same
+        # window [split, T_te] the Poisson comparator below uses. Shifting the
+        # events to start at the first test event while leaving T_te on the
+        # split clock (as an earlier version did) charged Hawkes for an
+        # event-free stretch that is not in the data.
         T_te = float(t_te[-1] * 1.001)
         ll_hawkes_oos = -hawkes_log_likelihood(
-            np.array([fit.mu, fit.alpha, fit.beta]), np.sort(t_te - t_te[0]), T_te
+            np.array([fit.mu, fit.alpha, fit.beta]), np.sort(t_te), T_te
         )
         ll_pois_tr, rate_tr = poisson_log_likelihood(t_tr, float(t_tr[-1] * 1.001))
         # Poisson with the TRAIN rate, scored on test
@@ -109,8 +113,11 @@ def main() -> int:
         ll_pois_oos = float(n_te * np.log(rate_tr) - rate_tr * T_te) if rate_tr > 0 else float("-inf")
         gain = ll_hawkes_oos - ll_pois_oos
 
-        fit_te = fit_hawkes(t_te)
-        gof_oos = goodness_of_fit(t_te, fit_te)
+        # Time rescaling on TEST events under the frozen TRAINING parameters —
+        # the out-of-sample check. A refit on the test events says only whether
+        # some Hawkes fits that period, and is reported under that name.
+        gof_oos = goodness_of_fit(t_te, fit)
+        gof_test_refit = goodness_of_fit(t_te, fit_hawkes(t_te))
         cascade = expected_offspring(fit, horizon=10.0)
 
         print(f"  fitted: mu={fit.mu:.4f}/day  alpha(branching)={fit.alpha:.3f}  "
@@ -135,6 +142,7 @@ def main() -> int:
         results[ch] = {
             "n_events": int(len(t_all)), "n_train": int(len(t_tr)), "n_test": int(len(t_te)),
             "fit": fit.to_dict(), "gof_train": gof_in, "gof_test": gof_oos,
+            "gof_test_period_refit": gof_test_refit,
             "oos_loglik_hawkes": round(ll_hawkes_oos, 3), "oos_loglik_poisson": round(ll_pois_oos, 3),
             "oos_gain": round(gain, 3), "cascade": cascade, "passes": passes,
             "first_event": str(dates.min().date()), "last_event": str(dates.max().date()),
