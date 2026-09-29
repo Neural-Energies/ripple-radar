@@ -172,23 +172,56 @@ interface JudgeResult {
   rationale: string;
 }
 
-async function judgeResolution(
-  apiKey: string,
-  eventTitle: string,
-  scenarios: ScenarioRow[],
-  laterHeadlines: { title: string }[],
-): Promise<JudgeResult> {
-  const prompt = `You are grading a past forecast after the fact. You are NOT making a new prediction.
+/** One archived headline offered to the judge, with when it was published. */
+export interface JudgeEvidence {
+  id: string;
+  title: string;
+  publishedMs: number;
+}
 
-Book: "${eventTitle}"
-It predicted these mutually exclusive scenarios:
-${scenarios.map((s) => `- ${s.id}: ${s.name}`).join("\n")}
+/** Everything the judge sees for one frozen forecast. */
+export interface JudgeInput {
+  eventTitle: string;
+  scenarios: ScenarioRow[];
+  asOfMs: number;
+  /** The horizon the book stated: the outcome is the state AT this instant. */
+  deadlineMs: number;
+  /** Only headlines published in (asOf, deadline], newest first. */
+  evidence: JudgeEvidence[];
+}
 
-Headlines that appeared after this forecast was frozen (may be empty, unrelated, or inconclusive):
-${laterHeadlines.map((h) => `- ${h.title}`).join("\n") || "(none archived)"}
+/** When a frozen forecast's own horizon ends — the instant it is graded AT. */
+export function resolutionDeadlineMs(asOfMs: number, horizonHours: number): number {
+  return asOfMs + horizonHours * 3_600_000;
+}
 
-Which scenario id, if any, do these later headlines confirm actually happened? If the evidence is empty, unrelated, or genuinely ambiguous, say so — do not guess or default to the highest-probability scenario. Respond with ONLY this JSON shape:
+/**
+ * The judge prompt. It names the deadline and timestamps every headline, and
+ * the caller only ever passes headlines published inside the forecast's own
+ * window — so when the grading job runs cannot change what it grades against.
+ * (Until PR #5 A02 the pass handed over every matched headline after the
+ * freeze, newest first, with no upper bound and no deadline: a 24h book
+ * graded on day 10 was scored against day-9 news.)
+ */
+export function buildJudgePrompt(input: JudgeInput): string {
+  const iso = (ms: number) => new Date(ms).toISOString();
+  return `You are grading a past forecast after the fact. You are NOT making a new prediction.
+
+Book: "${input.eventTitle}"
+Frozen at ${iso(input.asOfMs)}, with a horizon ending ${iso(input.deadlineMs)}.
+It predicted these mutually exclusive scenarios for that horizon:
+${input.scenarios.map((s) => `- ${s.id}: ${s.name}`).join("\n")}
+
+Headlines published between the freeze and the end of the horizon, newest first (may be empty, unrelated, or inconclusive):
+${input.evidence.map((h) => `- [${iso(h.publishedMs)}] ${h.title}`).join("\n") || "(none archived)"}
+
+Which scenario id, if any, do these headlines confirm had happened BY ${iso(input.deadlineMs)}? Judge the state at that deadline only — not anything you may know about later. If the evidence is empty, unrelated, or genuinely ambiguous, say so — do not guess or default to the highest-probability scenario. Respond with ONLY this JSON shape:
 {"scenarioId": "<one of the ids above, or null>", "confidence": "low"|"medium"|"high", "rationale": "<one sentence citing what confirmed it, or why it's inconclusive>"}`;
+}
+
+async function judgeResolution(apiKey: string, input: JudgeInput): Promise<JudgeResult> {
+  const prompt = buildJudgePrompt(input);
+  const scenarios = input.scenarios;
 
   try {
     const res = await fetch("https://api.x.ai/v1/chat/completions", {
@@ -222,28 +255,42 @@ Which scenario id, if any, do these later headlines confirm actually happened? I
   }
 }
 
+/** Injectable for tests: the database, the judge, and the clock. */
+export interface ResolutionDeps {
+  sql: import("@/lib/db").Sql;
+  judge: (input: JudgeInput) => Promise<JudgeResult>;
+  nowMs: number;
+}
+
 /** Resolve up to `limit` snapshots whose horizon has passed and have no
  * resolution yet. Requires XAI_API_KEY — without one this is a true no-op,
  * same honest degrade as Analyze/Rescore, not a silent fake pass. */
-export async function runResolutionPass(limit = 10): Promise<{ checked: number; resolved: number }> {
-  const apiKey = process.env.XAI_API_KEY;
-  if (!apiKey?.trim()) return { checked: 0, resolved: 0 };
-
-  const { getSql } = await import("@/lib/db");
-  const sql = await getSql();
+export async function runResolutionPass(
+  limit = 10,
+  deps: Partial<ResolutionDeps> = {},
+): Promise<{ checked: number; resolved: number }> {
+  let judge = deps.judge;
+  if (!judge) {
+    const apiKey = process.env.XAI_API_KEY;
+    if (!apiKey?.trim()) return { checked: 0, resolved: 0 };
+    judge = (input) => judgeResolution(apiKey, input);
+  }
+  const sql = deps.sql ?? (await (await import("@/lib/db")).getSql());
+  const nowMs = deps.nowMs ?? Date.now();
 
   const due = await sql<{
     id: string;
     event_id: string;
     event_title: string;
     scenarios: string;
-    as_of: string;
+    as_of: string | Date;
+    horizon_hours: number;
   }>`
-    select s.id, s.event_id, s.event_title, s.scenarios, s.as_of
+    select s.id, s.event_id, s.event_title, s.scenarios, s.as_of, s.horizon_hours
     from forecast_snapshots s
     left join forecast_resolutions r on r.snapshot_id = s.id
     where r.id is null
-      and s.as_of < now() - (s.horizon_hours || ' hours')::interval
+      and s.as_of + (s.horizon_hours || ' hours')::interval <= to_timestamp(${nowMs} / 1000.0)
     order by s.as_of asc
     limit ${limit}
   `;
@@ -252,23 +299,30 @@ export async function runResolutionPass(limit = 10): Promise<{ checked: number; 
   for (const row of due) {
     const scenarios = JSON.parse(row.scenarios) as ScenarioRow[];
     const asOfMs = new Date(row.as_of).getTime();
-    // Only headlines the desk matched to THIS book, and newest first: the
-    // outcome shows up at the end of the horizon, not in the minutes right
-    // after the freeze. A global, oldest-first slice made every grading
-    // inconclusive, which is why calibration never filled.
-    const later = await sql<{ title: string }>`
-      select title from headline_archive
+    const deadlineMs = resolutionDeadlineMs(asOfMs, Number(row.horizon_hours));
+    // Only headlines the desk matched to THIS book, published inside the
+    // book's own window, newest first: the outcome shows up near the end of
+    // the horizon, and nothing after it may count.
+    const rows = await sql<{ id: string; title: string; published: string | Date }>`
+      select id, title, published from headline_archive
       where published > to_timestamp(${asOfMs} / 1000.0)
+        and published <= to_timestamp(${deadlineMs} / 1000.0)
         and event_ids is not null
         and event_ids like ${"%\"" + row.event_id + "\"%"}
-      order by published desc
+      order by published desc, id
       limit 15
     `;
-    const judged = await judgeResolution(apiKey, row.event_title, scenarios, later);
+    const evidence = rows
+      .map((h) => ({ id: h.id, title: h.title, publishedMs: new Date(h.published).getTime() }))
+      .filter((h) => h.publishedMs > asOfMs && h.publishedMs <= deadlineMs);
+    const judged = await judge({ eventTitle: row.event_title, scenarios, asOfMs, deadlineMs, evidence });
     const resId = "res-" + row.id;
     await sql`
-      insert into forecast_resolutions (id, snapshot_id, resolved_scenario, method, confidence, rationale)
-      values (${resId}, ${row.id}, ${judged.scenarioId}, 'llm_judge', ${judged.confidence}, ${judged.rationale})
+      insert into forecast_resolutions
+        (id, snapshot_id, resolved_scenario, method, confidence, rationale, deadline, evidence)
+      values (${resId}, ${row.id}, ${judged.scenarioId}, 'llm_judge', ${judged.confidence},
+              ${judged.rationale}, to_timestamp(${deadlineMs} / 1000.0),
+              ${JSON.stringify(evidence.map((h) => ({ id: h.id, publishedMs: h.publishedMs })))})
       on conflict (snapshot_id) do nothing
     `;
     resolved++;
@@ -293,12 +347,19 @@ export interface LiveCalibration {
  * n=0 is the honest, expected state until resolutions accumulate. */
 export async function getCalibration(): Promise<LiveCalibration> {
   const { getSql } = await import("@/lib/db");
-  const sql = await getSql();
+  return getCalibrationFrom(await getSql());
+}
+
+export async function getCalibrationFrom(sql: import("@/lib/db").Sql): Promise<LiveCalibration> {
+  // Only resolutions graded against their own horizon window (`deadline` set,
+  // migration 0006). Earlier rows were judged on every later headline with no
+  // cutoff, so they do not measure the horizon the forecast stated.
   const rows = await sql<{ scenarios: string; resolved_scenario: string | null }>`
     select s.scenarios, r.resolved_scenario
     from forecast_snapshots s
     join forecast_resolutions r on r.snapshot_id = s.id
     where r.resolved_scenario is not null
+      and r.deadline is not null
   `;
   if (rows.length === 0) return { n: 0, brier: null, buckets: [] };
 
@@ -403,6 +464,7 @@ export async function getScoredForecasts(limit = 50): Promise<ScoredForecast[]> 
     from forecast_snapshots s
     join forecast_resolutions r on r.snapshot_id = s.id
     where r.resolved_scenario is not null
+      and r.deadline is not null  -- graded at its own horizon; see getCalibration
     order by r.resolved_at desc
     limit ${limit}
   `;
