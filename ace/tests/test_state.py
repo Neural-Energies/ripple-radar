@@ -764,3 +764,21 @@ def test_an_empty_panel_yields_an_empty_state_rather_than_raising():
     st = build_state(empty, build)
     assert st.blocks == {}
     assert "no factors" in " ".join(st.notes)
+
+
+def test_a_month_that_never_printed_is_a_hole_not_a_two_month_change():
+    """October 2025 CPI was never published. Differencing by position would
+    book September->November as one month's change; on the calendar it is NaN."""
+    specs = _panel_of("PAYEMS")
+    n = MIN_USABLE_OBS + 24
+    hist = _vintage(n, lag_days=45, first=100.0, step=1.0)
+    gap = pd.Timestamp("2002-10-01", tz="UTC")
+    hist = hist[hist["obs_date"] != gap]
+    build = build_asof(pd.Timestamp("2004-06-30", tz="UTC"), {"PAYEMS": hist}, specs=specs)
+    t = build.frame["PAYEMS"]
+    after = pd.Timestamp("2002-11-01", tz="UTC")
+    assert gap in t.index and np.isnan(t.loc[gap]) and np.isnan(t.loc[after])
+    # Every month the calendar does cover is a one-month change.
+    level = build.levels["PAYEMS"]
+    assert np.isnan(level.loc[gap])
+    assert build.edge["PAYEMS"]["n_published"] == int(level.notna().sum())

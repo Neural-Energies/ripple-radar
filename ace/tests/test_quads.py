@@ -20,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from ace.macro.quads import (
     MIN_OBSERVATIONS_BASE,
     SPECS,
+    _yoy,
     classify,
     known_at,
     reading_at,
@@ -249,3 +250,35 @@ def test_lookback_is_a_quarter_not_a_month():
     assert MIN_OBSERVATIONS == MIN_OBSERVATIONS_BASE + LOOKBACK
     assert SPECS["fast_1m"].lookback == 1
     assert SPECS["fast_6m"].lookback == 6
+
+
+# -------------------------------------------- calendar, not row, arithmetic --
+def test_yoy_compares_the_same_calendar_month_across_a_missing_one():
+    # October 2025 CPI was never published. A row-based pct_change(12) then
+    # compares every later month with thirteen months back.
+    idx = pd.date_range("2024-01-01", "2026-08-01", freq="MS", tz="UTC")
+    s = pd.Series(100.0 * 1.003 ** np.arange(len(idx)), index=idx)
+    s = s.drop(pd.Timestamp("2025-10-01", tz="UTC"))
+    y = _yoy(s)
+    expected = (1.003**12 - 1) * 100
+    assert y.loc[pd.Timestamp("2026-08-01", tz="UTC")] == pytest.approx(expected)
+    assert y.loc[pd.Timestamp("2025-11-01", tz="UTC")] == pytest.approx(expected)
+    assert np.isnan(y.loc[pd.Timestamp("2024-06-01", tz="UTC")])   # no year-ago month
+
+
+def test_rate_of_change_spans_exactly_the_lookback_across_a_gap():
+    # Growth through 2026-01 on a 3-month lookback needs 2025-10, which is
+    # missing; the reading must fall back to December (base September), not
+    # difference January against September and call it three months.
+    idx = pd.date_range("2023-01-01", "2026-01-01", freq="MS", tz="UTC")
+    lvl = pd.Series(100.0 + np.arange(len(idx)) ** 1.5, index=idx)
+    gap = pd.Timestamp("2025-10-01", tz="UTC")
+    levels = {"INDPRO": lvl.drop(gap), "CPIAUCSL": lvl.drop(gap)}
+    r = reading_at(pd.Timestamp("2026-03-15", tz="UTC"),
+                   {k: _vintage({str(d.date()): v for d, v in s.items()}, lag_days=30)
+                    for k, s in levels.items()},
+                   spec="production")
+    assert r.growth_through == "2025-12-01" and r.growth_base == "2025-09-01"
+    y = _yoy(levels["INDPRO"])
+    assert r.growth_roc == pytest.approx(
+        round(y.loc[pd.Timestamp("2025-12-01", tz="UTC")] - y.loc[pd.Timestamp("2025-09-01", tz="UTC")], 4))

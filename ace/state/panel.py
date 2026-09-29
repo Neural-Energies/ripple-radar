@@ -656,6 +656,22 @@ def _to_monthly(published: pd.Series, spec: SeriesSpec) -> pd.Series:
     return out.sort_index()
 
 
+def _on_calendar(published: pd.Series, spec: SeriesSpec) -> pd.Series:
+    """Every period from the first observation to the last, missing ones NaN.
+
+    Transforms difference by position, so a month that never printed (October
+    2025 CPI, the shutdown) or a collapsed month below its coverage threshold
+    would otherwise make the next difference span two periods and book it as
+    one. On the calendar the difference across a hole is NaN, which is what
+    the factor model already handles.
+    """
+    if published.empty:
+        return published
+    freq = "QS" if spec.frequency == "quarterly" else "MS"
+    full = pd.date_range(published.index.min(), published.index.max(), freq=freq)
+    return published.reindex(full)
+
+
 def build_asof(
     when: pd.Timestamp | str,
     vintages: dict[str, pd.DataFrame],
@@ -715,11 +731,13 @@ def build_asof(
                 f"{MONTH_COVERAGE.get(spec.frequency, 1)} or more"
             )
             continue
+        published = _on_calendar(published, spec)
 
         need = lags_consumed(spec.code) + floor
-        if len(published) < need:
+        n_obs = int(published.notna().sum())
+        if n_obs < need:
             dropped[spec.series_id] = (
-                f"{len(published)} published observations, needs {need} "
+                f"{n_obs} published observations, needs {need} "
                 f"for transform {spec.code}"
             )
             continue
@@ -753,7 +771,7 @@ def build_asof(
             "through": str(newest.date()),
             "days_behind": int((when - newest).days),
             "panel_month": str(stamp.date()),
-            "n_published": int(len(published)),
+            "n_published": int(published.notna().sum()),
             "n_usable": int(len(usable)),
             "frequency": spec.frequency,
             "route": "alfred_vintage" if spec.revised else "unrevised_observation",

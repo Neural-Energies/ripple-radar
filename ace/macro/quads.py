@@ -262,8 +262,16 @@ class QuadReading:
 
 
 def _yoy(values: pd.Series) -> pd.Series:
-    """Year-on-year percent change of a monthly series."""
-    return values.pct_change(12) * 100.0
+    """Year-on-year percent change against the same CALENDAR month a year back.
+
+    Not `pct_change(12)`, which counts rows: October 2025 CPI was never
+    published (the federal shutdown), so from November 2025 a row-based rate
+    compared each month with thirteen months earlier and overstated inflation
+    by up to 0.4 points. A month whose year-ago month is missing has no rate.
+    """
+    prior = values.reindex(values.index - pd.DateOffset(months=12))
+    prior.index = values.index
+    return (values / prior - 1.0) * 100.0
 
 
 def vintage_frame(series_id: str, start: str = "1998-01-01") -> pd.DataFrame:
@@ -306,8 +314,8 @@ def _axis_reading(
     """Average year-on-year across the inputs, on their common published months.
 
     The composite is evaluated on the newest month EVERY included series covers,
-    and the rate of change differences that same membership against itself a
-    `lookback` earlier. Differencing a composite whose membership changed
+    and the rate of change differences that same membership against itself
+    `lookback` calendar months earlier. Differencing a composite whose membership changed
     between the two dates would book a composition change as an economic turn,
     which is the quiet way a regime model invents a regime.
     """
@@ -329,17 +337,23 @@ def _axis_reading(
         return blank
 
     frame = pd.concat(parts, axis=1).dropna()
-    if len(frame) < lookback + 1:
+    # The rate of change is over `lookback` CALENDAR months, so the reading
+    # runs through the newest common month whose base month is also present —
+    # a missing month must not stretch a 3-month change into a 4-month one.
+    months = set(frame.index)
+    ends = [t for t in frame.index if t - pd.DateOffset(months=lookback) in months]
+    if not ends:
         return blank
-    through = frame.index.max()
+    through = ends[-1]
+    base = through - pd.DateOffset(months=lookback)
     composite = frame.mean(axis=1)
-    yoy = float(composite.iloc[-1])
-    roc = float(composite.iloc[-1] - composite.iloc[-1 - lookback])
+    yoy = float(composite.loc[through])
+    roc = float(composite.loc[through] - composite.loc[base])
 
     contributions = {
         sid: {
-            "yoy": round(float(frame[sid].iloc[-1]), 4),
-            "roc": round(float(frame[sid].iloc[-1] - frame[sid].iloc[-1 - lookback]), 4),
+            "yoy": round(float(frame.at[through, sid]), 4),
+            "roc": round(float(frame.at[through, sid] - frame.at[base, sid]), 4),
         }
         for sid in frame.columns
     }
@@ -350,7 +364,7 @@ def _axis_reading(
         used=tuple(frame.columns),
         missing=tuple(missing),
         contributions=contributions,
-        base=str(frame.index[-1 - lookback].date()),
+        base=str(base.date()),
     )
 
 
