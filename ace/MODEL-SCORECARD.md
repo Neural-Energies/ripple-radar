@@ -25,12 +25,12 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | **Competing risks (Aalen-Johansen)** | **PASSES (v2, censor-aware holdout) — on earthquake aftershock data** | **Yes** — cumulative incidence by horizon, for that population. As a news-book prior it is a cross-domain transfer, and the app says so. |
 | **Conflict cascade (GDELT Hawkes)** | **PASSES — 15/20 countries, shape unverified** | Partly — that escalation clusters, yes. Not the branching ratio to three digits. |
 | Game theory (Nash + Monte Carlo) | **Exact in `ace/`; the app's pure-strategy scan had its axes inverted until PR #5 A01** (9 of 10 shipped matrices solved wrong) — fixed and checked against unilateral deviation | Yes — equilibria now verified against the definition for every shipped matrix. Payoffs remain an assumption. |
-| Regime (Markov switching) | **Validated, descriptive. Specification settled: 2 of 10 factors carry LEVEL regimes** | Yes — to label the environment, and only where the label is supported. Not as a forecast. |
+| Regime (Markov switching) | **Descriptive, provisional. On as-of vintages 3 of 10 factors carry LEVEL regimes (housing, liquidity, financial); the DFM behind them reports non-convergence** | Not until the climatology test (WP3 exit) passes. |
 | **Macro data registry** | **208/208 series live**, 256-concept target universe, 39% covered before this work | N/A — infrastructure, not a model. |
 | **Static PCA (global + domain)** | **Domain PCA works on 12/12 blocks. A single GLOBAL fit across the full 164-series breadth does not** (32 overlapping months, 8.8% variance) | Domain loadings — yes, as interpretation alongside the DFM. A flat global PCA factor — no. |
 | Historical analogs | **Validated, descriptive** | Yes — as a distribution of what followed similar states. |
 | **Growth/inflation quad** | **Classification validated; positioning FAILED 0/6; vol forecast FAILED 0/6** | Yes, as an environment label with its data lag, margin and revision survival stated. **No** as a positioning signal and **no** as a risk-sizing signal. |
-| **Quad revision risk** | **Measured** | **Yes** — 74% of real-time labels survived revision, and the per-margin rates are calibrated. |
+| **Quad revision risk** | **Measured (v2, as-of vintages)** | **Yes** — 87.8% of real-time labels survived revision (74.2% under first-print vintages, which measured something else), and the per-margin rates are calibrated. |
 | Transmission / Ripple | **Partly validated** | Contemporaneous structure only. No tradeable lag exists in this data. |
 | Shock persistence | **FAILED** | No. |
 | Event impact (macro) | **FAILED** | No. |
@@ -49,47 +49,50 @@ the MEAN switch buys anything **once the variance already switches**: one
 parameter apart, with a six-month floor on the shorter state's expected
 duration.
 
+**Rebuilt on as-of vintages and calendar arithmetic (PR #5 A11).** The
+previous table was measured on first-print-forever vintages; the answer moved.
+
 | Factor | Mean buys (BIC) | Mean separation | Variance ratio | State durations | Verdict |
 |---|---:|---:|---:|---|---|
-| housing | +151.0 | 2.06 | 5x | 91 / 52 mo | **level regime** |
-| financial | +68.4 | 2.06 | 1.5x | 37 / 20 mo | **level regime** |
-| growth | +1.7 | 1.11 | 143x | 35 / 1.1 mo | neither — fails the BIC bar and the duration floor |
-| liquidity | −0.5 | 0.26 | 115x | 232 / 131 mo | volatility regime |
-| consumer | −1.8 | 0.46 | 637x | 19 / 1.6 mo | volatility regime |
-| labor | −5.1 | 0.34 | 85x | 41 / 1.9 mo | volatility regime |
-| global | −6.0 | 0.15 | 240x | 83 / 4.3 mo | volatility regime |
-| credit | −6.3 | 0.004 | 10,180x | 35 / 4.0 mo | volatility regime |
-| inflation | −6.3 | 0.0001 | 115,701x | 139 / 225 mo | volatility regime |
-| manufacturing | — | — | degenerate | 263 / 461 mo | **inconclusive** — a state variance optimised to 1.9e-33, so both BIC figures are artefacts of an unbounded likelihood |
+| housing | +155.6 | 2.06 | 5.4x | 78 / 45 mo | **level regime** |
+| liquidity | +97.9 | 1.42 | 22x | 112 / 65 mo | **level regime** (was a volatility regime) |
+| financial | +38.4 | 1.41 | 11x | 43 / 12 mo | **level regime** |
+| growth | −4.5 | 0.34 | 11x | 60 / 3.9 mo | volatility regime |
+| credit | −5.1 | 0.28 | 38x | 48 / 3.0 mo | volatility regime |
+| global | −5.0 | 0.21 | 139x | 58 / 7.3 mo | volatility regime |
+| manufacturing | −6.0 | 0.10 | 51x | 61 / 10 mo | volatility regime (was degenerate) |
+| inflation | −6.1 | 0.05 | 8.3x | 18 / 8.8 mo | volatility regime |
+| labor | −6.2 | 0.11 | 269x | 100 / 2.5 mo | volatility regime |
+| consumer | −6.3 | 0.04 | 161x | 28 / 2.7 mo | volatility regime |
 
-A negative "mean buys" means switching variance ALONE is the better model. Six
-of the ten factors are in that column, and growth is a seventh with no level
-regime — it clears the separation floor but buys only 1.7 BIC against a floor
-of 2.0 and holds its low state for 1.1 months. The earlier finding, that
-monthly macro regime structure is volatility-based, holds for all seven. It does
-not hold for housing or financial conditions, and neither of those blocks
-existed in the panel the earlier finding was measured on. Manufacturing's fit is
-degenerate, so it is counted in neither column.
+A negative "mean buys" means switching variance ALONE is the better model.
+Seven of the ten factors are there. Housing and financial conditions keep
+their level regimes; liquidity gains one — on first prints the Fed balance
+sheet and reserve series were read unrevised-forever, and the as-of reads move
+its separation from 0.26 to 1.42 SD. **The DFM behind both panels reports
+`converged: false`** under the corrected convergence reading (PR #5 A05), so
+these factor estimates are EM-limited and the table is provisional until the
+fit converges.
 
 **The same test on the panel the earlier finding was measured on.** Same as-of
 date, same code, same seeds; only the series differ.
 
 | Panel | Factors | Level regimes | Best mean separation |
 |---|---:|---|---:|
-| 14-series | 6 | **none** | 0.49 (consumer) |
-| 89-series | 10 | **housing, financial** | 2.06 (both) |
+| 15-series | 6 | **labor** (1.79 SD; was none) | 1.79 (labor) |
+| 89-series | 10 | **housing, liquidity, financial** | 2.06 (housing) |
 
-Every factor on the 14-series panel gives the mean a negative BIC. That panel
-carried one housing series — too few to identify a housing factor — and no
-financial series at all, so neither level regime had a factor it could have been
-found in. The change is coverage, not method.
+On first prints the small panel had no level regime at all; on as-of vintages
+its labour factor has one, which the 89-series labour factor does not share
+(there it is a volatility regime with a 2.5-month short state). A result that
+depends on which panel the labour block sits in is not a settled one.
 
 **What this permits.** The four-name growth/inflation taxonomy stays withheld:
 neither the growth nor the inflation factor supports a level-based name. The
-housing and financial-conditions regimes are supported as ENVIRONMENT LABELS
-with their probabilities. Whether those probabilities beat climatology on Brier
-is a separate, unrun test, and nothing may drive a user-facing number until it
-does.
+housing, liquidity and financial-conditions regimes are candidates for
+ENVIRONMENT LABELS with their probabilities — and only candidates: whether
+those probabilities beat climatology on Brier is the WP3 exit test, and
+nothing may drive a user-facing number until it passes.
 
 ---
 
@@ -202,24 +205,38 @@ them. This changes what `converged` reads on every existing report that
 carries it; it does not change any factor level, loading, or score, which
 were never derived from this flag.
 
-### Open, high priority: point-in-time vintages may be first-release-forever
+### Resolved (PR #5 A11): point-in-time vintages were first-release-forever
 
-External audit PR #5 (originally raised 2026-09-25, reconfirmed as finding
-A11): `ace.data.alfred.release_history` fetches FRED's `output_type=4`
-(initial release only) and never re-fetches a later revision for an
-observation already seen. `ace.state.panel.load_vintages` calls this same
-function for every series on the default point-in-time route — so a value
-revised months after its first release, even a revision that is now itself
-long-since public, is never reflected in ANY as-of build dated after that
-revision. This is the data source underneath every panel this session's
-factor-engine work (Phases 1-10) has built. It is **not fixed as part of this
-cycle** — correcting it means changing what `release_history` fetches (full
-revision history per observation, not the first print) and how `as_of`
-selects among a series' releases, which is a foundational change to the one
-fetch primitive `ace.state.panel`, `ace.macro.quads` and `ace.macro.revisions`
-all depend on, not a bounded, single-file fix like A04/A05 above. Every
-number in this section, and every artifact this cycle produced, should be
-read with that caveat until it is resolved.
+`ace.data.alfred.release_history` fetched FRED's `output_type=4` (initial
+release only), and `known_at` kept that first print forever — so a revision
+already public on a date was invisible on it. Every as-of build (the quad
+engine and the state panel under every factor-engine phase) read the series
+that way. Now `alfred.vintage_history` fetches every vintage (`output_type=1`,
+paged past FRED's 100k-row limit — NFCI and ANFCI have 320k–360k rows) with
+its validity period, and `vintage_at` / `known_at` return each month **as it
+stood** at the date: the newest release published by then, never a later one.
+`release_history` remains for release-day questions (macro-event surprises).
+
+The concrete cost of the old behaviour is a unit change read as growth. BEA
+rebased real consumption and real disposable income from chained 2012 to
+chained 2017 dollars in the 2023-09-29 vintage. First prints either side of
+that date are in different units, so for the following year the old reads put
+**PCEC96 year-on-year at +9.2% and DSPIC96 at +8.4%** where the series as
+published at the time said **+2.4% and +1.7%** — a phantom boom inside the
+`broad` quad composites.
+
+Found while regenerating the evidence (not an audit finding): **October 2025
+CPI, core CPI and real retail sales were never published** (the shutdown), and
+the quad and panel arithmetic counted rows. From November 2025 every inflation
+year-on-year rate compared with thirteen months back — the live reading said
+CPI +3.71% where the calendar rate is **+3.35%** — and a rate of change across
+the hole spanned four months. Both now work on the calendar; the panel places
+every series on its full monthly/quarterly calendar before transforming, so a
+hole is NaN rather than a two-period difference.
+
+Rebuilt on the corrected data: the quad engine (§13), the state panel build,
+the comprehensive universe panel, PCA research, the mean-vs-variance regime
+test, the what-changed decomposition and the level-regime validation.
 
 ---
 
@@ -991,7 +1008,7 @@ reason.
 
 ---
 
-## 13. ace_macro_quad v1 — the label holds, both trades built on it do not
+## 13. ace_macro_quad v2 — the label holds, both trades built on it do not
 
 The growth/inflation quad — classify the economy by the **rate of change** of
 growth and inflation rather than their level, into four regimes. It is the
@@ -1006,9 +1023,11 @@ They are separable. They were tested separately. Only the first survived.
 
 ### Claim 1 — PASSES, and the point-in-time discipline is the whole thing
 
-320 month-ends classified, 2000-01 to 2026-08, from ALFRED **first-release**
-vintages filtered to what had actually been published by each classification
-date.
+320 month-ends classified, 2000-01 to 2026-08, from the ALFRED vintage
+archive, each month **as it stood** on the classification date — the newest
+release published by then, never a later one. (v1 read first prints and kept
+them forever, which is not what anyone could see once a month was revised;
+PR #5 A11, and the resolved item near the top of this file.)
 
 That lag is the model. The publication calendar, measured from the vintage
 archive rather than quoted from a manual:
@@ -1028,43 +1047,52 @@ GDP is excluded for that reason: by the time it lands it describes a quarter
 that ended four months ago, and a nowcast that waits for it is reading an
 almanac. Two spot checks show the discipline is real rather than asserted:
 
-- **2008-10-31 → Quad 3 Stagflation**, not Quad 4. CPI was still +5.05% and
-  accelerating in the September print. The deflation everyone remembers shows
+- **2008-10-31 → Quad 3 Stagflation**, not Quad 4. CPI was still +4.94% and
+  accelerating in the September data. The deflation everyone remembers shows
   up in the data later than it shows up in the story.
-- **2020-03-31 → Quad 3**, growth +0.61% YoY, reading through 2020-02-01. COVID
-  had not entered published data yet. Anyone whose backtest says Quad 4 on that
+- **2020-03-31 → Quad 2 Reflation**, growth +1.60% YoY and accelerating,
+  reading through 2020-02-01. COVID had not entered published data yet. (v1
+  said Quad 3 here: its first prints missed the payroll benchmark revision
+  already published on 2020-02-07.) Anyone whose backtest says Quad 4 on that
   date scored themselves on data nobody had.
 
 `test_quads.py` pins the property directly: appending a violent revision and
 eight further months to the vintage frame leaves an earlier reading
-byte-identical.
+byte-identical, and a revision already published by the date is used from the
+day it appeared.
 
 ### The composite is chosen by a criterion, not by convention
 
 "Industrial production and payrolls" is a convention. Eight candidate
 specifications were scored instead, on a stated criterion: **the share of
-real-time labels that survived contact with the revised data**, measured on a
-training window and re-checked on a holdout. Readings from the last 18 months
-are excluded — the data has not had time to revise, so they would score as
-survivors by default and flatter every candidate equally.
+real-time labels that survived contact with the revised data**, chosen with
+only what existed at one calendar cutoff (2017-07-31, 70% of settled
+month-ends): readings on or before it, scored against the vintages **as they
+stood at the cutoff**, on rows that had settled by then (through 2016-01).
+The persistence floor and the lag tie-break are measured on the same window,
+and the holdout is scored against today's data. Nothing after the cutoff can
+change the choice — tested by rewriting today's answer key and adding a wild
+vintage of every month after the cutoff (PR #5 A11; v1 split each spec at its
+own row count, measured persistence over the full sample, and trained against
+today's revised data).
 
-A candidate whose median spell falls below a **two-month persistence floor** is
-disqualified outright rather than traded off against survival: it is labelling
-months, not regimes.
+A candidate whose training-window median spell falls below a **two-month
+persistence floor** is disqualified outright rather than traded off against
+survival: it is labelling months, not regimes.
 
-| spec | train | holdout | median spell | ≥1 quarter |
+| spec | train | holdout | median spell (train) | ≥1 quarter |
 |---|---|---|---|---|
-| **labour** (PAYEMS, CPI, 3mo) | **72.5%** | 78.0% | 2 mo | 41% |
-| fast_6m | 69.2% | 72.5% | 2 mo | 46% |
-| broad (5 growth, 3 price) | 68.6% | 78.0% | 2 mo | 33% |
-| broad_6m | 67.8% | 70.3% | 2 mo | 44% |
-| core (core CPI) | 66.3% | 74.7% | 2 mo | 40% |
-| fast (INDPRO+PAYEMS, CPI) | 65.9% | 75.8% | 2 mo | 33% |
-| production | 64.5% | 76.9% | 2 mo | 34% |
-| fast_1m | 64.5% | — | **1 mo** | 10% — **disqualified** |
+| **labour** (PAYEMS, CPI, 3mo) | **88.6%** | 87.9% | 2 mo | 28% |
+| broad_6m | 87.6% | 84.6% | 2 mo | 42% |
+| broad (5 growth, 3 price) | 85.7% | 91.2% | **1 mo** | 27% — **disqualified** |
+| fast_6m | 84.5% | 83.5% | 2 mo | 43% |
+| fast (INDPRO+PAYEMS, CPI) | 82.9% | 90.1% | 2 mo | 27% |
+| production | 82.9% | 89.0% | 2 mo | 31% |
+| fast_1m | 82.9% | 84.6% | **1 mo** | 11% — **disqualified** |
+| core (core CPI) | 82.4% | 86.8% | 2 mo | 39% |
 
-`labour` won the training window and ranked 2nd of 7 eligible on the holdout,
-so the choice held up rather than being the luckiest of eight. It is worth
+`labour` won the training window again and ranked 3rd of 6 eligible on the
+holdout — mid-pack, so the choice is defensible rather than confirmed. It is worth
 saying plainly why a single series wins a *revision-survival* criterion:
 payrolls revises less than industrial production does, so a narrow composite
 partly wins by having less to revise. That is a real property, it is the
@@ -1081,27 +1109,34 @@ A framework presented as quarterly regimes you position around produces, on
 honest point-in-time monthly data, a label that turns over about every two
 months. That is not a defect in one composite; it is what the data does.
 
-The reason is visible in the margins: **190 of 302** settled readings sat in
-the "knife-edge" bin, with both rates of change inside ±0.25 points of the
+The reason is visible in the margins: **203 of 302** settled readings sat in
+the "knife-edge" bin, with the weaker axis inside ±0.25 points of the
 boundary. The quad is usually a near-tie.
 
 ### Claim 1 comes with an error rate, which is also measured
 
-Every historical reading was re-run on today's revised data, cut to the same
-observation months, so the two differ only in how revised the values are.
+Every historical reading was re-run on today's revised data on exactly the
+same numbers — each axis's own contributing series, through-month and base
+month — so the two differ only in how revised the values are. (v1 cut every
+series at the later axis's month and rebuilt membership, so a staggered
+release calendar with no revision could flip a label; PR #5 A11.)
 
-**74.2% of real-time labels survived.** The per-margin calibration is monotone
-and the bin edges were fixed in advance rather than fitted:
+**87.8% of real-time labels survived** (302 settled readings). v1 reported
+74.2%; that number compared FIRST PRINTS with the revised data, and the whole
+13.6-point difference is revisions that were already public when each label
+was made (measured: the like-for-like key alone moves `labour` by 0.0 points,
+the as-of vintages by +13.6). The per-margin calibration is monotone and the
+bin edges were fixed in advance rather than fitted:
 
 | margin | n | survived |
 |---|---|---|
-| knife-edge 0.00–0.25 | 190 | **62.6%** |
-| thin 0.25–0.75 | 83 | 91.6% |
-| clear 0.75–2.00 | 24 | 100% |
+| knife-edge 0.00–0.25 | 203 | **82.3%** |
+| thin 0.25–0.75 | 76 | 98.7% |
+| clear 0.75–2.00 | 18 | 100% |
 | decisive 2.00+ | 5 | 100% (too thin to quote) |
 
-And the failures have a direction. **72% of them (56 of 78) flipped the growth
-axis** — Q1↔Q4 or Q2↔Q3, which hold inflation fixed — against 15 on inflation.
+And the failures have a direction. **92% of them (34 of 37) flipped the growth
+axis** — Q1↔Q4 or Q2↔Q3, which hold inflation fixed — against 3 on inflation.
 Growth data revises far more than price data, so the top row of the 2×2 is
 where a real-time quad is most likely to be wrong. The framework's own
 transitions travel the same axis, because both are driven by the same noise.
@@ -1113,12 +1148,12 @@ Equities drift up, and a rule that is long most of the time inherits that drift
 and looks clever. Signs learned on a training window, checked on a sealed
 chronological holdout, block-bootstrap intervals (3-month blocks, 1000 draws).
 
-Under the shipped `labour` spec: **0 of 6 channels** beat always-long with a CI
-excluding zero; **8 of 12** usable quad cells kept their sign (67%). NASDAQ's
-edge of exactly `+0.000` with a CI of `[+0.000, +0.000]` looks like a bug and
-is not: every sign the training window learned for NASDAQ was positive, so
-"quad positioning" reduced to being long in all four quads. It matched
-long-only because it *was* long-only.
+Under the shipped `labour` spec (v2): **0 of 6 channels** beat always-long
+with a CI excluding zero; **11 of 17** usable quad cells kept their sign
+(65%). The edges of exactly `+0.000` with a CI of `[+0.000, +0.000]` on
+NASDAQ, SP500 and VIX look like a bug and are not: every sign the training
+window learned there was positive, so "quad positioning" reduced to being long
+in all four quads. It matched long-only because it *was* long-only.
 
 Registered **FAILED**. Not promoted.
 
@@ -1137,19 +1172,20 @@ six channels.
 
 | channel | persistence alone | quad adds | p |
 |---|---|---|---|
-| NASDAQ | +16.2% | +2.8% | 0.211 |
-| SP500 | −0.0% | +3.9% | 0.401 |
-| USD_BROAD | +14.4% | +2.1% | 0.570 |
-| WTI | +29.3% | −0.6% | 0.610 |
-| DJIA | +8.1% | +1.1% | 0.655 |
-| UST10Y | +33.9% | +0.7% | 0.710 |
+| WTI | +29.3% | −2.5% | 0.189 |
+| DJIA | +8.1% | −3.0% | 0.568 |
+| SP500 | −0.0% | +0.2% | 0.820 |
+| UST10Y | +33.9% | −0.2% | 0.910 |
+| USD_BROAD | +14.4% | +0.0% | 0.926 |
+| NASDAQ | +16.2% | −0.0% | 0.944 |
 
-**0 of 6 survive correction.** But the descriptive signature is real and much
-more stable than the returns one: **14 of 18 usable cells kept their sign
-(78%)**, against 8/12 for returns. Quads 3 and 4 genuinely run hotter across
-channels. The conclusion is precise rather than dismissive — the vol signature
-exists, and the tape already knows it, so the quad adds nothing you could not
-get from last month's realised vol.
+**0 of 6 survive correction**, and on as-of vintages the quad adds nothing
+at all — four of six channels are worse with it. v1 also found a descriptive
+signature that looked real (14 of 18 cells kept their sign, against 8/12 for
+returns). **On as-of vintages it does not hold: 10 of 20 cells (50%), a coin
+flip**, below the returns signature's 11/17. The generated module now states
+whichever the counts say (`VOL_TEST.signStable`, threshold 75%), and its test
+checks the copy against the counts rather than asserting a direction.
 
 Registered **FAILED**, and explicitly retired rather than left as a stale row.
 
@@ -1170,8 +1206,12 @@ no risk, because there is nothing to rank or size by.
 
 A defect worth recording: the first export computed pooled survival over every
 comparison while the per-bin rates used only the settled ones, reporting 75.3%
-where the honest figure is 74.2%. The TypeScript test asserting that the pooled
-rate equals the bins it is made of caught it on the first run.
+where the honest figure was 74.2%. The TypeScript test asserting that the pooled
+rate equals the bins it is made of caught it on the first run. Another, from
+the v2 export: over the last 12 months the three quads tie at 4/12, the bar
+shares (largest-remainder) are 0.3334/0.3333/0.3333, and the separately rounded
+dominant share of 0.3333 disagreed with the bar; `occupancy` now reads it from
+the same shares.
 
 ---
 

@@ -1,0 +1,138 @@
+{
+  "anchors": [
+    "2010-01-01",
+    "2016-01-01",
+    "2022-01-01"
+  ],
+  "generated": "2026-09-29",
+  "horizon_months": 6.0,
+  "question": "Does a level-regime probability forecast the factor's own forward direction better than climatology \u2014 and does a Phase 6/7 domain PCA factor do this better, worse, or the same as the production DFM's?",
+  "results": {
+    "financial": {
+      "dfm": {
+        "ci": {
+          "hi": 0.232824,
+          "lo": -0.740623,
+          "n_anchors": 3.0,
+          "n_boot": 2000.0,
+          "point": -0.409787
+        },
+        "climatology_brier": 0.247022,
+        "horizon_months": 6.0,
+        "model_brier": 0.656808,
+        "n_anchors": 3.0,
+        "readings": [
+          {
+            "as_of": "2010-01-01",
+            "climatology_probability": 0.5113,
+            "model_probability": 0.0103,
+            "outcome": 1.0
+          },
+          {
+            "as_of": "2016-01-01",
+            "climatology_probability": 0.5164,
+            "model_probability": 0.9682,
+            "outcome": 1.0
+          },
+          {
+            "as_of": "2022-01-01",
+            "climatology_probability": 0.4819,
+            "model_probability": 0.005,
+            "outcome": 1.0
+          }
+        ],
+        "skill": -0.409787,
+        "skipped": {},
+        "verdict": "NO SIGNIFICANT DIFFERENCE FROM CLIMATOLOGY (CI spans zero)"
+      },
+      "domain_pca": {
+        "ci": null,
+        "climatology_brier": null,
+        "horizon_months": 6.0,
+        "model_brier": null,
+        "n_anchors": 0.0,
+        "skill": null,
+        "skipped": {
+          "2010-01-01": "only 82 observations",
+          "2016-01-01": "reference series has no realized future value yet",
+          "2022-01-01": "only 43 observations"
+        },
+        "verdict": "no anchors produced a reading"
+      }
+    },
+    "housing": {
+      "dfm": {
+        "ci": {
+          "hi": -0.677748,
+          "lo": -0.780575,
+          "n_anchors": 3.0,
+          "n_boot": 2000.0,
+          "point": -0.738908
+        },
+        "climatology_brier": 0.257223,
+        "horizon_months": 6.0,
+        "model_brier": 0.996131,
+        "n_anchors": 3.0,
+        "readings": [
+          {
+            "as_of": "2010-01-01",
+            "climatology_probability": 0.4915,
+            "model_probability": 1.0,
+            "outcome": 0.0
+          },
+          {
+            "as_of": "2016-01-01",
+            "climatology_probability": 0.5399,
+            "model_probability": 0.0039,
+            "outcome": 1.0
+          },
+          {
+            "as_of": "2022-01-01",
+            "climatology_probability": 0.5643,
+            "model_probability": 0.9981,
+            "outcome": 0.0
+          }
+        ],
+        "skill": -0.738908,
+        "skipped": {},
+        "verdict": "WORSE THAN CLIMATOLOGY (CI excludes zero)"
+      },
+      "domain_pca": {
+        "ci": {
+          "hi": 0.302033,
+          "lo": -0.817139,
+          "n_anchors": 3.0,
+          "n_boot": 2000.0,
+          "point": -0.11239
+        },
+        "climatology_brier": 0.220758,
+        "horizon_months": 6.0,
+        "model_brier": 0.333148,
+        "n_anchors": 3.0,
+        "readings": [
+          {
+            "as_of": "2010-01-01",
+            "climatology_probability": 0.5496,
+            "model_probability": 0.0,
+            "outcome": 0.0
+          },
+          {
+            "as_of": "2016-01-01",
+            "climatology_probability": 0.573,
+            "model_probability": 0.0003,
+            "outcome": 1.0
+          },
+          {
+            "as_of": "2022-01-01",
+            "climatology_probability": 0.5782,
+            "model_probability": 0.9981,
+            "outcome": 1.0
+          }
+        ],
+        "skill": -0.11239,
+        "skipped": {},
+        "verdict": "NO SIGNIFICANT DIFFERENCE FROM CLIMATOLOGY (CI spans zero)"
+      }
+    }
+  }
+}

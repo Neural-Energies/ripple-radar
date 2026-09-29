@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-26",
+  "generated": "2026-09-29",
   "panels": [
     {
       "blocks": {
@@ -28,190 +28,192 @@
           "MANEMP"
         ]
       },
-      "converged": true,
+      "converged": false,
       "factors": [
         {
-          "bic_one_state": 2314.8993,
-          "bic_switching_mean": 1103.7767,
-          "bic_switching_variance": 1098.1738,
+          "bic_one_state": 2547.9672,
+          "bic_switching_mean": 1290.6627,
+          "bic_switching_variance": 1287.6921,
           "converged": true,
           "expected_duration": [
-            115.89,
-            6.12
+            70.23,
+            13.25
           ],
           "factor": "global.1",
           "level_regime": false,
-          "mean_gain": -5.6029,
+          "mean_gain": -2.9707,
           "mean_pays": false,
-          "mean_separation": 0.2495,
+          "mean_separation": 0.2761,
           "means": [
-            0.0643231,
-            -1.47227
+            0.179533,
+            -0.921266
           ],
           "n_obs": 560.0,
           "persistent": true,
           "separated": false,
           "variance_degenerate": false,
-          "variance_ratio": 269.9,
-          "variance_share": 1.0046,
+          "variance_ratio": 150.6,
+          "variance_share": 1.0024,
           "variances": [
-            0.280071,
-            75.5875
+            0.209754,
+            31.5867
           ],
-          "verdict": "mean buys nothing over switching variance; means 0.25 SD apart"
+          "verdict": "mean buys nothing over switching variance; means 0.28 SD apart"
         },
         {
-          "bic_one_state": 1454.8962,
-          "bic_switching_mean": 452.9862,
-          "bic_switching_variance": 450.1031,
+          "bic_one_state": 1583.1193,
+          "bic_switching_mean": 953.5272,
+          "bic_switching_variance": 947.7595,
           "converged": true,
           "expected_duration": [
-            53.65,
-            7.35
+            109.79,
+            16.21
           ],
           "factor": "global.2",
           "level_regime": false,
-          "mean_gain": -2.8832,
+          "mean_gain": -5.7677,
           "mean_pays": false,
-          "mean_separation": 0.3428,
+          "mean_separation": 0.1348,
           "means": [
-            -0.0840918,
-            0.512748
+            -0.0281881,
+            0.230686
           ],
           "n_obs": 560.0,
           "persistent": true,
           "separated": false,
           "variance_degenerate": false,
-          "variance_ratio": 97.4,
-          "variance_share": 1.0029,
+          "variance_ratio": 40.0,
+          "variance_share": 1.0092,
           "variances": [
-            0.0616105,
-            6.00097
+            0.179898,
+            7.19599
           ],
-          "verdict": "mean buys nothing over switching variance; means 0.34 SD apart"
+          "verdict": "mean buys nothing over switching variance; means 0.13 SD apart"
         },
         {
-          "bic_one_state": 1130.1232,
-          "bic_switching_mean": 658.7396,
-          "bic_switching_variance": 657.0388,
+          "bic_one_state": 2084.2899,
+          "bic_switching_mean": 1961.9535,
+          "bic_switching_variance": 1956.9757,
           "converged": true,
           "expected_duration": [
-            19.64,
-            2.56
+            38.49,
+            3.92
           ],
           "factor": "growth",
           "level_regime": false,
-          "mean_gain": -1.7008,
+          "mean_gain": -4.9778,
           "mean_pays": false,
-          "mean_separation": 0.393,
+          "mean_separation": 0.2458,
           "means": [
-            0.0563515,
-            -0.422359
+            0.052524,
+            -0.604529
           ],
           "n_obs": 560.0,
           "persistent": false,
           "separated": false,
           "variance_degenerate": false,
-          "variance_ratio": 31.72,
-          "variance_share": 1.0036,
+          "variance_ratio": 10.04,
+          "variance_share": 1.0407,
           "variances": [
-            0.0907013,
-            2.877
+            1.29371,
+            12.9947
           ],
-          "verdict": "mean buys nothing over switching variance; means 0.39 SD apart; shortest state 2.6 months"
+          "verdict": "mean buys nothing over switching variance; means 0.25 SD apart; shortest state 3.9 months"
         },
         {
-          "bic_one_state": 881.9221,
-          "bic_switching_mean": 625.474,
-          "bic_switching_variance": 623.8468,
+          "bic_one_state": 1671.1624,
+          "bic_switching_mean": 1217.8412,
+          "bic_switching_variance": 1306.5039,
           "converged": true,
           "expected_duration": [
-            21.24,
-            2.4
+            37.06,
+            18.5
           ],
           "factor": "labor",
-          "level_regime": false,
-          "mean_gain": -1.6271,
-          "mean_pays": false,
-          "mean_separation": 0.4379,
+          "level_regime": true,
+          "mean_gain": 88.6627,
+          "mean_pays": true,
+          "mean_separation": 1.7914,
           "means": [
-            0.0444367,
-            -0.370551
+            0.513019,
+            -1.06648
           ],
           "n_obs": 560.0,
-          "persistent": false,
-          "separated": false,
+          "persistent": true,
+          "separated": true,
           "variance_degenerate": false,
-          "variance_ratio": 16.7,
-          "variance_share": 1.0063,
+          "variance_ratio": 6.07,
+          "variance_share": 0.8044,
           "variances": [
-            0.101471,
-            1.695
+            0.219899,
+            1.33489
           ],
-          "verdict": "mean buys nothing over switching variance; means 0.44 SD apart; shortest state 2.4 months"
+          "verdict": "LEVEL REGIME"
         },
         {
-          "bic_one_state": 2362.6979,
-          "bic_switching_mean": 731.199,
-          "bic_switching_variance": 727.9436,
+          "bic_one_state": 1950.0733,
+          "bic_switching_mean": 1272.2247,
+          "bic_switching_variance": 1265.9067,
           "converged": true,
           "expected_duration": [
-            32.96,
-            1.68
+            100.14,
+            243.03
           ],
           "factor": "consumer",
           "level_regime": false,
-          "mean_gain": -3.2554,
-          "mean_pays": false,
-          "mean_separation": 0.4897,
-          "means": [
-            -0.126944,
-            2.77031
-          ],
-          "n_obs": 560.0,
-          "persistent": false,
-          "separated": false,
-          "variance_degenerate": false,
-          "variance_ratio": 610.6,
-          "variance_share": 1.002,
-          "variances": [
-            0.114454,
-            69.8882
-          ],
-          "verdict": "mean buys nothing over switching variance; means 0.49 SD apart; shortest state 1.7 months"
-        },
-        {
-          "bic_one_state": -77.4598,
-          "bic_switching_mean": -2463.2333,
-          "bic_switching_variance": -2469.5526,
-          "converged": true,
-          "expected_duration": [
-            138.12,
-            225.69
-          ],
-          "factor": "inflation",
-          "level_regime": false,
-          "mean_gain": -6.3193,
+          "mean_gain": -6.318,
           "mean_pays": false,
           "mean_separation": 0.0069,
           "means": [
-            -1.48556e-05,
-            0.00132243
+            0.00562212,
+            -0.0020963
           ],
           "n_obs": 560.0,
           "persistent": true,
           "separated": false,
           "variance_degenerate": false,
-          "variance_ratio": 1109000.0,
-          "variance_share": 1.0026,
+          "variance_ratio": 576.1,
+          "variance_share": 1.0093,
           "variances": [
-            6.85608e-08,
-            0.0760511
+            0.00432549,
+            2.49202
           ],
           "verdict": "mean buys nothing over switching variance; means 0.01 SD apart"
+        },
+        {
+          "bic_one_state": 1660.3204,
+          "bic_switching_mean": 1539.1515,
+          "bic_switching_variance": 1533.1861,
+          "converged": true,
+          "expected_duration": [
+            20.93,
+            11.55
+          ],
+          "factor": "inflation",
+          "level_regime": false,
+          "mean_gain": -5.9654,
+          "mean_pays": false,
+          "mean_separation": 0.0619,
+          "means": [
+            -0.021312,
+            0.0533142
+          ],
+          "n_obs": 560.0,
+          "persistent": true,
+          "separated": false,
+          "variance_degenerate": false,
+          "variance_ratio": 6.906,
+          "variance_share": 1.0492,
+          "variances": [
+            0.367924,
+            2.54081
+          ],
+          "verdict": "mean buys nothing over switching variance; means 0.06 SD apart"
         }
       ],
-      "level_regimes": [],
+      "level_regimes": [
+        "labor"
+      ],
       "n_factors": 6.0,
       "n_monthly": 14.0,
       "n_quarterly": 0.0,
@@ -328,311 +330,312 @@
           "ISRATIO"
         ]
       },
-      "converged": true,
+      "converged": false,
       "factors": [
         {
-          "bic_one_state": 2915.6105,
-          "bic_switching_mean": 1760.9959,
-          "bic_switching_variance": 1754.9574,
+          "bic_one_state": 3098.1203,
+          "bic_switching_mean": 1956.7482,
+          "bic_switching_variance": 1951.744,
           "converged": true,
           "expected_duration": [
-            82.55,
-            4.35
+            57.52,
+            7.34
           ],
           "factor": "global",
           "level_regime": false,
-          "mean_gain": -6.0386,
+          "mean_gain": -5.0043,
           "mean_pays": false,
-          "mean_separation": 0.1528,
+          "mean_separation": 0.2147,
           "means": [
-            0.0858043,
-            -1.479
+            0.20403,
+            -1.50121
           ],
           "n_obs": 561.0,
-          "persistent": false,
+          "persistent": true,
           "separated": false,
           "variance_degenerate": false,
-          "variance_ratio": 240.2,
-          "variance_share": 1.0052,
+          "variance_ratio": 139.0,
+          "variance_share": 1.0044,
           "variances": [
-            0.869893,
-            208.988
+            0.90152,
+            125.315
           ],
-          "verdict": "mean buys nothing over switching variance; means 0.15 SD apart; shortest state 4.3 months"
+          "verdict": "mean buys nothing over switching variance; means 0.21 SD apart"
         },
         {
-          "bic_one_state": 3478.3215,
-          "bic_switching_mean": 2543.24,
-          "bic_switching_variance": 2544.8962,
+          "bic_one_state": 2531.077,
+          "bic_switching_mean": 2411.7187,
+          "bic_switching_variance": 2407.2631,
           "converged": true,
           "expected_duration": [
-            35.48,
-            1.1
+            59.91,
+            3.93
           ],
           "factor": "growth",
           "level_regime": false,
-          "mean_gain": 1.6562,
+          "mean_gain": -4.4555,
           "mean_pays": false,
-          "mean_separation": 1.1089,
+          "mean_separation": 0.3429,
           "means": [
-            0.504466,
-            -17.3186
+            0.0605266,
+            -1.44117
           ],
           "n_obs": 561.0,
           "persistent": false,
-          "separated": true,
+          "separated": false,
           "variance_degenerate": false,
-          "variance_ratio": 142.7,
-          "variance_share": 0.9982,
+          "variance_ratio": 11.27,
+          "variance_share": 1.0373,
           "variances": [
-            3.59462,
-            513.035
+            3.12639,
+            35.2237
           ],
-          "verdict": "mean buys nothing over switching variance; shortest state 1.1 months"
+          "verdict": "mean buys nothing over switching variance; means 0.34 SD apart; shortest state 3.9 months"
         },
         {
-          "bic_one_state": 1162.2291,
-          "bic_switching_mean": -11639.9658,
-          "bic_switching_variance": -11808.2219,
-          "converged": false,
+          "bic_one_state": 1782.5459,
+          "bic_switching_mean": 1039.4913,
+          "bic_switching_variance": 1033.4909,
+          "converged": true,
           "expected_duration": [
-            263.16,
-            460.94
+            61.34,
+            10.09
           ],
           "factor": "manufacturing",
           "level_regime": false,
-          "mean_gain": -168.2561,
+          "mean_gain": -6.0004,
           "mean_pays": false,
-          "mean_separation": 0.0186,
+          "mean_separation": 0.0963,
           "means": [
-            -1.838e-17,
-            0.00947374
+            0.0556365,
+            0.264512
           ],
           "n_obs": 561.0,
           "persistent": true,
           "separated": false,
-          "variance_degenerate": true,
-          "variance_ratio": 2.668e+32,
-          "variance_share": 1.0131,
+          "variance_degenerate": false,
+          "variance_ratio": 51.47,
+          "variance_share": 1.0081,
           "variances": [
-            1.93721e-33,
-            0.51683
+            0.179159,
+            9.22055
           ],
-          "verdict": "INCONCLUSIVE \u2014 a state variance collapsed toward zero, so the likelihood spiked and both BIC figures are artefacts"
+          "verdict": "mean buys nothing over switching variance; means 0.10 SD apart"
         },
         {
-          "bic_one_state": 2739.154,
-          "bic_switching_mean": 2085.9412,
-          "bic_switching_variance": 2080.8893,
+          "bic_one_state": 2673.2484,
+          "bic_switching_mean": 1693.1291,
+          "bic_switching_variance": 1686.886,
           "converged": true,
           "expected_duration": [
-            41.1,
-            1.89
+            100.45,
+            2.52
           ],
           "factor": "labor",
           "level_regime": false,
-          "mean_gain": -5.0519,
+          "mean_gain": -6.2431,
           "mean_pays": false,
-          "mean_separation": 0.3357,
+          "mean_separation": 0.1131,
           "means": [
-            0.102589,
-            -2.6598
+            0.00908197,
+            -1.2244
           ],
           "n_obs": 561.0,
           "persistent": false,
           "separated": false,
           "variance_degenerate": false,
-          "variance_ratio": 85.04,
-          "variance_share": 1.0077,
+          "variance_ratio": 268.9,
+          "variance_share": 1.0064,
           "variances": [
-            1.5745,
-            133.89
+            0.881727,
+            237.124
           ],
-          "verdict": "mean buys nothing over switching variance; means 0.34 SD apart; shortest state 1.9 months"
+          "verdict": "mean buys nothing over switching variance; means 0.11 SD apart; shortest state 2.5 months"
         },
         {
-          "bic_one_state": 2050.8507,
-          "bic_switching_mean": 326.7302,
-          "bic_switching_variance": 324.9248,
+          "bic_one_state": 2094.0327,
+          "bic_switching_mean": 1007.9279,
+          "bic_switching_variance": 1001.6298,
           "converged": true,
           "expected_duration": [
-            18.52,
-            1.65
+            28.33,
+            2.72
           ],
           "factor": "consumer",
           "level_regime": false,
-          "mean_gain": -1.8053,
+          "mean_gain": -6.2981,
           "mean_pays": false,
-          "mean_separation": 0.4575,
+          "mean_separation": 0.0361,
           "means": [
-            -0.122685,
-            1.48113
+            0.0166088,
+            -0.113287
           ],
           "n_obs": 561.0,
           "persistent": false,
           "separated": false,
           "variance_degenerate": false,
-          "variance_ratio": 637.3,
-          "variance_share": 1.001,
+          "variance_ratio": 161.4,
+          "variance_share": 1.0058,
           "variances": [
-            0.0385006,
-            24.5352
+            0.159871,
+            25.801
           ],
-          "verdict": "mean buys nothing over switching variance; means 0.46 SD apart; shortest state 1.6 months"
+          "verdict": "mean buys nothing over switching variance; means 0.04 SD apart; shortest state 2.7 months"
         },
         {
-          "bic_one_state": 2681.3402,
-          "bic_switching_mean": 2143.1314,
-          "bic_switching_variance": 2294.1143,
+          "bic_one_state": 2632.8145,
+          "bic_switching_mean": 2085.8038,
+          "bic_switching_variance": 2241.3555,
           "converged": true,
           "expected_duration": [
-            91.02,
-            51.55
+            77.75,
+            44.88
           ],
           "factor": "housing",
           "level_regime": true,
-          "mean_gain": 150.9829,
+          "mean_gain": 155.5517,
           "mean_pays": true,
-          "mean_separation": 2.0602,
+          "mean_separation": 2.064,
           "means": [
-            1.63164,
-            -2.40989
+            1.4254,
+            -2.39482
           ],
           "n_obs": 561.0,
           "persistent": true,
           "separated": true,
           "variance_degenerate": false,
-          "variance_ratio": 5.022,
-          "variance_share": 0.7195,
+          "variance_ratio": 5.383,
+          "variance_share": 0.7156,
           "variances": [
-            1.2781,
-            6.41892
+            1.07336,
+            5.77795
           ],
           "verdict": "LEVEL REGIME"
         },
         {
-          "bic_one_state": 2212.8122,
-          "bic_switching_mean": 243.3112,
-          "bic_switching_variance": 236.9815,
+          "bic_one_state": 2477.5216,
+          "bic_switching_mean": 2323.1442,
+          "bic_switching_variance": 2317.0756,
           "converged": true,
           "expected_duration": [
-            139.21,
-            224.5
+            17.99,
+            8.79
           ],
           "factor": "inflation",
           "level_regime": false,
-          "mean_gain": -6.3297,
+          "mean_gain": -6.0686,
           "mean_pays": false,
-          "mean_separation": 0.0001,
+          "mean_separation": 0.0544,
           "means": [
-            -0.000340515,
-            -0.000143324
+            -0.0413324,
+            0.0983695
           ],
           "n_obs": 561.0,
           "persistent": true,
           "separated": false,
           "variance_degenerate": false,
-          "variance_ratio": 115700.0,
-          "variance_share": 1.0032,
+          "variance_ratio": 8.25,
+          "variance_share": 1.0393,
           "variances": [
-            3.91506e-05,
-            4.52976
+            1.42613,
+            11.7652
           ],
-          "verdict": "mean buys nothing over switching variance; means 0.00 SD apart"
+          "verdict": "mean buys nothing over switching variance; means 0.05 SD apart"
         },
         {
-          "bic_one_state": 454.0056,
-          "bic_switching_mean": -687.9772,
-          "bic_switching_variance": -688.507,
+          "bic_one_state": 460.7385,
+          "bic_switching_mean": -363.9131,
+          "bic_switching_variance": -265.9778,
           "converged": true,
           "expected_duration": [
-            231.59,
-            130.87
+            111.62,
+            65.45
           ],
           "factor": "liquidity",
-          "level_regime": false,
-          "mean_gain": -0.5298,
-          "mean_pays": false,
-          "mean_separation": 0.2567,
-          "means": [
-            -0.107201,
-            0.00614678
-          ],
-          "n_obs": 561.0,
-          "persistent": true,
-          "separated": false,
-          "variance_degenerate": false,
-          "variance_ratio": 115.3,
-          "variance_share": 1.0005,
-          "variances": [
-            0.00335483,
-            0.386722
-          ],
-          "verdict": "mean buys nothing over switching variance; means 0.26 SD apart"
-        },
-        {
-          "bic_one_state": 2224.5851,
-          "bic_switching_mean": -954.0762,
-          "bic_switching_variance": -960.4054,
-          "converged": true,
-          "expected_duration": [
-            34.99,
-            4.03
-          ],
-          "factor": "credit",
-          "level_regime": false,
-          "mean_gain": -6.3292,
-          "mean_pays": false,
-          "mean_separation": 0.0044,
-          "means": [
-            -0.000533394,
-            0.0165837
-          ],
-          "n_obs": 561.0,
-          "persistent": false,
-          "separated": false,
-          "variance_degenerate": false,
-          "variance_ratio": 10180.0,
-          "variance_share": 1.002,
-          "variances": [
-            0.00294494,
-            29.9795
-          ],
-          "verdict": "mean buys nothing over switching variance; means 0.00 SD apart; shortest state 4.0 months"
-        },
-        {
-          "bic_one_state": 1560.0642,
-          "bic_switching_mean": 1283.102,
-          "bic_switching_variance": 1351.5159,
-          "converged": true,
-          "expected_duration": [
-            37.31,
-            19.69
-          ],
-          "factor": "financial",
           "level_regime": true,
-          "mean_gain": 68.4139,
+          "mean_gain": 97.9353,
           "mean_pays": true,
-          "mean_separation": 2.0555,
+          "mean_separation": 1.4171,
           "means": [
-            0.423337,
-            -1.01724
+            0.15257,
+            -0.358394
           ],
           "n_obs": 561.0,
           "persistent": true,
           "separated": true,
           "variance_degenerate": false,
-          "variance_ratio": 1.521,
-          "variance_share": 0.753,
+          "variance_ratio": 22.43,
+          "variance_share": 0.8812,
           "variances": [
-            0.389684,
-            0.592645
+            0.0110989,
+            0.248918
+          ],
+          "verdict": "LEVEL REGIME"
+        },
+        {
+          "bic_one_state": 1260.7884,
+          "bic_switching_mean": 832.2712,
+          "bic_switching_variance": 827.2023,
+          "converged": true,
+          "expected_duration": [
+            47.9,
+            2.97
+          ],
+          "factor": "credit",
+          "level_regime": false,
+          "mean_gain": -5.0689,
+          "mean_pays": false,
+          "mean_separation": 0.2819,
+          "means": [
+            -0.0317942,
+            0.475239
+          ],
+          "n_obs": 561.0,
+          "persistent": false,
+          "separated": false,
+          "variance_degenerate": false,
+          "variance_ratio": 37.58,
+          "variance_share": 1.0118,
+          "variances": [
+            0.167679,
+            6.30206
+          ],
+          "verdict": "mean buys nothing over switching variance; means 0.28 SD apart; shortest state 3.0 months"
+        },
+        {
+          "bic_one_state": 2433.043,
+          "bic_switching_mean": 1936.9005,
+          "bic_switching_variance": 1975.2759,
+          "converged": true,
+          "expected_duration": [
+            42.96,
+            11.68
+          ],
+          "factor": "financial",
+          "level_regime": true,
+          "mean_gain": 38.3754,
+          "mean_pays": true,
+          "mean_separation": 1.407,
+          "means": [
+            -0.501357,
+            2.72372
+          ],
+          "n_obs": 561.0,
+          "persistent": true,
+          "separated": true,
+          "variance_degenerate": false,
+          "variance_ratio": 10.83,
+          "variance_share": 0.9227,
+          "variances": [
+            0.888149,
+            9.61916
           ],
           "verdict": "LEVEL REGIME"
         }
       ],
       "level_regimes": [
         "housing",
+        "liquidity",
         "financial"
       ],
       "n_factors": 10.0,

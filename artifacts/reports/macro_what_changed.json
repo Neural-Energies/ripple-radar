@@ -3,7 +3,16 @@
     "consumer": {
       "contributions": [
         {
-          "impact": 0.0018476095196615083,
+          "impact": 0.005156911032234227,
+          "kind": "news",
+          "observation_date": "2026-09-01",
+          "observed_value": -0.29026363883420375,
+          "previous_forecast": -0.3723196343051099,
+          "series_id": "CCSA",
+          "weight": 0.062846243015389
+        },
+        {
+          "impact": 0.0004049821519979957,
           "kind": "revision",
           "observation_date": "2026-09-01",
           "observed_value": null,
@@ -12,120 +21,84 @@
           "weight": null
         },
         {
-          "impact": 0.0013182520999148884,
-          "kind": "news",
-          "observation_date": "2026-09-01",
-          "observed_value": -0.17835844179093885,
-          "previous_forecast": -0.25141506747238385,
-          "series_id": "CCSA",
-          "weight": 0.01804425112190337
-        },
-        {
-          "impact": 0.0002532971637237428,
-          "kind": "news",
-          "observation_date": "2026-09-01",
-          "observed_value": 0.45903975655169144,
-          "previous_forecast": -0.03921353389069951,
-          "series_id": "DTWEXBGS",
-          "weight": 0.0005083702778938888
-        },
-        {
-          "impact": 0.00011992517378776378,
+          "impact": -0.00020462907180567573,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.48376302245516767,
-          "previous_forecast": 0.03463653464105375,
-          "series_id": "M2SL",
-          "weight": 0.00026701870640370435
+          "observed_value": -0.6545073330133365,
+          "previous_forecast": -0.1400384155472361,
+          "series_id": "JTSJOL",
+          "weight": 0.0003977481726467162
         },
         {
-          "impact": -5.0444251404708006e-05,
+          "impact": -0.0001610854487246606,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.5614648311355912,
-          "previous_forecast": -0.032190958363995686,
-          "series_id": "TOTRESNS",
-          "weight": 9.530841025753197e-05
+          "observed_value": 0.009585838596850879,
+          "previous_forecast": 0.4581306125632012,
+          "series_id": "JTSQUR",
+          "weight": 0.0003591290280794692
         },
         {
-          "impact": -4.304538384551747e-05,
+          "impact": 8.367663646311439e-05,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.5380873345701476,
-          "previous_forecast": -0.03551171940454953,
-          "series_id": "NEWORDER",
-          "weight": -7.504437733507194e-05
+          "observed_value": -0.18363290284158915,
+          "previous_forecast": -0.024347942341907743,
+          "series_id": "JTSLDR",
+          "weight": -0.0005253266611023315
         },
         {
-          "impact": 2.4585511815226966e-05,
+          "impact": 3.953959196067306e-05,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.10708220324419494,
-          "previous_forecast": -0.06889937883246128,
+          "observed_value": 0.1880150940558493,
+          "previous_forecast": -0.0713703494803542,
           "series_id": "HSN1F",
-          "weight": 0.00013970502779386146
+          "weight": 0.00015243566262481632
         },
         {
-          "impact": 1.010575417182537e-05,
+          "impact": -1.4015407389796043e-05,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.07517959055493932,
-          "previous_forecast": -0.033876223093521646,
-          "series_id": "DGORDER",
-          "weight": -0.00024467143462976384
-        },
-        {
-          "impact": 4.314867093150948e-06,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.041187109141434926,
-          "previous_forecast": -0.00490033045498792,
-          "series_id": "M1SL",
-          "weight": 9.362349331911799e-05
-        },
-        {
-          "impact": 1.9357706084576873e-06,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.13513346625039005,
-          "previous_forecast": -0.04116094092319067,
+          "observed_value": 0.3386624852625686,
+          "previous_forecast": 0.18783946879516492,
           "series_id": "AMDMUO",
-          "weight": 1.0980329095475582e-05
+          "weight": -9.292618406703924e-05
         },
         {
-          "impact": -2.184143317252206e-07,
+          "impact": 1.1503276772573347e-05,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.034017046751449696,
-          "previous_forecast": -0.009108827985081988,
-          "series_id": "BOGMBASE",
-          "weight": 8.768765593954647e-06
+          "observed_value": 0.45411112231416845,
+          "previous_forecast": -0.1062238369274829,
+          "series_id": "NEWORDER",
+          "weight": 2.0529286247179195e-05
         },
         {
-          "impact": -6.50571430627816e-08,
+          "impact": 1.0329767208941861e-05,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.13399511655710478,
-          "previous_forecast": -0.1338560380815571,
-          "series_id": "M2REAL",
-          "weight": 0.000467772908831476
+          "observed_value": -0.06351585099103622,
+          "previous_forecast": -0.11753589853948154,
+          "series_id": "DGORDER",
+          "weight": 0.00019122099438505862
         }
       ],
-      "estimate_previous": -0.05563357452719224,
-      "estimate_updated": -0.05307157586563841,
+      "estimate_previous": -0.09226369976062355,
+      "estimate_updated": -0.09079406845483705,
       "impact_date": "2026-09-01",
-      "impact_of_news": 0.0016386432343900425,
-      "impact_of_revisions": 0.0018476095196615083,
+      "impact_of_news": 0.004922230376719397,
+      "impact_of_revisions": 0.0004049821519979957,
       "impacted_series": "DSPIC96",
       "proxy_label": "Real disposable income",
       "proxy_series": "DSPIC96",
       "state_index": "common",
-      "total_impact": 0.003486252754051551
+      "total_impact": 0.005327212528717392
     },
     "credit": {
       "contributions": [
         {
-          "impact": 0.057664503921567634,
+          "impact": -0.05518345824626075,
           "kind": "revision",
           "observation_date": "2026-09-01",
           "observed_value": null,
@@ -134,120 +107,93 @@
           "weight": null
         },
         {
-          "impact": -0.0032319009405528403,
+          "impact": -0.009056290758863321,
           "kind": "news",
           "observation_date": "2026-09-01",
-          "observed_value": -0.17835844179093885,
-          "previous_forecast": -0.25141506747238385,
+          "observed_value": -0.29026363883420375,
+          "previous_forecast": -0.3723196343051099,
           "series_id": "CCSA",
-          "weight": -0.044238300228170574
+          "weight": -0.11036720360152512
         },
         {
-          "impact": -0.0005303435518918965,
-          "kind": "news",
-          "observation_date": "2026-09-01",
-          "observed_value": 0.45903975655169144,
-          "previous_forecast": -0.03921353389069951,
-          "series_id": "DTWEXBGS",
-          "weight": -0.0010644055183680033
-        },
-        {
-          "impact": 0.00037741962981999107,
+          "impact": 0.0018363914150343556,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.48376302245516767,
-          "previous_forecast": 0.03463653464105375,
-          "series_id": "M2SL",
-          "weight": 0.0008403415074824063
+          "observed_value": -0.18363290284158915,
+          "previous_forecast": -0.024347942341907743,
+          "series_id": "JTSLDR",
+          "weight": -0.011528969271634585
         },
         {
-          "impact": -0.0001505737079958808,
+          "impact": -0.001098658663730802,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.5614648311355912,
-          "previous_forecast": -0.032190958363995686,
-          "series_id": "TOTRESNS",
-          "weight": 0.00028449110326830704
+          "observed_value": -0.6545073330133365,
+          "previous_forecast": -0.1400384155472361,
+          "series_id": "JTSJOL",
+          "weight": 0.0021355200021451154
         },
         {
-          "impact": -0.00012858465163661977,
+          "impact": -0.0007653126787919319,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.5380873345701476,
-          "previous_forecast": -0.03551171940454953,
+          "observed_value": 0.009585838596850879,
+          "previous_forecast": 0.4581306125632012,
+          "series_id": "JTSQUR",
+          "weight": 0.0017062124523812765
+        },
+        {
+          "impact": 0.0005072043491529637,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": 0.45411112231416845,
+          "previous_forecast": -0.1062238369274829,
           "series_id": "NEWORDER",
-          "weight": -0.0002241716591852886
+          "weight": 0.0009051806259588127
         },
         {
-          "impact": 5.2698803935366936e-05,
+          "impact": -0.00030392855598013977,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.10708220324419494,
-          "previous_forecast": -0.06889937883246128,
+          "observed_value": 0.1880150940558493,
+          "previous_forecast": -0.0713703494803542,
           "series_id": "HSN1F",
-          "weight": 0.00029945635965706766
+          "weight": -0.0011717255673127978
         },
         {
-          "impact": 3.3389230045043766e-05,
+          "impact": 0.000129771345697546,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.07517959055493932,
-          "previous_forecast": -0.033876223093521646,
-          "series_id": "DGORDER",
-          "weight": -0.0008083900199235167
-        },
-        {
-          "impact": 1.5314226034480967e-05,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.041187109141434926,
-          "previous_forecast": -0.00490033045498792,
-          "series_id": "M1SL",
-          "weight": 0.0003322863272202608
-        },
-        {
-          "impact": 4.304388505034059e-06,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.13513346625039005,
-          "previous_forecast": -0.04116094092319067,
+          "observed_value": 0.3386624852625686,
+          "previous_forecast": 0.18783946879516492,
           "series_id": "AMDMUO",
-          "weight": 2.441591071460326e-05
+          "weight": 0.0008604213649684733
         },
         {
-          "impact": -8.778621840741097e-07,
+          "impact": 8.327678872086651e-05,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.034017046751449696,
-          "previous_forecast": -0.009108827985081988,
-          "series_id": "BOGMBASE",
-          "weight": 3.5243876421201266e-05
-        },
-        {
-          "impact": -1.4141286740433506e-07,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": -0.13399511655710478,
-          "previous_forecast": -0.1338560380815571,
-          "series_id": "M2REAL",
-          "weight": 0.0010167847098371697
+          "observed_value": -0.06351585099103622,
+          "previous_forecast": -0.11753589853948154,
+          "series_id": "DGORDER",
+          "weight": 0.0015415904372572732
         }
       ],
-      "estimate_previous": 0.07334000141786845,
-      "estimate_updated": 0.12026751370278276,
+      "estimate_previous": -0.2500226894827114,
+      "estimate_updated": -0.30742258807296163,
       "impact_date": "2026-09-01",
-      "impact_of_news": -0.003559295848788799,
-      "impact_of_revisions": 0.057664503921567634,
+      "impact_of_news": -0.008667546758760462,
+      "impact_of_revisions": -0.05518345824626075,
       "impacted_series": "TOTALSL",
       "proxy_label": "Total consumer credit",
       "proxy_series": "TOTALSL",
       "state_index": "common",
-      "total_impact": 0.05410520807277883
+      "total_impact": -0.06385100500502122
     },
     "financial": {
       "contributions": [
         {
-          "impact": 0.04794240176856068,
+          "impact": -0.06136171523985756,
           "kind": "revision",
           "observation_date": "2026-09-01",
           "observed_value": null,
@@ -256,120 +202,129 @@
           "weight": null
         },
         {
-          "impact": -0.0009107676368476546,
+          "impact": 0.0015545091299985756,
           "kind": "news",
           "observation_date": "2026-09-01",
-          "observed_value": -0.17835844179093885,
-          "previous_forecast": -0.25141506747238385,
+          "observed_value": -0.29026363883420375,
+          "previous_forecast": -0.3723196343051099,
           "series_id": "CCSA",
-          "weight": -0.012466598728758046
+          "weight": 0.018944491759285816
         },
         {
-          "impact": -0.0007034514921351533,
+          "impact": -0.0007020226274786124,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.48376302245516767,
-          "previous_forecast": 0.03463653464105375,
-          "series_id": "M2SL",
-          "weight": -0.0015662658765882014
+          "observed_value": -0.18363290284158915,
+          "previous_forecast": -0.024347942341907743,
+          "series_id": "JTSLDR",
+          "weight": 0.00440733780060809
         },
         {
-          "impact": -0.0005564035286768729,
-          "kind": "news",
-          "observation_date": "2026-09-01",
-          "observed_value": 0.45903975655169144,
-          "previous_forecast": -0.03921353389069951,
-          "series_id": "DTWEXBGS",
-          "weight": -0.0011167081870806137
-        },
-        {
-          "impact": 0.0002541090275590339,
+          "impact": 0.000474697095770463,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.5614648311355912,
-          "previous_forecast": -0.032190958363995686,
-          "series_id": "TOTRESNS",
-          "weight": -0.00048010876907330903
+          "observed_value": -0.6545073330133365,
+          "previous_forecast": -0.1400384155472361,
+          "series_id": "JTSJOL",
+          "weight": -0.0009226934410507743
         },
         {
-          "impact": 0.00022717658493784645,
+          "impact": 0.0003371553708059148,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.5380873345701476,
-          "previous_forecast": -0.03551171940454953,
+          "observed_value": 0.009585838596850879,
+          "previous_forecast": 0.4581306125632012,
+          "series_id": "JTSQUR",
+          "weight": -0.0007516649181408321
+        },
+        {
+          "impact": -0.00018375092157499418,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": 0.45411112231416845,
+          "previous_forecast": -0.1062238369274829,
           "series_id": "NEWORDER",
-          "weight": 0.00039605467157529127
+          "weight": -0.0003279304968293962
         },
         {
-          "impact": -6.881346797242769e-05,
+          "impact": 8.877708350492052e-05,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.10708220324419494,
-          "previous_forecast": -0.06889937883246128,
+          "observed_value": 0.1880150940558493,
+          "previous_forecast": -0.0713703494803542,
           "series_id": "HSN1F",
-          "weight": -0.0003910265333474106
+          "weight": 0.00034225931222131025
         },
         {
-          "impact": -6.27580812525054e-05,
+          "impact": -4.393220409799523e-05,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.07517959055493932,
-          "previous_forecast": -0.033876223093521646,
-          "series_id": "DGORDER",
-          "weight": 0.0015194422418735958
-        },
-        {
-          "impact": -3.0365519121256224e-05,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.041187109141434926,
-          "previous_forecast": -0.00490033045498792,
-          "series_id": "M1SL",
-          "weight": -0.0006588675653748639
-        },
-        {
-          "impact": -5.751088850742717e-06,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.13513346625039005,
-          "previous_forecast": -0.04116094092319067,
+          "observed_value": 0.3386624852625686,
+          "previous_forecast": 0.18783946879516492,
           "series_id": "AMDMUO",
-          "weight": -3.262207203816826e-05
+          "weight": -0.0002912831550978162
         },
         {
-          "impact": 1.6426063846801637e-06,
+          "impact": -3.349136409006243e-05,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.034017046751449696,
-          "previous_forecast": -0.009108827985081988,
-          "series_id": "BOGMBASE",
-          "weight": -6.594636092156421e-05
-        },
-        {
-          "impact": 1.9672931500837392e-07,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": -0.13399511655710478,
-          "previous_forecast": -0.1338560380815571,
-          "series_id": "M2REAL",
-          "weight": -0.0014145202140998564
+          "observed_value": -0.06351585099103622,
+          "previous_forecast": -0.11753589853948154,
+          "series_id": "DGORDER",
+          "weight": -0.0006199802778778987
         }
       ],
-      "estimate_previous": -0.5232156758012635,
-      "estimate_updated": -0.4752732740327029,
+      "estimate_previous": -0.8645634769955086,
+      "estimate_updated": -0.9259251922353657,
       "impact_date": "2026-09-01",
-      "impact_of_news": -0.001855185866660044,
-      "impact_of_revisions": 0.04794240176856068,
-      "impacted_series": "T10Y3M",
-      "proxy_label": "10y-3m slope",
-      "proxy_series": "T10Y3M",
+      "impact_of_news": 0.0014919415628382093,
+      "impact_of_revisions": -0.06136171523985756,
+      "impacted_series": "STLFSI4",
+      "proxy_label": "St Louis financial stress",
+      "proxy_series": "STLFSI4",
       "state_index": "common",
-      "total_impact": 0.04608721590190064
+      "total_impact": -0.05986977367701935
     },
     "growth": {
       "contributions": [
         {
-          "impact": -0.009373071296698787,
+          "impact": -0.01708229789589326,
+          "kind": "news",
+          "observation_date": "2026-09-01",
+          "observed_value": -0.29026363883420375,
+          "previous_forecast": -0.3723196343051099,
+          "series_id": "CCSA",
+          "weight": -0.20817854683086476
+        },
+        {
+          "impact": 0.010276893931293421,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": -0.18363290284158915,
+          "previous_forecast": -0.024347942341907743,
+          "series_id": "JTSLDR",
+          "weight": -0.06451892193120126
+        },
+        {
+          "impact": -0.0071524240780842414,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": -0.6545073330133365,
+          "previous_forecast": -0.1400384155472361,
+          "series_id": "JTSJOL",
+          "weight": 0.013902538783707046
+        },
+        {
+          "impact": -0.005099574993275152,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": 0.009585838596850879,
+          "previous_forecast": 0.4581306125632012,
+          "series_id": "JTSQUR",
+          "weight": 0.011369154851991923
+        },
+        {
+          "impact": -0.0040753149157582436,
           "kind": "revision",
           "observation_date": "2026-09-01",
           "observed_value": null,
@@ -378,120 +333,75 @@
           "weight": null
         },
         {
-          "impact": -0.00774281900698,
-          "kind": "news",
-          "observation_date": "2026-09-01",
-          "observed_value": -0.17835844179093885,
-          "previous_forecast": -0.25141506747238385,
-          "series_id": "CCSA",
-          "weight": -0.10598380276611283
-        },
-        {
-          "impact": -0.0036434547558137436,
+          "impact": 0.002620466622818376,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.48376302245516767,
-          "previous_forecast": 0.03463653464105375,
-          "series_id": "M2SL",
-          "weight": -0.008112313245086782
-        },
-        {
-          "impact": -0.0018245584800632099,
-          "kind": "news",
-          "observation_date": "2026-09-01",
-          "observed_value": 0.45903975655169144,
-          "previous_forecast": -0.03921353389069951,
-          "series_id": "DTWEXBGS",
-          "weight": -0.003661909544928874
-        },
-        {
-          "impact": 0.0013421520870437649,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": -0.5614648311355912,
-          "previous_forecast": -0.032190958363995686,
-          "series_id": "TOTRESNS",
-          "weight": -0.0025358366548786006
-        },
-        {
-          "impact": 0.0011939860106595828,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.5380873345701476,
-          "previous_forecast": -0.03551171940454953,
+          "observed_value": 0.45411112231416845,
+          "previous_forecast": -0.1062238369274829,
           "series_id": "NEWORDER",
-          "weight": 0.0020815690025741437
+          "weight": 0.004676607410618954
         },
         {
-          "impact": -0.0004115498300995105,
+          "impact": -0.0011779625863525243,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.10708220324419494,
-          "previous_forecast": -0.06889937883246128,
+          "observed_value": 0.1880150940558493,
+          "previous_forecast": -0.0713703494803542,
           "series_id": "HSN1F",
-          "weight": -0.0023385960351250995
+          "weight": -0.004541359647223654
         },
         {
-          "impact": -0.0003223209932276392,
+          "impact": 0.0006346054621277527,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.07517959055493932,
-          "previous_forecast": -0.033876223093521646,
-          "series_id": "DGORDER",
-          "weight": 0.007803746111711736
-        },
-        {
-          "impact": -0.0001536157809754957,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.041187109141434926,
-          "previous_forecast": -0.00490033045498792,
-          "series_id": "M1SL",
-          "weight": -0.003333137668759079
-        },
-        {
-          "impact": -3.428574591472099e-05,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.13513346625039005,
-          "previous_forecast": -0.04116094092319067,
+          "observed_value": 0.3386624852625686,
+          "previous_forecast": 0.18783946879516492,
           "series_id": "AMDMUO",
-          "weight": -0.0001944800544974918
+          "weight": 0.004207616827932264
         },
         {
-          "impact": 8.199564146960183e-06,
+          "impact": 0.0004930715033832129,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.034017046751449696,
-          "previous_forecast": -0.009108827985081988,
-          "series_id": "BOGMBASE",
-          "weight": -0.0003291911085200373
-        },
-        {
-          "impact": 1.1524350541440628e-06,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": -0.13399511655710478,
-          "previous_forecast": -0.1338560380815571,
-          "series_id": "M2REAL",
-          "weight": -0.008286221499092045
+          "observed_value": -0.06351585099103622,
+          "previous_forecast": -0.11753589853948154,
+          "series_id": "DGORDER",
+          "weight": 0.009127565149605341
         }
       ],
-      "estimate_previous": 0.240700140337052,
-      "estimate_updated": 0.22518088247310739,
+      "estimate_previous": 0.31778643242221477,
+      "estimate_updated": 0.3096020342150334,
       "impact_date": "2026-09-01",
-      "impact_of_news": -0.011587114496169868,
-      "impact_of_revisions": -0.009373071296698787,
-      "impacted_series": "IPBUSEQ",
-      "proxy_label": "IP: business equipment",
-      "proxy_series": "IPBUSEQ",
+      "impact_of_news": -0.016487222033982413,
+      "impact_of_revisions": -0.0040753149157582436,
+      "impacted_series": "TCU",
+      "proxy_label": "Capacity utilization",
+      "proxy_series": "TCU",
       "state_index": "common",
-      "total_impact": -0.020960185792868655
+      "total_impact": -0.020562536949740657
     },
     "housing": {
       "contributions": [
         {
-          "impact": -0.006408059093322871,
+          "impact": 0.016886271219142324,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": 0.1880150940558493,
+          "previous_forecast": -0.0713703494803542,
+          "series_id": "HSN1F",
+          "weight": 0.06510107502152655
+        },
+        {
+          "impact": -0.0063892124553159785,
+          "kind": "news",
+          "observation_date": "2026-09-01",
+          "observed_value": -0.29026363883420375,
+          "previous_forecast": -0.3723196343051099,
+          "series_id": "CCSA",
+          "weight": -0.07786405391402929
+        },
+        {
+          "impact": 0.003776668901770912,
           "kind": "revision",
           "observation_date": "2026-09-01",
           "observed_value": null,
@@ -500,120 +410,111 @@
           "weight": null
         },
         {
-          "impact": -0.005706299486224121,
-          "kind": "news",
-          "observation_date": "2026-09-01",
-          "observed_value": -0.17835844179093885,
-          "previous_forecast": -0.25141506747238385,
-          "series_id": "CCSA",
-          "weight": -0.07810789826381774
-        },
-        {
-          "impact": 0.002011589826818898,
+          "impact": -0.0008633956309021909,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.10708220324419494,
-          "previous_forecast": -0.06889937883246128,
-          "series_id": "HSN1F",
-          "weight": 0.011430683842486796
+          "observed_value": -0.18363290284158915,
+          "previous_forecast": -0.024347942341907743,
+          "series_id": "JTSLDR",
+          "weight": 0.005420446652299718
         },
         {
-          "impact": -0.0009418637103903309,
-          "kind": "news",
-          "observation_date": "2026-09-01",
-          "observed_value": 0.45903975655169144,
-          "previous_forecast": -0.03921353389069951,
-          "series_id": "DTWEXBGS",
-          "weight": -0.0018903311397182455
-        },
-        {
-          "impact": 0.0007020486317190272,
+          "impact": 0.0006294953518403274,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.48376302245516767,
-          "previous_forecast": 0.03463653464105375,
-          "series_id": "M2SL",
-          "weight": 0.001563142345791891
+          "observed_value": -0.6545073330133365,
+          "previous_forecast": -0.1400384155472361,
+          "series_id": "JTSJOL",
+          "weight": -0.001223582864715644
         },
         {
-          "impact": -0.0002538065326262969,
+          "impact": 0.00045102236256986474,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.5614648311355912,
-          "previous_forecast": -0.032190958363995686,
-          "series_id": "TOTRESNS",
-          "weight": 0.0004795372408942342
+          "observed_value": 0.009585838596850879,
+          "previous_forecast": 0.4581306125632012,
+          "series_id": "JTSQUR",
+          "weight": -0.0010055236149149745
         },
         {
-          "impact": -0.00022510851870186205,
+          "impact": -0.00022795777784307658,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.5380873345701476,
-          "previous_forecast": -0.03551171940454953,
+          "observed_value": 0.45411112231416845,
+          "previous_forecast": -0.1062238369274829,
           "series_id": "NEWORDER",
-          "weight": -0.00039244925029425197
+          "weight": -0.0004068241220422711
         },
         {
-          "impact": 6.346490648591953e-05,
+          "impact": -5.079109107366828e-05,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.07517959055493932,
-          "previous_forecast": -0.033876223093521646,
-          "series_id": "DGORDER",
-          "weight": -0.0015365552589677682
-        },
-        {
-          "impact": 3.09709645378759e-05,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.041187109141434926,
-          "previous_forecast": -0.00490033045498792,
-          "series_id": "M1SL",
-          "weight": 0.0006720044508673414
-        },
-        {
-          "impact": 5.227076170063442e-06,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.13513346625039005,
-          "previous_forecast": -0.04116094092319067,
+          "observed_value": 0.3386624852625686,
+          "previous_forecast": 0.18783946879516492,
           "series_id": "AMDMUO",
-          "weight": 2.9649699351589897e-05
+          "weight": -0.0003367595494593851
         },
         {
-          "impact": -1.7483779411753106e-06,
+          "impact": -4.375714770370153e-05,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.034017046751449696,
-          "previous_forecast": -0.009108827985081988,
-          "series_id": "BOGMBASE",
-          "weight": 7.019281296565677e-05
-        },
-        {
-          "impact": -1.720359199989635e-07,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": -0.13399511655710478,
-          "previous_forecast": -0.1338560380815571,
-          "series_id": "M2REAL",
-          "weight": 0.0012369701301478192
+          "observed_value": -0.06351585099103622,
+          "previous_forecast": -0.11753589853948154,
+          "series_id": "DGORDER",
+          "weight": -0.0008100168305934941
         }
       ],
-      "estimate_previous": 0.053681591889412295,
-      "estimate_updated": 0.04507282541470975,
+      "estimate_previous": 0.058051663421636514,
+      "estimate_updated": 0.08330553739897958,
       "impact_date": "2026-09-01",
-      "impact_of_news": -0.004315697256072001,
-      "impact_of_revisions": -0.006408059093322871,
+      "impact_of_news": 0.0103916748307139,
+      "impact_of_revisions": 0.003776668901770912,
       "impacted_series": "HOUST",
       "proxy_label": "Housing starts",
       "proxy_series": "HOUST",
       "state_index": "common",
-      "total_impact": -0.010723756349394872
+      "total_impact": 0.014168343732484812
     },
     "inflation": {
       "contributions": [
         {
-          "impact": -0.001353707071171495,
+          "impact": -0.0035092662785816938,
+          "kind": "news",
+          "observation_date": "2026-09-01",
+          "observed_value": -0.29026363883420375,
+          "previous_forecast": -0.3723196343051099,
+          "series_id": "CCSA",
+          "weight": -0.042766726044118776
+        },
+        {
+          "impact": 0.0022021821318496987,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": -0.18363290284158915,
+          "previous_forecast": -0.024347942341907743,
+          "series_id": "JTSLDR",
+          "weight": -0.013825424101191922
+        },
+        {
+          "impact": -0.001521743611441729,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": -0.6545073330133365,
+          "previous_forecast": -0.1400384155472361,
+          "series_id": "JTSJOL",
+          "weight": 0.0029578922259030356
+        },
+        {
+          "impact": -0.0010838436815091867,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": 0.009585838596850879,
+          "previous_forecast": 0.4581306125632012,
+          "series_id": "JTSQUR",
+          "weight": 0.002416355611336353
+        },
+        {
+          "impact": -0.0007051471467524745,
           "kind": "revision",
           "observation_date": "2026-09-01",
           "observed_value": null,
@@ -622,129 +523,57 @@
           "weight": null
         },
         {
-          "impact": -0.0011952754364740307,
-          "kind": "news",
-          "observation_date": "2026-09-01",
-          "observed_value": -0.17835844179093885,
-          "previous_forecast": -0.25141506747238385,
-          "series_id": "CCSA",
-          "weight": -0.016360945024834456
-        },
-        {
-          "impact": -0.0008501665575378439,
+          "impact": 0.000565101230919223,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.48376302245516767,
-          "previous_forecast": 0.03463653464105375,
-          "series_id": "M2SL",
-          "weight": -0.0018929334621869682
-        },
-        {
-          "impact": -0.00031561670326743816,
-          "kind": "news",
-          "observation_date": "2026-09-01",
-          "observed_value": 0.45903975655169144,
-          "previous_forecast": -0.03921353389069951,
-          "series_id": "DTWEXBGS",
-          "weight": -0.0006334462999475774
-        },
-        {
-          "impact": 0.000312107696457183,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": -0.5614648311355912,
-          "previous_forecast": -0.032190958363995686,
-          "series_id": "TOTRESNS",
-          "weight": -0.0005896903522231313
-        },
-        {
-          "impact": 0.00027782585792340765,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.5380873345701476,
-          "previous_forecast": -0.03551171940454953,
+          "observed_value": 0.45411112231416845,
+          "previous_forecast": -0.1062238369274829,
           "series_id": "NEWORDER",
-          "weight": 0.00048435550232909423
+          "weight": 0.0010085061115658789
         },
         {
-          "impact": -9.341724189198125e-05,
+          "impact": -0.0002590436484741549,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.10708220324419494,
-          "previous_forecast": -0.06889937883246128,
+          "observed_value": 0.1880150940558493,
+          "previous_forecast": -0.0713703494803542,
           "series_id": "HSN1F",
-          "weight": -0.0005308353339572174
+          "weight": -0.000998682288961983
         },
         {
-          "impact": -7.536305379825535e-05,
+          "impact": 0.000136928354589344,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.07517959055493932,
-          "previous_forecast": -0.033876223093521646,
-          "series_id": "DGORDER",
-          "weight": 0.0018246225048999581
-        },
-        {
-          "impact": -3.6026007794240395e-05,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.041187109141434926,
-          "previous_forecast": -0.00490033045498792,
-          "series_id": "M1SL",
-          "weight": -0.0007816882020288367
-        },
-        {
-          "impact": -7.81424843188501e-06,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.13513346625039005,
-          "previous_forecast": -0.04116094092319067,
+          "observed_value": 0.3386624852625686,
+          "previous_forecast": 0.18783946879516492,
           "series_id": "AMDMUO",
-          "weight": -4.4324993385587356e-05
+          "weight": 0.0009078743934214933
         },
         {
-          "impact": 1.930844714551458e-06,
+          "impact": 0.00010549760496023906,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.034017046751449696,
-          "previous_forecast": -0.009108827985081988,
-          "series_id": "BOGMBASE",
-          "weight": -7.751837787608395e-05
-        },
-        {
-          "impact": 2.622911590268341e-07,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": -0.13399511655710478,
-          "previous_forecast": -0.1338560380815571,
-          "series_id": "M2REAL",
-          "weight": -0.0018859220162859016
+          "observed_value": -0.06351585099103622,
+          "previous_forecast": -0.11753589853948154,
+          "series_id": "DGORDER",
+          "weight": 0.0019529343224962646
         }
       ],
-      "estimate_previous": -0.17597698287339625,
-      "estimate_updated": -0.1784707677767576,
+      "estimate_previous": -0.11879958549993665,
+      "estimate_updated": -0.12035207915504423,
       "impact_date": "2026-09-01",
-      "impact_of_news": -0.001981552558941506,
-      "impact_of_revisions": -0.001353707071171495,
-      "impacted_series": "CPIENGSL",
-      "proxy_label": "CPI energy",
-      "proxy_series": "CPIENGSL",
+      "impact_of_news": -0.003364187897688259,
+      "impact_of_revisions": -0.0007051471467524745,
+      "impacted_series": "CPIAUCSL",
+      "proxy_label": "CPI",
+      "proxy_series": "CPIAUCSL",
       "state_index": "common",
-      "total_impact": -0.003335259630113001
+      "total_impact": -0.0040693350444407335
     },
     "labor": {
       "contributions": [
         {
-          "impact": 0.01914678580097983,
-          "kind": "news",
-          "observation_date": "2026-09-01",
-          "observed_value": -0.17835844179093885,
-          "previous_forecast": -0.25141506747238385,
-          "series_id": "CCSA",
-          "weight": 0.2620814419278983
-        },
-        {
-          "impact": 0.012031749688126148,
+          "impact": 0.03146705413226342,
           "kind": "revision",
           "observation_date": "2026-09-01",
           "observed_value": null,
@@ -753,129 +582,93 @@
           "weight": null
         },
         {
-          "impact": 0.002310831669235276,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.48376302245516767,
-          "previous_forecast": 0.03463653464105375,
-          "series_id": "M2SL",
-          "weight": 0.005145168971177873
-        },
-        {
-          "impact": -0.0008464938529643741,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": -0.5614648311355912,
-          "previous_forecast": -0.032190958363995686,
-          "series_id": "TOTRESNS",
-          "weight": 0.0015993494039893267
-        },
-        {
-          "impact": -0.0007524532791581763,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.5380873345701476,
-          "previous_forecast": -0.03551171940454953,
-          "series_id": "NEWORDER",
-          "weight": -0.001311810530272194
-        },
-        {
-          "impact": 0.0002424580656991907,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.10708220324419494,
-          "previous_forecast": -0.06889937883246128,
-          "series_id": "HSN1F",
-          "weight": 0.0013777468234918917
-        },
-        {
-          "impact": 0.00020573255091854128,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": -0.07517959055493932,
-          "previous_forecast": -0.033876223093521646,
-          "series_id": "DGORDER",
-          "weight": -0.004981011563057668
-        },
-        {
-          "impact": 9.875341180538246e-05,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.041187109141434926,
-          "previous_forecast": -0.00490033045498792,
-          "series_id": "M1SL",
-          "weight": 0.00214274024919031
-        },
-        {
-          "impact": -5.70938089417717e-05,
+          "impact": 0.020613441615525408,
           "kind": "news",
           "observation_date": "2026-09-01",
-          "observed_value": 0.45903975655169144,
-          "previous_forecast": -0.03921353389069951,
-          "series_id": "DTWEXBGS",
-          "weight": -0.00011458792151895081
+          "observed_value": -0.29026363883420375,
+          "previous_forecast": -0.3723196343051099,
+          "series_id": "CCSA",
+          "weight": 0.25121188887208284
         },
         {
-          "impact": 2.040462685278617e-05,
+          "impact": -0.002303546083748831,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.13513346625039005,
-          "previous_forecast": -0.04116094092319067,
+          "observed_value": -0.18363290284158915,
+          "previous_forecast": -0.024347942341907743,
+          "series_id": "JTSLDR",
+          "weight": 0.01446179272997615
+        },
+        {
+          "impact": 0.0015680655945896165,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": -0.6545073330133365,
+          "previous_forecast": -0.1400384155472361,
+          "series_id": "JTSJOL",
+          "weight": -0.003047930674437567
+        },
+        {
+          "impact": 0.0011170842045780292,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": 0.009585838596850879,
+          "previous_forecast": 0.4581306125632012,
+          "series_id": "JTSQUR",
+          "weight": -0.002490463091788987
+        },
+        {
+          "impact": -0.0005785721702883513,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": 0.45411112231416845,
+          "previous_forecast": -0.1062238369274829,
+          "series_id": "NEWORDER",
+          "weight": -0.0010325469805977873
+        },
+        {
+          "impact": 0.00026594459722363676,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": 0.1880150940558493,
+          "previous_forecast": -0.0713703494803542,
+          "series_id": "HSN1F",
+          "weight": 0.0010252872852000183
+        },
+        {
+          "impact": -0.00013831065182421138,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": 0.3386624852625686,
+          "previous_forecast": 0.18783946879516492,
           "series_id": "AMDMUO",
-          "weight": 0.0001157417707113966
+          "weight": -0.0009170394218584238
         },
         {
-          "impact": -5.361940459904261e-06,
+          "impact": -0.00010765507285745245,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.034017046751449696,
-          "previous_forecast": -0.009108827985081988,
-          "series_id": "BOGMBASE",
-          "weight": 0.00021526792060876768
-        },
-        {
-          "impact": -6.826254286710169e-07,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": -0.13399511655710478,
-          "previous_forecast": -0.1338560380815571,
-          "series_id": "M2REAL",
-          "weight": 0.004908203271447533
+          "observed_value": -0.06351585099103622,
+          "previous_forecast": -0.11753589853948154,
+          "series_id": "DGORDER",
+          "weight": -0.001992872604580866
         }
       ],
-      "estimate_previous": -0.1816005084550727,
-      "estimate_updated": -0.14810130100466348,
+      "estimate_previous": -0.3300736951491964,
+      "estimate_updated": -0.2986066410169331,
       "impact_date": "2026-09-01",
-      "impact_of_news": 0.02036288061853811,
-      "impact_of_revisions": 0.012031749688126148,
-      "impacted_series": "JTSLDR",
-      "proxy_label": "JOLTS layoffs rate",
-      "proxy_series": "JTSLDR",
+      "impact_of_news": 0.02043645203319784,
+      "impact_of_revisions": 0.03146705413226342,
+      "impacted_series": "ICSA",
+      "proxy_label": "Initial claims",
+      "proxy_series": "ICSA",
       "state_index": "common",
-      "total_impact": 0.03239463030666426
+      "total_impact": 0.05190350616546126
     },
     "liquidity": {
       "contributions": [
         {
-          "impact": 0.0033857036640078876,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.48376302245516767,
-          "previous_forecast": 0.03463653464105375,
-          "series_id": "M2SL",
-          "weight": 0.007538419033101372
-        },
-        {
-          "impact": 0.0032896779678260797,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": -0.5614648311355912,
-          "previous_forecast": -0.032190958363995686,
-          "series_id": "TOTRESNS",
-          "weight": -0.006215455054675857
-        },
-        {
-          "impact": 0.0005959255191579915,
+          "impact": 0.00044361481308374806,
           "kind": "revision",
           "observation_date": "2026-09-01",
           "observed_value": null,
@@ -884,129 +677,147 @@
           "weight": null
         },
         {
-          "impact": -0.00043833898880937154,
+          "impact": -0.00016093066779105815,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": -0.18363290284158915,
+          "previous_forecast": -0.024347942341907743,
+          "series_id": "JTSLDR",
+          "weight": 0.0010103318435476527
+        },
+        {
+          "impact": -0.00015467858041811274,
           "kind": "news",
           "observation_date": "2026-09-01",
-          "observed_value": -0.17835844179093885,
-          "previous_forecast": -0.25141506747238385,
+          "observed_value": -0.29026363883420375,
+          "previous_forecast": -0.3723196343051099,
           "series_id": "CCSA",
-          "weight": -0.005999989524847455
+          "weight": -0.001885036913274128
         },
         {
-          "impact": -0.00011737483805489485,
-          "kind": "news",
-          "observation_date": "2026-09-01",
-          "observed_value": 0.45903975655169144,
-          "previous_forecast": -0.03921353389069951,
-          "series_id": "DTWEXBGS",
-          "weight": -0.0002355726300385887
-        },
-        {
-          "impact": 0.00010805571782808604,
+          "impact": 0.0001411388465645465,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.5380873345701476,
-          "previous_forecast": -0.03551171940454953,
+          "observed_value": -0.6545073330133365,
+          "previous_forecast": -0.1400384155472361,
+          "series_id": "JTSJOL",
+          "weight": -0.0002743389187819038
+        },
+        {
+          "impact": 0.00010306473267011535,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": 0.009585838596850879,
+          "previous_forecast": 0.4581306125632012,
+          "series_id": "JTSQUR",
+          "weight": -0.00022977579642438823
+        },
+        {
+          "impact": -2.904023038925744e-05,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": 0.45411112231416845,
+          "previous_forecast": -0.1062238369274829,
           "series_id": "NEWORDER",
-          "weight": 0.00018838196660075497
+          "weight": -5.1826554653238196e-05
         },
         {
-          "impact": 0.00010572464889510036,
+          "impact": -1.017376784501374e-05,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.041187109141434926,
-          "previous_forecast": -0.00490033045498792,
-          "series_id": "M1SL",
-          "weight": 0.0022940013552696114
-        },
-        {
-          "impact": 4.735069375008466e-05,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": -0.034017046751449696,
-          "previous_forecast": -0.009108827985081988,
-          "series_id": "BOGMBASE",
-          "weight": -0.0019010068200468785
-        },
-        {
-          "impact": -3.126944006117693e-05,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.10708220324419494,
-          "previous_forecast": -0.06889937883246128,
-          "series_id": "HSN1F",
-          "weight": -0.0001776858674196724
-        },
-        {
-          "impact": -3.003317831225013e-05,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": -0.07517959055493932,
-          "previous_forecast": -0.033876223093521646,
-          "series_id": "DGORDER",
-          "weight": 0.00072713631256107
-        },
-        {
-          "impact": -2.6257297571428563e-06,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.13513346625039005,
-          "previous_forecast": -0.04116094092319067,
+          "observed_value": 0.3386624852625686,
+          "previous_forecast": 0.18783946879516492,
           "series_id": "AMDMUO",
-          "weight": -1.4894004859482266e-05
+          "weight": -6.745500841519454e-05
         },
         {
-          "impact": -2.3238499820333806e-06,
+          "impact": -7.915857824491146e-06,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.13399511655710478,
-          "previous_forecast": -0.1338560380815571,
-          "series_id": "M2REAL",
-          "weight": 0.016708911805959806
+          "observed_value": -0.06351585099103622,
+          "previous_forecast": -0.11753589853948154,
+          "series_id": "DGORDER",
+          "weight": -0.00014653555825533445
+        },
+        {
+          "impact": 5.798837535637584e-07,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": 0.1880150940558493,
+          "previous_forecast": -0.0713703494803542,
+          "series_id": "HSN1F",
+          "weight": 2.235606384298977e-06
         }
       ],
-      "estimate_previous": 0.6337149512753825,
-      "estimate_updated": 0.6343108767945402,
+      "estimate_previous": 1.0616630938753953,
+      "estimate_updated": 1.0621067086884792,
       "impact_date": "2026-09-01",
-      "impact_of_news": 0.006314546667330369,
-      "impact_of_revisions": 0.0005959255191579915,
+      "impact_of_news": -0.00011795564127970762,
+      "impact_of_revisions": 0.00044361481308374806,
       "impacted_series": "WALCL",
       "proxy_label": "Fed balance sheet",
       "proxy_series": "WALCL",
       "state_index": "common",
-      "total_impact": 0.00691047218648836
+      "total_impact": 0.00032565917180404046
     },
     "manufacturing": {
       "contributions": [
         {
-          "impact": -0.05269195715401277,
+          "impact": -0.013863699177249703,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.5380873345701476,
-          "previous_forecast": -0.03551171940454953,
+          "observed_value": 0.45411112231416845,
+          "previous_forecast": -0.1062238369274829,
           "series_id": "NEWORDER",
-          "weight": -0.09186200149545076
+          "weight": -0.024741806572291365
         },
         {
-          "impact": 0.01202002802453346,
+          "impact": 0.013143527180675383,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.13513346625039005,
-          "previous_forecast": -0.04116094092319067,
+          "observed_value": 0.3386624852625686,
+          "previous_forecast": 0.18783946879516492,
           "series_id": "AMDMUO",
-          "weight": 0.06818156183876245
+          "weight": 0.08714536738837869
         },
         {
-          "impact": 0.00456052663903176,
+          "impact": -0.004022495900472651,
+          "kind": "news",
+          "observation_date": "2026-09-01",
+          "observed_value": -0.29026363883420375,
+          "previous_forecast": -0.3723196343051099,
+          "series_id": "CCSA",
+          "weight": -0.049021352765123316
+        },
+        {
+          "impact": 0.00214732244625356,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.07517959055493932,
-          "previous_forecast": -0.033876223093521646,
-          "series_id": "DGORDER",
-          "weight": -0.11041537093293524
+          "observed_value": -0.18363290284158915,
+          "previous_forecast": -0.024347942341907743,
+          "series_id": "JTSLDR",
+          "weight": -0.013481011889115888
         },
         {
-          "impact": -0.0018384619201020636,
+          "impact": -0.0013300852428697353,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": -0.06351585099103622,
+          "previous_forecast": -0.11753589853948154,
+          "series_id": "DGORDER",
+          "weight": -0.024622067236740423
+        },
+        {
+          "impact": -0.0013124202837689909,
+          "kind": "news",
+          "observation_date": "2026-08-01",
+          "observed_value": -0.6545073330133365,
+          "previous_forecast": -0.1400384155472361,
+          "series_id": "JTSJOL",
+          "weight": 0.0025510195839099827
+        },
+        {
+          "impact": 0.001188372215741751,
           "kind": "revision",
           "observation_date": "2026-09-01",
           "observed_value": null,
@@ -1015,92 +826,38 @@
           "weight": null
         },
         {
-          "impact": -0.0012400077458541645,
-          "kind": "news",
-          "observation_date": "2026-09-01",
-          "observed_value": -0.17835844179093885,
-          "previous_forecast": -0.25141506747238385,
-          "series_id": "CCSA",
-          "weight": -0.016973241431394264
-        },
-        {
-          "impact": -0.0009971806479053067,
+          "impact": -0.0009164567332092264,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": 0.48376302245516767,
-          "previous_forecast": 0.03463653464105375,
-          "series_id": "M2SL",
-          "weight": -0.0022202668401023443
+          "observed_value": 0.009585838596850879,
+          "previous_forecast": 0.4581306125632012,
+          "series_id": "JTSQUR",
+          "weight": 0.002043177819474447
         },
         {
-          "impact": 0.00036542071069560527,
+          "impact": -0.0003271433694687382,
           "kind": "news",
           "observation_date": "2026-08-01",
-          "observed_value": -0.5614648311355912,
-          "previous_forecast": -0.032190958363995686,
-          "series_id": "TOTRESNS",
-          "weight": -0.0006904189484775494
-        },
-        {
-          "impact": -0.0003408802837173853,
-          "kind": "news",
-          "observation_date": "2026-09-01",
-          "observed_value": 0.45903975655169144,
-          "previous_forecast": -0.03921353389069951,
-          "series_id": "DTWEXBGS",
-          "weight": -0.0006841505921912191
-        },
-        {
-          "impact": -0.00010834129827129258,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.10708220324419494,
-          "previous_forecast": -0.06889937883246128,
+          "observed_value": 0.1880150940558493,
+          "previous_forecast": -0.0713703494803542,
           "series_id": "HSN1F",
-          "weight": -0.0006156399834165597
-        },
-        {
-          "impact": -4.233910986807032e-05,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": 0.041187109141434926,
-          "previous_forecast": -0.00490033045498792,
-          "series_id": "M1SL",
-          "weight": -0.0009186691697092355
-        },
-        {
-          "impact": 2.271022852160974e-06,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": -0.034017046751449696,
-          "previous_forecast": -0.009108827985081988,
-          "series_id": "BOGMBASE",
-          "weight": -9.117564260465786e-05
-        },
-        {
-          "impact": 3.0459910346958426e-07,
-          "kind": "news",
-          "observation_date": "2026-08-01",
-          "observed_value": -0.13399511655710478,
-          "previous_forecast": -0.1338560380815571,
-          "series_id": "M2REAL",
-          "weight": -0.002190123973318774
+          "weight": -0.0012612248590699248
         }
       ],
-      "estimate_previous": 0.053985060612709565,
-      "estimate_updated": 0.014482184492286207,
+      "estimate_previous": 0.5435166065519019,
+      "estimate_updated": 0.5411776643874066,
       "impact_date": "2026-09-01",
-      "impact_of_news": -0.038472155243412534,
-      "impact_of_revisions": -0.0018384619201020636,
-      "impacted_series": "AMDMUO",
-      "proxy_label": "Unfilled orders: durables",
-      "proxy_series": "AMDMUO",
+      "impact_of_news": -0.006481451080110102,
+      "impact_of_revisions": 0.001188372215741751,
+      "impacted_series": "BUSINV",
+      "proxy_label": "Business inventories",
+      "proxy_series": "BUSINV",
       "state_index": "common",
-      "total_impact": -0.0403106171635146
+      "total_impact": -0.005293078864368351
     }
   },
-  "generated": "2026-09-27",
+  "generated": "2026-09-29",
   "lookback_days": 7.0,
-  "previous_as_of": "2026-09-20",
-  "updated_as_of": "2026-09-27"
+  "previous_as_of": "2026-09-22",
+  "updated_as_of": "2026-09-29"
 }
