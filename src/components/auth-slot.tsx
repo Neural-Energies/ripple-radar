@@ -5,7 +5,7 @@ import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { useSyncMode } from "@/components/desk-sync";
 import { cn } from "@/lib/utils";
 
-export function AuthSlot() {
+export function AuthSlot({ compact = false }: { compact?: boolean }) {
   const { user, isPending } = useCurrentUserState();
   const sync = useSyncMode();
 
@@ -20,6 +20,7 @@ export function AuthSlot() {
           <span
             className={cn(
               "hidden items-center gap-1 font-mono text-micro uppercase tracking-wider sm:inline-flex",
+              compact && "sm:hidden",
               sync === "cloud" ? "text-up" : "text-subtle",
             )}
             title={sync === "cloud" ? "Desk synced to this account" : "Saving on this device only"}
@@ -28,7 +29,7 @@ export function AuthSlot() {
             {sync === "cloud" ? "Synced" : sync === "pending" ? "Syncing" : "Local"}
           </span>
           <div className="max-w-[9.5rem] overflow-hidden sm:max-w-none">
-            <UserButton />
+            <UserButton compact={compact} />
           </div>
         </>
       ) : (

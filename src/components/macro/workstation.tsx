@@ -22,25 +22,28 @@ const TABS = [
 
 export function MacroChrome({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const overview = path === "/macro" || path === "/macro/";
   return (
-    <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-1.5">
-      <nav className="flex gap-1 overflow-x-auto" aria-label="Macro book">
-        {TABS.map((tab) => {
-          const on = tab.exact ? path === "/macro" : path === tab.to;
-          return (
-            <Link
-              key={tab.to}
-              to={tab.to}
-              className={cn(
-                "shrink-0 rounded-sm px-2 py-1 text-micro uppercase tracking-wider",
-                on ? "bg-card-3 text-foreground" : "text-muted hover:text-foreground",
-              )}
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
-      </nav>
+    <div className={cn("mx-auto flex w-full flex-col gap-1.5", overview ? "max-w-none" : "max-w-[90rem]")}>
+      {!overview ? (
+        <nav className="flex gap-1 overflow-x-auto" aria-label="Macro book">
+          {TABS.map((tab) => {
+            const on = tab.exact ? path === "/macro" || path === "/macro/" : path === tab.to;
+            return (
+              <Link
+                key={tab.to}
+                to={tab.to}
+                className={cn(
+                  "shrink-0 rounded-sm px-2 py-1 text-micro uppercase tracking-wider",
+                  on ? "bg-card-3 text-foreground" : "text-muted hover:text-foreground",
+                )}
+              >
+                {tab.label}
+              </Link>
+            );
+          })}
+        </nav>
+      ) : null}
       {children}
     </div>
   );
