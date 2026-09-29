@@ -255,3 +255,102 @@ def test_non_overlapping_windows_share_no_session_even_across_a_gap():
     keep = non_overlapping(origins, closes)
     for prev, nxt in zip(keep, keep[1:]):
         assert origins[nxt] >= closes[prev]
+
+
+# ------------------------------ selection vs confirmation, emitted family (A13) --
+
+def test_a_later_windows_tail_fit_cannot_rewrite_an_earlier_pit():
+    """PR #5 A13: the runner scored every row under the MEDIAN df of the whole
+    evaluation period, so changing only later windows' dfs from [5,5,5] to
+    [5,30,30] moved the earliest PIT .7856228022 -> .7522714375. Each row is
+    now scored under its own origin-available df."""
+    from ace.models.scenario_probability_model import STUDENT_T, evaluate_family
+
+    mv = np.array([0.02, 0.01, -0.01])
+    sig = np.full(3, 0.03)
+    dr = np.zeros(3)
+    early = pit_values(mv, sig, np.array([5.0, 5.0, 5.0]), dr)[0]
+    later_changed = pit_values(mv, sig, np.array([5.0, 30.0, 30.0]), dr)[0]
+    assert early == pytest.approx(0.7856228022, abs=1e-9)
+    assert later_changed == pytest.approx(early, abs=1e-12)
+
+    rng = np.random.default_rng(3)
+    n = 120
+    mv, sig, dr = rng.normal(0, 0.03, n), np.full(n, 0.03), np.zeros(n)
+    dfs = np.where(np.arange(n) < 60, 4.0, 25.0)
+    got = evaluate_family(STUDENT_T, mv, sig, dr, dfs, [np.array([])] * n)
+    assert got["pit"] == pit_diagnostics(pit_values(mv, sig, dfs, dr))
+    assert got["pit"] != pit_diagnostics(pit_values(mv, sig, float(np.median(dfs)), dr))
+
+
+def _windows(n: int = 240, seed: int = 11):
+    rng = np.random.default_rng(seed)
+    z = rng.standard_t(5, size=n) / np.sqrt(5 / 3)
+    sig = np.full(n, 0.04)
+    dr = np.zeros(n)
+    mv = sig * z
+    dfs = np.full(n, 5.0)
+    history = rng.standard_t(5, size=400) / np.sqrt(5 / 3)
+    sets = [history[: 60 + i] for i in range(n)]
+    return mv, sig, dr, dfs, sets
+
+
+def test_confirmation_windows_cannot_change_which_family_is_chosen():
+    from ace.models.scenario_probability_model import select_and_confirm
+
+    mv, sig, dr, dfs, sets = _windows()
+    base = select_and_confirm(mv, sig, dr, dfs, sets)
+    n_sel = base["n_selection"]
+    wrecked = mv.copy()
+    wrecked[n_sel:] *= 25.0
+    after = select_and_confirm(wrecked, sig, dr, dfs, sets)
+
+    assert after["chosen"] == base["chosen"]
+    assert after["selection"] == base["selection"]
+    assert after["confirmation"] != base["confirmation"]
+
+
+def test_selection_windows_cannot_change_the_confirmation_score():
+    from ace.models.scenario_probability_model import select_and_confirm
+
+    mv, sig, dr, dfs, sets = _windows()
+    base = select_and_confirm(mv, sig, dr, dfs, sets)
+    n_sel = base["n_selection"]
+    nudged = mv.copy()
+    nudged[:n_sel] *= 1.001  # small enough not to flip the choice
+    after = select_and_confirm(nudged, sig, dr, dfs, sets)
+
+    assert after["chosen"] == base["chosen"]
+    assert after["confirmation"] == base["confirmation"]
+    assert after["passes"] == base["passes"]
+
+
+def test_emitted_fhs_bands_match_an_independent_oracle():
+    from ace.models.scenario_probability_model import FHS, emit_bands
+
+    rng = np.random.default_rng(21)
+    z = rng.standard_t(4, size=900)
+    s, d = 0.05, 0.001
+    out = emit_bands(FHS, sigma_h=s, drift=d, df=5.0, residuals=z, horizon=20)
+
+    assert out["family"] == FHS
+    assert out["n_residuals"] == 900
+    for lv in (0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95):
+        assert out["quantiles"][f"p{int(lv * 100):02d}"] == pytest.approx(d + s * np.quantile(z, lv), abs=1e-6)
+    sims = d + s * z
+    for th in (0.02, 0.05, 0.10):
+        assert out["probabilities"][f"P(move > +{th:.0%})"] == pytest.approx(np.mean(sims > th), abs=1e-6)
+        assert out["probabilities"][f"P(move < -{th:.0%})"] == pytest.approx(np.mean(sims < -th), abs=1e-6)
+
+
+def test_the_emitted_family_is_the_evaluated_family():
+    """The runner used to emit Student-t bands whatever won; a channel whose
+    FHS evaluation passed shipped numbers from a distribution that had not."""
+    from ace.models.scenario_probability_model import FHS, STUDENT_T, emit_bands
+
+    z = np.random.default_rng(2).standard_normal(300)
+    t_out = emit_bands(STUDENT_T, sigma_h=0.05, drift=0.0, df=6.0, residuals=z, horizon=20)
+    f_out = emit_bands(FHS, sigma_h=0.05, drift=0.0, df=6.0, residuals=z, horizon=20)
+    assert t_out["family"] == STUDENT_T and t_out["df"] == 6.0
+    assert f_out["family"] == FHS and "df" not in f_out
+    assert t_out["probabilities"] != f_out["probabilities"]

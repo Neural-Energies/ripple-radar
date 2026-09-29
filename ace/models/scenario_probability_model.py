@@ -11,6 +11,7 @@ every threshold probability read off that distribution is trustworthy.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 import warnings
@@ -24,6 +25,7 @@ warnings.filterwarnings("ignore")
 
 from ace.config import RANDOM_SEED, REPORTS
 from ace.data.fred_market import market_panel
+from ace.jsonutil import to_json_safe
 from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
 from ace.ripple.transmission import to_returns
 from ace.scenarios.distribution import (
@@ -40,7 +42,7 @@ from ace.scenarios.distribution import (
 from ace.volatility.har import EPS, forward_vol, har_features
 
 MODEL_ID = "ace_scenario_distribution"
-MODEL_VERSION = "v1"
+MODEL_VERSION = "v2"
 MIN_TRAIN = 500
 TAIL_REFIT_EVERY = 125
 
@@ -164,6 +166,129 @@ def residual_history(z: np.ndarray, realized_at: pd.DatetimeIndex, origin: pd.Ti
     return z[: int(realized_at.searchsorted(origin, side="right"))]
 
 
+STUDENT_T = "student_t"
+FHS = "filtered_historical_simulation"
+FAMILIES = (STUDENT_T, FHS)
+
+#: Share of the non-overlapping windows, oldest first, on which the family is
+#: CHOSEN. The rest are held back untouched and are the only rows that decide
+#: promotion — choosing and confirming on the same rows would grade the choice
+#: on the data that made it.
+SELECTION_SHARE = 0.5
+GATE_WORST_MISS = 0.07
+
+
+def evaluate_family(
+    family: str,
+    mv: np.ndarray,
+    sig: np.ndarray,
+    dr: np.ndarray,
+    dfs: np.ndarray,
+    residual_sets: list[np.ndarray],
+) -> dict:
+    """PIT and interval coverage of one family on the rows it is handed.
+
+    Student-t rows use each origin's OWN tail parameter (`dfs[i]`, fitted on
+    what was known then). An earlier version applied the median df over the
+    whole evaluation period to every row, so a later window's fit could
+    rewrite an earlier window's PIT.
+    """
+    if family == STUDENT_T:
+        pit = pit_values(mv, sig, dfs, dr)
+        cov = coverage(mv, sig, dfs, dr)
+        n = len(mv)
+    elif family == FHS:
+        usable = [i for i, z in enumerate(residual_sets) if len(z) >= 50]
+        if not usable:
+            return {"available": False, "reason": "no residual history", "worst_miss": 1.0, "n": 0}
+        u = np.asarray(usable)
+        sets = [residual_sets[i] for i in usable]
+        pit = fhs_pit(mv[u], sig[u], dr[u], sets)
+        cov = fhs_coverage(mv[u], sig[u], dr[u], sets)
+        n = len(usable)
+    else:
+        raise ValueError(f"unknown family {family!r}")
+    diag = pit_diagnostics(pit[np.isfinite(pit)])
+    worst = max((abs(c["miss"]) for c in cov), default=1.0)
+    return {"available": bool(diag.get("available")), "pit": diag, "coverage": cov,
+            "worst_miss": round(float(worst), 4), "n": int(n)}
+
+
+def select_and_confirm(
+    mv: np.ndarray,
+    sig: np.ndarray,
+    dr: np.ndarray,
+    dfs: np.ndarray,
+    residual_sets: list[np.ndarray],
+    *,
+    selection_share: float = SELECTION_SHARE,
+) -> dict:
+    """Choose the family on the older windows, then gate it on the newer ones.
+
+    The confirmation rows play no part in the choice, and the choice is
+    final before they are scored. A PIT that does not reject on confirmation
+    is evidence the distribution is not badly misspecified there — not proof
+    that every threshold probability read off it is right.
+    """
+    n_sel = int(len(mv) * selection_share)
+    sel = slice(0, n_sel)
+    conf = slice(n_sel, len(mv))
+
+    selection = {
+        f: evaluate_family(f, mv[sel], sig[sel], dr[sel], dfs[sel], residual_sets[sel])
+        for f in FAMILIES
+    }
+    use_fhs = selection[FHS]["available"] and selection[FHS]["worst_miss"] < selection[STUDENT_T]["worst_miss"]
+    chosen = FHS if use_fhs else STUDENT_T
+
+    confirmation = evaluate_family(chosen, mv[conf], sig[conf], dr[conf], dfs[conf], residual_sets[conf])
+    passes = bool(
+        confirmation["available"]
+        and confirmation["pit"].get("uniform_by_ks")
+        and confirmation["worst_miss"] <= GATE_WORST_MISS
+    )
+    return {
+        "chosen": chosen, "passes": passes,
+        "n_selection": n_sel, "n_confirmation": len(mv) - n_sel,
+        "selection": selection, "confirmation": confirmation,
+    }
+
+
+def emit_bands(
+    family: str,
+    *,
+    sigma_h: float,
+    drift: float,
+    df: float,
+    residuals: np.ndarray,
+    horizon: int,
+) -> dict:
+    """The live scenario read, from the family that was actually evaluated.
+
+    An earlier version always emitted Student-t bands, so a channel whose
+    Filtered Historical Simulation won the evaluation shipped probabilities
+    from a distribution that had not.
+    """
+    if family == STUDENT_T:
+        out = scenario_bands(sigma_h / np.sqrt(horizon), horizon_days=horizon, df=df, drift=drift).to_dict()
+        out["family"] = STUDENT_T
+        return out
+    if family == FHS:
+        z = np.asarray(residuals, dtype=float)
+        z = z[np.isfinite(z)]
+        return {
+            "family": FHS,
+            "horizon_days": int(horizon),
+            "forecast_vol_horizon": round(float(sigma_h), 8),
+            "drift": round(float(drift), 8),
+            "n_residuals": int(len(z)),
+            "residual_hash": hashlib.sha256(np.round(z, 12).tobytes()).hexdigest()[:16],
+            "quantiles": fhs_quantiles(z, sigma_h, drift=drift),
+            "probabilities": fhs_probabilities(z, sigma_h, drift=drift),
+        }
+    raise ValueError(f"unknown family {family!r}")
+
+
 def run(channel: str, horizon: int, seed: int) -> dict:
     panel = market_panel("2010-01-01")
     rets = to_returns(panel)
@@ -199,81 +324,61 @@ def run(channel: str, horizon: int, seed: int) -> dict:
     # residuals whose own outcome was known at observation i's origin.
     z_all = (mv_all - dr_all) / np.maximum(sig_all, 1e-12)
     residual_sets = [residual_history(z_all, realized_all, origin) for origin in dates]
-    fhs_ok = [i for i, z in enumerate(residual_sets) if len(z) >= 50]
-    if fhs_ok:
-        fi = np.array(fhs_ok)
-        fhs_p = fhs_pit(mv[fi], sig[fi], dr[fi], [residual_sets[i] for i in fi])
-        fhs_diag = pit_diagnostics(fhs_p[np.isfinite(fhs_p)])
-        fhs_cov = fhs_coverage(mv[fi], sig[fi], dr[fi], [residual_sets[i] for i in fi])
-    else:
-        fhs_diag, fhs_cov = {"available": False, "reason": "no residual history"}, []
 
-    df_star = float(np.median(dfs))
-    pit = pit_values(mv, sig, df_star, dr)
-    diag = pit_diagnostics(pit)
-    cov = coverage(mv, sig, df_star, dr)
+    result = select_and_confirm(mv, sig, dr, dfs, residual_sets)
+    chosen, passes = result["chosen"], result["passes"]
+    conf = result["confirmation"]
 
-    # Gaussian comparison: what a normal assumption would have claimed.
-    pit_norm = pit_values(mv, sig, 1e6, dr)
-    diag_norm = pit_diagnostics(pit_norm)
-    cov_norm = coverage(mv, sig, 1e6, dr)
+    # Gaussian comparison on the same confirmation rows: what a normal
+    # assumption would have claimed.
+    n_sel = result["n_selection"]
+    gauss = evaluate_family(STUDENT_T, mv[n_sel:], sig[n_sel:], dr[n_sel:],
+                            np.full(len(mv) - n_sel, 1e6), residual_sets[n_sel:])
 
-    print(f"\nfitted tail df (median): {df_star:.2f}   (Gaussian would be infinite)")
-    print("\nPIT uniformity — is the forecast distribution correctly specified?")
-    print(f"  Student-t : KS p={diag['ks_p_value']:.4f} uniform={diag['uniform_by_ks']} | chi2 p={diag['chi2_p_value']:.4f}")
-    print(f"  Gaussian  : KS p={diag_norm['ks_p_value']:.4f} uniform={diag_norm['uniform_by_ks']} | chi2 p={diag_norm['chi2_p_value']:.4f}")
-
-    print("\ninterval coverage (nominal vs realized):")
-    print(f"  {'level':>7}{'t-dist':>10}{'gaussian':>11}")
-    for a, b in zip(cov, cov_norm):
-        print(f"  {a['nominal']:>7.0%}{a['empirical']:>10.1%}{b['empirical']:>11.1%}")
-
-    worst = max(abs(c["miss"]) for c in cov)
-    fhs_worst = max((abs(c["miss"]) for c in fhs_cov), default=1.0)
-
-    print("\nFILTERED HISTORICAL SIMULATION (non-parametric)")
-    if fhs_diag.get("available"):
-        print(f"  PIT: KS p={fhs_diag['ks_p_value']:.4f} uniform={fhs_diag['uniform_by_ks']} | chi2 p={fhs_diag['chi2_p_value']:.4f}")
-    print(f"  {'level':>7}{'FHS':>10}{'t-dist':>10}")
-    for a, b in zip(fhs_cov, cov):
-        print(f"  {a['nominal']:>7.0%}{a['empirical']:>10.1%}{b['empirical']:>10.1%}")
-    print(f"  worst interval miss: FHS {fhs_worst:.1%} vs t-dist {worst:.1%}")
-
-    use_fhs = bool(fhs_diag.get("available") and fhs_worst < worst)
-    best_name = "filtered_historical_simulation" if use_fhs else "student_t"
-    best_diag = fhs_diag if use_fhs else diag
-    best_worst = fhs_worst if use_fhs else worst
-    passes = bool(best_diag.get("available") and best_diag.get("uniform_by_ks") and best_worst <= 0.07)
+    print(f"\nwindows: {n_sel} for selection (oldest), {result['n_confirmation']} held back for confirmation")
+    for f in FAMILIES:
+        s = result["selection"][f]
+        print(f"  selection  {f:<31} worst miss {s['worst_miss']:.1%}  n={s['n']}")
+    print(f"  chosen: {chosen}")
+    if conf["available"]:
+        print(f"  confirmation PIT: KS p={conf['pit']['ks_p_value']:.4f} uniform={conf['pit']['uniform_by_ks']}"
+              f"  worst miss {conf['worst_miss']:.1%}  n={conf['n']}")
+        for c in conf["coverage"]:
+            print(f"    {c['nominal']:>5.0%} -> {c['empirical']:.1%}")
+    if gauss["available"]:
+        print(f"  gaussian on confirmation: KS p={gauss['pit']['ks_p_value']:.4f}  worst miss {gauss['worst_miss']:.1%}")
 
     print("\n" + "=" * 74)
     if passes:
-        print(f"VERDICT: PASSES — {best_name} is calibrated out of sample")
-        print(f"  PIT uniform (KS p={best_diag['ks_p_value']:.3f}); worst interval miss {best_worst:.1%}")
+        print(f"VERDICT: PASSES — {chosen} is calibrated on held-back windows it was not chosen on")
     else:
-        print(f"VERDICT: not adequately calibrated (best: {best_name})")
-        print(f"  PIT uniform={best_diag.get('uniform_by_ks')}; worst interval miss {best_worst:.1%}")
+        print(f"VERDICT: not adequately calibrated on confirmation (chosen: {chosen})")
     print("=" * 74)
 
-    # A worked example on the latest state.
-    bands = scenario_bands(float(sig_all[-1] / np.sqrt(horizon)), horizon_days=horizon, df=df_star, drift=float(dr_all[-1]))
-    print(f"\nlive scenario read for {channel} as of {dates_all[-1].date()} ({horizon} sessions):")
-    print(f"  forecast vol over horizon: {bands.forecast_vol_horizon*100:.2f}%")
+    # The live read, from the family that was evaluated, on what is known now.
+    residuals_now = residual_history(z_all, realized_all, dates_all[-1])
+    bands = emit_bands(chosen, sigma_h=float(sig_all[-1]), drift=float(dr_all[-1]),
+                       df=float(dfs_all[-1]), residuals=residuals_now, horizon=horizon)
+    print(f"\nlive scenario read for {channel} as of {dates_all[-1].date()} ({horizon} sessions, {chosen}):")
     for k in ("p05", "p25", "p50", "p75", "p95"):
-        print(f"    {k}: {bands.quantiles[k]*100:+.2f}%")
-    for k, v in bands.probabilities.items():
+        print(f"    {k}: {bands['quantiles'][k]*100:+.2f}%")
+    for k, v in bands["probabilities"].items():
         if k.startswith("P(|"):
             print(f"    {k} = {v:.1%}")
 
     return {
-        "channel": channel, "horizon": horizon, "n_scored": int(len(mv)),
-        "tail_df_median": round(df_star, 3),
-        "pit_student_t": diag, "pit_gaussian": diag_norm,
-        "coverage_student_t": cov, "coverage_gaussian": cov_norm,
-        "worst_interval_miss": round(best_worst, 4), "passes": passes,
-        "best_method": best_name, "fhs_pit": fhs_diag, "fhs_coverage": fhs_cov,
-        "student_t_worst_miss": round(worst, 4),
-        "example_bands": bands.to_dict(),
+        "channel": channel, "horizon": horizon, "as_of": str(dates_all[-1].date()),
+        "n_scored": int(len(mv)),
+        "chosen_family": chosen, "passes": passes,
+        "n_selection": n_sel, "n_confirmation": result["n_confirmation"],
+        "selection": result["selection"], "confirmation": conf,
+        "gaussian_confirmation": gauss,
+        "worst_interval_miss": conf["worst_miss"],
+        "tail_df_latest": round(float(dfs_all[-1]), 3),
+        "tail_df_range": [round(float(dfs.min()), 3), round(float(dfs.max()), 3)],
+        "example_bands": bands,
         "_hash_frame": design,
+        "_residuals": residuals_now,
     }
 
 
@@ -303,35 +408,50 @@ def main() -> int:
 
     for ch, res in results.items():
         frame = res.pop("_hash_frame")
+        residuals = res.pop("_residuals")
+        family = res["chosen_family"]
+        conf = res["confirmation"]
+        # The artifact carries exactly the state the emitted bands were read
+        # from: the tail parameter for Student-t, the residual set for FHS.
+        artifact = {"family": family, "horizon": args.horizon, "as_of": res["as_of"]}
+        if family == FHS:
+            artifact.update(residuals=np.asarray(residuals, dtype=float),
+                            residual_hash=res["example_bands"]["residual_hash"])
+        else:
+            artifact["tail_df"] = res["tail_df_latest"]
         register(
             ModelRecord(
-                model_id=f"{MODEL_ID}_{ch}", model_family="har_vol + student_t",
+                model_id=f"{MODEL_ID}_{ch}", model_family=f"har_vol + {family}",
                 model_version=MODEL_VERSION, analysis_type="scenario_probability",
                 target_variable=f"distribution of {ch} move over {args.horizon} sessions",
                 feature_schema=list(frame.columns),
-                training_start="2010-01-01", training_end=str(res["n_scored"]),
-                validation_periods=[{"scheme": "expanding walk-forward", "min_train": MIN_TRAIN}],
-                holdout_period={"n_scored_oos": res["n_scored"]},
+                training_start="2010-01-01", training_end=res["as_of"],
+                validation_periods=[{"scheme": "expanding walk-forward, mature labels only",
+                                     "min_train": MIN_TRAIN,
+                                     "selection_windows": res["n_selection"],
+                                     "confirmation_windows": res["n_confirmation"]}],
+                holdout_period={"confirmation_windows": res["n_confirmation"]},
                 training_dataset_hash=dataframe_hash(frame),
-                hyperparameters={"horizon": args.horizon, "tail_df_median": res["tail_df_median"]},
+                hyperparameters={"horizon": args.horizon, "family": family,
+                                 "selection_share": SELECTION_SHARE},
                 random_seed=args.seed,
-                performance_metrics={"pit": res["pit_student_t"], "coverage": res["coverage_student_t"]},
-                calibration_metrics={"ks_p": res["pit_student_t"]["ks_p_value"],
+                performance_metrics={"selection": res["selection"], "confirmation": conf},
+                calibration_metrics={"ks_p": conf.get("pit", {}).get("ks_p_value"),
                                      "worst_interval_miss": res["worst_interval_miss"]},
-                benchmark_metrics={"gaussian_pit": res["pit_gaussian"], "gaussian_coverage": res["coverage_gaussian"]},
+                benchmark_metrics={"gaussian_confirmation": res["gaussian_confirmation"]},
                 model_artifact_path="", creation_timestamp=utcnow(),
                 production_status="CANDIDATE" if res["passes"] else "FAILED",
-                notes="calibration-gated; probabilities read off a fitted conditional distribution",
+                notes="family chosen on older windows, gated on held-back newer ones",
             ),
-            artifact={"tail_df": res["tail_df_median"], "horizon": args.horizon},
+            artifact=artifact,
         )
         if res["passes"]:
             promote(f"{MODEL_ID}_{ch}", MODEL_VERSION,
-                    reason=f"PIT uniform KS p={res['pit_student_t']['ks_p_value']}, "
-                           f"worst interval miss {res['worst_interval_miss']:.1%}")
+                    reason=f"{family} on {res['n_confirmation']} held-back windows: "
+                           f"PIT KS p={conf['pit']['ks_p_value']}, worst interval miss {res['worst_interval_miss']:.1%}")
 
     out = REPORTS / f"{MODEL_ID}_{MODEL_VERSION}_scorecard.json"
-    out.write_text(json.dumps(results, indent=2, default=str))
+    out.write_text(json.dumps(to_json_safe(results), indent=2, default=str, allow_nan=False))
     print(f"\nscorecard {out}")
     return 0
 

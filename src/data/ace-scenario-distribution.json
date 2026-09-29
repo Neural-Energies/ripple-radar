@@ -1,42 +1,44 @@
 {
-  "model": "ace_scenario_distribution_v1",
-  "method": "filtered historical simulation",
+  "model": "ace_scenario_distribution_v2",
+  "source": "artifacts/reports/ace_scenario_distribution_v2_scorecard.json",
   "horizonSessions": 20,
   "channels": {
     "SP500": {
-      "passes": true,
-      "probabilities": {
-        "Up more than 2%": 0.352498,
-        "Down more than 2%": 0.140113,
-        "Up more than 5%": 0.085302,
-        "Down more than 5%": 0.031364
-      }
+      "passes": false,
+      "family": "student_t",
+      "asOf": "2026-08-24",
+      "confirmationWindows": 48,
+      "probabilities": {}
     },
     "NASDAQ": {
-      "passes": true,
-      "probabilities": {
-        "Up more than 2%": 0.412166,
-        "Down more than 2%": 0.202953,
-        "Up more than 5%": 0.160893,
-        "Down more than 5%": 0.064747
-      }
+      "passes": false,
+      "family": "student_t",
+      "asOf": "2026-08-24",
+      "confirmationWindows": 91,
+      "probabilities": {}
     },
     "WTI": {
       "passes": true,
+      "family": "filtered_historical_simulation",
+      "asOf": "2026-08-17",
+      "confirmationWindows": 89,
       "probabilities": {
-        "Up more than 2%": 0.435987,
-        "Down more than 2%": 0.396004,
-        "Up more than 5%": 0.317234,
-        "Down more than 5%": 0.282801
+        "Up more than 2%": 0.474059,
+        "Down more than 2%": 0.405074,
+        "Up more than 5%": 0.375143,
+        "Down more than 5%": 0.333523
       }
     },
     "USD_BROAD": {
       "passes": true,
+      "family": "filtered_historical_simulation",
+      "asOf": "2026-08-20",
+      "confirmationWindows": 89,
       "probabilities": {
-        "Up more than 2%": 0.052796,
-        "Down more than 2%": 0.035306,
-        "Up more than 5%": 0.000346,
-        "Down more than 5%": 0.000232
+        "Up more than 2%": 0.080577,
+        "Down more than 2%": 0.038451,
+        "Up more than 5%": 0.004241,
+        "Down more than 5%": 0.000565
       }
     }
   }

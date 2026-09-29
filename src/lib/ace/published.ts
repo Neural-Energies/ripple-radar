@@ -2,7 +2,8 @@ import scorecard from "@/data/ace-scenario-distribution.json";
 
 /**
  * Channels whose 20-session move distribution passed ACE's calibration gate
- * (filtered historical simulation, ace_scenario_distribution_v1).
+ * on held-back windows (ace_scenario_distribution_v2; the family each channel
+ * was chosen and confirmed on is in the generated JSON).
  * A ticker with no passing channel returns null. Callers must not invent one.
  */
 const TICKER_CHANNEL: Record<string, keyof typeof scorecard.channels> = {

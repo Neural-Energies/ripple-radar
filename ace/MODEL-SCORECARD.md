@@ -19,7 +19,7 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 
 | Engine | Status | May it drive a user-facing number? |
 |---|---|---|
-| **Scenario probability (FHS)** | **PASSES — calibrated 4/4 channels** | **Yes.** PIT uniform out of sample. |
+| **Scenario probability** | **PASSES 2/4 on held-back windows (WTI, USD_BROAD, both FHS). SP500 and NASDAQ FAIL** — v1's 4/4 retired (PR #5 A12/A13) | **Yes** for WTI and USD_BROAD only. |
 | **Volatility forecast (HAR)** | **PASSES — 3/6 channels** | **Yes**, for SP500, DJIA, UST10Y. Withheld elsewhere. |
 | **Event cascade (Hawkes)** | **PASSES — 2/3 channels** | **Yes**, for NASDAQ and WTI. |
 | **Competing risks (Aalen-Johansen)** | **PASSES** | **Yes** — cumulative incidence by horizon. |
@@ -236,20 +236,34 @@ the generator is the deployment, and it is the thing that says no.
 
 ## 0. What passes
 
-### Scenario probability — calibrated on every channel tested
+### Scenario probability — calibrated on 2 of 4 channels, v2
 
 The engine ACE actually needs. Given a channel and horizon it returns the
-probability distribution of the move, and those probabilities are calibrated.
+probability distribution of the move. **v2 (2026-09-29) replaces a v1 that
+claimed 4/4 and is retired**: external audit PR #5 showed v1 fitted each
+origin's volatility on forward labels that had not closed yet (A12 — tampering
+only post-origin returns moved one forecast +30%), scored every row under the
+median tail parameter of the whole evaluation period, chose FHS-vs-Student-t
+on the same windows that then gated promotion, and emitted Student-t bands
+even where FHS had won (A13 — the shipped JSON said "filtered historical
+simulation" and carried Student-t numbers). v2 fits mature labels only, scores
+each window under its own origin-available df, chooses the family on the older
+half of the non-overlapping windows and gates it on the newer half alone.
 
-| Channel | Worst interval miss | PIT uniformity (KS) |
-|---|---|---|
-| SP500 | 4.8% (t-dist: 16.0%) | p = 0.543 ✓ |
-| NASDAQ | 5.2% (t-dist: 6.9%) | p = 0.689 ✓ |
-| WTI | 4.9% (t-dist: 12.9%) | p = 0.830 ✓ |
-| USD_BROAD | 3.1% (t-dist: 8.7%) | p = 0.223 ✓ |
+| Channel | Chosen on selection half | Confirmation windows | Worst interval miss | PIT KS p | Verdict |
+|---|---|---:|---:|---:|---|
+| WTI | FHS (12.1% vs t 14.8%) | 89 | 4.3% | 0.869 | **PASSES** |
+| USD_BROAD | FHS (5.3% vs t 10.7%) | 89 | 3.1% | 0.533 | **PASSES** |
+| NASDAQ | Student-t (2.2% vs FHS 6.6%) | 91 | 15.9% | 0.059 | FAILS — interval miss |
+| SP500 | Student-t (FHS lacked 50 residual-ready windows) | 48 | 14.6% | — | FAILS — too few windows to confirm |
 
-Uniform PIT means the forecast distribution is correctly specified, which
-validates every probability read off it at once.
+SP500's FRED series starts in late 2016, so it has 96 non-overlapping windows
+in total — too few to choose on half and confirm on the other. A PIT that does
+not reject on held-back windows is evidence the distribution is not badly
+misspecified there; it is not proof that every threshold probability read off
+it is right. Artifact: `artifacts/reports/ace_scenario_distribution_v2_scorecard.json`,
+published through `scripts/generate-scenario-distribution.mjs` (no longer
+hand-copied).
 
 Three defects were found and fixed to get here, each of which had made the
 result look worse than the truth: the tail parameter was standardized by
@@ -1100,7 +1114,7 @@ Fifteen model families have now been put through the same gate: purged
 walk-forward, a sealed holdout read once, out-of-sample calibration, and a
 comparison against the *right* baseline rather than a convenient one.
 
-**Passing, with the scope stated:** scenario distribution (FHS, 4/4 channels),
+**Passing, with the scope stated:** scenario distribution (2/4 channels on held-back windows, v2),
 volatility (HAR, 3/6 channels), event cascade (Hawkes, 2/3 channels),
 competing risks. **Failing:** shock persistence, macro impact direction and
 magnitude, news→volatility increment, Prophet, and the Dynamic Bayesian
