@@ -29,6 +29,7 @@ import { getReplay } from "@/lib/live/desk";
 import { EMPTY_HEADLINES } from "@/lib/live/empty";
 import { runAnalyze, runRescore, useLive, useLiveEvents, useQuote } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
+import { useBrief } from "@/lib/use-brief";
 import { cn, formatPct } from "@/lib/utils";
 
 const TRADE_FILTERS: Array<"All" | TradeCategory> = ["All", "etf", "stock", "futures", "forex", "commodities", "crypto"];
@@ -49,6 +50,7 @@ export function Dashboard({ event }: { event: RadarEvent }) {
   return (
     <div className="flex flex-col gap-1.5">
       <AnalyzeBar />
+      <BriefStrip />
       <MacroStrip />
       <SessionCheck />
       <VolStrip />
@@ -119,6 +121,29 @@ export function Dashboard({ event }: { event: RadarEvent }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/** One line from the personal brief; the page itself is /brief. */
+function BriefStrip() {
+  const { brief } = useBrief();
+  if (brief.exposureCount === 0 && brief.theses.length === 0) return null;
+  const conflicts = brief.books.filter((b) => b.exposures.some((e) => e.conflict)).length;
+  const parts = [
+    `${brief.books.length} ${brief.books.length === 1 ? "book touches" : "books touch"} your names`,
+    conflicts ? `${conflicts} against a thesis` : null,
+    brief.theses.length ? `${brief.theses.length} ${brief.theses.length === 1 ? "thesis needs" : "theses need"} attention` : null,
+    brief.unexplained.length ? `${brief.unexplained.length} moving without a book` : null,
+  ].filter(Boolean);
+  return (
+    <Link
+      to="/brief"
+      className="flex items-center gap-2 rounded-md border border-border bg-card px-2.5 py-1 text-caption text-muted hover:text-foreground"
+    >
+      <span className="text-micro uppercase tracking-wider text-primary">Brief</span>
+      <span className="min-w-0 truncate">{parts.join(" · ")}</span>
+      <span className="ml-auto text-micro text-subtle">{brief.since ? "since your last read" : "this session"} →</span>
+    </Link>
   );
 }
 

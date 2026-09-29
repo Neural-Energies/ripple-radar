@@ -12,6 +12,7 @@ import {
   FlaskConical,
   GraduationCap,
   LineChart,
+  ListChecks,
   Landmark,
   Menu,
   Newspaper,
@@ -46,6 +47,7 @@ const NAV_GROUPS: { id: string; label: string; items: NavItem[] }[] = [
     label: "Desk",
     items: [
       { to: "/", label: "Live Desk", icon: Activity },
+      { to: "/brief", label: "Brief", icon: ListChecks },
       { to: "/events", label: "World Tape", icon: Newspaper },
     ],
   },
