@@ -15,6 +15,7 @@ import {
   Landmark,
   Menu,
   Newspaper,
+  NotebookPen,
   PanelLeft,
   Radar,
   Search,
@@ -63,6 +64,7 @@ const NAV_GROUPS: { id: string; label: string; items: NavItem[] }[] = [
     id: "monitor",
     label: "Monitor",
     items: [
+      { to: "/theses", label: "Theses", icon: NotebookPen },
       { to: "/watchlists", label: "Watchlists", icon: Bookmark },
       { to: "/alerts", label: "Alerts", icon: Bell },
       { to: "/portfolio", label: "Portfolio", icon: Briefcase },

@@ -21,6 +21,7 @@ import { Route as MacroRouteImport } from './routes/macro'
 import { Route as MapsRouteImport } from './routes/maps'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as ScenariosRouteImport } from './routes/scenarios'
+import { Route as ThesesRouteImport } from './routes/theses'
 import { Route as WatchlistsRouteImport } from './routes/watchlists'
 import { Route as AssetsTickerRouteImport } from './routes/assets.$ticker'
 import { Route as MacroIndexRouteImport } from './routes/macro.index'
@@ -93,6 +94,11 @@ const PortfolioRoute = PortfolioRouteImport.update({
 const ScenariosRoute = ScenariosRouteImport.update({
   id: '/scenarios',
   path: '/scenarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThesesRoute = ThesesRouteImport.update({
+  id: '/theses',
+  path: '/theses',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WatchlistsRoute = WatchlistsRouteImport.update({
@@ -174,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/maps': typeof MapsRoute
   '/portfolio': typeof PortfolioRoute
   '/scenarios': typeof ScenariosRoute
+  '/theses': typeof ThesesRoute
   '/watchlists': typeof WatchlistsRoute
   '/assets/$ticker': typeof AssetsTickerRoute
   '/macro/conditions': typeof MacroConditionsRoute
@@ -200,6 +207,7 @@ export interface FileRoutesByTo {
   '/maps': typeof MapsRoute
   '/portfolio': typeof PortfolioRoute
   '/scenarios': typeof ScenariosRoute
+  '/theses': typeof ThesesRoute
   '/watchlists': typeof WatchlistsRoute
   '/assets/$ticker': typeof AssetsTickerRoute
   '/macro/conditions': typeof MacroConditionsRoute
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/maps': typeof MapsRoute
   '/portfolio': typeof PortfolioRoute
   '/scenarios': typeof ScenariosRoute
+  '/theses': typeof ThesesRoute
   '/watchlists': typeof WatchlistsRoute
   '/assets/$ticker': typeof AssetsTickerRoute
   '/macro/conditions': typeof MacroConditionsRoute
@@ -257,6 +266,7 @@ export interface FileRouteTypes {
     | '/maps'
     | '/portfolio'
     | '/scenarios'
+    | '/theses'
     | '/watchlists'
     | '/assets/$ticker'
     | '/macro/conditions'
@@ -283,6 +293,7 @@ export interface FileRouteTypes {
     | '/maps'
     | '/portfolio'
     | '/scenarios'
+    | '/theses'
     | '/watchlists'
     | '/assets/$ticker'
     | '/macro/conditions'
@@ -310,6 +321,7 @@ export interface FileRouteTypes {
     | '/maps'
     | '/portfolio'
     | '/scenarios'
+    | '/theses'
     | '/watchlists'
     | '/assets/$ticker'
     | '/macro/conditions'
@@ -338,6 +350,7 @@ export interface RootRouteChildren {
   MapsRoute: typeof MapsRoute
   PortfolioRoute: typeof PortfolioRoute
   ScenariosRoute: typeof ScenariosRoute
+  ThesesRoute: typeof ThesesRoute
   WatchlistsRoute: typeof WatchlistsRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -426,6 +439,13 @@ declare module '@tanstack/react-router' {
       path: '/scenarios'
       fullPath: '/scenarios'
       preLoaderRoute: typeof ScenariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/theses': {
+      id: '/theses'
+      path: '/theses'
+      fullPath: '/theses'
+      preLoaderRoute: typeof ThesesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/watchlists': {
@@ -574,9 +594,19 @@ const rootRouteChildren: RootRouteChildren = {
   MapsRoute: MapsRoute,
   PortfolioRoute: PortfolioRoute,
   ScenariosRoute: ScenariosRoute,
+  ThesesRoute: ThesesRoute,
   WatchlistsRoute: WatchlistsRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

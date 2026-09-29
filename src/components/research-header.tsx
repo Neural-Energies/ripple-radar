@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Badge, Delta } from "@/components/ui";
+import { ThesisComposer } from "@/components/thesis";
+import { Badge, Button, Delta } from "@/components/ui";
 import type {
   Confirmation,
   Crowding,
@@ -113,6 +115,11 @@ export function ResearchHeader({
   const event = useLiveEvent(eventId);
   const empty = !event.id || event.title === "Listening to the world tape";
   const title = empty ? "No active book" : event.title?.trim() || "No active book";
+  const scenarioParam = useRouterState({
+    select: (s) => (s.location.search as { scenario?: unknown }).scenario,
+  });
+  const openTheses = useApp((s) => s.theses.filter((t) => t.status === "open" && t.eventId === event.id).length);
+  const [composing, setComposing] = useState(false);
 
   return (
     <header className="rounded-md border border-border bg-card px-2.5 py-1.5">
@@ -150,6 +157,7 @@ export function ResearchHeader({
           <div className="text-micro uppercase tracking-wider text-subtle">Research · {subtitle}</div>
           <h1 className="line-clamp-2 text-base font-semibold tracking-tight text-foreground sm:text-lg" title={title}>{title}</h1>
         </div>
+        <div className="flex shrink-0 flex-wrap items-center gap-1">
         {showTabs ? (
           <nav className="flex shrink-0 gap-0.5" aria-label="Research views">
             {RESEARCH_TABS.map((t) => (
@@ -170,7 +178,28 @@ export function ResearchHeader({
             ))}
           </nav>
         ) : null}
+          {!empty ? (
+            <>
+              {openTheses > 0 ? (
+                <Link to="/theses" className="px-1 text-micro uppercase tracking-wider text-muted hover:text-foreground">
+                  {openTheses} open {openTheses === 1 ? "thesis" : "theses"}
+                </Link>
+              ) : null}
+              <Button type="button" size="sm" variant={composing ? "secondary" : "default"} onClick={() => setComposing((v) => !v)}>
+                {composing ? "Close" : "Save thesis"}
+              </Button>
+            </>
+          ) : null}
+        </div>
       </div>
+      {composing && !empty ? (
+        <ThesisComposer
+          key={event.id}
+          event={event}
+          scenarioId={typeof scenarioParam === "string" ? scenarioParam : null}
+          onClose={() => setComposing(false)}
+        />
+      ) : null}
     </header>
   );
 }
