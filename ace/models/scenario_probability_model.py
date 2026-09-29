@@ -26,7 +26,7 @@ warnings.filterwarnings("ignore")
 from ace.config import RANDOM_SEED, REPORTS
 from ace.data.fred_market import market_panel
 from ace.jsonutil import to_json_safe
-from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
+from ace.registry.registry import ModelRecord, dataframe_hash, evidence_for, register, try_promote, utcnow
 from ace.ripple.transmission import to_returns
 from ace.scenarios.distribution import (
     coverage,
@@ -419,7 +419,7 @@ def main() -> int:
                             residual_hash=res["example_bands"]["residual_hash"])
         else:
             artifact["tail_df"] = res["tail_df_latest"]
-        register(
+        rec = register(
             ModelRecord(
                 model_id=f"{MODEL_ID}_{ch}", model_family=f"har_vol + {family}",
                 model_version=MODEL_VERSION, analysis_type="scenario_probability",
@@ -446,9 +446,23 @@ def main() -> int:
             artifact=artifact,
         )
         if res["passes"]:
-            promote(f"{MODEL_ID}_{ch}", MODEL_VERSION,
+            ok, why = try_promote(f"{MODEL_ID}_{ch}", MODEL_VERSION,
                     reason=f"{family} on {res['n_confirmation']} held-back windows: "
-                           f"PIT KS p={conf['pit']['ks_p_value']}, worst interval miss {res['worst_interval_miss']:.1%}")
+                           f"PIT KS p={conf['pit']['ks_p_value']}, worst interval miss {res['worst_interval_miss']:.1%}",
+                evidence=evidence_for(
+                    rec,
+                    target=rec.target_variable,
+                    horizon=f"{args.horizon} sessions",
+                    metric="PIT KS p-value on held-back windows",
+                    baseline="Gaussian bands",
+                    value=conf["pit"]["ks_p_value"],
+                    n_scored=res["n_confirmation"],
+                    passed=res["passes"],
+                    criteria="family chosen on older windows; PIT uniform and interval misses within tolerance on newer ones",
+                ),
+            )
+            if not ok:
+                print("registry: not promoted — " + "; ".join(why))
 
     out = REPORTS / f"{MODEL_ID}_{MODEL_VERSION}_scorecard.json"
     out.write_text(json.dumps(to_json_safe(results), indent=2, default=str, allow_nan=False))

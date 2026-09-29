@@ -67,7 +67,7 @@ from ace.macro.quads import (
     month_ends,
     quad_history,
 )
-from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, retire, utcnow
+from ace.registry.registry import ModelRecord, dataframe_hash, evidence_for, register, retire, try_promote, utcnow
 
 MODEL_ID = "ace_macro_quad_vol"
 MODEL_VERSION = "v2"
@@ -353,7 +353,7 @@ def main() -> int:
         "sign_stability": {"held": total_held, "usable": total_cells},
         "passes": passes,
     }
-    register(
+    rec = register(
         ModelRecord(
             model_id=MODEL_ID, model_family="growth_inflation_quad", model_version=MODEL_VERSION,
             analysis_type="volatility_regime",
@@ -379,9 +379,23 @@ def main() -> int:
         artifact={"quad_names": QUAD_NAMES},
     )
     if passes:
-        promote(MODEL_ID, MODEL_VERSION,
+        ok, why = try_promote(MODEL_ID, MODEL_VERSION,
                 reason=f"{len(winners)}/{len(ran)} channels beat an AR(1) in log vol "
-                       "after Holm correction")
+                       "after Holm correction",
+            evidence=evidence_for(
+                rec,
+                target=rec.target_variable,
+                horizon="1 month",
+                metric="share of channels where the quad cuts AR(1) log-vol MSE after Holm",
+                baseline="AR(1) log realised vol",
+                value=len(winners) / max(1, len(ran)),
+                n_scored=sum(ran[c]["n_holdout"] for c in ran),
+                passed=passes,
+                criteria="Holm-corrected p and a positive error reduction on at least one channel",
+            ),
+        )
+        if not ok:
+            print("registry: not promoted — " + "; ".join(why))
     else:
         try:
             retire(MODEL_ID, MODEL_VERSION, reason="no channel survives multiplicity correction")

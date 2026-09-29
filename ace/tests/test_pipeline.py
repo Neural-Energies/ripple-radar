@@ -203,6 +203,46 @@ def _isolated_registry(reg, tmp_path, monkeypatch):
     monkeypatch.setattr(reg, "MODELS", tmp_path)
 
 
+def _evidence(reg, model_id="m", **over):
+    base = dict(target="P(event) tomorrow", horizon="1d", metric="Brier skill", baseline="base rate",
+                value=0.02, ci=(0.01, 0.03), n_scored=500, n_events=60, n_non_events=440,
+                passed=True, criteria="CI lower bound above zero")
+    base.update(over)
+    return reg.evidence_for(_record(reg, model_id=model_id), **base)
+
+
+def test_promotion_fails_closed_without_matching_evidence(tmp_path, monkeypatch):
+    """PR #5 B04: promote() checked CANDIDATE status and nothing else."""
+    import ace.registry.registry as reg
+
+    _isolated_registry(reg, tmp_path, monkeypatch)
+    reg.register(_record(reg))
+    for bad, why in (
+        (None, "no evidence manifest"),
+        (_evidence(reg, passed=False), "own gate did not pass"),
+        (_evidence(reg, n_scored=1), "scored observations"),
+        (_evidence(reg, n_events=1), "events/non-events"),
+        (_evidence(reg, model_id="other"), "evidence is for other"),
+        (_evidence(reg, target=""), "no target"),
+        (_evidence(reg, value=float("nan")), "not finite"),
+    ):
+        with pytest.raises(ValueError, match=why):
+            reg.promote("m", "v1", reason="x", evidence=bad)
+        assert reg.production_model("m") is None
+    moved = reg.evidence_for({**_record(reg).to_dict(), "training_dataset_hash": "other-data"}, **{
+        k: v for k, v in _evidence(reg).__dict__.items()
+        if k in ("target", "horizon", "metric", "baseline", "value", "ci", "n_scored", "n_events",
+                 "n_non_events", "passed", "criteria")
+    })
+    with pytest.raises(ValueError, match="different training data"):
+        reg.promote("m", "v1", reason="x", evidence=moved)
+
+    promoted = reg.promote("m", "v1", reason="gate passed", evidence=_evidence(reg))
+    assert promoted["production_status"] == "PRODUCTION"
+    assert promoted["evidence"]["n_scored"] == 500
+    assert len(promoted["evidence_sha256"]) == 16
+
+
 def test_re_registering_over_a_production_row_is_refused(tmp_path, monkeypatch):
     """The defect: a re-run on another channel silently demoted the champion.
 
@@ -215,7 +255,7 @@ def test_re_registering_over_a_production_row_is_refused(tmp_path, monkeypatch):
 
     _isolated_registry(reg, tmp_path, monkeypatch)
     reg.register(_record(reg))
-    reg.promote("m", "v1", reason="gate passed")
+    reg.promote("m", "v1", reason="gate passed", evidence=_evidence(reg))
     assert reg.production_model("m")["production_status"] == "PRODUCTION"
 
     with pytest.raises(ValueError, match="PRODUCTION"):
@@ -229,7 +269,7 @@ def test_retire_then_re_register_is_allowed(tmp_path, monkeypatch):
 
     _isolated_registry(reg, tmp_path, monkeypatch)
     reg.register(_record(reg))
-    reg.promote("m", "v1", reason="gate passed")
+    reg.promote("m", "v1", reason="gate passed", evidence=_evidence(reg))
     retired = reg.retire("m", "v1", reason="holdout no longer clears the gate")
     assert retired["production_status"] == "RETIRED"
     assert "holdout no longer clears the gate" in retired["notes"]
@@ -253,7 +293,7 @@ def test_promote_refuses_anything_that_is_not_a_candidate(tmp_path, monkeypatch)
     _isolated_registry(reg, tmp_path, monkeypatch)
     reg.register(_record(reg, status="FAILED"))
     with pytest.raises(ValueError, match="only a CANDIDATE"):
-        reg.promote("m", "v1", reason="wishful")
+        reg.promote("m", "v1", reason="wishful", evidence=_evidence(reg))
 
 
 def test_per_channel_models_keep_separate_rows(tmp_path, monkeypatch):
@@ -262,7 +302,7 @@ def test_per_channel_models_keep_separate_rows(tmp_path, monkeypatch):
 
     _isolated_registry(reg, tmp_path, monkeypatch)
     reg.register(_record(reg, model_id="fam_SP500"))
-    reg.promote("fam_SP500", "v1", reason="passed on SP500")
+    reg.promote("fam_SP500", "v1", reason="passed on SP500", evidence=_evidence(reg, model_id="fam_SP500"))
     reg.register(_record(reg, model_id="fam_WTI", status="FAILED"))
     assert reg.production_model("fam_SP500") is not None
     assert reg.production_model("fam_WTI") is None

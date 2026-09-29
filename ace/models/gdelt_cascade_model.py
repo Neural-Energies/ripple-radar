@@ -67,7 +67,7 @@ from ace.cascade.hawkes import (
 )
 from ace.config import RANDOM_SEED, REPORTS
 from ace.feeds.gdelt_store import daily_counts_by, event_times, spike_days
-from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
+from ace.registry.registry import ModelRecord, dataframe_hash, evidence_for, register, try_promote, utcnow
 
 MODEL_ID = "ace_gdelt_cascade"
 MODEL_VERSION = "v1"
@@ -423,7 +423,7 @@ def main() -> int:
         # quietly overwriting it; register() refuses the silent path.
         if mid in live:
             retire(mid, MODEL_VERSION, reason=f"superseded by re-run {utcnow()[:10]}")
-        register(
+        rec = register(
             ModelRecord(
                 model_id=f"{MODEL_ID}_{r['code']}", model_family="hawkes_exponential",
                 model_version=MODEL_VERSION, analysis_type="event_cascade",
@@ -453,10 +453,24 @@ def main() -> int:
             artifact={"alpha": r["fit"]["alpha"], "beta": r["fit"]["beta"], "mu": r["fit"]["mu"]},
         )
         if promotable:
-            promote(mid, MODEL_VERSION,
+            ok, why = try_promote(mid, MODEL_VERSION,
                     reason=f"OOS log-lik gain {r['oos_gain']:+.1f} over Poisson, "
                            f"alpha {r['fit']['alpha']:.3f}, pooled Ogata KS p "
-                           f"{spec_primary.get('ks_p_value')}")
+                           f"{spec_primary.get('ks_p_value')}",
+                evidence=evidence_for(
+                    rec,
+                    target=rec.target_variable,
+                    horizon="chronological holdout",
+                    metric="OOS log-likelihood gain over Poisson",
+                    baseline="homogeneous Poisson",
+                    value=r["oos_gain"],
+                    n_scored=r["n_test"],
+                    passed=promotable,
+                    criteria="beats Poisson out of sample, stationary, Ogata residuals accepted",
+                ),
+            )
+            if not ok:
+                print("registry: not promoted — " + "; ".join(why))
     if passing and not promotable:
         print("\nregistry: CANDIDATE, not promoted — the excitation is real but the "
               "intensity's shape is unverified at daily resolution.")

@@ -1,90 +1,137 @@
-"""WP3's exit condition, and Phase 10 of the factor-engine brief, built as one
-piece of machinery rather than two competing ones (they ask the same
-question of two different factor sources).
+"""WP3's exit condition: does a level-regime model forecast an observable
+event better than climatology? (PR #5 B04; also Phase 10's DFM-vs-PCA
+comparison, asked of the same machinery.)
 
-WP3 exit condition: does `ace.regime.mean_vs_variance`'s level-regime read on
-a PRODUCTION-panel factor (housing, financial conditions — the two blocks it
-found a real level regime in) actually forecast anything, scored against
-climatology on purged, point-in-time folds?
+WHAT THE PREVIOUS VERSION GOT WRONG
 
-Phase 10: does substituting a Phase 6/7 comprehensive-panel DOMAIN PCA factor
-for that same block change the answer — does the broader universe's version
-of "housing" or "financial conditions" read the regime better, worse, or the
-same?
+1. Wrong event. It scored P(the factor is in its high-mean state NOW) against
+   "the factor rises over the next six months". Those are different events;
+   a well-calibrated state probability can score badly against the second
+   for no fault of its own.
+2. Wrong date. The outcome was the first reference observation on or AFTER
+   the target date, so a missing month silently became a later one.
+3. Unidentified sign. Each anchor's factor was refit from scratch, and a
+   principal component's or DFM factor's sign is arbitrary per fit, so "rise"
+   could mean opposite things at two anchors.
+4. Too little evidence. Three anchors, and a scorer that would call one
+   favourable anchor significant.
 
-WHY THIS IS AN EXPANDING-WINDOW REFIT AT EACH ANCHOR, NOT A REUSE OF ONE FIT
+THE PROTOCOL, FIXED BEFORE ANY SCORE IS SEEN (`PROTOCOL`, `TARGETS`)
 
-A single full-history fit's "filtered" state at some past date t is filtered
-using PARAMETERS estimated from the WHOLE sample, including everything after
-t — real information leakage, just one level removed from using the smoothed
-state directly (`ace.regime.markov`'s own docstring calls this exact trap out
-for state-level leakage; parameter-level leakage is the same mistake one
-layer down). The only way to get a genuinely as-of-`anchor` regime read is to
-refit BOTH the factor extraction and the regime model using only data through
-`anchor` — the same discipline `ace.factors.pca_research.run_stability`
-already applies to PCA. This module applies it to whichever factor source it
-is handed, DFM or PCA alike.
-
-WHAT COUNTS AS THE OUTCOME
-
-The forward outcome (did the factor rise over the next `HORIZON_MONTHS`) is
-read from ONE reference build made with ALL of today's data — using our BEST
-available reconstruction of what actually happened, which is the correct
-role for a label. The FEATURE (the anchor's regime probability) never sees
-that reference build; only `run_validation`'s outcome lookup does. Climatology
-at each anchor is computed from THAT SAME anchor's own causal history, never
-from the evaluation sample itself, or the comparison Module 10 exists to make
-would be scored against a benchmark that had already seen the answer.
+- Target: an OBSERVABLE per block — housing starts (HOUST) for housing, the
+  VIX for financial conditions (see `TARGETS`). At an anchor whose data end in
+  month m, the event is "the observable in month m+6 is higher than in month
+  m", read from the final vintage. Both months must exist exactly; otherwise
+  the anchor is unavailable, never re-dated.
+- Forecast of that event: the anchor's factor is oriented to correlate
+  positively with the observable using only data published by the anchor.
+  The switching-mean-and-variance model gives, from filtered state
+  probabilities and its transition matrix, P(factor in m+6 > factor in m).
+  That raw probability is mapped onto the observable event by a logistic
+  calibration fitted only on earlier anchors whose labels had been
+  PUBLISHED by this anchor (label availability read from the vintage
+  archive, with the values as then published). Until enough such pairs
+  exist the anchor is burn-in, not a forecast.
+- Climatology: the observable's six-month up-share over every realised pair
+  in the anchor's own vintage.
+- The current latent-state probability is recorded beside each reading as a
+  description. It is not scored as a forecast of anything.
+- Anchors every six months, so outcome windows do not overlap. Scored
+  anchors are split in time order; the verdict is read on the later,
+  untouched confirmation share only, with the sample floor from
+  `ace.regime.climatology.Sufficiency`, a moving-block bootstrap, and the
+  family-wise level divided across every (block, source) comparison run.
+- Every run writes a manifest: protocol, targets, anchors, splits, seed,
+  per-series input hashes, code revision, and its own hash.
 
 Run: `python -m ace.regime.level_regime_validation`
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+import hashlib
+import json
+from dataclasses import asdict, dataclass, field
 from typing import Callable
 
 import numpy as np
 import pandas as pd
+from scipy.stats import norm
 
 from ace.factors.pca import domain_panels, fit as fit_pca
-from ace.regime.climatology import AnchorReading, skill_report
+from ace.regime.climatology import AnchorReading, Sufficiency, skill_report
 from ace.regime.macro_regime import MIN_OBS
 from ace.regime.markov import filtered_probabilities, regime_params
 from ace.regime.mean_vs_variance import _fit as _fit_switching_model
 from ace.state.factors import fit_factors
 from ace.state.panel import PANEL, build_asof
 
-#: How far forward the outcome looks. A couple of quarters — long enough that
-#: a regime read has time to matter, short enough that most anchors have a
-#: fully-realized outcome well before "now".
-HORIZON_MONTHS = 6
 
+@dataclass(frozen=True)
+class Protocol:
+    version: str = "wp3-v2"
+    horizon_months: int = 6
+    anchor_step_months: int = 6
+    first_anchor: str = "1995-01-01"
+    #: Earlier anchors with published labels needed before a calibrated forecast.
+    calibration_min_pairs: int = 12
+    calibration_min_each_class: int = 3
+    #: The later share of scored anchors, held out for the verdict.
+    confirmation_share: float = 0.4
+    sufficiency: Sufficiency = field(default_factory=lambda: Sufficiency(min_n=20, min_events=6, min_non_events=6))
+    #: Family-wise; divided by the number of comparisons in a run.
+    family_alpha: float = 0.05
+    #: |corr| below this leaves the factor's sign undetermined: the anchor is skipped.
+    min_orientation_corr: float = 0.1
+    seed: int = 17
+
+
+@dataclass(frozen=True)
+class Target:
+    block: str
+    domain: str
+    observable: str
+    description: str
+
+
+PROTOCOL = Protocol()
+
+TARGETS = (
+    Target("housing", "housing", "HOUST",
+           "Housing starts in month m+6 above month m, where m is the last month in the anchor's data; final vintage."),
+    # Not NFCI: it was first published in 2011, so no anchor before then could
+    # have seen it, and its archive here starts in 2005. VIX is a market quote,
+    # never revised, observed in real time since 1990. Chosen on data
+    # availability before any score was computed.
+    Target("financial", "financial_conditions", "VIXCLS",
+           "VIX monthly average in month m+6 above month m (more stress); never revised."),
+)
+
+#: A factor source returns the factor as it could have been estimated at `as_of`.
 FactorSource = Callable[[pd.Timestamp], pd.Series]
 
 
-def production_dfm_factor_source(
-    block: str, vintages: dict, specs=PANEL, *, maxiter: int = 80
-) -> FactorSource:
-    """The production DFM's own block factor, refit as of each anchor.
+# ------------------------------------------------------------- sources --
 
-    Column names carry a `.N` suffix when a block has multiplicity > 1 (see
-    `ace.state.factors.fit_factors`); this matches on the prefix before the
-    first `.`, same convention `ace.state.state.build_state` uses to key a
-    `BlockState` off a factor column.
+def production_dfm_factor_source(block: str, vintages: dict, specs=PANEL, *, maxiter: int = 80,
+                                 memo: dict | None = None) -> FactorSource:
+    """The production DFM's block factor, refit as of each anchor.
 
-    `maxiter` is deliberately lower than `fit_factors`'s own default (200):
-    each anchor here only needs a serviceable regime read, not the last digit
-    of likelihood precision, and this function is called once per anchor per
-    block — the full 200 would make a several-anchor validation run for
-    hours rather than minutes on this panel's ~500s-per-fit scale.
+    One DFM fit estimates every block, so fits are memoised per anchor and
+    shared across blocks. `maxiter` is lower than `fit_factors`'s default:
+    each anchor needs a serviceable factor, not the last digit of likelihood.
     """
+    memo = {} if memo is None else memo
+
     def _source(as_of: pd.Timestamp) -> pd.Series:
-        build = build_asof(as_of, vintages, specs=specs)
-        if build.frame.empty:
+        key = str(as_of)
+        if key not in memo:
+            build = build_asof(as_of, vintages, specs=specs)
+            memo[key] = None if build.frame.empty else fit_factors(build, maxiter=maxiter).factors
+        factors = memo[key]
+        if factors is None:
             return pd.Series(dtype=float)
-        fit = fit_factors(build, maxiter=maxiter)
-        col = next((c for c in fit.factors.columns if str(c).split(".")[0] == block), None)
-        return fit.factors[col].dropna() if col else pd.Series(dtype=float)
+        col = next((c for c in factors.columns if str(c).split(".")[0] == block), None)
+        return factors[col].dropna() if col else pd.Series(dtype=float)
     return _source
 
 
@@ -92,114 +139,249 @@ def domain_pca_factor_source(label: str, vintages: dict, specs) -> FactorSource:
     """A Phase 6/7 domain's PC1, refit as of each anchor."""
     def _source(as_of: pd.Timestamp) -> pd.Series:
         build = build_asof(as_of, vintages, specs=specs)
-        panels = domain_panels(build.frame, build.groups)
-        frame = panels.get(label)
+        frame = domain_panels(build.frame, build.groups).get(label)
         if frame is None:
             return pd.Series(dtype=float)
         try:
-            fit = fit_pca(frame, as_of=build.as_of, label=label, k=1)
+            return fit_pca(frame, as_of=build.as_of, label=label, k=1).scores["PC1"]
         except ValueError:
             return pd.Series(dtype=float)
-        return fit.scores["PC1"]
     return _source
 
 
-def _high_mean_probability(series: pd.Series, *, seed: int = 17) -> float | None:
-    """P(the high-mean state), from FILTERED probabilities only.
+def observable_source(series_id: str, vintages: dict, specs=PANEL):
+    """The observable as published at `as_of`: (transformed, levels), monthly."""
+    def _source(as_of: pd.Timestamp) -> tuple[pd.Series, pd.Series]:
+        build = build_asof(as_of, vintages, specs=specs)
+        if series_id not in build.levels:
+            return pd.Series(dtype=float), pd.Series(dtype=float)
+        levels = build.levels[series_id].dropna()
+        transformed = build.frame[series_id].dropna() if series_id in build.frame else levels
+        return transformed, levels
+    return _source
 
-    Reuses `ace.regime.mean_vs_variance`'s own switching-mean-and-variance
-    specification (`_fit`) rather than a second copy of the model, and
-    `ace.regime.markov.regime_params` / `filtered_probabilities` to read it —
-    both already battle-tested by `ace.tests.test_macro_regime`'s ground-truth
-    pin against reading the wrong parameter block by position.
+
+# ------------------------------------------------------------ the model --
+
+def orient(factor: pd.Series, observable: pd.Series, *, min_corr: float) -> tuple[pd.Series, float] | None:
+    """Sign the factor to move with the observable, from the anchor's own data."""
+    both = pd.concat([factor, observable], axis=1, join="inner").dropna()
+    if len(both) < 24:
+        return None
+    corr = float(np.corrcoef(both.iloc[:, 0], both.iloc[:, 1])[0, 1])
+    if not np.isfinite(corr) or abs(corr) < min_corr:
+        return None
+    return (factor if corr > 0 else -factor), corr
+
+
+def _fit(y: pd.Series, seed: int):
+    return _fit_switching_model(y, switching_trend=True, seed=seed)
+
+
+def regime_forecast(res, y_last: float, horizon: int) -> dict:
+    """The switching model's own forecast for `horizon` steps ahead.
+
+    y_t = mu_s + e_t with e_t ~ N(0, sigma_s^2), states Markov. From the
+    filtered state at t and the transition matrix, the state distribution at
+    t+h is C^h pi_t (statsmodels' C[i, j] = P(next=i | now=j)), and
+    P(y_{t+h} > y_t) = sum_s pi_{t+h}(s) * (1 - Phi((y_t - mu_s) / sigma_s)).
     """
-    y = series.dropna()
-    if len(y) < MIN_OBS:
+    means, variances = regime_params(res, 2)
+    C = np.asarray(res.regime_transition).reshape(2, 2)
+    pi_t = np.asarray(filtered_probabilities(res))[-1].ravel()
+    pi_h = np.linalg.matrix_power(C, horizon) @ pi_t
+    sd = np.sqrt(np.maximum(np.asarray(variances, dtype=float), 1e-12))
+    p_rise = float(np.sum(pi_h * (1 - norm.cdf((y_last - np.asarray(means)) / sd))))
+    high = int(np.argmax(means))
+    return {"p_rise": float(np.clip(p_rise, 1e-6, 1 - 1e-6)), "p_high_state_now": float(pi_t[high])}
+
+
+def _logit(p: np.ndarray) -> np.ndarray:
+    p = np.clip(p, 1e-6, 1 - 1e-6)
+    return np.log(p / (1 - p))
+
+
+def calibrate(raw_history: list[float], labels: list[float], raw_now: float) -> float:
+    """Logistic calibration on earlier (raw, label) pairs only, lightly
+    regularised so a short history cannot produce a certainty."""
+    from sklearn.linear_model import LogisticRegression
+
+    x = _logit(np.asarray(raw_history, dtype=float)).reshape(-1, 1)
+    model = LogisticRegression(C=1.0).fit(x, np.asarray(labels, dtype=int))
+    return float(model.predict_proba(_logit(np.array([raw_now])).reshape(-1, 1))[0, 1])
+
+
+# ------------------------------------------------------------ the event --
+
+def _month(ts) -> pd.Timestamp:
+    t = pd.Timestamp(ts)
+    if t.tzinfo is not None:
+        t = t.tz_convert(None)
+    return t.to_period("M").to_timestamp()
+
+
+def _monthly(levels: pd.Series) -> pd.Series:
+    s = levels.copy()
+    s.index = [_month(i) for i in s.index]
+    return s[~s.index.duplicated(keep="last")].sort_index()
+
+
+def exact_event(levels: pd.Series, month: pd.Timestamp, horizon: int) -> float | None:
+    """1.0 if the level in month+horizon exceeds month's, else 0.0; None
+    unless BOTH months are observed exactly. Never substitutes a later month."""
+    s = _monthly(levels)
+    m0 = _month(month)
+    m1 = m0 + pd.DateOffset(months=horizon)
+    if m0 not in s.index or m1 not in s.index:
         return None
-    try:
-        res = _fit_switching_model(y, switching_trend=True, seed=seed)
-        means, _ = regime_params(res, 2)
-    except Exception:  # noqa: BLE001 — an unfittable anchor is a skipped anchor
+    a, b = float(s.loc[m0]), float(s.loc[m1])
+    if not (np.isfinite(a) and np.isfinite(b)):
         return None
-    high_idx = int(np.argmax(means))
-    probs = filtered_probabilities(res)
-    last = np.asarray(probs[-1] if probs.ndim == 2 else probs[:, -1]).ravel()
-    if high_idx >= len(last):
+    return 1.0 if b > a else 0.0
+
+
+def climatology_at(levels: pd.Series, horizon: int) -> float | None:
+    """Share of realised month-to-month+h rises in the vintage the anchor had."""
+    s = _monthly(levels).dropna()
+    if s.empty:
         return None
-    return float(last[high_idx])
-
-
-def forward_direction_outcomes(series: pd.Series, horizon_periods: int) -> pd.Series:
-    """1.0 if the series is higher `horizon_periods` steps ahead, else 0.0.
-
-    NaN (and so dropped) wherever the future value does not exist yet — this
-    IS the purge: an anchor within `horizon_periods` of a series' own last
-    observation has no label to score against and is excluded rather than
-    filled in.
-    """
-    future = series.shift(-horizon_periods)
-    return (future > series).astype(float).where(future.notna())
-
-
-def _climatology_rate_at(series: pd.Series, horizon_periods: int) -> float | None:
-    """The share of ALREADY-REALIZED transitions that were "up", using only
-    data at or before the anchor `series` was built through — see the module
-    docstring for why this must not be computed from the evaluation sample.
-    """
-    outcomes = forward_direction_outcomes(series, horizon_periods).dropna()
-    if outcomes.empty:
+    full = s.reindex(pd.date_range(s.index.min(), s.index.max(), freq="MS"))
+    future = full.shift(-horizon)
+    ok = full.notna() & future.notna()
+    if not ok.any():
         return None
-    return float(outcomes.mean())
+    return float((future[ok] > full[ok]).mean())
 
 
-def run_validation(
+# ------------------------------------------------------------ the run --
+
+@dataclass
+class AnchorRow:
+    anchor: str
+    month: str
+    raw: float
+    p_high_state_now: float
+    orientation_corr: float
+    climatology: float
+    outcome: float
+    #: Labels of earlier anchors as published by this anchor: (anchor, label).
+    known_labels: list[tuple[str, float]]
+    calibrated: float | None = None
+
+
+def anchors_for(protocol: Protocol, last_label_month: pd.Timestamp) -> pd.DatetimeIndex:
+    """Every anchor whose target month can already have been observed."""
+    last = _month(last_label_month) - pd.DateOffset(months=protocol.horizon_months)
+    return pd.date_range(protocol.first_anchor, last, freq=f"{protocol.anchor_step_months}MS", tz="UTC")
+
+
+def collect(
     source: FactorSource,
-    reference: pd.Series,
+    observable_at: Callable[[pd.Timestamp], tuple[pd.Series, pd.Series]],
+    final_levels: pd.Series,
     anchors: pd.DatetimeIndex,
-    *,
-    horizon_periods: int = HORIZON_MONTHS,
-) -> dict:
-    """One `AnchorReading` per anchor with enough data, scored against climatology."""
-    readings: list[AnchorReading] = []
+    protocol: Protocol = PROTOCOL,
+) -> tuple[list[AnchorRow], dict[str, str]]:
+    """One raw reading per usable anchor, and why each other anchor was not usable."""
+    rows: list[AnchorRow] = []
     skipped: dict[str, str] = {}
+    months: dict[str, pd.Timestamp] = {}
+    h = protocol.horizon_months
     for anchor in anchors:
-        history = source(anchor)
-        if history.empty or len(history.dropna()) < MIN_OBS:
-            skipped[str(anchor.date())] = f"only {len(history.dropna())} observations"
+        key = str(anchor.date())
+        factor = source(anchor).dropna()
+        if len(factor) < MIN_OBS:
+            skipped[key] = f"factor has {len(factor)} observations, need {MIN_OBS}"
             continue
-
-        model_p = _high_mean_probability(history)
-        if model_p is None:
-            skipped[str(anchor.date())] = "switching-model fit failed or too short"
+        transformed, levels_then = observable_at(anchor)
+        oriented = orient(factor, transformed, min_corr=protocol.min_orientation_corr)
+        if oriented is None:
+            skipped[key] = "factor sign undetermined against the observable"
             continue
-        clim_p = _climatology_rate_at(history, horizon_periods)
-        if clim_p is None:
-            skipped[str(anchor.date())] = "no realized transitions yet for climatology"
+        factor, corr = oriented
+        month = _month(factor.index.max())
+        outcome = exact_event(final_levels, month, h)
+        if outcome is None:
+            skipped[key] = f"observable not published for both {month.date()} and +{h}m in the final vintage"
             continue
-
-        target_date = pd.Timestamp(history.index.max()) + pd.DateOffset(months=horizon_periods)
-        ref = reference.dropna()
-        future_idx = ref.index[ref.index >= target_date]
-        anchor_value = ref.asof(history.index.max())
-        if future_idx.empty or anchor_value is None or not np.isfinite(anchor_value):
-            skipped[str(anchor.date())] = "reference series has no realized future value yet"
+        clim = climatology_at(levels_then, h)
+        if clim is None:
+            skipped[key] = "no realised pairs for climatology in the anchor's vintage"
             continue
-        future_value = float(ref.loc[future_idx[0]])
-        outcome = 1.0 if future_value > float(anchor_value) else 0.0
+        try:
+            res = _fit(factor, protocol.seed)
+            fc = regime_forecast(res, float(factor.iloc[-1]), h)
+        except Exception as err:  # noqa: BLE001 — an unfittable anchor is skipped, and says why
+            skipped[key] = f"switching fit failed: {type(err).__name__}"
+            continue
+        # Earlier anchors' labels as published by THIS anchor (values as then published).
+        known = []
+        for prev in rows:
+            label = exact_event(levels_then, months[prev.anchor], h)
+            if label is not None:
+                known.append((prev.anchor, label))
+        months[key] = month
+        rows.append(AnchorRow(key, str(month.date()), fc["p_rise"], fc["p_high_state_now"], round(corr, 4),
+                              clim, outcome, known))
+    return rows, skipped
 
-        readings.append(AnchorReading(
-            as_of=str(anchor.date()), model_probability=model_p,
-            climatology_probability=clim_p, outcome=outcome,
-        ))
 
-    report = skill_report(readings)
-    report["skipped"] = skipped
-    report["horizon_months"] = horizon_periods
-    return report
+def calibrate_rows(rows: list[AnchorRow], protocol: Protocol = PROTOCOL) -> tuple[list[AnchorRow], dict[str, str]]:
+    """Attach the forward-chained calibrated probability; burn-in anchors are dropped."""
+    raw = {r.anchor: r.raw for r in rows}
+    scored: list[AnchorRow] = []
+    burn: dict[str, str] = {}
+    for r in rows:
+        pairs = [(raw[a], y) for a, y in r.known_labels]
+        ys = [y for _, y in pairs]
+        if len(pairs) < protocol.calibration_min_pairs or min(ys.count(0.0), ys.count(1.0)) < protocol.calibration_min_each_class:
+            burn[r.anchor] = f"calibration burn-in: {len(pairs)} published earlier labels"
+            continue
+        r.calibrated = calibrate([p for p, _ in pairs], ys, r.raw)
+        scored.append(r)
+    return scored, burn
+
+
+def evaluate(scored: list[AnchorRow], *, comparisons: int, protocol: Protocol = PROTOCOL) -> dict:
+    """Development and confirmation reports; the verdict is the confirmation one."""
+    n_conf = int(np.ceil(len(scored) * protocol.confirmation_share))
+    dev, conf = scored[: len(scored) - n_conf], scored[len(scored) - n_conf:]
+    alpha = protocol.family_alpha / max(1, comparisons)
+
+    def readings(rs):
+        return [AnchorReading(r.anchor, r.calibrated, r.climatology, r.outcome) for r in rs]
+
+    confirmation = skill_report(readings(conf), sufficiency=protocol.sufficiency, alpha=alpha, seed=protocol.seed)
+    development = skill_report(readings(dev), sufficiency=protocol.sufficiency, alpha=alpha, seed=protocol.seed)
+    return {
+        "verdict": confirmation["verdict"],
+        "alpha_per_comparison": round(alpha, 6),
+        "split": {
+            "development": [dev[0].anchor, dev[-1].anchor] if dev else None,
+            "confirmation": [conf[0].anchor, conf[-1].anchor] if conf else None,
+        },
+        "confirmation": confirmation,
+        "development": development,
+        "rows": [asdict(r) | {"known_labels": len(r.known_labels)} for r in scored],
+    }
+
+
+# ------------------------------------------------------------ manifest --
+
+def series_hash(frame: pd.DataFrame | pd.Series) -> str:
+    return hashlib.sha256(pd.util.hash_pandas_object(frame, index=True).values.tobytes()).hexdigest()[:16]
+
+
+def input_hashes(vintages: dict, ids) -> dict[str, str]:
+    return {sid: series_hash(vintages[sid]) for sid in sorted(ids) if sid in vintages}
+
+
+def seal(payload: dict) -> str:
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()
 
 
 def main() -> None:
-    import json
+    import subprocess
 
     from ace.config import ROOT
     from ace.factors.universe_panel import default_panel
@@ -207,59 +389,68 @@ def main() -> None:
     from ace.state.panel import load_vintages
 
     now = pd.Timestamp.now(tz="UTC")
-    # Three anchors, ~6 years apart: enough to see whether the relationship is
-    # even directionally consistent without multiplying an ~80-iteration DFM
-    # refit (still several minutes each on this panel) past what this
-    # session's compute budget can absorb across two blocks. Honestly a low-
-    # power design — `ace.regime.climatology.skill_report`'s bootstrap CI on
-    # this few anchors will usually be wide, and that width is itself part of
-    # the honest answer, not a reason to inflate the anchor count silently.
-    anchors = pd.date_range("2010-01-01", "2022-01-01", freq="72MS", tz="UTC")
-
+    protocol = PROTOCOL
     production_vintages = load_vintages(PANEL)
     comprehensive_specs, _ = default_panel()
     comprehensive_vintages = load_vintages(comprehensive_specs)
+    dfm_memo: dict = {}
+
+    plans = []
+    for target in TARGETS:
+        obs_at = observable_source(target.observable, production_vintages)
+        _, final_levels = obs_at(now)
+        if final_levels.empty:
+            print(f"{target.observable}: not in the production panel — skipping {target.block}")
+            continue
+        anchors = anchors_for(protocol, final_levels.index.max())
+        plans.append((target, "dfm", production_dfm_factor_source(target.block, production_vintages, memo=dfm_memo),
+                      obs_at, final_levels, anchors))
+        plans.append((target, "domain_pca",
+                      domain_pca_factor_source(target.domain, comprehensive_vintages, comprehensive_specs),
+                      obs_at, final_levels, anchors))
 
     results: dict[str, dict] = {}
-    for block, domain_label in (("housing", "housing"), ("financial", "financial_conditions")):
-        print(f"\n=== {block} (production DFM) vs {domain_label} (domain PCA) ===")
+    for target, name, source, obs_at, final_levels, anchors in plans:
+        print(f"=== {target.block} · {name}: {len(anchors)} anchors", flush=True)
+        rows, skipped = collect(source, obs_at, final_levels, anchors, protocol)
+        scored, burn = calibrate_rows(rows, protocol)
+        report = evaluate(scored, comparisons=len(plans), protocol=protocol)
+        report["skipped"] = skipped
+        report["burn_in"] = burn
+        report["anchors_considered"] = len(anchors)
+        results.setdefault(target.block, {})[name] = report
+        c = report["confirmation"]
+        print(f"    {report['verdict']} (confirmation n={c['n_anchors']}, skill={c.get('skill')})", flush=True)
 
-        dfm_source = production_dfm_factor_source(block, production_vintages)
-        reference = dfm_source(now)
-        if reference.empty:
-            print(f"  production block {block!r} not found in this fit — skipping")
-            continue
-        dfm_report = run_validation(dfm_source, reference, anchors)
-        print(f"  DFM:  {dfm_report['verdict']}  "
-              f"(skill={dfm_report['skill']}, n={dfm_report['n_anchors']})")
-
-        pca_source = domain_pca_factor_source(domain_label, comprehensive_vintages, comprehensive_specs)
-        pca_reference = pca_source(now)
-        if pca_reference.empty:
-            print(f"  domain {domain_label!r} not found in the comprehensive panel — skipping")
-            results[block] = {"dfm": dfm_report}
-            continue
-        pca_report = run_validation(pca_source, pca_reference, anchors)
-        print(f"  PCA:  {pca_report['verdict']}  "
-              f"(skill={pca_report['skill']}, n={pca_report['n_anchors']})")
-
-        results[block] = {"dfm": dfm_report, "domain_pca": pca_report}
-
+    try:
+        git_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    except Exception:  # noqa: BLE001
+        git_sha = "unknown"
+    manifest = {
+        "protocol": asdict(protocol),
+        "targets": [asdict(t) for t in TARGETS],
+        "comparisons": [[p[0].block, p[1]] for p in plans],
+        "anchors": {p[0].block: [str(a.date()) for a in p[5]] for p in plans},
+        "code": {"git_sha": git_sha, "module": __name__},
+        "inputs": {
+            "production_panel": input_hashes(production_vintages, {s.series_id for s in PANEL}),
+            "comprehensive_panel": input_hashes(comprehensive_vintages, {s.series_id for s in comprehensive_specs}),
+        },
+        "results_sha256": seal(results),
+    }
+    manifest["manifest_sha256"] = seal(manifest)
     out = {
         "generated": str(now.date()),
-        "question": (
-            "Does a level-regime probability forecast the factor's own forward "
-            "direction better than climatology — and does a Phase 6/7 domain PCA "
-            "factor do this better, worse, or the same as the production DFM's?"
-        ),
-        "anchors": [str(a.date()) for a in anchors],
-        "horizon_months": HORIZON_MONTHS,
+        "question": ("Does a level-regime model's probability of a pre-registered observable event "
+                     "beat point-in-time climatology on untouched chronological confirmation, and does "
+                     "the comprehensive-panel domain PCA factor do better or worse than the production DFM's?"),
+        "manifest": manifest,
         "results": results,
     }
     path = ROOT / "artifacts" / "reports" / "macro_level_regime_validation.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(to_json_safe(out), indent=2, sort_keys=True, default=str, allow_nan=False))
-    print(f"\nwrote {path}")
+    print(f"\nwrote {path}\nmanifest {manifest['manifest_sha256']}")
 
 
 if __name__ == "__main__":

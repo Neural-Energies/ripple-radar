@@ -50,7 +50,7 @@ from ace.data.fred_market import market_panel
 from ace.jsonutil import to_json_safe
 from ace.metrics.classification import evaluate, reliability_table
 from ace.news.indices import news_features, news_panel
-from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
+from ace.registry.registry import ModelRecord, dataframe_hash, evidence_for, register, try_promote, utcnow
 from ace.ripple.transmission import to_returns
 from ace.validation.leakage import assert_probabilities, assert_split_is_chronological
 from ace.validation.walkforward import walk_forward_folds
@@ -282,7 +282,7 @@ def main() -> int:
         "pooled": pooled, "best": best_pool, "lift_over_markov": lift_pool,
         "lift_ci": [lo_p, hi_p], "channels_passing": n_pass, "reliability": rel, "passes": passes,
     }
-    register(
+    rec = register(
         ModelRecord(
             model_id=MODEL_ID, model_family="two_slice_dbn", model_version=MODEL_VERSION,
             analysis_type="event_probability",
@@ -314,8 +314,25 @@ def main() -> int:
         artifact={"structures": SPECS},
     )
     if passes:
-        promote(MODEL_ID, MODEL_VERSION,
-                reason=f"pooled BSS lift {lift_pool:+.4f} over Markov, CI [{lo_p:+.4f},{hi_p:+.4f}]")
+        ok, why = try_promote(MODEL_ID, MODEL_VERSION,
+                reason=f"pooled BSS lift {lift_pool:+.4f} over Markov, CI [{lo_p:+.4f},{hi_p:+.4f}]",
+            evidence=evidence_for(
+                rec,
+                target=rec.target_variable,
+                horizon="1 session",
+                metric="pooled Brier skill lift over a Markov chain",
+                baseline="first-order Markov chain of the target",
+                value=lift_pool,
+                ci=(lo_p, hi_p),
+                n_scored=len(y_pool),
+                n_events=int(np.sum(y_pool)),
+                n_non_events=int(len(y_pool) - np.sum(y_pool)),
+                passed=passes,
+                criteria="pooled lift CI excludes zero, BSS > 0, majority of channels pass",
+            ),
+        )
+        if not ok:
+            print("registry: not promoted — " + "; ".join(why))
 
     out = REPORTS / f"{MODEL_ID}_{MODEL_VERSION}_scorecard.json"
     out.write_text(json.dumps(to_json_safe(scorecard), indent=2, default=str, allow_nan=False))

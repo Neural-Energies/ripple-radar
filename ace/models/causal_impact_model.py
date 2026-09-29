@@ -43,7 +43,7 @@ from ace.causal.refute import refute_all
 from ace.config import RANDOM_SEED, REPORTS
 from ace.data.fred_market import market_panel
 from ace.data.series import shock_series
-from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
+from ace.registry.registry import ModelRecord, dataframe_hash, evidence_for, register, try_promote, utcnow
 from ace.ripple.transmission import to_returns
 
 MODEL_ID = "ace_causal_impact"
@@ -338,7 +338,7 @@ def main() -> int:
                  "claim_tier": "predictive" if n_causal == 0 else "mixed",
                  "machinery_validated": machinery["passes"],
                  "promotable": promotable}
-    register(
+    rec = register(
         ModelRecord(
             model_id=MODEL_ID, model_family="scm_backdoor_plus_local_projection",
             model_version=MODEL_VERSION, analysis_type="causal_effect",
@@ -376,10 +376,24 @@ def main() -> int:
         artifact={"pairs": PAIRS},
     )
     if promotable:
-        promote(MODEL_ID, MODEL_VERSION,
+        ok, why = try_promote(MODEL_ID, MODEL_VERSION,
                 reason=f"recovers a planted ATE within {RECOVERY_TOLERANCE}; "
                        f"{n_persist} causally identified pair(s) with a response "
-                       "outliving the same day")
+                       "outliving the same day",
+            evidence=evidence_for(
+                rec,
+                target=rec.target_variable,
+                horizon="local-projection horizons 0-8",
+                metric="causally identified pairs with a response beyond the same day",
+                baseline="no effect (pre-trend placebo)",
+                value=n_persist,
+                n_scored=min((min(r["impulse_response"]["n"]) for r in ran if r["identified_strict"] and r["persists_beyond_same_day"]), default=0),
+                passed=promotable,
+                criteria="planted ATE recovered; identified pair with a persistent, multiplicity-corrected response",
+            ),
+        )
+        if not ok:
+            print("registry: not promoted — " + "; ".join(why))
     else:
         print(f"\nregistry: {status} — the estimators are validated; no market pair "
               "produced a claim ACE may act on")

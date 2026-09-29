@@ -37,7 +37,7 @@ from ace.cascade.hawkes import (
 )
 from ace.config import REPORTS
 from ace.data.fred_market import market_panel
-from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
+from ace.registry.registry import ModelRecord, dataframe_hash, evidence_for, register, try_promote, utcnow
 from ace.ripple.transmission import to_returns
 
 MODEL_ID = "ace_event_cascade"
@@ -154,7 +154,7 @@ def main() -> int:
     print("=" * 78)
 
     for ch, res in results.items():
-        register(
+        rec = register(
             ModelRecord(
                 model_id=f"{MODEL_ID}_{ch}", model_family="hawkes_exponential",
                 model_version=MODEL_VERSION, analysis_type="event_cascade",
@@ -177,8 +177,22 @@ def main() -> int:
             artifact={"mu": res["fit"]["mu"], "alpha": res["fit"]["alpha"], "beta": res["fit"]["beta"]},
         )
         if res["passes"]:
-            promote(f"{MODEL_ID}_{ch}", MODEL_VERSION,
-                    reason=f"LR p={res['fit']['lr_p_value']}, OOS log-lik gain {res['oos_gain']:+.1f}")
+            ok, why = try_promote(f"{MODEL_ID}_{ch}", MODEL_VERSION,
+                    reason=f"LR p={res['fit']['lr_p_value']}, OOS log-lik gain {res['oos_gain']:+.1f}",
+                evidence=evidence_for(
+                    rec,
+                    target=rec.target_variable,
+                    horizon="out of sample, after " + SPLIT,
+                    metric="OOS log-likelihood gain over Poisson",
+                    baseline="homogeneous Poisson",
+                    value=res["oos_gain"],
+                    n_scored=res["n_test"],
+                    passed=res["passes"],
+                    criteria="LR test beats Poisson, OOS gain > 0, stationary branching ratio",
+                ),
+            )
+            if not ok:
+                print("registry: not promoted — " + "; ".join(why))
 
     out = REPORTS / f"{MODEL_ID}_{MODEL_VERSION}_scorecard.json"
     out.write_text(json.dumps(results, indent=2, default=str))

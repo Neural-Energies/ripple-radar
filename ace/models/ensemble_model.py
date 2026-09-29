@@ -56,7 +56,7 @@ from ace.ensemble.members import (
 from ace.ensemble.stack import EnsembleWeights, apply_ensemble, fit_ensemble, log_score
 from ace.jsonutil import to_json_safe
 from ace.metrics.classification import evaluate, reliability_table
-from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
+from ace.registry.registry import ModelRecord, dataframe_hash, evidence_for, register, try_promote, utcnow
 from ace.ripple.transmission import to_returns
 from ace.validation.leakage import assert_probabilities, assert_split_is_chronological
 from ace.validation.walkforward import walk_forward_folds
@@ -416,7 +416,7 @@ def main() -> int:
         "beats_base_rate": beats_base, "beats_best_member": beats_best_member,
         "reliability": rel, "passes": passes,
     }
-    register(
+    rec = register(
         ModelRecord(
             model_id=MODEL_ID, model_family="stacked_ensemble", model_version=MODEL_VERSION,
             analysis_type="event_probability",
@@ -451,11 +451,28 @@ def main() -> int:
     )
     if passes:
         v = pooled_vs_base["ensemble"]
-        promote(MODEL_ID, MODEL_VERSION,
+        ok, why = try_promote(MODEL_ID, MODEL_VERSION,
                 reason=f"BSS {v['bss']:+.4f} over the base rate, corrected CI "
                        f"[{v['ci_corrected'][0]:+.4f},{v['ci_corrected'][1]:+.4f}]; "
                        f"lift over {best_pool} alone {lift_pool:+.4f} "
-                       f"(CI [{lo_p:+.4f},{hi_p:+.4f}]) is not established")
+                       f"(CI [{lo_p:+.4f},{hi_p:+.4f}]) is not established",
+            evidence=evidence_for(
+                rec,
+                target=rec.target_variable,
+                horizon=f"{HORIZON} sessions",
+                metric="pooled Brier skill over the base rate",
+                baseline="training base rate",
+                value=v["bss"],
+                ci=v["ci_corrected"],
+                n_scored=len(y_pool),
+                n_events=int(np.sum(y_pool)),
+                n_non_events=int(len(y_pool) - np.sum(y_pool)),
+                passed=passes,
+                criteria="multiplicity-corrected CI on BSS over the base rate excludes zero",
+            ),
+        )
+        if not ok:
+            print("registry: not promoted — " + "; ".join(why))
 
     out = REPORTS / f"{MODEL_ID}_{MODEL_VERSION}_scorecard.json"
     out.write_text(json.dumps(to_json_safe(scorecard), indent=2, default=str, allow_nan=False))

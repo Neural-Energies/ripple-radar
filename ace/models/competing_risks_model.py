@@ -38,7 +38,7 @@ warnings.filterwarnings("ignore")
 from ace.config import REPORTS
 from ace.jsonutil import to_json_safe
 from ace.feeds.usgs import earthquakes
-from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
+from ace.registry.registry import ModelRecord, dataframe_hash, evidence_for, register, try_promote, utcnow
 from ace.survival.competing import calibration_by_horizon, fit_competing_risks
 
 MODEL_ID = "ace_competing_risks"
@@ -174,7 +174,7 @@ def main() -> int:
     print("=" * 76)
 
     status = "CANDIDATE" if passes else "FAILED"
-    register(
+    rec = register(
         ModelRecord(
             model_id=MODEL_ID, model_family="aalen_johansen", model_version=MODEL_VERSION,
             analysis_type="competing_risks_next_event",
@@ -199,7 +199,21 @@ def main() -> int:
         artifact={"cif": fit.to_dict()},
     )
     if passes:
-        promote(MODEL_ID, MODEL_VERSION, reason=f"worst OOS calibration error {worst:.1%}")
+        ok, why = try_promote(MODEL_ID, MODEL_VERSION, reason=f"worst OOS calibration error {worst:.1%}",
+            evidence=evidence_for(
+                rec,
+                target=rec.target_variable,
+                horizon=f"{WINDOW_DAYS:.0f} days",
+                metric="worst out-of-sample calibration error",
+                baseline="marginal cause shares",
+                value=worst,
+                n_scored=len(te),
+                passed=passes,
+                criteria="worst OOS calibration error <= 10% and below the marginal baseline",
+            ),
+        )
+        if not ok:
+            print("registry: not promoted — " + "; ".join(why))
 
     out = REPORTS / f"{MODEL_ID}_{MODEL_VERSION}_scorecard.json"
     out.write_text(json.dumps(to_json_safe({

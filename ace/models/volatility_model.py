@@ -29,7 +29,7 @@ warnings.filterwarnings("ignore")
 from ace.config import RANDOM_SEED, REPORTS
 from ace.data.fred_market import market_panel
 from ace.metrics.bootstrap import block_bootstrap_ci
-from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
+from ace.registry.registry import ModelRecord, dataframe_hash, evidence_for, register, try_promote, utcnow
 from ace.ripple.transmission import to_returns
 from ace.volatility.har import EPS, forward_vol, har_features, qlike, score
 
@@ -217,10 +217,24 @@ def main() -> int:
     )
     register(record, artifact={"champion": champion, "features": [c for c in d.columns if c != "y"]})
     if passes:
-        promote(f"{MODEL_ID}_{args.channel}", MODEL_VERSION,
-                reason=f"{champion} R2(log)={hold_reports[champion].r2_log:+.4f} vs naive "
-                       f"{hold_reports[naive].r2_log:+.4f}, gap CI [{lo:+.4f},{hi:+.4f}]")
-        print(f"\nregistry: PROMOTED to PRODUCTION")
+        ok, why = try_promote(
+            f"{MODEL_ID}_{args.channel}", MODEL_VERSION,
+            reason=f"{champion} R2(log)={hold_reports[champion].r2_log:+.4f} vs naive "
+                   f"{hold_reports[naive].r2_log:+.4f}, gap CI [{lo:+.4f},{hi:+.4f}]",
+            evidence=evidence_for(
+                record,
+                target=record.target_variable,
+                horizon=f"{args.horizon} sessions",
+                metric="holdout R2(log) lift over the naive forecast",
+                baseline=naive,
+                value=lift,
+                ci=(lo, hi),
+                n_scored=int(hold_mask.sum()),
+                passed=passes,
+                criteria="beats the historical mean and the naive forecast on the holdout, gap CI > 0, R2(log) > 0",
+            ),
+        )
+        print(f"\nregistry: {'PROMOTED to PRODUCTION' if ok else 'not promoted — ' + '; '.join(why)}")
 
     out = REPORTS / f"{MODEL_ID}_{MODEL_VERSION}_{args.channel}_scorecard.json"
     out.write_text(json.dumps({

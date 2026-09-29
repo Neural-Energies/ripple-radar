@@ -57,7 +57,7 @@ from ace.macro.quads import (
     quad_history,
     transitions,
 )
-from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
+from ace.registry.registry import ModelRecord, dataframe_hash, evidence_for, register, try_promote, utcnow
 
 MODEL_ID = "ace_macro_quad"
 MODEL_VERSION = "v2"
@@ -248,7 +248,7 @@ def main() -> int:
         "transitions": tmat.to_dict(),
         "passes": passes,
     }
-    register(
+    rec = register(
         ModelRecord(
             model_id=MODEL_ID, model_family="growth_inflation_quad", model_version=MODEL_VERSION,
             analysis_type="macro_regime",
@@ -276,8 +276,22 @@ def main() -> int:
         artifact={"quad_names": QUAD_NAMES},
     )
     if passes:
-        promote(MODEL_ID, MODEL_VERSION,
-                reason=f"{len(winners)}/{len(ran)} channels beat always-long out of sample")
+        ok, why = try_promote(MODEL_ID, MODEL_VERSION,
+                reason=f"{len(winners)}/{len(ran)} channels beat always-long out of sample",
+            evidence=evidence_for(
+                rec,
+                target=rec.target_variable,
+                horizon=f"{args.horizon} month(s)",
+                metric="share of channels beating always-long out of sample",
+                baseline="always long the same asset",
+                value=len(winners) / max(1, len(ran)),
+                n_scored=sum(results[c]["n_holdout"] for c in ran),
+                passed=passes,
+                criteria="max(2, n/3) channels beat always-long and over half of cells keep their sign",
+            ),
+        )
+        if not ok:
+            print("registry: not promoted — " + "; ".join(why))
 
     out = REPORTS / f"{MODEL_ID}_{MODEL_VERSION}_scorecard.json"
     out.write_text(json.dumps(scorecard, indent=2, default=str))
