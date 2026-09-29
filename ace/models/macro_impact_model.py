@@ -37,7 +37,7 @@ from ace.validation.leakage import assert_probabilities
 from ace.validation.walkforward import sealed_split, walk_forward_folds
 
 MODEL_ID = "ace_macro_impact"
-MODEL_VERSION = "v1"
+MODEL_VERSION = "v2"
 CHANNEL = "SP500"
 LABEL_HORIZON_DAYS = 8
 EMBARGO_DAYS = 3
@@ -102,7 +102,8 @@ def _run_target(df: pd.DataFrame, feats: list[str], y: np.ndarray, label: str, s
         print(f"  {n:<10} BSS={r.brier_skill_score:+.4f}  logloss={r.log_loss:.4f}  AUC={auc}  ECE={r.ece:.4f}")
 
     challenger = max((n for n in names if n != "base_rate"), key=lambda n: wf[n].brier_skill_score)
-    cal, note = fit_calibrator(y_oof, np.concatenate(oof[challenger]), base_rate=br)
+    fold_groups = np.concatenate([np.full(len(yf), i) for i, yf in enumerate(oof_y)])
+    cal, note = fit_calibrator(y_oof, np.concatenate(oof[challenger]), base_rate=br, groups=fold_groups)
     print(f"challenger: {challenger} | calibration: {note}")
 
     final = logistic_baseline(seed) if challenger == "logistic" else _lightgbm(seed)

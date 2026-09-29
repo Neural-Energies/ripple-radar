@@ -40,7 +40,7 @@ import statsmodels.api as sm
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 warnings.filterwarnings("ignore")
 
-from ace.calibration.calibrate import fit_calibrator
+from ace.calibration.calibrate import calibrate_members
 from ace.cascade.hawkes import fit_hawkes
 from ace.config import RANDOM_SEED, REPORTS
 from ace.data.fred_market import market_panel
@@ -54,6 +54,7 @@ from ace.ensemble.members import (
     volatility_event_probability,
 )
 from ace.ensemble.stack import EnsembleWeights, apply_ensemble, fit_ensemble, log_score
+from ace.jsonutil import to_json_safe
 from ace.metrics.classification import evaluate, reliability_table
 from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
 from ace.ripple.transmission import to_returns
@@ -62,7 +63,7 @@ from ace.validation.walkforward import walk_forward_folds
 from ace.volatility.har import har_features
 
 MODEL_ID = "ace_event_ensemble"
-MODEL_VERSION = "v1"
+MODEL_VERSION = "v2"
 HORIZON = 5                  # sessions
 LABEL_HORIZON_DAYS = 7       # calendar days spanned by a 5-session label
 EMBARGO_DAYS = 2
@@ -170,25 +171,30 @@ def run_channel(panel: pd.DataFrame, channel: str, seed: int) -> dict:
 
     # Out-of-fold member predictions over the training window.
     oof = {m: np.full(len(train), np.nan) for m in MEMBERS}
+    fold_of = np.full(len(train), -1)
     for f in folds:
         preds = _fit_members(train.iloc[f.train_idx], train.iloc[f.valid_idx],
                              panel, returns, origin)
         for m in MEMBERS:
             oof[m][f.valid_idx] = preds[m]
+        fold_of[f.valid_idx] = f.index
 
     seen = np.all([np.isfinite(oof[m]) for m in MEMBERS], axis=0)
     y_oof = train["y"].to_numpy()[seen]
+    groups = fold_of[seen]
     rate = float(train["y"].mean())
 
-    calibrators, cal_names = {}, {}
-    P_oof = np.empty((int(seen.sum()), len(MEMBERS)))
-    for j, m in enumerate(MEMBERS):
-        cal, _ = fit_calibrator(y_oof, oof[m][seen], base_rate=rate)
-        calibrators[m] = cal
-        cal_names[m] = cal.method
-        P_oof[:, j] = cal.transform(oof[m][seen])
+    # Calibrators are chosen on forward cross-fitted predictions, and the
+    # stack is fitted on those same cross-fitted values: neither the choice
+    # nor the weights ever see a calibrated value fitted on its own label.
+    cals, P_cross = calibrate_members(
+        y_oof, np.column_stack([oof[m][seen] for m in MEMBERS]), groups, base_rate=rate
+    )
+    calibrators = dict(zip(MEMBERS, cals))
+    cal_names = {m: c.method for m, c in calibrators.items()}
 
-    weights = fit_ensemble(y_oof, P_oof, MEMBERS)
+    stack_rows = np.all(np.isfinite(P_cross), axis=1)
+    weights = fit_ensemble(y_oof[stack_rows], P_cross[stack_rows], MEMBERS)
 
     # Sealed holdout: members refitted on the whole training window, calibrated
     # with the transforms already chosen, combined with the weights already fixed.
@@ -230,6 +236,7 @@ def run_channel(panel: pd.DataFrame, channel: str, seed: int) -> dict:
         "boundary": str(boundary.date()),
         "base_rate": rate, "realized": float(y_te.mean()),
         "calibrators": cal_names, "weights": weights.as_dict(),
+        "n_stack_rows": int(stack_rows.sum()), "n_oof_rows": int(seen.sum()),
         "reports": reports, "best_member": best_member, "vs_base_rate": vs_base,
         "lift_over_best_member": lift, "lift_ci": [lo, hi],
         "passes": bool(lift > 0 and lo > 0 and reports["ensemble"]["brier_skill_score"] > 0),
@@ -436,8 +443,9 @@ def main() -> int:
                                "weights": {r["channel"]: r["weights"] for r in results},
                                "channels_passing": n_pass, "n_channels": len(results)},
             model_artifact_path="", creation_timestamp=utcnow(), production_status=status,
-            notes="members calibrated on out-of-fold training predictions; weights fitted "
-                  "on the same; sealed holdout scored once",
+            notes="calibrator per member chosen on forward cross-fitted out-of-fold "
+                  "predictions; weights fitted on those cross-fitted values; sealed "
+                  "holdout scored once",
         ),
         artifact={"members": MEMBERS},
     )
@@ -450,7 +458,7 @@ def main() -> int:
                        f"(CI [{lo_p:+.4f},{hi_p:+.4f}]) is not established")
 
     out = REPORTS / f"{MODEL_ID}_{MODEL_VERSION}_scorecard.json"
-    out.write_text(json.dumps(scorecard, indent=2, default=str))
+    out.write_text(json.dumps(to_json_safe(scorecard), indent=2, default=str, allow_nan=False))
     print(f"\nscorecard {out}")
     return 0
 

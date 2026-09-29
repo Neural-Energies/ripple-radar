@@ -1,0 +1,884 @@
+{
+  "channels": [
+    {
+      "channel": "NASDAQ",
+      "skipped": null,
+      "n": 4135.0,
+      "n_train": 3095.0,
+      "n_holdout": 1034.0,
+      "start": "2010-04-09",
+      "end": "2026-09-15",
+      "boundary": "2022-08-02",
+      "base_rate": 0.2429725363489499,
+      "realized": 0.21663442940038685,
+      "calibrators": {
+        "base_rate": "isotonic",
+        "markov": "identity",
+        "hawkes": "identity",
+        "volatility": "platt"
+      },
+      "weights": {
+        "method": "stacking",
+        "pool": "linear",
+        "validation_log_score": -0.468342,
+        "weights": {
+          "base_rate": 0.0,
+          "markov": 0.0,
+          "hawkes": 0.1198,
+          "volatility": 0.8802
+        }
+      },
+      "n_stack_rows": 2064.0,
+      "n_oof_rows": 2580.0,
+      "reports": {
+        "base_rate": {
+          "n": 1034.0,
+          "base_rate": 0.242973,
+          "brier": 0.170051,
+          "brier_baseline": 0.170398,
+          "brier_skill_score": 0.002033,
+          "log_loss": 0.523599,
+          "log_loss_baseline": 0.52455,
+          "roc_auc": 0.5,
+          "pr_auc": 0.216634,
+          "pr_auc_baseline": 0.216634,
+          "ece": 0.018637,
+          "calibration_slope": null,
+          "calibration_intercept": null,
+          "accuracy": 0.783366,
+          "accuracy_baseline": 0.783366
+        },
+        "markov": {
+          "n": 1034.0,
+          "base_rate": 0.242973,
+          "brier": 0.168971,
+          "brier_baseline": 0.170398,
+          "brier_skill_score": 0.008374,
+          "log_loss": 0.52061,
+          "log_loss_baseline": 0.52455,
+          "roc_auc": 0.52489,
+          "pr_auc": 0.231633,
+          "pr_auc_baseline": 0.216634,
+          "ece": 0.022783,
+          "calibration_slope": 0.713046,
+          "calibration_intercept": 0.045918,
+          "accuracy": 0.783366,
+          "accuracy_baseline": 0.783366
+        },
+        "hawkes": {
+          "n": 1034.0,
+          "base_rate": 0.242973,
+          "brier": 0.164759,
+          "brier_baseline": 0.170398,
+          "brier_skill_score": 0.033091,
+          "log_loss": 0.509405,
+          "log_loss_baseline": 0.52455,
+          "roc_auc": 0.613795,
+          "pr_auc": 0.313988,
+          "pr_auc_baseline": 0.216634,
+          "ece": 0.012862,
+          "calibration_slope": 0.916764,
+          "calibration_intercept": 0.012736,
+          "accuracy": 0.786267,
+          "accuracy_baseline": 0.783366
+        },
+        "volatility": {
+          "n": 1034.0,
+          "base_rate": 0.242973,
+          "brier": 0.154425,
+          "brier_baseline": 0.170398,
+          "brier_skill_score": 0.093739,
+          "log_loss": 0.476362,
+          "log_loss_baseline": 0.52455,
+          "roc_auc": 0.697986,
+          "pr_auc": 0.402332,
+          "pr_auc_baseline": 0.216634,
+          "ece": 0.017196,
+          "calibration_slope": 0.977546,
+          "calibration_intercept": 0.019059,
+          "accuracy": 0.791103,
+          "accuracy_baseline": 0.783366
+        },
+        "ensemble": {
+          "n": 1034.0,
+          "base_rate": 0.242973,
+          "brier": 0.15422,
+          "brier_baseline": 0.170398,
+          "brier_skill_score": 0.094941,
+          "log_loss": 0.476752,
+          "log_loss_baseline": 0.52455,
+          "roc_auc": 0.697696,
+          "pr_auc": 0.409438,
+          "pr_auc_baseline": 0.216634,
+          "ece": 0.018686,
+          "calibration_slope": 1.074977,
+          "calibration_intercept": -0.003247,
+          "accuracy": 0.791103,
+          "accuracy_baseline": 0.783366
+        }
+      },
+      "best_member": "volatility",
+      "vs_base_rate": {
+        "base_rate": {
+          "bss": 0.002033,
+          "ci": [
+            -0.0033306615556963235,
+            0.008959835863316945
+          ],
+          "beats_base_rate": false
+        },
+        "markov": {
+          "bss": 0.008374,
+          "ci": [
+            -0.015166933300635033,
+            0.03441539018098921
+          ],
+          "beats_base_rate": false
+        },
+        "hawkes": {
+          "bss": 0.033091,
+          "ci": [
+            -0.015644840903069474,
+            0.09119142050694617
+          ],
+          "beats_base_rate": false
+        },
+        "volatility": {
+          "bss": 0.093739,
+          "ci": [
+            0.01661488433766142,
+            0.18546379103430996
+          ],
+          "beats_base_rate": true
+        },
+        "ensemble": {
+          "bss": 0.094941,
+          "ci": [
+            0.023095116718659565,
+            0.1829007312258635
+          ],
+          "beats_base_rate": true
+        }
+      },
+      "lift_over_best_member": 0.0012019999999999947,
+      "lift_ci": [
+        -0.006362734407894946,
+        0.008841249547876634
+      ],
+      "passes": false
+    },
+    {
+      "channel": "WTI",
+      "skipped": null,
+      "n": 4062.0,
+      "n_train": 3039.0,
+      "n_holdout": 1016.0,
+      "start": "2010-04-09",
+      "end": "2026-09-08",
+      "boundary": "2022-08-11",
+      "base_rate": 0.2250740375123396,
+      "realized": 0.2234251968503937,
+      "calibrators": {
+        "base_rate": "identity",
+        "markov": "identity",
+        "hawkes": "identity",
+        "volatility": "platt"
+      },
+      "weights": {
+        "method": "stacking",
+        "pool": "log",
+        "validation_log_score": -0.498792,
+        "weights": {
+          "base_rate": 0.0,
+          "markov": 0.0,
+          "hawkes": 0.7719,
+          "volatility": 0.2281
+        }
+      },
+      "n_stack_rows": 2027.0,
+      "n_oof_rows": 2533.0,
+      "reports": {
+        "base_rate": {
+          "n": 1016.0,
+          "base_rate": 0.225074,
+          "brier": 0.173509,
+          "brier_baseline": 0.173509,
+          "brier_skill_score": 0.0,
+          "log_loss": 0.531217,
+          "log_loss_baseline": 0.531217,
+          "roc_auc": 0.5,
+          "pr_auc": 0.223425,
+          "pr_auc_baseline": 0.223425,
+          "ece": 0.001649,
+          "calibration_slope": null,
+          "calibration_intercept": null,
+          "accuracy": 0.776575,
+          "accuracy_baseline": 0.776575
+        },
+        "markov": {
+          "n": 1016.0,
+          "base_rate": 0.225074,
+          "brier": 0.173027,
+          "brier_baseline": 0.173509,
+          "brier_skill_score": 0.002779,
+          "log_loss": 0.529743,
+          "log_loss_baseline": 0.531217,
+          "roc_auc": 0.51967,
+          "pr_auc": 0.234175,
+          "pr_auc_baseline": 0.223425,
+          "ece": 0.009185,
+          "calibration_slope": 0.590227,
+          "calibration_intercept": 0.09136,
+          "accuracy": 0.776575,
+          "accuracy_baseline": 0.776575
+        },
+        "hawkes": {
+          "n": 1016.0,
+          "base_rate": 0.225074,
+          "brier": 0.161352,
+          "brier_baseline": 0.173509,
+          "brier_skill_score": 0.070066,
+          "log_loss": 0.497729,
+          "log_loss_baseline": 0.531217,
+          "roc_auc": 0.661619,
+          "pr_auc": 0.380441,
+          "pr_auc_baseline": 0.223425,
+          "ece": 0.054031,
+          "calibration_slope": 1.552315,
+          "calibration_intercept": -0.111576,
+          "accuracy": 0.778543,
+          "accuracy_baseline": 0.776575
+        },
+        "volatility": {
+          "n": 1016.0,
+          "base_rate": 0.225074,
+          "brier": 0.162951,
+          "brier_baseline": 0.173509,
+          "brier_skill_score": 0.060852,
+          "log_loss": 0.503613,
+          "log_loss_baseline": 0.531217,
+          "roc_auc": 0.715898,
+          "pr_auc": 0.391341,
+          "pr_auc_baseline": 0.223425,
+          "ece": 0.072813,
+          "calibration_slope": 1.545425,
+          "calibration_intercept": -0.205277,
+          "accuracy": 0.776575,
+          "accuracy_baseline": 0.776575
+        },
+        "ensemble": {
+          "n": 1016.0,
+          "base_rate": 0.225074,
+          "brier": 0.160271,
+          "brier_baseline": 0.173509,
+          "brier_skill_score": 0.076295,
+          "log_loss": 0.495036,
+          "log_loss_baseline": 0.531217,
+          "roc_auc": 0.716314,
+          "pr_auc": 0.403354,
+          "pr_auc_baseline": 0.223425,
+          "ece": 0.06101,
+          "calibration_slope": 1.785763,
+          "calibration_intercept": -0.183381,
+          "accuracy": 0.777559,
+          "accuracy_baseline": 0.776575
+        }
+      },
+      "best_member": "hawkes",
+      "vs_base_rate": {
+        "base_rate": {
+          "bss": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ],
+          "beats_base_rate": false
+        },
+        "markov": {
+          "bss": 0.002779,
+          "ci": [
+            -0.0160528198417542,
+            0.020901486164899837
+          ],
+          "beats_base_rate": false
+        },
+        "hawkes": {
+          "bss": 0.070066,
+          "ci": [
+            0.021595456396188675,
+            0.11889728280975975
+          ],
+          "beats_base_rate": true
+        },
+        "volatility": {
+          "bss": 0.060852,
+          "ci": [
+            -0.0263307223622034,
+            0.12310233126149625
+          ],
+          "beats_base_rate": false
+        },
+        "ensemble": {
+          "bss": 0.076295,
+          "ci": [
+            0.03126421914155003,
+            0.12188046721035453
+          ],
+          "beats_base_rate": true
+        }
+      },
+      "lift_over_best_member": 0.006228999999999998,
+      "lift_ci": [
+        -0.007584546170333167,
+        0.01743592086003184
+      ],
+      "passes": false
+    },
+    {
+      "channel": "USD_BROAD",
+      "skipped": null,
+      "n": 4091.0,
+      "n_train": 3061.0,
+      "n_holdout": 1023.0,
+      "start": "2010-04-14",
+      "end": "2026-09-11",
+      "boundary": "2022-08-10",
+      "base_rate": 0.21822933681803333,
+      "realized": 0.2316715542521994,
+      "calibrators": {
+        "base_rate": "identity",
+        "markov": "identity",
+        "hawkes": "identity",
+        "volatility": "platt"
+      },
+      "weights": {
+        "method": "stacking",
+        "pool": "linear",
+        "validation_log_score": -0.51247,
+        "weights": {
+          "base_rate": 0.0,
+          "markov": 0.2271,
+          "hawkes": 0.0,
+          "volatility": 0.7729
+        }
+      },
+      "n_stack_rows": 2041.0,
+      "n_oof_rows": 2551.0,
+      "reports": {
+        "base_rate": {
+          "n": 1023.0,
+          "base_rate": 0.218229,
+          "brier": 0.178181,
+          "brier_baseline": 0.178181,
+          "brier_skill_score": 0.0,
+          "log_loss": 0.54181,
+          "log_loss_baseline": 0.54181,
+          "roc_auc": 0.5,
+          "pr_auc": 0.231672,
+          "pr_auc_baseline": 0.231672,
+          "ece": 0.013442,
+          "calibration_slope": null,
+          "calibration_intercept": null,
+          "accuracy": 0.768328,
+          "accuracy_baseline": 0.768328
+        },
+        "markov": {
+          "n": 1023.0,
+          "base_rate": 0.218229,
+          "brier": 0.177837,
+          "brier_baseline": 0.178181,
+          "brier_skill_score": 0.001925,
+          "log_loss": 0.540902,
+          "log_loss_baseline": 0.54181,
+          "roc_auc": 0.511893,
+          "pr_auc": 0.237247,
+          "pr_auc_baseline": 0.231672,
+          "ece": 0.012939,
+          "calibration_slope": 0.98858,
+          "calibration_intercept": 0.015437,
+          "accuracy": 0.768328,
+          "accuracy_baseline": 0.768328
+        },
+        "hawkes": {
+          "n": 1023.0,
+          "base_rate": 0.218229,
+          "brier": 0.178667,
+          "brier_baseline": 0.178181,
+          "brier_skill_score": -0.002731,
+          "log_loss": 0.543397,
+          "log_loss_baseline": 0.54181,
+          "roc_auc": 0.507596,
+          "pr_auc": 0.244985,
+          "pr_auc_baseline": 0.231672,
+          "ece": 0.023526,
+          "calibration_slope": 0.321532,
+          "calibration_intercept": 0.162788,
+          "accuracy": 0.768328,
+          "accuracy_baseline": 0.768328
+        },
+        "volatility": {
+          "n": 1023.0,
+          "base_rate": 0.218229,
+          "brier": 0.176763,
+          "brier_baseline": 0.178181,
+          "brier_skill_score": 0.007954,
+          "log_loss": 0.537786,
+          "log_loss_baseline": 0.54181,
+          "roc_auc": 0.568184,
+          "pr_auc": 0.32264,
+          "pr_auc_baseline": 0.231672,
+          "ece": 0.034706,
+          "calibration_slope": 2.139432,
+          "calibration_intercept": -0.189723,
+          "accuracy": 0.768328,
+          "accuracy_baseline": 0.768328
+        },
+        "ensemble": {
+          "n": 1023.0,
+          "base_rate": 0.218229,
+          "brier": 0.176772,
+          "brier_baseline": 0.178181,
+          "brier_skill_score": 0.007904,
+          "log_loss": 0.537779,
+          "log_loss_baseline": 0.54181,
+          "roc_auc": 0.566319,
+          "pr_auc": 0.322557,
+          "pr_auc_baseline": 0.231672,
+          "ece": 0.029762,
+          "calibration_slope": 2.613296,
+          "calibration_intercept": -0.295977,
+          "accuracy": 0.768328,
+          "accuracy_baseline": 0.768328
+        }
+      },
+      "best_member": "volatility",
+      "vs_base_rate": {
+        "base_rate": {
+          "bss": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ],
+          "beats_base_rate": false
+        },
+        "markov": {
+          "bss": 0.001925,
+          "ci": [
+            -0.004350665028074169,
+            0.009815040914725556
+          ],
+          "beats_base_rate": false
+        },
+        "hawkes": {
+          "bss": -0.002731,
+          "ci": [
+            -0.01758785303433551,
+            0.015296268282775149
+          ],
+          "beats_base_rate": false
+        },
+        "volatility": {
+          "bss": 0.007954,
+          "ci": [
+            -0.013712737680873771,
+            0.032232412225947346
+          ],
+          "beats_base_rate": false
+        },
+        "ensemble": {
+          "bss": 0.007904,
+          "ci": [
+            -0.009664726854257377,
+            0.027899676685166776
+          ],
+          "beats_base_rate": false
+        }
+      },
+      "lift_over_best_member": -4.99999999999997e-05,
+      "lift_ci": [
+        -0.004356423844148785,
+        0.004245749901593456
+      ],
+      "passes": false
+    },
+    {
+      "channel": "UST10Y",
+      "skipped": null,
+      "n": 4111.0,
+      "n_train": 3076.0,
+      "n_holdout": 1028.0,
+      "start": "2010-04-08",
+      "end": "2026-09-14",
+      "boundary": "2022-08-03",
+      "base_rate": 0.21911573472041612,
+      "realized": 0.18482490272373542,
+      "calibrators": {
+        "base_rate": "platt",
+        "markov": "identity",
+        "hawkes": "identity",
+        "volatility": "identity"
+      },
+      "weights": {
+        "method": "stacking",
+        "pool": "linear",
+        "validation_log_score": -0.51791,
+        "weights": {
+          "base_rate": 0.0,
+          "markov": 0.0,
+          "hawkes": 0.3824,
+          "volatility": 0.6176
+        }
+      },
+      "n_stack_rows": 2052.0,
+      "n_oof_rows": 2564.0,
+      "reports": {
+        "base_rate": {
+          "n": 1028.0,
+          "base_rate": 0.219116,
+          "brier": 0.150728,
+          "brier_baseline": 0.151841,
+          "brier_skill_score": 0.00733,
+          "log_loss": 0.478836,
+          "log_loss_baseline": 0.482209,
+          "roc_auc": 0.5,
+          "pr_auc": 0.184825,
+          "pr_auc_baseline": 0.184825,
+          "ece": 0.007929,
+          "calibration_slope": null,
+          "calibration_intercept": null,
+          "accuracy": 0.815175,
+          "accuracy_baseline": 0.815175
+        },
+        "markov": {
+          "n": 1028.0,
+          "base_rate": 0.219116,
+          "brier": 0.151392,
+          "brier_baseline": 0.151841,
+          "brier_skill_score": 0.002956,
+          "log_loss": 0.480889,
+          "log_loss_baseline": 0.482209,
+          "roc_auc": 0.513083,
+          "pr_auc": 0.190777,
+          "pr_auc_baseline": 0.184825,
+          "ece": 0.033388,
+          "calibration_slope": 1.003793,
+          "calibration_intercept": -0.034216,
+          "accuracy": 0.815175,
+          "accuracy_baseline": 0.815175
+        },
+        "hawkes": {
+          "n": 1028.0,
+          "base_rate": 0.219116,
+          "brier": 0.151249,
+          "brier_baseline": 0.151841,
+          "brier_skill_score": 0.003896,
+          "log_loss": 0.479999,
+          "log_loss_baseline": 0.482209,
+          "roc_auc": 0.49762,
+          "pr_auc": 0.196673,
+          "pr_auc_baseline": 0.184825,
+          "ece": 0.012716,
+          "calibration_slope": 0.373926,
+          "calibration_intercept": 0.110959,
+          "accuracy": 0.815175,
+          "accuracy_baseline": 0.815175
+        },
+        "volatility": {
+          "n": 1028.0,
+          "base_rate": 0.219116,
+          "brier": 0.154713,
+          "brier_baseline": 0.151841,
+          "brier_skill_score": -0.01892,
+          "log_loss": 0.506869,
+          "log_loss_baseline": 0.482209,
+          "roc_auc": 0.558783,
+          "pr_auc": 0.238326,
+          "pr_auc_baseline": 0.184825,
+          "ece": 0.079861,
+          "calibration_slope": 0.745037,
+          "calibration_intercept": 0.103033,
+          "accuracy": 0.815175,
+          "accuracy_baseline": 0.815175
+        },
+        "ensemble": {
+          "n": 1028.0,
+          "base_rate": 0.219116,
+          "brier": 0.150959,
+          "brier_baseline": 0.151841,
+          "brier_skill_score": 0.005808,
+          "log_loss": 0.481873,
+          "log_loss_baseline": 0.482209,
+          "roc_auc": 0.556174,
+          "pr_auc": 0.231752,
+          "pr_auc_baseline": 0.184825,
+          "ece": 0.04302,
+          "calibration_slope": 0.852348,
+          "calibration_intercept": 0.062647,
+          "accuracy": 0.815175,
+          "accuracy_baseline": 0.815175
+        }
+      },
+      "best_member": "base_rate",
+      "vs_base_rate": {
+        "base_rate": {
+          "bss": 0.00733,
+          "ci": [
+            -0.00964180062612674,
+            0.030639111911672533
+          ],
+          "beats_base_rate": false
+        },
+        "markov": {
+          "bss": 0.002956,
+          "ci": [
+            -0.003783784967670134,
+            0.010516931780516346
+          ],
+          "beats_base_rate": false
+        },
+        "hawkes": {
+          "bss": 0.003896,
+          "ci": [
+            -0.018801397451748754,
+            0.034730251174015
+          ],
+          "beats_base_rate": false
+        },
+        "volatility": {
+          "bss": -0.01892,
+          "ci": [
+            -0.08538403817704573,
+            0.06237737914618274
+          ],
+          "beats_base_rate": false
+        },
+        "ensemble": {
+          "bss": 0.005808,
+          "ci": [
+            -0.04361044322213433,
+            0.06857107481105314
+          ],
+          "beats_base_rate": false
+        }
+      },
+      "lift_over_best_member": -0.001522,
+      "lift_ci": [
+        -0.03874942864262246,
+        0.040685007096048456
+      ],
+      "passes": false
+    }
+  ],
+  "pooled": {
+    "base_rate": {
+      "n": 4101.0,
+      "base_rate": 0.226348,
+      "brier": 0.168092,
+      "brier_baseline": 0.168408,
+      "brier_skill_score": 0.001877,
+      "log_loss": 0.518808,
+      "log_loss_baseline": 0.519765,
+      "roc_auc": 0.516217,
+      "pr_auc": 0.218912,
+      "pr_auc_baseline": 0.214094,
+      "ece": 0.003742,
+      "calibration_slope": 0.863714,
+      "calibration_intercept": 0.025946,
+      "accuracy": 0.785906,
+      "accuracy_baseline": 0.785906
+    },
+    "markov": {
+      "n": 4101.0,
+      "base_rate": 0.226348,
+      "brier": 0.167781,
+      "brier_baseline": 0.168408,
+      "brier_skill_score": 0.003724,
+      "log_loss": 0.517978,
+      "log_loss_baseline": 0.519765,
+      "roc_auc": 0.521476,
+      "pr_auc": 0.23247,
+      "pr_auc_baseline": 0.214094,
+      "ece": 0.010967,
+      "calibration_slope": 0.68051,
+      "calibration_intercept": 0.060938,
+      "accuracy": 0.785906,
+      "accuracy_baseline": 0.785906
+    },
+    "hawkes": {
+      "n": 4101.0,
+      "base_rate": 0.226348,
+      "brier": 0.163998,
+      "brier_baseline": 0.168408,
+      "brier_skill_score": 0.026188,
+      "log_loss": 0.507621,
+      "log_loss_baseline": 0.519765,
+      "roc_auc": 0.599331,
+      "pr_auc": 0.298949,
+      "pr_auc_baseline": 0.214094,
+      "ece": 0.004237,
+      "calibration_slope": 1.075728,
+      "calibration_intercept": -0.0145,
+      "accuracy": 0.787125,
+      "accuracy_baseline": 0.785906
+    },
+    "volatility": {
+      "n": 4101.0,
+      "base_rate": 0.226348,
+      "brier": 0.162182,
+      "brier_baseline": 0.168408,
+      "brier_skill_score": 0.036971,
+      "log_loss": 0.506083,
+      "log_loss_baseline": 0.519765,
+      "roc_auc": 0.621969,
+      "pr_auc": 0.331131,
+      "pr_auc_baseline": 0.214094,
+      "ece": 0.029948,
+      "calibration_slope": 0.813459,
+      "calibration_intercept": 0.054382,
+      "accuracy": 0.787857,
+      "accuracy_baseline": 0.785906
+    },
+    "ensemble": {
+      "n": 4101.0,
+      "base_rate": 0.226348,
+      "brier": 0.160527,
+      "brier_baseline": 0.168408,
+      "brier_skill_score": 0.046795,
+      "log_loss": 0.497789,
+      "log_loss_baseline": 0.519765,
+      "roc_auc": 0.640642,
+      "pr_auc": 0.345175,
+      "pr_auc_baseline": 0.214094,
+      "ece": 0.019786,
+      "calibration_slope": 1.143978,
+      "calibration_intercept": -0.008191,
+      "accuracy": 0.7881,
+      "accuracy_baseline": 0.785906
+    }
+  },
+  "best_member": "volatility",
+  "lift_over_best": 0.009824000000000006,
+  "lift_ci": [
+    -0.006864092597169705,
+    0.026501419860918873
+  ],
+  "channels_passing": 0.0,
+  "vs_base_rate": {
+    "base_rate": {
+      "bss": 0.001877,
+      "ci": [
+        -0.0038188687694775845,
+        0.007743788950554329
+      ],
+      "ci_corrected": [
+        -0.0051037276775896265,
+        0.009591813325500503
+      ],
+      "alpha_corrected": 0.01,
+      "beats_base_rate": false,
+      "beats_base_rate_corrected": false,
+      "channels_beating_base": 0.0
+    },
+    "markov": {
+      "bss": 0.003724,
+      "ci": [
+        -0.0048600558218064634,
+        0.013743897010846213
+      ],
+      "ci_corrected": [
+        -0.007043447613750776,
+        0.017166790874054
+      ],
+      "alpha_corrected": 0.01,
+      "beats_base_rate": false,
+      "beats_base_rate_corrected": false,
+      "channels_beating_base": 0.0
+    },
+    "hawkes": {
+      "bss": 0.026188,
+      "ci": [
+        0.006955183892859213,
+        0.04869407685214476
+      ],
+      "ci_corrected": [
+        0.0015566888604109585,
+        0.05648484156677885
+      ],
+      "alpha_corrected": 0.01,
+      "beats_base_rate": true,
+      "beats_base_rate_corrected": true,
+      "channels_beating_base": 1.0
+    },
+    "volatility": {
+      "bss": 0.036971,
+      "ci": [
+        0.006467211125988873,
+        0.07456134681969308
+      ],
+      "ci_corrected": [
+        -0.0022026604029035377,
+        0.08612242296792887
+      ],
+      "alpha_corrected": 0.01,
+      "beats_base_rate": true,
+      "beats_base_rate_corrected": false,
+      "channels_beating_base": 1.0
+    },
+    "ensemble": {
+      "bss": 0.046795,
+      "ci": [
+        0.021323784333671655,
+        0.07676422052883507
+      ],
+      "ci_corrected": [
+        0.015583763167465948,
+        0.08946052090266324
+      ],
+      "alpha_corrected": 0.01,
+      "beats_base_rate": true,
+      "beats_base_rate_corrected": true,
+      "channels_beating_base": 2.0
+    }
+  },
+  "beats_base_rate": true,
+  "beats_best_member": false,
+  "reliability": [
+    {
+      "bucket": "0%-50%",
+      "n": 4068.0,
+      "mean_forecast": 0.1913,
+      "realized_frequency": 0.2107
+    },
+    {
+      "bucket": "50%-55%",
+      "n": 16.0,
+      "mean_forecast": 0.5212,
+      "realized_frequency": 0.5625
+    },
+    {
+      "bucket": "55%-60%",
+      "n": 9.0,
+      "mean_forecast": 0.567,
+      "realized_frequency": 0.6667
+    },
+    {
+      "bucket": "60%-65%",
+      "n": 6.0,
+      "mean_forecast": 0.6253,
+      "realized_frequency": 0.6667
+    },
+    {
+      "bucket": "65%-70%",
+      "n": 1.0,
+      "mean_forecast": 0.6879,
+      "realized_frequency": 1.0
+    },
+    {
+      "bucket": "70%-75%",
+      "n": 1.0,
+      "mean_forecast": 0.7342,
+      "realized_frequency": 1.0
+    }
+  ],
+  "passes": true
+}

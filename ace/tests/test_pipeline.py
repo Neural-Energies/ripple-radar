@@ -155,7 +155,7 @@ def test_calibrator_fixes_a_systematically_overconfident_forecaster():
     z = rng.normal(size=4000)
     y = (rng.uniform(size=4000) < 1 / (1 + np.exp(-0.4 * z))).astype(float)
     bad = np.clip(1 / (1 + np.exp(-2.0 * z)), 0.01, 0.99)
-    cal, _ = fit_calibrator(y, bad, base_rate=float(y.mean()))
+    cal, _ = fit_calibrator(y, bad, base_rate=float(y.mean()), groups=np.repeat(np.arange(5), 800))
     fixed = cal.transform(bad)
     assert_probabilities(fixed)
     assert evaluate(y, fixed).ece < evaluate(y, bad).ece
@@ -165,7 +165,7 @@ def test_calibrator_output_stays_a_probability():
     rng = np.random.default_rng(7)
     p = rng.uniform(size=500)
     y = (rng.uniform(size=500) < p).astype(float)
-    cal, _ = fit_calibrator(y, p, base_rate=float(y.mean()))
+    cal, _ = fit_calibrator(y, p, base_rate=float(y.mean()), groups=np.repeat(np.arange(5), 100))
     out = cal.transform(np.array([0.0, 0.5, 1.0]))
     assert np.all((out >= 0) & (out <= 1))
 

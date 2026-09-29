@@ -1,0 +1,1176 @@
+{
+  "channels": [
+    {
+      "channel": "SP500",
+      "n_labelled": 1759.0,
+      "n_train": 1318.0,
+      "n_holdout": 440.0,
+      "start": "2019-09-20",
+      "end": "2026-09-21",
+      "boundary": "2024-12-17",
+      "base_rate": 0.05614567526555387,
+      "realized": 0.056818181818181816,
+      "reports": {
+        "base_rate": {
+          "n": 440.0,
+          "base_rate": 0.056146,
+          "brier": 0.05359,
+          "brier_baseline": 0.05359,
+          "brier_skill_score": 0.0,
+          "log_loss": 0.218126,
+          "log_loss_baseline": 0.218126,
+          "roc_auc": 0.5,
+          "pr_auc": 0.056818,
+          "pr_auc_baseline": 0.056818,
+          "ece": 0.000673,
+          "calibration_slope": null,
+          "calibration_intercept": null,
+          "accuracy": 0.943182,
+          "accuracy_baseline": 0.943182
+        },
+        "markov": {
+          "n": 440.0,
+          "base_rate": 0.056146,
+          "brier": 0.053592,
+          "brier_baseline": 0.05359,
+          "brier_skill_score": -2.6e-05,
+          "log_loss": 0.217408,
+          "log_loss_baseline": 0.218126,
+          "roc_auc": 0.533494,
+          "pr_auc": 0.0644,
+          "pr_auc_baseline": 0.056818,
+          "ece": 0.008029,
+          "calibration_slope": 0.499502,
+          "calibration_intercept": 0.028908,
+          "accuracy": 0.943182,
+          "accuracy_baseline": 0.943182
+        },
+        "dbn_core": {
+          "n": 440.0,
+          "base_rate": 0.056146,
+          "brier": 0.053434,
+          "brier_baseline": 0.05359,
+          "brier_skill_score": 0.00292,
+          "log_loss": 0.218213,
+          "log_loss_baseline": 0.218126,
+          "roc_auc": 0.508578,
+          "pr_auc": 0.072023,
+          "pr_auc_baseline": 0.056818,
+          "ece": 0.009927,
+          "calibration_slope": 0.614401,
+          "calibration_intercept": 0.026392,
+          "accuracy": 0.943182,
+          "accuracy_baseline": 0.943182
+        },
+        "dbn_full": {
+          "n": 440.0,
+          "base_rate": 0.056146,
+          "brier": 0.053859,
+          "brier_baseline": 0.05359,
+          "brier_skill_score": -0.005011,
+          "log_loss": 0.223948,
+          "log_loss_baseline": 0.218126,
+          "roc_auc": 0.544578,
+          "pr_auc": 0.078839,
+          "pr_auc_baseline": 0.056818,
+          "ece": 0.019546,
+          "calibration_slope": 0.916535,
+          "calibration_intercept": 0.022657,
+          "accuracy": 0.943182,
+          "accuracy_baseline": 0.943182
+        }
+      },
+      "tables": {
+        "base_rate": {
+          "target": "stress_t1",
+          "parents": [],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 1.0,
+          "n_unseen": 1.0
+        },
+        "markov": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 2.0,
+          "n_unseen": 0.0
+        },
+        "dbn_core": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0",
+            "vol_t0",
+            "implied_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 12.0,
+          "n_unseen": 1.0
+        },
+        "dbn_full": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0",
+            "vol_t0",
+            "implied_t0",
+            "news_t0",
+            "curve_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 72.0,
+          "n_unseen": 18.0
+        }
+      },
+      "calibration": {
+        "base_rate": {
+          "calibrator": "identity",
+          "note": "selected identity (cross-fitted brier 0.04138 on 491 rows); candidates: identity=0.04138 | platt=0.04147 | isotonic=0.04151",
+          "n_oof": 655.0
+        },
+        "markov": {
+          "calibrator": "identity",
+          "note": "selected identity (cross-fitted brier 0.04095 on 491 rows); candidates: identity=0.04095 | isotonic=0.04147 | platt=0.04181",
+          "n_oof": 655.0
+        },
+        "dbn_core": {
+          "calibrator": "identity",
+          "note": "selected identity (cross-fitted brier 0.04109 on 491 rows); candidates: identity=0.04109 | isotonic=0.04128 | platt=0.04902",
+          "n_oof": 655.0
+        },
+        "dbn_full": {
+          "calibrator": "platt",
+          "note": "selected platt (cross-fitted brier 0.04115 on 491 rows); candidates: platt=0.04115 | isotonic=0.04167 | identity=0.04467",
+          "n_oof": 655.0
+        }
+      },
+      "best": "dbn_core",
+      "lift_over_markov": 0.002946,
+      "lift_ci": [
+        -0.008561383630180839,
+        0.016231945020910868
+      ],
+      "passes": false,
+      "variables": [
+        "vol",
+        "implied",
+        "news",
+        "curve",
+        "stress"
+      ]
+    },
+    {
+      "channel": "NASDAQ",
+      "n_labelled": 3453.0,
+      "n_train": 2587.0,
+      "n_holdout": 864.0,
+      "start": "2012-12-28",
+      "end": "2026-09-21",
+      "boundary": "2023-04-12",
+      "base_rate": 0.06030150753768844,
+      "realized": 0.05555555555555555,
+      "reports": {
+        "base_rate": {
+          "n": 864.0,
+          "base_rate": 0.060302,
+          "brier": 0.052492,
+          "brier_baseline": 0.052492,
+          "brier_skill_score": 0.0,
+          "log_loss": 0.214763,
+          "log_loss_baseline": 0.214763,
+          "roc_auc": 0.5,
+          "pr_auc": 0.055556,
+          "pr_auc_baseline": 0.055556,
+          "ece": 0.004746,
+          "calibration_slope": null,
+          "calibration_intercept": null,
+          "accuracy": 0.944444,
+          "accuracy_baseline": 0.944444
+        },
+        "markov": {
+          "n": 864.0,
+          "base_rate": 0.060302,
+          "brier": 0.052731,
+          "brier_baseline": 0.052492,
+          "brier_skill_score": -0.004554,
+          "log_loss": 0.214987,
+          "log_loss_baseline": 0.214763,
+          "roc_auc": 0.525735,
+          "pr_auc": 0.060619,
+          "pr_auc_baseline": 0.055556,
+          "ece": 0.005518,
+          "calibration_slope": 0.375251,
+          "calibration_intercept": 0.033241,
+          "accuracy": 0.944444,
+          "accuracy_baseline": 0.944444
+        },
+        "dbn_core": {
+          "n": 864.0,
+          "base_rate": 0.060302,
+          "brier": 0.052345,
+          "brier_baseline": 0.052492,
+          "brier_skill_score": 0.002792,
+          "log_loss": 0.214214,
+          "log_loss_baseline": 0.214763,
+          "roc_auc": 0.585759,
+          "pr_auc": 0.071235,
+          "pr_auc_baseline": 0.055556,
+          "ece": 0.009708,
+          "calibration_slope": 0.620633,
+          "calibration_intercept": 0.026383,
+          "accuracy": 0.944444,
+          "accuracy_baseline": 0.944444
+        },
+        "dbn_full": {
+          "n": 864.0,
+          "base_rate": 0.060302,
+          "brier": 0.052582,
+          "brier_baseline": 0.052492,
+          "brier_skill_score": -0.001729,
+          "log_loss": 0.215842,
+          "log_loss_baseline": 0.214763,
+          "roc_auc": 0.530114,
+          "pr_auc": 0.061081,
+          "pr_auc_baseline": 0.055556,
+          "ece": 0.000396,
+          "calibration_slope": 0.236149,
+          "calibration_intercept": 0.04253,
+          "accuracy": 0.944444,
+          "accuracy_baseline": 0.944444
+        }
+      },
+      "tables": {
+        "base_rate": {
+          "target": "stress_t1",
+          "parents": [],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 1.0,
+          "n_unseen": 1.0
+        },
+        "markov": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 2.0,
+          "n_unseen": 0.0
+        },
+        "dbn_core": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0",
+            "vol_t0",
+            "implied_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 12.0,
+          "n_unseen": 0.0
+        },
+        "dbn_full": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0",
+            "vol_t0",
+            "implied_t0",
+            "news_t0",
+            "curve_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 72.0,
+          "n_unseen": 7.0
+        }
+      },
+      "calibration": {
+        "base_rate": {
+          "calibrator": "identity",
+          "note": "selected identity (cross-fitted brier 0.05774 on 1253 rows); candidates: identity=0.05774 | isotonic=0.05782 | platt=0.05801",
+          "n_oof": 1670.0
+        },
+        "markov": {
+          "calibrator": "identity",
+          "note": "selected identity (cross-fitted brier 0.05697 on 1253 rows); candidates: identity=0.05697 | platt=0.05795 | isotonic=0.05849",
+          "n_oof": 1670.0
+        },
+        "dbn_core": {
+          "calibrator": "platt",
+          "note": "selected platt (cross-fitted brier 0.05720 on 1253 rows); candidates: platt=0.05720 | isotonic=0.05775 | identity=0.05779",
+          "n_oof": 1670.0
+        },
+        "dbn_full": {
+          "calibrator": "platt",
+          "note": "selected platt (cross-fitted brier 0.05756 on 1253 rows); candidates: platt=0.05756 | identity=0.05858 | isotonic=0.05908",
+          "n_oof": 1670.0
+        }
+      },
+      "best": "dbn_core",
+      "lift_over_markov": 0.007346,
+      "lift_ci": [
+        -0.015625816150252592,
+        0.030515754458631323
+      ],
+      "passes": false,
+      "variables": [
+        "vol",
+        "implied",
+        "news",
+        "curve",
+        "stress"
+      ]
+    },
+    {
+      "channel": "DJIA",
+      "n_labelled": 1759.0,
+      "n_train": 1318.0,
+      "n_holdout": 440.0,
+      "start": "2019-09-20",
+      "end": "2026-09-21",
+      "boundary": "2024-12-17",
+      "base_rate": 0.0622154779969651,
+      "realized": 0.045454545454545456,
+      "reports": {
+        "base_rate": {
+          "n": 440.0,
+          "base_rate": 0.062215,
+          "brier": 0.043669,
+          "brier_baseline": 0.043669,
+          "brier_skill_score": 0.0,
+          "log_loss": 0.187549,
+          "log_loss_baseline": 0.187549,
+          "roc_auc": 0.5,
+          "pr_auc": 0.045455,
+          "pr_auc_baseline": 0.045455,
+          "ece": 0.016761,
+          "calibration_slope": null,
+          "calibration_intercept": null,
+          "accuracy": 0.954545,
+          "accuracy_baseline": 0.954545
+        },
+        "markov": {
+          "n": 440.0,
+          "base_rate": 0.062215,
+          "brier": 0.043389,
+          "brier_baseline": 0.043669,
+          "brier_skill_score": 0.006429,
+          "log_loss": 0.184909,
+          "log_loss_baseline": 0.187549,
+          "roc_auc": 0.502381,
+          "pr_auc": 0.045682,
+          "pr_auc_baseline": 0.045455,
+          "ece": 0.000649,
+          "calibration_slope": 7.244183,
+          "calibration_intercept": -0.279128,
+          "accuracy": 0.954545,
+          "accuracy_baseline": 0.954545
+        },
+        "dbn_core": {
+          "n": 440.0,
+          "base_rate": 0.062215,
+          "brier": 0.044019,
+          "brier_baseline": 0.043669,
+          "brier_skill_score": -0.008016,
+          "log_loss": 0.185589,
+          "log_loss_baseline": 0.187549,
+          "roc_auc": 0.517857,
+          "pr_auc": 0.053979,
+          "pr_auc_baseline": 0.045455,
+          "ece": 0.00936,
+          "calibration_slope": 0.301015,
+          "calibration_intercept": 0.028955,
+          "accuracy": 0.954545,
+          "accuracy_baseline": 0.954545
+        },
+        "dbn_full": {
+          "n": 440.0,
+          "base_rate": 0.062215,
+          "brier": 0.043389,
+          "brier_baseline": 0.043669,
+          "brier_skill_score": 0.006413,
+          "log_loss": 0.18492,
+          "log_loss_baseline": 0.187549,
+          "roc_auc": 0.532857,
+          "pr_auc": 0.068697,
+          "pr_auc_baseline": 0.045455,
+          "ece": 0.001919,
+          "calibration_slope": 4.289796,
+          "calibration_intercept": -0.157768,
+          "accuracy": 0.954545,
+          "accuracy_baseline": 0.954545
+        }
+      },
+      "tables": {
+        "base_rate": {
+          "target": "stress_t1",
+          "parents": [],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 1.0,
+          "n_unseen": 1.0
+        },
+        "markov": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 2.0,
+          "n_unseen": 0.0
+        },
+        "dbn_core": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0",
+            "vol_t0",
+            "implied_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 12.0,
+          "n_unseen": 0.0
+        },
+        "dbn_full": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0",
+            "vol_t0",
+            "implied_t0",
+            "news_t0",
+            "curve_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 72.0,
+          "n_unseen": 12.0
+        }
+      },
+      "calibration": {
+        "base_rate": {
+          "calibrator": "identity",
+          "note": "selected identity (cross-fitted brier 0.04349 on 491 rows); candidates: identity=0.04349 | isotonic=0.04393 | platt=0.04426",
+          "n_oof": 655.0
+        },
+        "markov": {
+          "calibrator": "isotonic",
+          "note": "selected isotonic (cross-fitted brier 0.04389 on 491 rows); candidates: isotonic=0.04389 | platt=0.04403 | identity=0.04494",
+          "n_oof": 655.0
+        },
+        "dbn_core": {
+          "calibrator": "identity",
+          "note": "selected identity (cross-fitted brier 0.04328 on 491 rows); candidates: identity=0.04328 | isotonic=0.04347 | platt=0.04351",
+          "n_oof": 655.0
+        },
+        "dbn_full": {
+          "calibrator": "platt",
+          "note": "selected platt (cross-fitted brier 0.04348 on 491 rows); candidates: platt=0.04348 | isotonic=0.04453 | identity=0.04503",
+          "n_oof": 655.0
+        }
+      },
+      "best": "dbn_full",
+      "lift_over_markov": -1.599999999999952e-05,
+      "lift_ci": [
+        -0.003317277460047194,
+        0.0017958513587799923
+      ],
+      "passes": false,
+      "variables": [
+        "vol",
+        "implied",
+        "news",
+        "curve",
+        "stress"
+      ]
+    },
+    {
+      "channel": "WTI",
+      "n_labelled": 3380.0,
+      "n_train": 2534.0,
+      "n_holdout": 845.0,
+      "start": "2013-02-25",
+      "end": "2026-09-14",
+      "boundary": "2023-04-24",
+      "base_rate": 0.05761641673243883,
+      "realized": 0.05680473372781065,
+      "reports": {
+        "base_rate": {
+          "n": 845.0,
+          "base_rate": 0.057616,
+          "brier": 0.053579,
+          "brier_baseline": 0.053579,
+          "brier_skill_score": 0.0,
+          "log_loss": 0.21809,
+          "log_loss_baseline": 0.21809,
+          "roc_auc": 0.5,
+          "pr_auc": 0.056805,
+          "pr_auc_baseline": 0.056805,
+          "ece": 0.000812,
+          "calibration_slope": null,
+          "calibration_intercept": null,
+          "accuracy": 0.943195,
+          "accuracy_baseline": 0.943195
+        },
+        "markov": {
+          "n": 845.0,
+          "base_rate": 0.057616,
+          "brier": 0.05416,
+          "brier_baseline": 0.053579,
+          "brier_skill_score": -0.010856,
+          "log_loss": 0.220911,
+          "log_loss_baseline": 0.21809,
+          "roc_auc": 0.503019,
+          "pr_auc": 0.057161,
+          "pr_auc_baseline": 0.056805,
+          "ece": 0.010683,
+          "calibration_slope": 0.054676,
+          "calibration_intercept": 0.053668,
+          "accuracy": 0.943195,
+          "accuracy_baseline": 0.943195
+        },
+        "dbn_core": {
+          "n": 845.0,
+          "base_rate": 0.057616,
+          "brier": 0.053677,
+          "brier_baseline": 0.053579,
+          "brier_skill_score": -0.001842,
+          "log_loss": 0.215019,
+          "log_loss_baseline": 0.21809,
+          "roc_auc": 0.601997,
+          "pr_auc": 0.073622,
+          "pr_auc_baseline": 0.056805,
+          "ece": 0.01129,
+          "calibration_slope": 0.461322,
+          "calibration_intercept": 0.031199,
+          "accuracy": 0.943195,
+          "accuracy_baseline": 0.943195
+        },
+        "dbn_full": {
+          "n": 845.0,
+          "base_rate": 0.057616,
+          "brier": 0.053516,
+          "brier_baseline": 0.053579,
+          "brier_skill_score": 0.001169,
+          "log_loss": 0.237573,
+          "log_loss_baseline": 0.21809,
+          "roc_auc": 0.538634,
+          "pr_auc": 0.059094,
+          "pr_auc_baseline": 0.056805,
+          "ece": 0.002731,
+          "calibration_slope": 0.574383,
+          "calibration_intercept": 0.025746,
+          "accuracy": 0.943195,
+          "accuracy_baseline": 0.943195
+        }
+      },
+      "tables": {
+        "base_rate": {
+          "target": "stress_t1",
+          "parents": [],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 1.0,
+          "n_unseen": 1.0
+        },
+        "markov": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 2.0,
+          "n_unseen": 0.0
+        },
+        "dbn_core": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0",
+            "vol_t0",
+            "implied_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 12.0,
+          "n_unseen": 0.0
+        },
+        "dbn_full": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0",
+            "vol_t0",
+            "implied_t0",
+            "news_t0",
+            "curve_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 72.0,
+          "n_unseen": 6.0
+        }
+      },
+      "calibration": {
+        "base_rate": {
+          "calibrator": "identity",
+          "note": "selected identity (cross-fitted brier 0.05919 on 1221 rows); candidates: identity=0.05919 | platt=0.05937 | isotonic=0.05939",
+          "n_oof": 1628.0
+        },
+        "markov": {
+          "calibrator": "identity",
+          "note": "selected identity (cross-fitted brier 0.05828 on 1221 rows); candidates: identity=0.05828 | isotonic=0.05906 | platt=0.05920",
+          "n_oof": 1628.0
+        },
+        "dbn_core": {
+          "calibrator": "identity",
+          "note": "selected identity (cross-fitted brier 0.05856 on 1221 rows); candidates: identity=0.05856 | isotonic=0.05921 | platt=0.05941",
+          "n_oof": 1628.0
+        },
+        "dbn_full": {
+          "calibrator": "isotonic",
+          "note": "selected isotonic (cross-fitted brier 0.05934 on 1221 rows); candidates: isotonic=0.05934 | platt=0.05936 | identity=0.06098",
+          "n_oof": 1628.0
+        }
+      },
+      "best": "dbn_full",
+      "lift_over_markov": 0.012025,
+      "lift_ci": [
+        -0.002643299541522295,
+        0.030657106941541862
+      ],
+      "passes": false,
+      "variables": [
+        "vol",
+        "implied",
+        "news",
+        "curve",
+        "stress"
+      ]
+    },
+    {
+      "channel": "UST10Y",
+      "n_labelled": 3429.0,
+      "n_train": 2568.0,
+      "n_holdout": 858.0,
+      "start": "2013-01-03",
+      "end": "2026-09-18",
+      "boundary": "2023-04-14",
+      "base_rate": 0.05023364485981308,
+      "realized": 0.04312354312354312,
+      "reports": {
+        "base_rate": {
+          "n": 858.0,
+          "base_rate": 0.050234,
+          "brier": 0.041314,
+          "brier_baseline": 0.041314,
+          "brier_skill_score": 0.0,
+          "log_loss": 0.178302,
+          "log_loss_baseline": 0.178302,
+          "roc_auc": 0.5,
+          "pr_auc": 0.043124,
+          "pr_auc_baseline": 0.043124,
+          "ece": 0.00711,
+          "calibration_slope": null,
+          "calibration_intercept": null,
+          "accuracy": 0.956876,
+          "accuracy_baseline": 0.956876
+        },
+        "markov": {
+          "n": 858.0,
+          "base_rate": 0.050234,
+          "brier": 0.041413,
+          "brier_baseline": 0.041314,
+          "brier_skill_score": -0.002384,
+          "log_loss": 0.179023,
+          "log_loss_baseline": 0.178302,
+          "roc_auc": 0.491589,
+          "pr_auc": 0.042689,
+          "pr_auc_baseline": 0.043124,
+          "ece": 0.006805,
+          "calibration_slope": -0.46944,
+          "calibration_intercept": 0.066562,
+          "accuracy": 0.956876,
+          "accuracy_baseline": 0.956876
+        },
+        "dbn_core": {
+          "n": 858.0,
+          "base_rate": 0.050234,
+          "brier": 0.04128,
+          "brier_baseline": 0.041314,
+          "brier_skill_score": 0.00084,
+          "log_loss": 0.17791,
+          "log_loss_baseline": 0.178302,
+          "roc_auc": 0.620881,
+          "pr_auc": 0.065404,
+          "pr_auc_baseline": 0.043124,
+          "ece": 0.007115,
+          "calibration_slope": 2.845835,
+          "calibration_intercept": -0.099848,
+          "accuracy": 0.956876,
+          "accuracy_baseline": 0.956876
+        },
+        "dbn_full": {
+          "n": 858.0,
+          "base_rate": 0.050234,
+          "brier": 0.041387,
+          "brier_baseline": 0.041314,
+          "brier_skill_score": -0.001757,
+          "log_loss": 0.179043,
+          "log_loss_baseline": 0.178302,
+          "roc_auc": 0.368815,
+          "pr_auc": 0.033839,
+          "pr_auc_baseline": 0.043124,
+          "ece": 0.007807,
+          "calibration_slope": -5.361735,
+          "calibration_intercept": 0.316202,
+          "accuracy": 0.956876,
+          "accuracy_baseline": 0.956876
+        }
+      },
+      "tables": {
+        "base_rate": {
+          "target": "stress_t1",
+          "parents": [],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 1.0,
+          "n_unseen": 1.0
+        },
+        "markov": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 2.0,
+          "n_unseen": 0.0
+        },
+        "dbn_core": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0",
+            "vol_t0",
+            "implied_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 12.0,
+          "n_unseen": 0.0
+        },
+        "dbn_full": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0",
+            "vol_t0",
+            "implied_t0",
+            "news_t0",
+            "curve_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 72.0,
+          "n_unseen": 2.0
+        }
+      },
+      "calibration": {
+        "base_rate": {
+          "calibrator": "identity",
+          "note": "selected identity (cross-fitted brier 0.04769 on 1655 rows); candidates: identity=0.04769 | isotonic=0.04773 | platt=0.04835",
+          "n_oof": 2068.0
+        },
+        "markov": {
+          "calibrator": "identity",
+          "note": "selected identity (cross-fitted brier 0.04769 on 1655 rows); candidates: identity=0.04769 | platt=0.04771 | isotonic=0.04773",
+          "n_oof": 2068.0
+        },
+        "dbn_core": {
+          "calibrator": "platt",
+          "note": "selected platt (cross-fitted brier 0.04775 on 1655 rows); candidates: platt=0.04775 | identity=0.04783 | isotonic=0.04791",
+          "n_oof": 2068.0
+        },
+        "dbn_full": {
+          "calibrator": "platt",
+          "note": "selected platt (cross-fitted brier 0.04782 on 1655 rows); candidates: platt=0.04782 | isotonic=0.04809 | identity=0.04905",
+          "n_oof": 2068.0
+        }
+      },
+      "best": "dbn_core",
+      "lift_over_markov": 0.003224,
+      "lift_ci": [
+        -0.0018353587470655408,
+        0.006764909970652179
+      ],
+      "passes": false,
+      "variables": [
+        "vol",
+        "implied",
+        "news",
+        "curve",
+        "stress"
+      ]
+    },
+    {
+      "channel": "USD_BROAD",
+      "n_labelled": 3409.0,
+      "n_train": 2553.0,
+      "n_holdout": 853.0,
+      "start": "2013-01-10",
+      "end": "2026-09-17",
+      "boundary": "2023-04-21",
+      "base_rate": 0.04974539757148453,
+      "realized": 0.05744431418522861,
+      "reports": {
+        "base_rate": {
+          "n": 853.0,
+          "base_rate": 0.049745,
+          "brier": 0.054204,
+          "brier_baseline": 0.054204,
+          "brier_skill_score": 0.0,
+          "log_loss": 0.220475,
+          "log_loss_baseline": 0.220475,
+          "roc_auc": 0.5,
+          "pr_auc": 0.057444,
+          "pr_auc_baseline": 0.057444,
+          "ece": 0.007699,
+          "calibration_slope": null,
+          "calibration_intercept": null,
+          "accuracy": 0.942556,
+          "accuracy_baseline": 0.942556
+        },
+        "markov": {
+          "n": 853.0,
+          "base_rate": 0.049745,
+          "brier": 0.053554,
+          "brier_baseline": 0.054204,
+          "brier_skill_score": 0.011982,
+          "log_loss": 0.216018,
+          "log_loss_baseline": 0.220475,
+          "roc_auc": 0.556135,
+          "pr_auc": 0.074721,
+          "pr_auc_baseline": 0.057444,
+          "ece": 0.007198,
+          "calibration_slope": 1.321958,
+          "calibration_intercept": -0.00898,
+          "accuracy": 0.942556,
+          "accuracy_baseline": 0.942556
+        },
+        "dbn_core": {
+          "n": 853.0,
+          "base_rate": 0.049745,
+          "brier": 0.053991,
+          "brier_baseline": 0.054204,
+          "brier_skill_score": 0.003926,
+          "log_loss": 0.218439,
+          "log_loss_baseline": 0.220475,
+          "roc_auc": 0.610176,
+          "pr_auc": 0.094033,
+          "pr_auc_baseline": 0.057444,
+          "ece": 0.008015,
+          "calibration_slope": 4.791491,
+          "calibration_intercept": -0.179396,
+          "accuracy": 0.942556,
+          "accuracy_baseline": 0.942556
+        },
+        "dbn_full": {
+          "n": 853.0,
+          "base_rate": 0.049745,
+          "brier": 0.054181,
+          "brier_baseline": 0.054204,
+          "brier_skill_score": 0.000414,
+          "log_loss": 0.220373,
+          "log_loss_baseline": 0.220475,
+          "roc_auc": 0.50825,
+          "pr_auc": 0.090537,
+          "pr_auc_baseline": 0.057444,
+          "ece": 0.008727,
+          "calibration_slope": 1.307882,
+          "calibration_intercept": -0.006273,
+          "accuracy": 0.942556,
+          "accuracy_baseline": 0.942556
+        }
+      },
+      "tables": {
+        "base_rate": {
+          "target": "stress_t1",
+          "parents": [],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 1.0,
+          "n_unseen": 1.0
+        },
+        "markov": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 2.0,
+          "n_unseen": 0.0
+        },
+        "dbn_core": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0",
+            "vol_t0",
+            "implied_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 12.0,
+          "n_unseen": 0.0
+        },
+        "dbn_full": {
+          "target": "stress_t1",
+          "parents": [
+            "stress_t0",
+            "vol_t0",
+            "implied_t0",
+            "news_t0",
+            "curve_t0"
+          ],
+          "states": [
+            "no",
+            "yes"
+          ],
+          "prior_strength": 4.0,
+          "n_configurations": 72.0,
+          "n_unseen": 3.0
+        }
+      },
+      "calibration": {
+        "base_rate": {
+          "calibrator": "identity",
+          "note": "selected identity (cross-fitted brier 0.04690 on 1643 rows); candidates: identity=0.04690 | platt=0.04693 | isotonic=0.04699",
+          "n_oof": 2053.0
+        },
+        "markov": {
+          "calibrator": "identity",
+          "note": "selected identity (cross-fitted brier 0.04658 on 1643 rows); candidates: identity=0.04658 | isotonic=0.04690 | platt=0.04769",
+          "n_oof": 2053.0
+        },
+        "dbn_core": {
+          "calibrator": "platt",
+          "note": "selected platt (cross-fitted brier 0.04692 on 1643 rows); candidates: platt=0.04692 | identity=0.04694 | isotonic=0.04701",
+          "n_oof": 2053.0
+        },
+        "dbn_full": {
+          "calibrator": "platt",
+          "note": "selected platt (cross-fitted brier 0.04697 on 1643 rows); candidates: platt=0.04697 | isotonic=0.04743 | identity=0.04780",
+          "n_oof": 2053.0
+        }
+      },
+      "best": "dbn_core",
+      "lift_over_markov": -0.008056,
+      "lift_ci": [
+        -0.027017098956915873,
+        0.0090392814245544
+      ],
+      "passes": false,
+      "variables": [
+        "vol",
+        "implied",
+        "news",
+        "curve",
+        "stress"
+      ]
+    }
+  ],
+  "pooled": {
+    "base_rate": {
+      "n": 4300.0,
+      "base_rate": 0.056043,
+      "brier": 0.050024,
+      "brier_baseline": 0.050014,
+      "brier_skill_score": -0.000198,
+      "log_loss": 0.206834,
+      "log_loss_baseline": 0.206754,
+      "roc_auc": 0.498085,
+      "pr_auc": 0.052256,
+      "pr_auc_baseline": 0.052791,
+      "ece": 0.002651,
+      "calibration_slope": 0.197935,
+      "calibration_intercept": 0.041817,
+      "accuracy": 0.947209,
+      "accuracy_baseline": 0.947209
+    },
+    "markov": {
+      "n": 4300.0,
+      "base_rate": 0.056043,
+      "brier": 0.050049,
+      "brier_baseline": 0.050014,
+      "brier_skill_score": -0.000689,
+      "log_loss": 0.20635,
+      "log_loss_baseline": 0.206754,
+      "roc_auc": 0.531748,
+      "pr_auc": 0.06099,
+      "pr_auc_baseline": 0.052791,
+      "ece": 0.003414,
+      "calibration_slope": 0.458427,
+      "calibration_intercept": 0.028285,
+      "accuracy": 0.947209,
+      "accuracy_baseline": 0.947209
+    },
+    "dbn_core": {
+      "n": 4300.0,
+      "base_rate": 0.056043,
+      "brier": 0.049985,
+      "brier_baseline": 0.050014,
+      "brier_skill_score": 0.000589,
+      "log_loss": 0.205446,
+      "log_loss_baseline": 0.206754,
+      "roc_auc": 0.5888,
+      "pr_auc": 0.07015,
+      "pr_auc_baseline": 0.052791,
+      "ece": 0.00556,
+      "calibration_slope": 0.517105,
+      "calibration_intercept": 0.026492,
+      "accuracy": 0.947209,
+      "accuracy_baseline": 0.947209
+    },
+    "dbn_full": {
+      "n": 4300.0,
+      "base_rate": 0.056043,
+      "brier": 0.050039,
+      "brier_baseline": 0.050014,
+      "brier_skill_score": -0.000494,
+      "log_loss": 0.211334,
+      "log_loss_baseline": 0.206754,
+      "roc_auc": 0.529142,
+      "pr_auc": 0.058311,
+      "pr_auc_baseline": 0.052791,
+      "ece": 0.002593,
+      "calibration_slope": 0.421116,
+      "calibration_intercept": 0.031652,
+      "accuracy": 0.947209,
+      "accuracy_baseline": 0.947209
+    }
+  },
+  "best": "dbn_core",
+  "lift_over_markov": 0.001278,
+  "lift_ci": [
+    -0.0062168155017647605,
+    0.008494209769752776
+  ],
+  "channels_passing": 0.0,
+  "reliability": [
+    {
+      "bucket": "0%-2%",
+      "n": 134.0,
+      "mean_forecast": 0.0141,
+      "realized_frequency": 0.0224
+    },
+    {
+      "bucket": "2%-4%",
+      "n": 875.0,
+      "mean_forecast": 0.0306,
+      "realized_frequency": 0.0411
+    },
+    {
+      "bucket": "4%-6%",
+      "n": 2514.0,
+      "mean_forecast": 0.0501,
+      "realized_frequency": 0.0513
+    },
+    {
+      "bucket": "6%-8%",
+      "n": 666.0,
+      "mean_forecast": 0.0668,
+      "realized_frequency": 0.0721
+    },
+    {
+      "bucket": "8%-12%",
+      "n": 19.0,
+      "mean_forecast": 0.1006,
+      "realized_frequency": 0.0
+    },
+    {
+      "bucket": "12%-20%",
+      "n": 44.0,
+      "mean_forecast": 0.1563,
+      "realized_frequency": 0.1364
+    },
+    {
+      "bucket": "20%-100%",
+      "n": 48.0,
+      "mean_forecast": 0.2233,
+      "realized_frequency": 0.1042
+    }
+  ],
+  "passes": false
+}

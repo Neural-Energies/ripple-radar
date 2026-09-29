@@ -37,7 +37,7 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | News → volatility increment | **FAILED — 6/6 channels** | No — subsumed by VIX. |
 | Dynamic Bayesian Network | **FAILED — 0/6 channels** | No. |
 | Causal impact (SCM + local projections) | **Estimators validated; no forecastable effect** | Yes for same-day co-movement, labelled predictive. No forward claim. |
-| Ensemble (stacking / BMA) | **FAILED under multiplicity correction** | No. |
+| Ensemble (stacking) | **PASSES the base-rate gate (v2), provisionally** — corrected CI [+0.016, +0.090] on a holdout v1 already read; does not beat its best member | Not yet — needs confirmation on data after the sealed window. |
 | Prophet (news attention) | **FAILED** | No — loses to a trailing mean. |
 
 ### Macro regimes: which factors have a level regime, and which only have volatility
@@ -371,7 +371,7 @@ out a large effect rather than any effect.)
 
 ---
 
-## 1. ace_shock_persistence v1 — FAILED
+## 1. ace_shock_persistence v2 — FAILED
 
 **Target.** P(a ≥1.5σ move extends over the next 5 sessions) — ACE's own
 materialization-vs-fade axis.
@@ -386,11 +386,15 @@ materialization-vs-fade axis.
 
 Sealed holdout: BSS −0.0037, AUC 0.4876, 95% CI **[0.4401, 0.5321]** — straddles 0.50.
 
+v2 chooses the calibrator on forward cross-fitted predictions (PR #5 A09).
+It still selects isotonic (cross-fitted Brier 0.25010 vs identity 0.25033),
+so the holdout numbers are identical to v1's.
+
 **Note.** LightGBM had the *best* out-of-fold AUC (0.5319) and the *worst*
 Brier Skill Score. It found faint ranking signal and was badly overconfident.
 Accuracy and AUC would have sold this model; calibration refused it.
 
-## 2. ace_macro_impact v1 — FAILED (both targets)
+## 2. ace_macro_impact v2 — FAILED (both targets)
 
 **Data.** 954 macro releases (CPI, core CPI, payrolls, unemployment, industrial
 production, retail sales, PPI, housing starts), 2016 → 2026, with ALFRED
@@ -399,13 +403,18 @@ publication timestamps.
 recognised proxy, *not* survey consensus, which ACE has no feed for.
 First-order: corr(|surprise|, |SP500 1d move|) = +0.109.
 
-| Target | Holdout AUC | 95% CI | BSS |
-|---|---|---|---|
-| direction | 0.4922 | [0.4128, 0.5966] | −0.0078 |
-| magnitude | 0.4712 | [0.3490, 0.5630] | −0.0151 |
+| Target | Holdout AUC | 95% CI | BSS | BSS 95% CI |
+|---|---|---|---|---|
+| direction | 0.4576 | [0.3778, 0.5821] | +0.0028 | [−0.0063, +0.0133] |
+| magnitude | 0.4847 | [0.3604, 0.5756] | −0.0421 | [−0.1509, +0.0415] |
+
+v2 chooses the calibrator on forward cross-fitted predictions (PR #5 A09):
+Platt for direction, identity for magnitude, where v1's in-sample rule chose
+isotonic for both (v1 holdout BSS −0.0078 and −0.0151). The verdict is
+unchanged.
 
 **Note.** Magnitude reached out-of-fold AUC 0.5881 — the number that normally
-ships a model. The sealed holdout put it at 0.4712. That gap is fitted noise,
+ships a model. The sealed holdout put it at 0.4847. That gap is fitted noise,
 and catching it is exactly why the holdout is read once.
 
 **Caveat.** 191-row holdout. These results rule out a *strong* effect, not any
@@ -581,7 +590,7 @@ indistinguishable from the holdout everywhere.
 
 ---
 
-## 9. ace_dbn_event v1 — FAILED on 6 of 6 channels
+## 9. ace_dbn_event v2 — FAILED on 6 of 6 channels
 
 **The claim.** Tomorrow's probability of a material event (|return| ≥ 2σ)
 depends on today's state *across* variables — realized vol, implied vol, news
@@ -600,35 +609,42 @@ Pooled over six channels, 4,300 sealed-holdout rows:
 
 | Model | parents | configs | BSS | log loss | AUC |
 |---|---|---|---|---|---|
-| base rate | 0 | 1 | −0.0001 | 0.2068 | 0.509 |
-| markov | 1 | 2 | +0.0000 | 0.2063 | 0.531 |
-| dbn_core | 3 | 12 | −0.0036 | 0.2397 | **0.550** |
-| dbn_full | 5 | 72 | −0.0044 | 0.2281 | 0.535 |
+| base rate | 0 | 1 | −0.0002 | 0.2068 | 0.498 |
+| markov | 1 | 2 | −0.0007 | 0.2064 | 0.532 |
+| dbn_core | 3 | 12 | +0.0006 | 0.2054 | **0.589** |
+| dbn_full | 5 | 72 | −0.0005 | 0.2113 | 0.529 |
 
-Pooled BSS lift over Markov **−0.0036**, CI **[−0.0105, +0.0028]**. Channels
-where the DBN beats Markov with a CI excluding zero: **0 of 6**.
+Pooled BSS lift over Markov **+0.0013**, CI **[−0.0062, +0.0085]**. Channels
+where the DBN beats Markov with a CI excluding zero: **0 of 6**. (v1, whose
+calibrators were chosen in-sample — PR #5 A09: lift −0.0036,
+CI [−0.0105, +0.0028], also 0 of 6.) The two-slice pairing and missing-target
+handling are under PR #5 A14 and this section is re-run after that fix.
 
 **Why it was not dismissed on the first result.** A single-channel run showed
 dbn_core with the best AUC (0.586) and the worst Brier — a model that orders
 days correctly and states the wrong number. That is a calibration verdict, not
 a structural one. So every arm, the baseline included, was given a calibrator
 fitted on walk-forward out-of-fold predictions from the training window and
-applied to the sealed holdout. The DBN still keeps its AUC edge (0.550 vs
-0.531) and still loses on Brier.
+applied to the sealed holdout; since v2 the calibrator is chosen on forward
+cross-fitted predictions. The DBN keeps its AUC edge (0.589 vs 0.532) and
+its Brier gain over Markov is indistinguishable from zero.
 
-The reliability table says why:
+The reliability table (dbn_core, pooled) says why:
 
 | bucket | n | mean forecast | realized |
 |---|---|---|---|
-| 0–2% | 382 | 0.000 | **0.039** |
-| 4–6% | 3,482 | 0.045 | 0.052 |
-| 12–20% | 125 | 0.148 | 0.128 |
-| 20–100% | 19 | 0.271 | **0.105** |
+| 0–2% | 134 | 0.014 | 0.022 |
+| 2–4% | 875 | 0.031 | 0.041 |
+| 4–6% | 2,514 | 0.050 | 0.051 |
+| 6–8% | 666 | 0.067 | 0.072 |
+| 12–20% | 44 | 0.156 | 0.136 |
+| 20–100% | 48 | 0.223 | **0.104** |
 
-Four rows in five, the calibrated DBN just restates the base rate. Where it
-does deviate it is wrong in both directions: isotonic maps 382 days to
-*exactly zero* and 3.9% of them were stress days, and the confident tail
-forecasts 27% where 10.5% occurred.
+Most days the calibrated DBN restates the base rate to within a point. Where
+it deviates the ordering is right and the size is not: the confident tail
+forecasts 22% where 10.4% occurred. (v1's in-sample isotonic choice mapped
+382 days to exactly zero, 3.9% of which were stress days; out-of-sample
+selection no longer picks that transform.)
 
 **What this result is not.** It is not a verdict on Dynamic Bayesian Networks
 for ACE's actual purpose. The spec frames the DBN over *event* states —
@@ -702,53 +718,75 @@ which.
 
 ---
 
-## 11. ace_event_ensemble v1 — FAILED (and the correction that flipped it)
+## 11. ace_event_ensemble v2 — PASSES the base-rate gate, provisionally (v1 FAILED)
 
 The capstone question: does combining the engines beat the best single engine?
 Not "beat the average" — that is true whenever one member is bad and says
 nothing.
 
 One target, so the members are commensurable: **P(at least one |move| ≥ 2σ in
-the next 5 sessions)**. Four members, each an engine validated separately, each
-calibrated on walk-forward out-of-fold predictions before the weights see it.
-Weights fitted on those same out-of-fold rows. Sealed holdout scored once.
+the next 5 sessions)**. Four members, each an engine validated separately.
+Each member's calibrator (identity, Platt or isotonic) is **chosen on forward
+cross-fitted predictions** — rows from walk-forward fold g are scored by a
+calibrator fitted only on folds before g — and the stacking weights are fitted
+on those same cross-fitted values. Sealed holdout scored once per version.
+
+**What changed from v1 (PR #5 A08, A09).** v1 picked each calibrator by
+fitting it on the out-of-fold rows and scoring it on the same rows, and fitted
+the weights on those in-sample-calibrated values. Isotonic minimises training
+Brier over every monotone map, identity included, so that rule chose isotonic
+for 12 of 16 member-channels whether or not it helped. The Hawkes member also
+used a first-order probability approximation instead of the exact
+first-arrival probability (A08).
 
 Pooled over four channels, 4,101 holdout rows:
 
 | Member | BSS | log loss | AUC |
 |---|---|---|---|
-| base rate | +0.0018 | 0.5188 | 0.519 |
-| markov | +0.0022 | 0.5186 | 0.502 |
-| hawkes (cascade intensity) | +0.0194 | 0.5152 | 0.606 |
-| volatility (HAR→FHS crossing) | +0.0343 | 0.5228 | 0.627 |
-| **ensemble** (stacking, log pool) | **+0.0410** | **0.5141** | **0.638** |
+| base rate | +0.0019 | 0.5188 | 0.516 |
+| markov | +0.0037 | 0.5180 | 0.522 |
+| hawkes (cascade intensity) | +0.0262 | 0.5076 | 0.599 |
+| volatility (HAR→FHS crossing) | +0.0370 | 0.5061 | 0.622 |
+| **ensemble** (stacking) | **+0.0468** | **0.4978** | **0.641** |
 
-The ensemble is the best configuration, and it beats the best single member by
-+0.0066, CI [+0.0001, +0.0144]. On an uncorrected reading it also beats the
-base rate: BSS +0.0410, 95% CI **[+0.0031, +0.0824]**.
+Five candidates are compared against the same base rate on the same holdout,
+so the gate is the Bonferroni-corrected 99% interval:
 
-**It does not survive the correction.** Five candidates were compared against
-the same base rate on the same holdout; at 5% each that is a one-in-four
-chance of a spurious winner. The Bonferroni-corrected 99% interval is
-**[−0.0047, +0.0930]** — it includes zero. Registered FAILED.
+| Member | 95% CI | corrected 99% CI | gate |
+|---|---|---|---|
+| hawkes | [+0.0070, +0.0487] | **[+0.0016, +0.0565]** | passes |
+| volatility | [+0.0065, +0.0746] | [−0.0022, +0.0861] | uncorrected only |
+| **ensemble** | [+0.0213, +0.0768] | **[+0.0156, +0.0895]** | **passes** |
 
-This is the result the gate exists to produce. A lower bound of +0.0031 on the
-fifth of five comparisons is exactly what noise looks like when you go
-looking, and the uncorrected version of this table would have shipped a
-forecaster whose advantage over "the base rate, every day" is not established.
+Per channel the ensemble beats the base rate with a CI excluding zero on
+NASDAQ (+0.0949, weight 0.88 on volatility) and WTI (+0.0763, weight 0.77 on
+hawkes), and not on USD_BROAD (+0.0079) or UST10Y (+0.0058).
 
-Two further readings worth keeping:
+**Which fix moved the verdict — an ablation, diagnostic only.** Re-running v2
+with the exact Hawkes probability but v1's in-sample calibration rule
+(nothing registered) gives ensemble BSS +0.0415, corrected CI
+[−0.0029, +0.0933] — FAILS, essentially v1's +0.0410 and [−0.0047, +0.0930].
+The flip comes from the calibration correction: log loss 0.5132 → 0.4978,
+because out-of-sample selection keeps identity or Platt where in-sample
+selection forced isotonic.
 
-- The **volatility member carries real information** — AUC 0.627 pooled, 0.695
-  on NASDAQ, from a HAR volatility forecast converted to a crossing
-  probability through the empirical residual distribution. Its BSS is
-  +0.0343 and its corrected interval still spans zero, so it does not ship
-  either; but it is the member the stacking weights load onto (0.65–0.94
-  across channels), and it is where a future attempt should start.
-- **Persistence is worth nothing here.** The markov member scores +0.0022,
-  and the base rate +0.0018. Whether a 2σ move happened today tells you
-  almost nothing about the next five sessions — the same conclusion the DBN
-  run reached from the other direction.
+**Why this pass is provisional.** v1, the ablation and v2 were all scored on
+the same sealed holdout. The v2 method was fixed by the audit before v2 was
+run, and nothing was tuned on holdout results, but a verdict that flips from
+FAIL to PASS on a holdout already read is exactly the case the "read once"
+rule exists for. The registry gate promoted v2 as written; it drives no
+user-facing number, and should not until it is confirmed on data after the
+sealed window (2026-09 onward).
+
+What still holds from v1:
+
+- The ensemble **does not beat its best member**: lift over volatility
+  +0.0098, CI [−0.0069, +0.0265]; 0 of 4 channels. Combining is the
+  configuration that cleared the gate, not a demonstrated source of the edge.
+- **Persistence is worth nothing here.** The markov member scores +0.0037
+  and the base rate +0.0019. Whether a 2σ move happened today tells you almost
+  nothing about the next five sessions — the same conclusion the DBN run
+  reached from the other direction.
 
 ---
 
@@ -1153,10 +1191,10 @@ magnitude, news→volatility increment, Prophet, and the Dynamic Bayesian
 Network on market states. **Descriptive only:** regime labelling, historical
 analogs, transmission structure. **Validated machinery with nothing to
 forecast:** the causal engine — its estimators recover planted effects, and
-no market pair produced a response that outlives the day it happened; and the
-ensemble — the combination is the best configuration tested and still cannot
-be distinguished from the base rate once its five comparisons are corrected
-for.
+no market pair produced a response that outlives the day it happened.
+**Provisional:** the ensemble — v2 clears the corrected base-rate gate once
+its calibrators are chosen out of sample, but on a holdout v1 already read,
+and it does not beat its best member.
 
 The failures are the evidence that the gate works. A leaky setup does not
 return AUC 0.49 — it returns 0.65 and looks fundable. And the passes are

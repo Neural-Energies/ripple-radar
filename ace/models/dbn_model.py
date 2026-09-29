@@ -47,6 +47,7 @@ from ace.bayesnet.states import build_state_frame, to_two_slice
 from ace.calibration.calibrate import fit_calibrator
 from ace.config import RANDOM_SEED, REPORTS
 from ace.data.fred_market import market_panel
+from ace.jsonutil import to_json_safe
 from ace.metrics.classification import evaluate, reliability_table
 from ace.news.indices import news_features, news_panel
 from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
@@ -55,7 +56,7 @@ from ace.validation.leakage import assert_probabilities, assert_split_is_chronol
 from ace.validation.walkforward import walk_forward_folds
 
 MODEL_ID = "ace_dbn_event"
-MODEL_VERSION = "v1"
+MODEL_VERSION = "v2"
 HOLDOUT_FRAC = 0.25
 LABEL_HORIZON_DAYS = 1   # the label is tomorrow's state
 EMBARGO_DAYS = 2
@@ -146,11 +147,15 @@ def run_channel(panel: pd.DataFrame, channel: str, seed: int) -> dict:
         label_horizon_days=LABEL_HORIZON_DAYS, embargo_days=EMBARGO_DAYS, min_train=500
     )
 
+    fold_of = np.full(len(tr_flat), -1)
+    for f in folds:
+        fold_of[f.valid_idx] = f.index
+
     preds, reports, tables, methods = {}, {}, {}, {}
     for name, parents in SPECS.items():
         oof = _oof(tr_two, tr_flat, parents, folds)
         seen = np.isfinite(oof)
-        cal, note = fit_calibrator(y_tr[seen], oof[seen], base_rate=base_rate)
+        cal, note = fit_calibrator(y_tr[seen], oof[seen], base_rate=base_rate, groups=fold_of[seen])
         cpt = fit_dbn(tr_two, DBNSpec({"stress": parents}))["stress"]
         p = cal.transform(predict_proba(cpt, te_flat, "yes"))
         assert_probabilities(p)
@@ -313,7 +318,7 @@ def main() -> int:
                 reason=f"pooled BSS lift {lift_pool:+.4f} over Markov, CI [{lo_p:+.4f},{hi_p:+.4f}]")
 
     out = REPORTS / f"{MODEL_ID}_{MODEL_VERSION}_scorecard.json"
-    out.write_text(json.dumps(scorecard, indent=2, default=str))
+    out.write_text(json.dumps(to_json_safe(scorecard), indent=2, default=str, allow_nan=False))
     print(f"\nscorecard {out}")
     return 0
 

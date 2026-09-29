@@ -46,7 +46,7 @@ from ace.validation.leakage import (
 from ace.validation.walkforward import sealed_split, walk_forward_folds
 
 MODEL_ID = "ace_shock_persistence"
-MODEL_VERSION = "v1"
+MODEL_VERSION = "v2"
 EMBARGO_DAYS = 3
 
 
@@ -164,7 +164,8 @@ def main() -> int:
         key=lambda n: wf[n].brier_skill_score,
     )
     p_oof_best = np.concatenate(oof[challenger])
-    calibrator, cal_note = fit_calibrator(y_oof, p_oof_best, base_rate=base_rate_dev)
+    fold_groups = np.concatenate([np.full(len(yf), i) for i, yf in enumerate(oof_y)])
+    calibrator, cal_note = fit_calibrator(y_oof, p_oof_best, base_rate=base_rate_dev, groups=fold_groups)
     print(f"\nchallenger: {challenger}")
     print(f"calibration {cal_note}")
 
