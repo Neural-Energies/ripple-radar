@@ -36,12 +36,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 warnings.filterwarnings("ignore")
 
 from ace.config import REPORTS
+from ace.jsonutil import to_json_safe
 from ace.feeds.usgs import earthquakes
 from ace.registry.registry import ModelRecord, dataframe_hash, promote, register, utcnow
 from ace.survival.competing import calibration_by_horizon, fit_competing_risks
 
 MODEL_ID = "ace_competing_risks"
-MODEL_VERSION = "v1"
+MODEL_VERSION = "v2"
 
 CAUSES = {1: "escalation", 2: "continuation"}   # 0 = quiescence (censored)
 MAIN_MIN_MAG = 6.0
@@ -143,23 +144,27 @@ def main() -> int:
     print("\nOUT-OF-SAMPLE calibration (predicted from train, realized on test):")
     cal = calibration_by_horizon(fit, te["duration_days"].to_numpy(), te["cause"].to_numpy(),
                                  CAUSES, HORIZONS)
-    print(f"  {'horizon':>8}{'cause':>15}{'predicted':>11}{'realized':>10}{'error':>9}")
-    worst = 0.0
+    print(f"  {'horizon':>8}{'cause':>15}{'predicted':>11}{'realized':>10}{'95% CI':>17}{'error':>9}{'at risk':>9}")
     for row in cal:
+        lo, hi = row["realized_ci"]
+        flag = "" if row["supported"] else "  (unsupported, not scored)"
         print(f"  {row['horizon']:>7.0f}d{row['cause']:>15}{row['predicted']:>11.1%}"
-              f"{row['realized']:>10.1%}{row['error']:>+9.1%}")
-        worst = max(worst, abs(row["error"]))
+              f"{row['realized']:>10.1%}   [{lo:>5.1%},{hi:>6.1%}]{row['error']:>+9.1%}{row['n_at_risk']:>9}{flag}")
+    # Only horizons the holdout was actually followed to, with enough subjects
+    # still observed, can be scored; the realized side is the holdout's own
+    # censor-aware Aalen-Johansen incidence, not a raw count.
+    scored = [row for row in cal if row["supported"]]
+    worst = max((abs(row["error"]) for row in scored), default=float("nan"))
 
     # Baseline: ignore timing entirely, predict each cause's marginal share.
     marg = {CAUSES[k]: float(np.mean(tr["cause"] == k)) for k in CAUSES}
-    base_err = 0.0
-    for row in cal:
-        base_err = max(base_err, abs(marg[row["cause"]] - row["realized"]))
+    base_err = max((abs(marg[row["cause"]] - row["realized"]) for row in scored), default=float("nan"))
 
-    print(f"\n  worst absolute error, competing-risks model : {worst:.1%}")
+    print(f"\n  scored {len(scored)}/{len(cal)} horizon-cause rows")
+    print(f"  worst absolute error, competing-risks model : {worst:.1%}")
     print(f"  worst absolute error, marginal-share baseline: {base_err:.1%}")
 
-    passes = bool(worst <= 0.10 and worst < base_err)
+    passes = bool(scored and worst <= 0.10 and worst < base_err)
     print("\n" + "=" * 76)
     if passes:
         print("VERDICT: PASSES — incidence is calibrated out of sample and beats")
@@ -197,10 +202,14 @@ def main() -> int:
         promote(MODEL_ID, MODEL_VERSION, reason=f"worst OOS calibration error {worst:.1%}")
 
     out = REPORTS / f"{MODEL_ID}_{MODEL_VERSION}_scorecard.json"
-    out.write_text(json.dumps({"n_mainshocks": len(df), "n_train": len(tr), "n_test": len(te),
-                               "cif": fit.to_dict(), "calibration": cal,
-                               "worst_error": worst, "baseline_worst_error": base_err,
-                               "passes": passes}, indent=2, default=str))
+    out.write_text(json.dumps(to_json_safe({
+        "population": f"M{MAIN_MIN_MAG}+ earthquake mainshocks (USGS), first M{FOLLOW_MIN_MAG}+ "
+                      f"event within {RADIUS_KM:.0f}km and {WINDOW_DAYS:.0f}d",
+        "baseline": "timing-blind marginal cause share",
+        "n_mainshocks": len(df), "n_train": len(tr), "n_test": len(te),
+        "cif": fit.to_dict(), "calibration": cal,
+        "worst_error": worst, "baseline_worst_error": base_err,
+        "passes": passes}), indent=2, default=str, allow_nan=False))
     print(f"\nscorecard {out}")
     return 0
 

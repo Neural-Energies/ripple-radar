@@ -22,7 +22,7 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | **Scenario probability** | **PASSES 2/4 on held-back windows (WTI, USD_BROAD, both FHS). SP500 and NASDAQ FAIL** — v1's 4/4 retired (PR #5 A12/A13) | **Yes** for WTI and USD_BROAD only. |
 | **Volatility forecast (HAR)** | **PASSES — 3/6 channels** | **Yes**, for SP500, DJIA, UST10Y. Withheld elsewhere. |
 | **Event cascade (Hawkes)** | **PASSES — 2/3 channels** | **Yes**, for NASDAQ and WTI. |
-| **Competing risks (Aalen-Johansen)** | **PASSES** | **Yes** — cumulative incidence by horizon. |
+| **Competing risks (Aalen-Johansen)** | **PASSES (v2, censor-aware holdout) — on earthquake aftershock data** | **Yes** — cumulative incidence by horizon, for that population. As a news-book prior it is a cross-domain transfer, and the app says so. |
 | **Conflict cascade (GDELT Hawkes)** | **PASSES — 15/20 countries, shape unverified** | Partly — that escalation clusters, yes. Not the branching ratio to three digits. |
 | Game theory (Nash + Monte Carlo) | **Exact** | Yes — equilibria computed and verified. Payoffs remain an assumption. |
 | Regime (Markov switching) | **Validated, descriptive. Specification settled: 2 of 10 factors carry LEVEL regimes** | Yes — to label the environment, and only where the label is supported. Not as a forecast. |
@@ -524,7 +524,7 @@ recover aftershock clustering is not a Hawkes process.
 
 ---
 
-## 8. Competing risks (Aalen-Johansen) — PASSES
+## 8. Competing risks (Aalen-Johansen) — PASSES (v2)
 
 After a shock, three things can happen: it escalates, it merely continues, or
 nothing further happens. These compete — the first one to occur forecloses the
@@ -532,20 +532,41 @@ others — and treating a competing event as censoring is the classic error. It
 answers "what is P(escalation) in a world where continuation cannot happen",
 which is always too high.
 
-4,633 mainshocks, 3,837 train / 796 sealed holdout.
+**The population is earthquakes**: M6.0+ USGS mainshocks, and the first
+M5.5+ event within 500km and 30 days. 4,633 mainshocks, 3,837 train / 796
+sealed holdout. An earlier write-up, and the generated app table, called
+these "market shocks". They are not; the app's reference-class caveat now
+says so.
 
-| Horizon | Cause | Predicted | Realized | Error |
-|---|---|---|---|---|
-| 1d | escalation | 0.0300 | 0.0226 | 0.0074 |
-| 1d | continuation | 0.2294 | 0.2236 | 0.0058 |
-| 7d | escalation | 0.0469 | 0.0364 | 0.0105 |
-| 7d | continuation | 0.3287 | 0.3191 | 0.0096 |
-| 14d | continuation | 0.4155 | 0.3844 | 0.0311 |
-| 30d | escalation | 0.0753 | 0.0641 | 0.0112 |
+**v2, 2026-09-29** (external audit PR #5 A06/A07). v1 scored the holdout by
+counting subjects censored before a horizon as a known "nothing happened",
+biasing the realized incidence down, and resampled the fitted step function
+onto a quantile grid with linear interpolation — inventing probability
+between events and returning the first grid value for any earlier horizon.
+v2 scores against the holdout's own censor-aware Aalen-Johansen incidence,
+with a 95% subject-bootstrap interval and only where the holdout was followed
+with at least 30 subjects still at risk, and stores and reads the curve as
+the step function it is, at all 2,252 jump times.
 
-**Worst out-of-sample error 3.5%**, against **28.8%** for the naive
-Kaplan-Meier treatment that censors the competing cause. That gap is the
-entire point of the method.
+| Horizon | Cause | Predicted | Realized | Realized 95% CI | Error | At risk |
+|---|---|---:|---:|---|---:|---:|
+| 1d | escalation | 3.0% | 2.3% | 1.4–3.4% | +0.8 | 599 |
+| 1d | continuation | 23.5% | 22.4% | 19.4–25.1% | +1.1 | 599 |
+| 3d | escalation | 3.8% | 2.5% | 1.5–3.8% | +1.3 | 563 |
+| 3d | continuation | 28.7% | 26.7% | 23.5–29.6% | +2.1 | 563 |
+| 7d | escalation | 4.9% | 3.7% | 2.5–5.0% | +1.3 | 510 |
+| 7d | continuation | 34.0% | 32.0% | 28.7–35.1% | +2.1 | 510 |
+| 14d | escalation | 6.0% | 4.4% | 3.1–5.9% | +1.6 | 451 |
+| 14d | continuation | 41.5% | 38.5% | 35.2–41.8% | +3.0 | 451 |
+| 30d | escalation | 7.5% | 6.4% | 4.9–8.1% | +1.1 | 362 |
+| 30d | continuation | 51.1% | 47.8% | 44.4–51.0% | +3.4 | 362 |
+
+**Worst out-of-sample error 3.4%**, against **28.7%** for a timing-blind
+marginal-share baseline (v1's write-up called that baseline "naive
+Kaplan-Meier"; it is not). The fit over-predicts slightly at every horizon,
+and at 30 days the continuation prediction sits just above the realized
+interval: calibrated within the 10-point gate everywhere, not
+indistinguishable from the holdout everywhere.
 
 ---
 

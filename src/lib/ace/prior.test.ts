@@ -40,11 +40,26 @@ test("cumulative incidence is monotone and never leaves the simplex", () => {
   }
 });
 
-test("reading between grid points interpolates rather than jumping", () => {
-  const a = baseRateAt(7);
-  const b = baseRateAt(14);
-  const mid = baseRateAt(10.5);
-  assert.ok(mid.escalation > a.escalation && mid.escalation < b.escalation);
+test("between two jumps the curve holds the earlier jump's value — a step, never interpolated", () => {
+  // PR #5 A07: incidence only moves when an event happens. Interpolating
+  // invents probability no event supports (0.75 at day 15 for a curve that is
+  // 0.5 until day 20).
+  for (let i = 1; i < SHOCK_BASE_RATES.length; i += 97) {
+    const a = SHOCK_BASE_RATES[i - 1]!;
+    const b = SHOCK_BASE_RATES[i]!;
+    const mid = baseRateAt((a.days + b.days) / 2);
+    assert.equal(mid.escalation, a.escalation);
+    assert.equal(mid.continuation, a.continuation);
+    assert.equal(baseRateAt(b.days).escalation, b.escalation, "a jump is included at its own time");
+  }
+});
+
+test("before the first event nothing has happened yet", () => {
+  const zero = SHOCK_BASE_RATES[0]!;
+  assert.equal(zero.days, 0);
+  assert.equal(zero.escalation, 0);
+  assert.equal(zero.continuation, 0);
+  assert.equal(baseRateAt(SHOCK_BASE_RATES[1]!.days / 2).escalation, 0);
 });
 
 test("reading outside the grid clamps instead of extrapolating a survival curve", () => {

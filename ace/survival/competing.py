@@ -20,6 +20,16 @@ scenario set needs.
 
 Estimated by Aalen-Johansen, which is non-parametric: no proportional-hazards
 assumption, no distributional shape imposed on the waiting times.
+
+THE CURVE IS A STEP FUNCTION, AND IS STORED AND READ AS ONE
+
+An Aalen-Johansen CIF only moves at an event time and is right-continuous.
+The curve is kept at exactly those jump times — nothing is lost — and read by
+step lookup: zero before the first event, the value at the last jump at or
+before t otherwise. An earlier version resampled it onto a quantile grid with
+linear interpolation, which invented probability between jumps (0.75 at day
+15 for a curve that is 0.5 until day 20) and reported the first grid value
+for any horizon before it (0.5 at day 0 for a curve that starts at day 10).
 """
 from __future__ import annotations
 
@@ -27,7 +37,48 @@ from dataclasses import asdict, dataclass
 
 import numpy as np
 import pandas as pd
-from sksurv.nonparametric import cumulative_incidence_competing_risks
+
+#: Holdout subjects still under observation at a horizon below which a
+#: realized incidence is reported but not scored.
+MIN_AT_RISK = 30
+
+
+def aalen_johansen(
+    durations: np.ndarray, causes: np.ndarray, cause_ids: list[int]
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Cumulative incidence of each cause at every event time.
+
+    Returns (times, cif, at_risk): `times` are the distinct event times of any
+    cause, `cif[i, j]` the incidence of `cause_ids[i]` by `times[j]`, and
+    `at_risk[j]` the subjects still under observation at `times[j]` (a
+    subject censored at an event time is at risk for it, the standard
+    convention). A named cause with no events has a flat zero row, and one
+    observed cause alone is fine — the library estimator this replaces
+    failed on both.
+    """
+    d = np.asarray(durations, dtype=float)
+    c = np.asarray(causes, dtype=int)
+    ids = list(cause_ids)
+    event = c != 0
+    times, total = np.unique(d[event], return_counts=True)
+    if len(times) == 0:
+        return times, np.zeros((len(ids), 0)), np.zeros(0, dtype=int)
+    at_risk = len(d) - np.searchsorted(np.sort(d), times, side="left")
+    per_cause = np.zeros((len(ids), len(times)))
+    for i, k in enumerate(ids):
+        u, n = np.unique(d[c == k], return_counts=True)
+        if len(u):
+            per_cause[i, np.searchsorted(times, u)] = n
+    surv_after = np.cumprod(1.0 - total / at_risk)
+    surv_before = np.concatenate([[1.0], surv_after[:-1]])
+    cif = np.cumsum(surv_before * per_cause / at_risk, axis=1)
+    return times, cif, at_risk
+
+
+def _step(times: np.ndarray, values: np.ndarray, t: float) -> float:
+    """Right-continuous step lookup; zero before the first jump."""
+    i = int(np.searchsorted(times, t, side="right")) - 1
+    return 0.0 if i < 0 else float(values[i])
 
 
 @dataclass(frozen=True)
@@ -35,21 +86,23 @@ class CompetingRisksFit:
     causes: list[str]
     n_subjects: int
     n_censored: int
+    # Every jump time of any cause, led by 0.0 so the table itself says
+    # "nothing yet" before the first event. cif[cause][i] = P(cause occurs
+    # first by horizon_grid[i]), constant until horizon_grid[i + 1].
     horizon_grid: list[float]
-    # cif[cause][i] = P(cause occurs first by horizon_grid[i])
     cif: dict[str, list[float]]
     event_counts: dict[str, int]
     median_time: dict[str, float | None]
+    #: Longest follow-up in the fitted sample. The curve is not measured past it.
+    max_follow_up: float = float("nan")
 
     def to_dict(self) -> dict:
         return asdict(self)
 
     def probabilities_at(self, t: float) -> dict[str, float]:
         """CIF for each cause at horizon t, plus the probability nothing happens."""
-        grid = np.asarray(self.horizon_grid)
-        idx = int(np.searchsorted(grid, t, side="right") - 1)
-        idx = max(0, min(idx, len(grid) - 1))
-        out = {c: round(float(self.cif[c][idx]), 6) for c in self.causes}
+        grid = np.asarray(self.horizon_grid, dtype=float)
+        out = {c: round(_step(grid, np.asarray(self.cif[c]), t), 6) for c in self.causes}
         out["no_event"] = round(max(0.0, 1.0 - sum(out.values())), 6)
         return out
 
@@ -58,8 +111,6 @@ def fit_competing_risks(
     durations: np.ndarray,
     causes: np.ndarray,
     cause_names: dict[int, str],
-    *,
-    grid: np.ndarray | None = None,
 ) -> CompetingRisksFit:
     """Aalen-Johansen cumulative incidence for each competing cause.
 
@@ -90,37 +141,37 @@ def fit_competing_risks(
     if missing:
         raise ValueError(f"causes {sorted(missing)} present in data but not named")
 
-    times, cif_all = cumulative_incidence_competing_risks(c, d)
+    ids = sorted(cause_names)
+    times, curves, _ = aalen_johansen(d, c, ids)
 
-    if grid is None:
-        grid = np.unique(np.quantile(d, np.linspace(0.01, 0.99, 60)))
-
-    names = [cause_names[k] for k in sorted(cause_names)]
+    names = [cause_names[k] for k in ids]
     cif: dict[str, list[float]] = {}
     medians: dict[str, float | None] = {}
     counts: dict[str, int] = {}
 
-    for k, name in zip(sorted(cause_names), names):
-        # cif_all[0] is the overall survival complement; causes start at index 1
-        curve = np.asarray(cif_all[k])
-        vals = np.interp(grid, times, curve, left=0.0, right=float(curve[-1]))
-        cif[name] = [round(float(v), 6) for v in vals]
+    for i, (k, name) in enumerate(zip(ids, names)):
+        curve = curves[i]
+        cif[name] = [0.0] + [round(float(v), 6) for v in curve]
         counts[name] = int(np.sum(c == k))
-        # "median" here is where this cause's CIF reaches half its plateau —
-        # a cause that never reaches half its own total has no median.
-        plateau = float(curve[-1])
+        # "median" here is the first time this cause's CIF reaches half its
+        # plateau — read off the step function, not interpolated between
+        # jumps. A cause with no events has no median.
+        plateau = float(curve[-1]) if len(curve) else 0.0
         medians[name] = (
-            round(float(np.interp(plateau / 2, curve, times)), 4) if plateau > 1e-9 else None
+            round(float(times[int(np.argmax(curve >= plateau / 2))]), 4) if plateau > 1e-9 else None
         )
 
     return CompetingRisksFit(
         causes=names,
         n_subjects=int(len(d)),
         n_censored=int(np.sum(c == 0)),
-        horizon_grid=[round(float(g), 4) for g in grid],
+        # Full precision: catalog times carry milliseconds, and rounding to
+        # 1e-6 days merged distinct jumps into duplicate knots.
+        horizon_grid=[0.0] + [float(g) for g in times],
         cif=cif,
         event_counts=counts,
         median_time=medians,
+        max_follow_up=round(float(d.max()), 6),
     )
 
 
@@ -130,29 +181,58 @@ def calibration_by_horizon(
     causes: np.ndarray,
     cause_names: dict[int, str],
     horizons: tuple[float, ...],
+    *,
+    min_at_risk: int = MIN_AT_RISK,
+    n_boot: int = 500,
+    seed: int = 17,
 ) -> list[dict]:
-    """Predicted CIF vs realized frequency at fixed horizons, out of sample.
+    """Predicted CIF vs the holdout's own Aalen-Johansen CIF, by horizon.
 
-    The honest test of a competing-risks model: of the subjects observed long
-    enough to know, how many actually had cause k first by time t, against
-    what the fitted CIF said.
+    The realized side must be censor-aware. An earlier version counted a
+    holdout subject censored BEFORE t as a known "no event by t" — its
+    `informative` mask was `(d <= t) | (d > t)`, which is everything. With 50
+    subjects censored on day 1, 25 events on day 2 and 25 followed to day 20,
+    it reported 0.25 incidence by day 10; the risk-set answer is 0.50 (25
+    events among the 50 still observed). Deleting early-censored subjects
+    instead would not be unbiased in general either, so the holdout gets the
+    same estimator the fit does.
+
+    `supported` is False when the holdout was not followed to t, or fewer than
+    `min_at_risk` subjects were still observed there; such rows are reported
+    and must not be scored. `realized_ci` is a 95% subject-bootstrap interval.
     """
     d = np.asarray(durations, dtype=float)
     c = np.asarray(causes, dtype=int)
+    ids = sorted(cause_names)
+    times, curves, _ = aalen_johansen(d, c, ids)
+
+    rng = np.random.default_rng(seed)
+    draws = np.full((n_boot, len(horizons), len(ids)), np.nan)
+    for b in range(n_boot):
+        idx = rng.integers(0, len(d), size=len(d))
+        bt, bc, _ = aalen_johansen(d[idx], c[idx], ids)
+        for h, t in enumerate(horizons):
+            for i in range(len(ids)):
+                draws[b, h, i] = _step(bt, bc[i], t)
+
     rows: list[dict] = []
-    for t in horizons:
+    for h, t in enumerate(horizons):
         pred = fit.probabilities_at(t)
-        # A subject is informative at horizon t if it either had an event by t,
-        # or was followed past t without one.
-        informative = (d <= t) | (d > t)
-        for k, name in sorted(cause_names.items()):
-            realized = float(np.mean((c[informative] == k) & (d[informative] <= t)))
+        n_at_risk = int(np.sum(d >= t))
+        supported = bool(len(d) and d.max() >= t and n_at_risk >= min_at_risk)
+        for i, k in enumerate(ids):
+            name = cause_names[k]
+            realized = _step(times, curves[i], t)
+            lo, hi = np.nanquantile(draws[:, h, i], [0.025, 0.975]) if n_boot else (np.nan, np.nan)
             rows.append({
                 "horizon": float(t),
                 "cause": name,
                 "predicted": round(float(pred[name]), 4),
                 "realized": round(realized, 4),
+                "realized_ci": [round(float(lo), 4), round(float(hi), 4)],
                 "error": round(float(pred[name]) - realized, 4),
-                "n": int(informative.sum()),
+                "n": int(len(d)),
+                "n_at_risk": n_at_risk,
+                "supported": supported,
             })
     return rows
