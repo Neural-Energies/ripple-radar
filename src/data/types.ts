@@ -540,6 +540,47 @@ export interface AlertRule {
   eventId?: string;
 }
 
+/**
+ * A saved research thesis. Everything above `review` is frozen when it is
+ * saved — the book's probability, the evidence, the prices — so a later
+ * review grades what was actually believed, not what the book says now.
+ */
+export interface Thesis {
+  id: string;
+  createdAt: string;
+  eventId: string;
+  eventTitle: string;
+  /** The claim, in the trader's own words. */
+  statement: string;
+  /** Scenario the thesis rides on, and its probability when saved. */
+  scenarioId: string | null;
+  scenarioName: string | null;
+  scenarioProbability: number | null;
+  /** The book's headline probability when saved. */
+  bookProbability: number;
+  horizon: string;
+  horizonHours: number;
+  /** createdAt + horizon: when the thesis is due for review. */
+  reviewAt: string;
+  instruments: { ticker: string; expected: "up" | "down"; priceAtSave: number | null }[];
+  /** What would confirm it. */
+  triggers: string[];
+  /** What would prove it wrong — checked by monitoring and at review. */
+  invalidation: string[];
+  /** Evidence the book held when the thesis was saved. */
+  evidence: { headline: string; source: string; time: string }[];
+  alternatives: { name: string; probability: number }[];
+  status: "open" | "reviewed";
+  review?: {
+    at: string;
+    outcome: "right" | "wrong" | "mixed" | "unclear";
+    note: string;
+    bookProbability: number | null;
+    scenarioProbability: number | null;
+    prices: { ticker: string; price: number | null; changePct: number | null }[];
+  };
+}
+
 /** User-opened book. Optional payload is a fully constructed research object. */
 export interface DeskBook {
   id: string;

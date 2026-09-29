@@ -23,10 +23,16 @@ export function AuthSlot({ compact = false }: { compact?: boolean }) {
               compact && "sm:hidden",
               sync === "cloud" ? "text-up" : "text-subtle",
             )}
-            title={sync === "cloud" ? "Desk synced to this account" : "Saving on this device only"}
+            title={
+              sync === "cloud"
+                ? "Desk synced to this account"
+                : sync === "retrying"
+                  ? "Unsynced changes are kept on this device and retried"
+                  : "Saving to this account"
+            }
           >
-            {sync === "cloud" ? <Cloud className="size-3.5" /> : <CloudOff className="size-3.5" />}
-            {sync === "cloud" ? "Synced" : sync === "pending" ? "Syncing" : "Local"}
+            {sync === "cloud" || sync === "saving" ? <Cloud className="size-3.5" /> : <CloudOff className="size-3.5" />}
+            {sync === "cloud" ? "Synced" : sync === "saving" || sync === "pending" ? "Syncing" : sync === "retrying" ? "Unsynced" : "Local"}
           </span>
           <div className="max-w-[9.5rem] overflow-hidden sm:max-w-none">
             <UserButton compact={compact} />

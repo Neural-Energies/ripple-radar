@@ -1,30 +1,20 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { SEED_ALERTS } from "@/data/catalog";
-import type { AlertRule, DeskBook, Scenario } from "@/data/types";
+import { createJSONStorage, persist } from "zustand/middleware";
+import type { AlertRule, DeskBook, Thesis } from "@/data/types";
+import { CLEAN_SYNC, deskKey, GUEST_DESK_KEY, type SyncMeta } from "@/lib/desk-merge";
+import { EMPTY_DESK, normalizeDesk, snapshotDesk, type CustomScenario, type DeskSnapshot } from "@/lib/desk-model";
 
-export interface CustomScenario extends Scenario {
-  eventId: string;
-  custom: true;
-}
-
-export interface Watchlist {
-  id: string;
-  name: string;
-  tickers: string[];
-}
-
-export interface DeskSnapshot {
-  selectedEventId: string;
-  watchlists: Watchlist[];
-  alerts: AlertRule[];
-  customScenarios: CustomScenario[];
-  deskBooks: DeskBook[];
-}
+export type { CustomScenario, DeskSnapshot, Watchlist } from "@/lib/desk-model";
+export { EMPTY_DESK, normalizeDesk, snapshotDesk } from "@/lib/desk-model";
 
 interface AppState extends DeskSnapshot {
   hydrated: boolean;
   setHydrated: (v: boolean) => void;
+  /** Whose desk is in memory: undefined until auth resolves, null signed out. */
+  identity: string | null | undefined;
+  /** Cloud agreement for this partition. Persisted, so a reload cannot lose unsynced work. */
+  sync: SyncMeta;
+  setSync: (sync: SyncMeta) => void;
   setSelectedEventId: (id: string) => void;
   addToWatchlist: (listId: string, ticker: string) => void;
   removeFromWatchlist: (listId: string, ticker: string) => void;
@@ -35,35 +25,26 @@ interface AppState extends DeskSnapshot {
   addScenario: (s: CustomScenario) => void;
   addDeskBook: (book: DeskBook) => void;
   removeDeskBook: (id: string) => void;
+  addThesis: (thesis: Thesis) => void;
+  reviewThesis: (id: string, review: NonNullable<Thesis["review"]>) => void;
+  removeThesis: (id: string) => void;
   replaceDesk: (desk: DeskSnapshot) => void;
   commandOpen: boolean;
   setCommandOpen: (v: boolean) => void;
 }
 
-const DEFAULT_WATCHLISTS: Watchlist[] = [
-  { id: "d1", name: "First-order prints", tickers: [] },
-  { id: "d2", name: "Distance 2–3", tickers: [] },
-  { id: "conditions", name: "Financial conditions", tickers: [] },
-];
-
-export function snapshotDesk(s: DeskSnapshot): DeskSnapshot {
-  return {
-    selectedEventId: s.selectedEventId,
-    watchlists: s.watchlists,
-    alerts: s.alerts,
-    customScenarios: s.customScenarios,
-    deskBooks: s.deskBooks ?? [],
-  };
-}
+const newId = (prefix: string) => `${prefix}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
 export const useApp = create<AppState>()(
   persist(
     (set, get) => ({
+      ...EMPTY_DESK,
       hydrated: false,
       setHydrated: (v) => set({ hydrated: v }),
-      selectedEventId: "",
+      identity: undefined,
+      sync: CLEAN_SYNC,
+      setSync: (sync) => set({ sync }),
       setSelectedEventId: (id) => set({ selectedEventId: id }),
-      watchlists: DEFAULT_WATCHLISTS,
       addToWatchlist: (listId, ticker) => {
         set({
           watchlists: get().watchlists.map((w) =>
@@ -84,7 +65,6 @@ export const useApp = create<AppState>()(
         const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now().toString(36);
         set({ watchlists: [...get().watchlists, { id, name, tickers: [] }] });
       },
-      alerts: SEED_ALERTS,
       toggleAlert: (id) =>
         set({
           alerts: get().alerts.map((a) => (a.id === id ? { ...a, active: !a.active } : a)),
@@ -94,7 +74,7 @@ export const useApp = create<AppState>()(
           alerts: [
             {
               ...alert,
-              id: "a-" + Date.now().toString(36),
+              id: newId("a"),
               created: new Date().toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "short",
@@ -105,30 +85,65 @@ export const useApp = create<AppState>()(
           ],
         }),
       dismissAlert: (id) => set({ alerts: get().alerts.filter((a) => a.id !== id) }),
-      customScenarios: [],
       addScenario: (s) => set({ customScenarios: [...get().customScenarios, s] }),
-      deskBooks: [],
       addDeskBook: (book) =>
         set({
           deskBooks: [book, ...get().deskBooks.filter((b) => b.id !== book.id)],
           selectedEventId: book.id,
         }),
       removeDeskBook: (id) => set({ deskBooks: get().deskBooks.filter((b) => b.id !== id) }),
-      replaceDesk: (desk) =>
+      addThesis: (thesis) => set({ theses: [thesis, ...get().theses.filter((t) => t.id !== thesis.id)] }),
+      reviewThesis: (id, review) =>
         set({
-          selectedEventId: desk.selectedEventId,
-          watchlists: desk.watchlists,
-          alerts: desk.alerts,
-          customScenarios: desk.customScenarios,
-          deskBooks: desk.deskBooks ?? [],
+          theses: get().theses.map((t) => (t.id === id ? { ...t, status: "reviewed", review } : t)),
         }),
+      removeThesis: (id) => set({ theses: get().theses.filter((t) => t.id !== id) }),
+      replaceDesk: (desk) => set(normalizeDesk(desk)),
       commandOpen: false,
       setCommandOpen: (v) => set({ commandOpen: v }),
     }),
     {
-      name: "ripple-radar-v2",
+      name: GUEST_DESK_KEY,
+      // The global, not `window.localStorage`: identical in the browser, and
+      // it lets the partition tests run against a real Storage in Node.
+      storage: createJSONStorage(() => localStorage),
       skipHydration: true,
-      partialize: (s) => snapshotDesk(s),
+      partialize: (s) => ({ ...snapshotDesk(s), sync: s.sync }),
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<DeskSnapshot> & { sync?: SyncMeta };
+        return { ...current, ...normalizeDesk(p), sync: p.sync ?? CLEAN_SYNC };
+      },
     },
   ),
 );
+
+/** The stored desk in one partition, read without touching any other. */
+export function readPartition(key: string): { desk: DeskSnapshot; sync: SyncMeta } | null {
+  if (typeof localStorage === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { state?: Partial<DeskSnapshot> & { sync?: SyncMeta } };
+    if (!parsed?.state) return null;
+    return { desk: normalizeDesk(parsed.state), sync: parsed.state.sync ?? CLEAN_SYNC };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Point the store at `userId`'s partition and load exactly what is stored
+ * there — nothing from the previous identity stays in memory, and nothing is
+ * written into either partition until the new identity changes something.
+ */
+export function switchIdentity(userId: string | null) {
+  const key = deskKey(userId);
+  const stored = readPartition(key);
+  useApp.persist.setOptions({ name: key });
+  useApp.setState({
+    ...EMPTY_DESK,
+    ...(stored?.desk ?? {}),
+    sync: stored?.sync ?? CLEAN_SYNC,
+    identity: userId,
+  });
+}
