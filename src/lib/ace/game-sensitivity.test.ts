@@ -2,7 +2,7 @@
  * An equilibrium read off assumed payoffs must not be presented like one read
  * off known payoffs.
  *
- * The solver is correct. Its inputs are ordinal judgements — `cell("Max
+ * The solver is checked separately (engine/game.test.ts). Its inputs are ordinal judgements — `cell("Max
  * leverage, self-harm", 3, -3)` — and equilibria are not continuous in
  * payoffs, so a single cell moving one step can relocate the answer. These
  * tests pin that the measurement of that fragility is itself trustworthy:

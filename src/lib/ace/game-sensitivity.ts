@@ -1,8 +1,10 @@
 /**
  * How much of the game's answer survives the fact that its payoffs are guesses.
  *
- * `readMatrix` solves for pure-strategy Nash best responses correctly. What it
- * solves over is a matrix of authored integers — `cell("Max leverage,
+ * `readMatrix` solves for pure-strategy Nash equilibria (actor on rows,
+ * counterpart on columns; see `game.test.ts` for the unilateral-deviation
+ * check against every shipped matrix). What it solves over is a matrix of
+ * authored integers — `cell("Max leverage,
  * self-harm", 3, -3)` — which are ordinal judgements about actor preferences,
  * not measurements. Nothing in the product said so, and an equilibrium read off
  * assumed payoffs was presented exactly like one read off known ones.

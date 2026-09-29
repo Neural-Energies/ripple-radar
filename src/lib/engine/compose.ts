@@ -132,8 +132,9 @@ export function composeEvent(opts: {
   const theme = themeFromTags(tags);
   const players = playersFor(entities, tags, family);
   const baseGt = gameTheoryFor({ family, players });
-  // The Nash solve is correct; its inputs are assumptions. Measure how much of
-  // the answer survives them before anything renders it as a finding.
+  // The Nash solve is checked against unilateral deviation (game.test.ts); its
+  // inputs are assumptions. Measure how much of the answer survives them
+  // before anything renders it as a finding.
   const gtSensitivity = gameSensitivity(baseGt);
   const gt: typeof baseGt = {
     ...baseGt,

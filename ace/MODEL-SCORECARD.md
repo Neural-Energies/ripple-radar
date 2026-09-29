@@ -24,7 +24,7 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | **Event cascade (Hawkes)** | **PASSES — 2/3 channels (v2); WTI's intensity shape rejected out of sample** | **Yes**, for NASDAQ; WTI that clustering exists, not its exact intensity. |
 | **Competing risks (Aalen-Johansen)** | **PASSES (v2, censor-aware holdout) — on earthquake aftershock data** | **Yes** — cumulative incidence by horizon, for that population. As a news-book prior it is a cross-domain transfer, and the app says so. |
 | **Conflict cascade (GDELT Hawkes)** | **PASSES — 15/20 countries, shape unverified** | Partly — that escalation clusters, yes. Not the branching ratio to three digits. |
-| Game theory (Nash + Monte Carlo) | **Exact** | Yes — equilibria computed and verified. Payoffs remain an assumption. |
+| Game theory (Nash + Monte Carlo) | **Exact in `ace/`; the app's pure-strategy scan had its axes inverted until PR #5 A01** (9 of 10 shipped matrices solved wrong) — fixed and checked against unilateral deviation | Yes — equilibria now verified against the definition for every shipped matrix. Payoffs remain an assumption. |
 | Regime (Markov switching) | **Validated, descriptive. Specification settled: 2 of 10 factors carry LEVEL regimes** | Yes — to label the environment, and only where the label is supported. Not as a forecast. |
 | **Macro data registry** | **208/208 series live**, 256-concept target universe, 39% covered before this work | N/A — infrastructure, not a model. |
 | **Static PCA (global + domain)** | **Domain PCA works on 12/12 blocks. A single GLOBAL fit across the full 164-series breadth does not** (32 overlapping months, 8.8% variance) | Domain loadings — yes, as interpretation alongside the DFM. A flat global PCA factor — no. |
@@ -469,7 +469,7 @@ descriptive only.
 stressed vs 0.844% when calm — a 1.32× separation** out of sample. Real, useful
 as context, not a forecast.
 
-## 5. Game theory — exact
+## 5. Game theory — exact in `ace/`; the app's scan fixed (PR #5 A01)
 
 Support enumeration + Lemke-Howson, every equilibrium verified by computing
 each player's deviation regret. Validated against known answers:
@@ -481,6 +481,20 @@ each player's deviation regret. Validated against known answers:
 Matching Pennies is the case the app's TypeScript best-response scan gets
 wrong: finding no pure equilibrium, it falls back to the actor's best payoff
 and reports that as the likely play.
+
+**The app's scan was also solving the wrong game until PR #5 A01.** The actor
+chooses rows and the counterpart columns, but `readMatrix` maximised the
+actor's payoff across the COUNTERPART's moves within a row, and vice versa —
+so the audit's prisoner's dilemma "solved" to mutual cooperation, and 9 of the
+10 shipped family matrices returned the wrong equilibrium set (physical:
+Stand down / Hold throughput, where the definition gives Escalate / Bargain and
+Probe / delay / Bargain). The symmetric dominant-strategy fixtures in the
+sensitivity tests could not see the inversion. Fixed; `engine/game.test.ts`
+now checks the prisoner's dilemma, an asymmetric rectangular game, ties, a
+game with no pure equilibrium, 500 random rectangular games and every shipped
+matrix against direct unilateral-deviation enumeration. The equilibrium
+sensitivity on every composed book is computed from this solve at build time,
+so it is recomputed on the next build.
 
 Under payoff uncertainty on the app's weather matrix (σ = 1.5, 600 sims):
 Landfall 19%, Glancing 76%, Miss 6%.

@@ -4,7 +4,9 @@ import { roundTo100 } from "@/lib/ace/probability";
 export interface MatrixRead {
   /** How to read the table. Generic — not event-specific. */
   primer: string[];
+  /** The actor's best row against each column (ties kept). */
   actorBest: { row: string; col: string; a: number; b: number }[];
+  /** The counterpart's best column against each row (ties kept). */
   counterpartBest: { row: string; col: string; a: number; b: number }[];
   /** Mutual best-response cells (pure-strategy Nash if the set is small). */
   nash: { row: string; col: string; a: number; b: number; label: string }[];
@@ -112,40 +114,47 @@ export function readMatrix(gt: GameTheory): MatrixRead {
   const counterpartBest: MatrixRead["counterpartBest"] = [];
   const nash: MatrixRead["nash"] = [];
 
-  for (const row of gt.rows) {
-    let best = -Infinity;
-    const cols: number[] = [];
-    row.cells.forEach((c, i) => {
-      if (c.a > best) {
-        best = c.a;
-        cols.length = 0;
-        cols.push(i);
-      } else if (c.a === best) cols.push(i);
-    });
-    for (const i of cols) {
-      const col = gt.columns[i] ?? "";
-      const cell = row.cells[i]!;
-      actorBest.push({ row: row.name, col, a: cell.a, b: cell.b });
-    }
-  }
-
-  gt.columns.forEach((col, i) => {
+  // The actor chooses the ROW and the counterpart the COLUMN. A best response
+  // is the chooser's best move against a FIXED move of the other side: the
+  // actor's best rows for each column, the counterpart's best columns for each
+  // row. (This was inverted until PR #5 A01 — it maximised the actor's payoff
+  // over the counterpart's moves and vice versa, so a prisoner's dilemma
+  // "solved" to mutual cooperation. Symmetric dominant-strategy games hide the
+  // inversion, which is why the sensitivity tests never caught it.)
+  gt.columns.forEach((col, j) => {
     let best = -Infinity;
     const rows: number[] = [];
     gt.rows.forEach((row, r) => {
-      const b = row.cells[i]?.b ?? -Infinity;
-      if (b > best) {
-        best = b;
+      const a = row.cells[j]?.a ?? -Infinity;
+      if (a > best) {
+        best = a;
         rows.length = 0;
         rows.push(r);
-      } else if (b === best) rows.push(r);
+      } else if (a === best) rows.push(r);
     });
     for (const r of rows) {
       const row = gt.rows[r]!;
-      const cell = row.cells[i]!;
-      counterpartBest.push({ row: row.name, col, a: cell.a, b: cell.b });
+      const cell = row.cells[j]!;
+      actorBest.push({ row: row.name, col, a: cell.a, b: cell.b });
     }
   });
+
+  for (const row of gt.rows) {
+    let best = -Infinity;
+    const cols: number[] = [];
+    row.cells.forEach((c, j) => {
+      if (c.b > best) {
+        best = c.b;
+        cols.length = 0;
+        cols.push(j);
+      } else if (c.b === best) cols.push(j);
+    });
+    for (const j of cols) {
+      const col = gt.columns[j] ?? "";
+      const cell = row.cells[j]!;
+      counterpartBest.push({ row: row.name, col, a: cell.a, b: cell.b });
+    }
+  }
 
   for (const a of actorBest) {
     if (counterpartBest.some((c) => c.row === a.row && c.col === a.col)) {
