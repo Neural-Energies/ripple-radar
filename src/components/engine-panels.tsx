@@ -98,6 +98,7 @@ export function KnowledgePanel({ event }: { event: RadarEvent }) {
 export function ExpectedEvidencePanel({ event }: { event: RadarEvent }) {
   const rows = event.expectedEvidence ?? [];
   const byId = new Map(event.evidence.map((e) => [e.id, e]));
+  const scenarioName = new Map(event.scenarios.map((s) => [s.id, s.name]));
   if (!rows.length) return null;
   const { observed, total } = observedShare(rows);
   return (
@@ -118,7 +119,16 @@ export function ExpectedEvidencePanel({ event }: { event: RadarEvent }) {
           const source = e.matchedBy ? byId.get(e.matchedBy) : undefined;
           return (
             <li key={e.id} className="min-w-0 rounded-md bg-card-2 px-2.5 py-2">
-              <div className="text-micro uppercase tracking-wider text-subtle">If {e.ifTrue}</div>
+              <div className="text-micro uppercase tracking-wider text-subtle">
+                {(() => {
+                  const name = scenarioName.get(e.scenarioId);
+                  // Name the scenario only when the condition does not already say it.
+                  return name && !e.ifTrue.toLowerCase().includes(name.toLowerCase()) ? (
+                    <span className="text-primary">{name} · </span>
+                  ) : null;
+                })()}
+                If {e.ifTrue}
+              </div>
               <p className="mt-1 break-words text-caption">Then within {e.lag}: {e.observe}</p>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
                 <Badge tone={e.appeared ? "up" : e.watch ? "neutral" : "warn"}>
@@ -163,6 +173,58 @@ export function ExpectedEvidencePanel({ event }: { event: RadarEvent }) {
           );
         })}
       </ul>
+    </Panel>
+  );
+}
+
+/**
+ * What would prove the book wrong: its own invalidation conditions, then the
+ * trade-level ones, each attributed. Absent conditions are said to be absent.
+ */
+export function InvalidationPanel({ event }: { event: RadarEvent }) {
+  const book = (event.invalidation ?? []).filter((t) => t.trim());
+  const seen = new Set(book);
+  // Trade-level conditions, grouped: several names often share one condition.
+  const grouped = new Map<string, string[]>();
+  for (const t of event.trades) {
+    const text = t.invalidation?.trim();
+    if (!text || seen.has(text)) continue;
+    grouped.set(text, [...(grouped.get(text) ?? []), t.ticker]);
+  }
+  const trades = [...grouped.entries()].slice(0, 4).map(([invalidation, tickers]) => ({ invalidation, tickers }));
+  return (
+    <Panel
+      title="Wrong if"
+      action={
+        event.confirmationState === "invalidating" ? (
+          <Badge tone="core" title="Market confirmation is invalidating the transmission">
+            tape invalidating
+          </Badge>
+        ) : null
+      }
+    >
+      {book.length === 0 && trades.length === 0 ? (
+        <p className="text-caption text-muted">This book states no invalidation conditions.</p>
+      ) : (
+        <ul className="flex flex-col gap-1.5 text-caption">
+          {book.map((t) => (
+            <li key={t} className="break-words">
+              · {t}
+            </li>
+          ))}
+          {trades.map((t) => (
+            <li key={t.invalidation} className="break-words text-muted">
+              {t.tickers.map((ticker, i) => (
+                <span key={ticker}>
+                  {i > 0 ? ", " : null}
+                  <TickerLink ticker={ticker} className="text-caption" />
+                </span>
+              ))}{" "}
+              · {t.invalidation}
+            </li>
+          ))}
+        </ul>
+      )}
     </Panel>
   );
 }

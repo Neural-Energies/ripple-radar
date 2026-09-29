@@ -2,10 +2,10 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { SCENARIO_COLORS, ScenarioDistributionBar } from "@/components/charts";
 import { FrozenBadge, TickerLink } from "@/components/desk-nav";
-import { ExpectedEvidencePanel, HorizonPanel } from "@/components/engine-panels";
+import { ExpectedEvidencePanel, HorizonPanel, InvalidationPanel } from "@/components/engine-panels";
 import { ResearchHeader } from "@/components/research-header";
-import { Button, Delta, Input, Panel } from "@/components/ui";
-import type { ForecastBand } from "@/data/types";
+import { Badge, Button, Delta, Input, Panel } from "@/components/ui";
+import type { ExpectedEvidence, ForecastBand } from "@/data/types";
 import { validateEventSearch } from "@/lib/hooks/use-event-param-sync";
 import { useLiveEvent } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
@@ -15,6 +15,28 @@ export const Route = createFileRoute("/scenarios")({
   validateSearch: validateEventSearch,
   component: ScenariosPage,
 });
+
+/** What would confirm this path: its own expected-evidence rows, as the monitor last read them. */
+function ScenarioConfirms({ rows }: { rows: ExpectedEvidence[] }) {
+  if (!rows.length) return null;
+  return (
+    <ul className="mt-1.5 flex flex-col gap-0.5 border-t border-border/60 pt-1.5 text-micro">
+      <li className="uppercase tracking-wider text-subtle">Confirms if</li>
+      {rows.slice(0, 3).map((e) => (
+        <li key={e.id} className="flex items-baseline gap-1.5">
+          <Badge tone={e.appeared ? "up" : e.watch ? "neutral" : "warn"}>
+            {e.appeared ? "seen" : e.watch ? "awaiting" : "untested"}
+          </Badge>
+          <span className="min-w-0 text-muted">
+            {e.observe}
+            <span className="text-subtle"> · within {e.lag}</span>
+            {e.appeared && e.matchedHeadline ? <span className="text-foreground"> — {e.matchedHeadline}</span> : null}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function ProbabilityBands({
   scenarios,
@@ -208,6 +230,7 @@ function ScenariosPage() {
                       <div><span className="text-subtle">Exposure · </span>{s.keyOutcomes}</div>
                       <div><span className="text-subtle">Window · </span>{s.range}</div>
                     </div>
+                    <ScenarioConfirms rows={(event.expectedEvidence ?? []).filter((e) => e.scenarioId === s.id)} />
                     {delta !== 0 ? (
                       <p className="mt-1 text-micro text-foreground">
                         Was {s.prevProbability}%. {s.audit.evidence}
@@ -267,9 +290,10 @@ function ScenariosPage() {
           </form>
         </Panel>
       </div>
-      <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-3">
         <HorizonPanel event={event} />
         <ExpectedEvidencePanel event={event} />
+        <InvalidationPanel event={event} />
       </div>
     </div>
   );
