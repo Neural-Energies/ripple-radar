@@ -35,6 +35,7 @@ import { Route as MacroModelsRouteImport } from './routes/macro.models'
 import { Route as MacroPolicyRouteImport } from './routes/macro.policy'
 import { Route as MacroRatesRouteImport } from './routes/macro.rates'
 import { Route as MacroShocksRouteImport } from './routes/macro.shocks'
+import { Route as ApiAlertsRunRouteImport } from './routes/api/alerts/run'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -167,6 +168,11 @@ const MacroShocksRoute = MacroShocksRouteImport.update({
   path: '/shocks',
   getParentRoute: () => MacroRoute,
 } as any)
+const ApiAlertsRunRoute = ApiAlertsRunRouteImport.update({
+  id: '/api/alerts/run',
+  path: '/api/alerts/run',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -200,6 +206,7 @@ export interface FileRoutesByFullPath {
   '/macro/rates': typeof MacroRatesRoute
   '/macro/shocks': typeof MacroShocksRoute
   '/macro/': typeof MacroIndexRoute
+  '/api/alerts/run': typeof ApiAlertsRunRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
@@ -228,6 +235,7 @@ export interface FileRoutesByTo {
   '/macro/rates': typeof MacroRatesRoute
   '/macro/shocks': typeof MacroShocksRoute
   '/macro': typeof MacroIndexRoute
+  '/api/alerts/run': typeof ApiAlertsRunRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -258,6 +266,7 @@ export interface FileRoutesById {
   '/macro/rates': typeof MacroRatesRoute
   '/macro/shocks': typeof MacroShocksRoute
   '/macro/': typeof MacroIndexRoute
+  '/api/alerts/run': typeof ApiAlertsRunRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
@@ -289,6 +298,7 @@ export interface FileRouteTypes {
     | '/macro/rates'
     | '/macro/shocks'
     | '/macro/'
+    | '/api/alerts/run'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -317,6 +327,7 @@ export interface FileRouteTypes {
     | '/macro/rates'
     | '/macro/shocks'
     | '/macro'
+    | '/api/alerts/run'
     | '/api/auth/$'
   id:
     | '__root__'
@@ -346,6 +357,7 @@ export interface FileRouteTypes {
     | '/macro/rates'
     | '/macro/shocks'
     | '/macro/'
+    | '/api/alerts/run'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
@@ -365,6 +377,7 @@ export interface RootRouteChildren {
   ScenariosRoute: typeof ScenariosRoute
   ThesesRoute: typeof ThesesRoute
   WatchlistsRoute: typeof WatchlistsRoute
+  ApiAlertsRunRoute: typeof ApiAlertsRunRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -552,6 +565,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MacroShocksRouteImport
       parentRoute: typeof MacroRoute
     }
+    '/api/alerts/run': {
+      id: '/api/alerts/run'
+      path: '/api/alerts/run'
+      fullPath: '/api/alerts/run'
+      preLoaderRoute: typeof ApiAlertsRunRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -617,6 +637,7 @@ const rootRouteChildren: RootRouteChildren = {
   ScenariosRoute: ScenariosRoute,
   ThesesRoute: ThesesRoute,
   WatchlistsRoute: WatchlistsRoute,
+  ApiAlertsRunRoute: ApiAlertsRunRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

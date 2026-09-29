@@ -1,4 +1,4 @@
-import type { AlertRule, ModelStats, PortfolioSlice } from "./types";
+import type { ModelStats, PortfolioSlice } from "./types";
 
 export const PIPELINE = [
   "Detect",
@@ -36,60 +36,6 @@ export const DEFAULT_PORTFOLIO: PortfolioSlice[] = [
   { label: "Haven / vol", weight: 15, color: "var(--color-r4)" },
   { label: "Duration", weight: 10, color: "var(--color-warn)" },
   { label: "Cash", weight: 5, color: "var(--color-subtle)" },
-];
-
-export const SEED_ALERTS: AlertRule[] = [
-  {
-    id: "a1",
-    title: "Lead book probability ≥ 70%",
-    detail: "Notify if the selected event's live probability crosses 70%.",
-    kind: "probability",
-    active: true,
-    created: "12 Jun 2025",
-  },
-  {
-    id: "a2",
-    title: "First-order +8% session",
-    detail: "Headline ticker on the selected book prints a confirmation move.",
-    kind: "price",
-    active: true,
-    created: "12 Jun 2025",
-    threshold: 8,
-  },
-  {
-    id: "a3",
-    title: "Top scenario > 35%",
-    detail: "A distinguishable future is dominating the book.",
-    kind: "scenario",
-    active: true,
-    created: "12 Jun 2025",
-    threshold: 35,
-  },
-  {
-    id: "a4",
-    title: "Any tracked book ≥ 55%",
-    detail: "Material probability on whichever event is currently leading.",
-    kind: "probability",
-    active: false,
-    created: "2 Sep 2026",
-    threshold: 55,
-  },
-  {
-    id: "a5",
-    title: "Second-order crowding stays low",
-    detail: "Distance 2–3 names still under-owned versus the first print.",
-    kind: "crowding",
-    active: true,
-    created: "13 Sep 2026",
-  },
-  {
-    id: "a6",
-    title: "Confirmation early on a bottleneck",
-    detail: "A second-order node is starting to confirm the transmission thesis.",
-    kind: "confirmation",
-    active: true,
-    created: "13 Sep 2026",
-  },
 ];
 
 /** Frozen calibration series. Historical class-level scores — not a live event book. */

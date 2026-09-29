@@ -528,6 +528,29 @@ export type AlertKind =
   | "confirmation"
   | "invalidation";
 
+/**
+ * What an alert measures, each with one unit (PR #5 B02):
+ *
+ *   book_probability       the bound book's probability, percent 0–100
+ *   scenario_probability   one scenario of the bound book, percent 0–100
+ *   scenario_move          |change| of the bound scenario since the book's last update, points
+ *   book_evidence          live items on the bound book, a count
+ *   price_last             the ticker's last price, in its quote currency
+ *   price_change_pct       the ticker's session change, signed percent
+ *   price_abs_change_pct   the size of the ticker's session change, percent
+ */
+export type AlertMetric =
+  | "book_probability"
+  | "scenario_probability"
+  | "scenario_move"
+  | "book_evidence"
+  | "price_last"
+  | "price_change_pct"
+  | "price_abs_change_pct";
+
+/** `above` holds when value ≥ threshold, `below` when value ≤ threshold. */
+export type AlertOperator = "above" | "below";
+
 export interface AlertRule {
   id: string;
   title: string;
@@ -535,9 +558,19 @@ export interface AlertRule {
   kind: AlertKind;
   active: boolean;
   created: string;
+  /**
+   * Structured rules carry a metric, an operator and an explicit target that
+   * never changes after creation. A rule without a metric predates them; it
+   * is shown as needing a target and never evaluated by guesswork.
+   */
+  metric?: AlertMetric;
+  operator?: AlertOperator;
   ticker?: string;
   threshold?: number;
   eventId?: string;
+  scenarioId?: string;
+  /** The bound book's (and scenario's) title when the rule was made, shown once it has left the desk. */
+  targetLabel?: string;
 }
 
 /**

@@ -1,142 +1,282 @@
-import type { AlertRule } from "@/data/types";
-import { confirmationOf, crowdingOf } from "./discover";
-import type { AlertHit, LiveDesk } from "./types";
+/**
+ * Alert rules: one metric, one unit, one explicit target (PR #5 B02).
+ *
+ * The previous evaluator guessed. A rule whose book had left the desk fell
+ * through to whichever book was first and fired on it; a "Price" threshold
+ * was compared against the absolute session percent; scenario and crowding
+ * rules read their intent out of free-text titles. Now:
+ *
+ * - A rule is bound at creation to an exact book (and scenario) or ticker.
+ *   A missing target suspends the rule. It is never re-bound.
+ * - Each metric has one unit. Last price, signed session percent and
+ *   absolute session percent are separate metrics.
+ * - A quote that is missing or stale is "unavailable", not evidence.
+ * - Thresholds are validated against an explicit contract per metric.
+ * - A rule fires once when its condition becomes true (an episode) and again
+ *   only after it has been false, so a held condition does not re-notify.
+ *
+ * The same code runs in the browser (live status) and on the server (durable
+ * delivery), against the same event list.
+ */
+import type { AlertMetric, AlertOperator, AlertRule, DeskBook } from "@/data/types";
+import { liveEventsList } from "./overlay";
+import type { AlertHit, LiveDesk, QuoteState } from "./types";
 
-function numIn(title: string) {
-  const m = title.match(/(\d+(?:\.\d+)?)/);
-  return m ? Number(m[1]) : undefined;
+type TargetKind = "book" | "scenario" | "ticker";
+
+export interface MetricSpec {
+  label: string;
+  target: TargetKind;
+  unit: "%" | "pts" | "items" | "price";
+  operators: AlertOperator[];
+  /** Human statement of the threshold contract, shown on the form. */
+  contract: string;
+  valid: (t: number) => boolean;
+  defaultThreshold: number;
 }
 
-function inferEventId(title: string, explicit: string | undefined, desk: LiveDesk) {
-  if (explicit && (desk.books[explicit] || desk.liveEvents.some((e) => e.id === explicit))) {
-    return explicit;
-  }
-  const t = title.toLowerCase();
-  const hit = desk.liveEvents.find((e) => {
-    const blob = (e.title + " " + (e.entities ?? []).join(" ") + " " + e.theme + " " + e.region).toLowerCase();
-    return t.split(/\s+/).filter((w) => w.length > 3 && blob.includes(w)).length >= 2;
-  });
-  return hit?.id ?? desk.liveEvents[0]?.id;
+export const METRICS: Record<AlertMetric, MetricSpec> = {
+  book_probability: {
+    label: "Book probability",
+    target: "book",
+    unit: "%",
+    operators: ["above", "below"],
+    contract: "Percent, strictly between 0 and 100.",
+    valid: (t) => t > 0 && t < 100,
+    defaultThreshold: 60,
+  },
+  scenario_probability: {
+    label: "Scenario probability",
+    target: "scenario",
+    unit: "%",
+    operators: ["above", "below"],
+    contract: "Percent, strictly between 0 and 100.",
+    valid: (t) => t > 0 && t < 100,
+    defaultThreshold: 40,
+  },
+  scenario_move: {
+    label: "Scenario move",
+    target: "scenario",
+    unit: "pts",
+    operators: ["above"],
+    contract: "Points moved in one update, greater than 0 and at most 100.",
+    valid: (t) => t > 0 && t <= 100,
+    defaultThreshold: 5,
+  },
+  book_evidence: {
+    label: "Live evidence on book",
+    target: "book",
+    unit: "items",
+    operators: ["above"],
+    contract: "A whole number of live items, 1 or more.",
+    valid: (t) => Number.isInteger(t) && t >= 1,
+    defaultThreshold: 4,
+  },
+  price_last: {
+    label: "Last price",
+    target: "ticker",
+    unit: "price",
+    operators: ["above", "below"],
+    contract: "A price greater than 0, in the instrument's quote currency.",
+    valid: (t) => t > 0,
+    defaultThreshold: 100,
+  },
+  price_change_pct: {
+    label: "Session change (signed %)",
+    target: "ticker",
+    unit: "%",
+    operators: ["above", "below"],
+    contract: "Signed percent, non-zero, between −100 and +100. Above +2 needs a rise of 2%; a fall never satisfies it.",
+    valid: (t) => t !== 0 && t >= -100 && t <= 100,
+    defaultThreshold: 2,
+  },
+  price_abs_change_pct: {
+    label: "Session move, either way (%)",
+    target: "ticker",
+    unit: "%",
+    operators: ["above", "below"],
+    contract: "Size of the session move in percent, greater than 0 and at most 100.",
+    valid: (t) => t > 0 && t <= 100,
+    defaultThreshold: 3,
+  },
+};
+
+export const METRIC_ORDER = Object.keys(METRICS) as AlertMetric[];
+
+const TICKER = /^[A-Z0-9][A-Z0-9.=^-]{0,14}$/;
+
+export type RuleDraft = Pick<AlertRule, "metric" | "operator" | "threshold" | "eventId" | "scenarioId" | "ticker">;
+
+/** Why a draft is not a valid rule. Empty when it is. */
+export function validateRule(r: RuleDraft): string[] {
+  const errors: string[] = [];
+  const spec = r.metric ? METRICS[r.metric] : undefined;
+  if (!spec) return ["Choose what to measure."];
+  if (!r.operator || !spec.operators.includes(r.operator)) errors.push(`${spec.label} supports: ${spec.operators.join(", ")}.`);
+  if (typeof r.threshold !== "number" || !Number.isFinite(r.threshold) || !spec.valid(r.threshold)) errors.push(spec.contract);
+  if ((spec.target === "book" || spec.target === "scenario") && !r.eventId) errors.push("Choose the book this rule watches.");
+  if (spec.target === "scenario" && !r.scenarioId) errors.push("Choose the scenario this rule watches.");
+  if (spec.target === "ticker" && !(r.ticker && TICKER.test(r.ticker))) errors.push("Enter the ticker this rule watches.");
+  return errors;
 }
 
-function inferTicker(title: string, explicit?: string, desk?: LiveDesk) {
-  if (explicit) return explicit.toUpperCase();
-  const m = title.match(/\b([A-Z]{2,5})\b/);
-  if (m) return m[1];
-  const lead = desk?.liveEvents[0];
-  const under = lead?.trades.find((t) => t.distance && t.distance >= 2) ?? lead?.trades[0];
-  return under?.ticker ?? lead?.headlineTicker;
+function fmt(value: number, unit: MetricSpec["unit"], signed = false) {
+  if (unit === "price") return value.toFixed(value >= 1 ? 2 : 4);
+  if (unit === "items") return String(Math.round(value));
+  const sign = signed && value > 0 ? "+" : "";
+  const n = Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1);
+  return unit === "%" ? `${sign}${n}%` : `${sign}${n} pts`;
 }
 
-function tickerMentions(desk: LiveDesk, ticker: string) {
-  const key = ticker.toLowerCase();
-  return desk.headlines.filter((h) => h.title.toLowerCase().includes(key)).length;
+/** A plain statement of the rule from its structure, not its title. */
+export function describeRule(r: AlertRule): string {
+  if (!r.metric) return "Needs a structured target";
+  const spec = METRICS[r.metric];
+  const op = r.operator === "below" ? "≤" : "≥";
+  const target = spec.target === "ticker" ? r.ticker : r.targetLabel || r.eventId;
+  const t = typeof r.threshold === "number" ? fmt(r.threshold, spec.unit, r.metric === "price_change_pct") : "?";
+  return `${target} · ${spec.label} ${op} ${t}`;
 }
 
-export function evaluateAlert(alert: AlertRule, desk: LiveDesk): AlertHit | null {
-  if (!alert.active) return null;
-  const eventId = inferEventId(alert.title, alert.eventId, desk);
-  const book = eventId ? desk.books[eventId] : undefined;
-  const threshold = alert.threshold ?? numIn(alert.title) ?? 0;
+// ------------------------------------------------------------- the world --
 
-  if (alert.kind === "probability") {
-    if (!book) return null;
-    if (book.probability >= threshold) {
-      return {
-        id: alert.id,
-        reason: `${eventId} probability ${book.probability.toFixed(0)}% ≥ ${threshold}%`,
-      };
-    }
-    return null;
-  }
+export interface WorldBook {
+  title: string;
+  probability: number;
+  hits: number;
+  scenarios: { id: string; name: string; probability: number; prevProbability: number }[];
+}
 
-  if (alert.kind === "price") {
-    const ticker = inferTicker(alert.title, alert.ticker, desk);
-    if (!ticker) return null;
-    const q = desk.quotes[ticker];
-    if (!q) return null;
-    if (Math.abs(q.changePct) >= threshold) {
-      return {
-        id: alert.id,
-        reason: `${ticker} session ${q.changePct >= 0 ? "+" : ""}${q.changePct.toFixed(1)}% vs ${threshold}% trigger`,
-      };
-    }
-    return null;
-  }
+export interface WorldQuote {
+  last: number;
+  changePct: number;
+  state: QuoteState;
+}
 
-  if (alert.kind === "narrative") {
-    if (!book) return null;
-    const bar = threshold || 4;
-    if (book.hits >= bar) {
-      return {
-        id: alert.id,
-        reason: `${eventId} tape: ${book.hits} live items (trigger ${bar})`,
-      };
-    }
-    return null;
-  }
+export interface AlertWorld {
+  books: Record<string, WorldBook>;
+  quotes: Record<string, WorldQuote | undefined>;
+}
 
-  if (alert.kind === "scenario" && book) {
-    const ranked = [...book.scenarios].sort((a, b) => b.probability - a.probability);
-    const top = ranked[0];
-    if (top && top.probability >= (threshold || 30)) {
-      return { id: alert.id, reason: `Top scenario is ${top.name} at ${top.probability}%` };
-    }
-  }
-
-  if (alert.kind === "path" && book) {
-    const bar = threshold || 5;
-    const moved = book.scenarios
-      .map((s) => ({ s, d: s.probability - s.prevProbability }))
-      .filter((x) => Math.abs(x.d) >= bar)
-      .sort((a, b) => Math.abs(b.d) - Math.abs(a.d))[0];
-    if (!moved) return null;
-    const sign = moved.d > 0 ? "+" : "";
-    const why = moved.s.audit?.evidence ? ` ${moved.s.audit.evidence}` : "";
-    return {
-      id: alert.id,
-      reason: `${moved.s.name}: ${moved.s.prevProbability}% → ${moved.s.probability}% (${sign}${moved.d} pts).${why}`,
+/**
+ * The books and quotes rules are evaluated against: the tape's books plus the
+ * account's own desk books, exactly as the desk lists them (without unsaved
+ * in-browser rescores, which the server never sees).
+ */
+export function worldFromDesk(desk: LiveDesk, deskBooks: DeskBook[] = []): AlertWorld {
+  const books: Record<string, WorldBook> = {};
+  for (const e of liveEventsList(desk, {}, deskBooks)) {
+    if (!e.id) continue;
+    books[e.id] = {
+      title: e.title,
+      probability: e.probability,
+      hits: desk.books[e.id]?.hits ?? e.evidence.length,
+      scenarios: e.scenarios.map((s) => ({ id: s.id, name: s.name, probability: s.probability, prevProbability: s.prevProbability })),
     };
   }
-
-  if (alert.kind === "crowding") {
-    const ticker = inferTicker(alert.title, alert.ticker, desk);
-    if (!ticker) return null;
-    const q = desk.quotes[ticker];
-    const crowd = crowdingOf(tickerMentions(desk, ticker), Math.abs(q?.changePct ?? 0), false);
-    const hay = alert.title.toLowerCase();
-    const wantsHigh = /high|saturated/.test(hay);
-    const hit = wantsHigh ? crowd === "high" || crowd === "saturated" : crowd === "low" || crowd === "emerging";
-    if (hit) {
-      return { id: alert.id, reason: `${ticker} crowding ${crowd}` };
-    }
-    return null;
-  }
-
-  if (alert.kind === "confirmation" || alert.kind === "invalidation") {
-    const ticker = inferTicker(alert.title, alert.ticker, desk);
-    if (!ticker) return null;
-    const q = desk.quotes[ticker];
-    if (!q) return null;
-    const side = /short|down/.test(alert.title.toLowerCase()) ? "down" : "up";
-    const conf = confirmationOf(q.changePct, side, undefined);
-    if (alert.kind === "invalidation" && (conf === "invalidating" || conf === "diverging")) {
-      return { id: alert.id, reason: `${ticker} tape ${conf} (${q.changePct >= 0 ? "+" : ""}${q.changePct.toFixed(1)}%)` };
-    }
-    if (alert.kind === "confirmation" && (conf === "early" || conf === "confirming" || conf === "strong")) {
-      return { id: alert.id, reason: `${ticker} confirmation ${conf} (${q.changePct >= 0 ? "+" : ""}${q.changePct.toFixed(1)}%)` };
-    }
-    return null;
-  }
-
-  return null;
+  return { books, quotes: desk.quotes };
 }
 
-export function evaluateAlerts(alerts: AlertRule[], desk: LiveDesk): AlertHit[] {
+// ------------------------------------------------------------ evaluation --
+
+export type Evaluation =
+  | { status: "ok"; value: number; satisfied: boolean; reason: string }
+  /** The target is gone: the rule is suspended, never moved to another target. */
+  | { status: "suspended"; reason: string }
+  /** The target exists but its reading cannot be trusted right now. */
+  | { status: "unavailable"; reason: string }
+  /** Paused, invalid, or a rule that predates structured targets. */
+  | { status: "inactive"; reason: string };
+
+function compare(value: number, operator: AlertOperator, threshold: number) {
+  return operator === "below" ? value <= threshold : value >= threshold;
+}
+
+export function evaluateRule(rule: AlertRule, world: AlertWorld): Evaluation {
+  if (!rule.metric) return { status: "inactive", reason: "Created before structured alerts: recreate it with an explicit target." };
+  const errors = validateRule(rule);
+  if (errors.length) return { status: "inactive", reason: errors[0]! };
+  if (!rule.active) return { status: "inactive", reason: "Paused." };
+  const spec = METRICS[rule.metric];
+  const operator = rule.operator!;
+  const threshold = rule.threshold!;
+  const signed = rule.metric === "price_change_pct";
+
+  let value: number;
+  let subject: string;
+  if (spec.target === "ticker") {
+    const q = world.quotes[rule.ticker!];
+    if (!q || !Number.isFinite(q.last) || q.last <= 0) return { status: "unavailable", reason: `No quote for ${rule.ticker}.` };
+    if (q.state === "stale") return { status: "unavailable", reason: `${rule.ticker} quote is stale.` };
+    if (rule.metric === "price_last") value = q.last;
+    else {
+      if (!Number.isFinite(q.changePct)) return { status: "unavailable", reason: `No session change for ${rule.ticker}.` };
+      value = rule.metric === "price_abs_change_pct" ? Math.abs(q.changePct) : q.changePct;
+    }
+    subject = rule.ticker!;
+  } else {
+    const book = world.books[rule.eventId!];
+    if (!book) {
+      return {
+        status: "suspended",
+        reason: `${rule.targetLabel || rule.eventId} is no longer on the desk. Suspended — it will not watch another book.`,
+      };
+    }
+    subject = book.title;
+    if (spec.target === "scenario") {
+      const s = book.scenarios.find((x) => x.id === rule.scenarioId);
+      if (!s) return { status: "suspended", reason: `The book no longer carries scenario ${rule.scenarioId}. Suspended.` };
+      subject = `${book.title} · ${s.name}`;
+      value = rule.metric === "scenario_move" ? Math.abs(s.probability - s.prevProbability) : s.probability;
+    } else {
+      value = rule.metric === "book_evidence" ? book.hits : book.probability;
+    }
+  }
+  const satisfied = compare(value, operator, threshold);
+  const op = operator === "below" ? "≤" : "≥";
+  return {
+    status: "ok",
+    value,
+    satisfied,
+    reason: `${subject}: ${spec.label.toLowerCase()} ${fmt(value, spec.unit, signed)} ${satisfied ? op : "vs"} ${fmt(threshold, spec.unit, signed)}`,
+  };
+}
+
+// -------------------------------------------------------------- episodes --
+
+export interface RuleState {
+  satisfied: boolean;
+  /** When the current satisfied episode began; null while not satisfied. */
+  since: number | null;
+}
+
+/**
+ * Advance one rule's state. Fires only on the transition into "satisfied".
+ * A suspended or unavailable reading holds the previous state, so an outage
+ * neither fires nor starts a fresh episode when it ends.
+ */
+export function stepRule(prev: RuleState | null, evaluation: Evaluation, now: number): { next: RuleState; fired: boolean } {
+  const held = prev ?? { satisfied: false, since: null };
+  if (evaluation.status === "inactive") return { next: { satisfied: false, since: null }, fired: false };
+  if (evaluation.status !== "ok") return { next: held, fired: false };
+  if (!evaluation.satisfied) return { next: { satisfied: false, since: null }, fired: false };
+  if (held.satisfied) return { next: held, fired: false };
+  return { next: { satisfied: true, since: now }, fired: true };
+}
+
+export function episodeKey(ruleId: string, since: number) {
+  return `${ruleId}@${since}`;
+}
+
+/** Live status for every rule, and the ones currently satisfied. */
+export function evaluateAlerts(alerts: AlertRule[], desk: LiveDesk, deskBooks: DeskBook[] = []) {
+  const world = worldFromDesk(desk, deskBooks);
+  const status: Record<string, Evaluation> = {};
   const hits: AlertHit[] = [];
   for (const a of alerts) {
-    const hit = evaluateAlert(a, desk);
-    if (hit) hits.push(hit);
+    const e = evaluateRule(a, world);
+    status[a.id] = e;
+    if (e.status === "ok" && e.satisfied) hits.push({ id: a.id, reason: e.reason });
   }
-  return hits;
+  return { status, hits };
 }

@@ -2,11 +2,14 @@ import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode }
 import { toast } from "sonner";
 import { create } from "zustand";
 import { useApp } from "@/lib/store";
-import { evaluateAlerts } from "./alerts";
+import { ackAlertDeliveries, getAlertInbox } from "./alert-inbox";
+import { evaluateAlerts, stepRule, type Evaluation, type RuleState } from "./alerts";
 import { analyzeEvent, getLiveDesk, rescoreBook } from "./desk";
 import { EMPTY_BOOKS, EMPTY_CLUSTERS, EMPTY_HEADLINES } from "./empty";
 import { liveAssets, liveEventsList, liveGetAsset, liveGetEvent } from "./overlay";
 import type { AlertHit, LiveDesk, RescoreResult } from "./types";
+
+type Inbox = Awaited<ReturnType<typeof getAlertInbox>>;
 
 interface LiveState {
   desk: LiveDesk | null;
@@ -15,13 +18,18 @@ interface LiveState {
   updatedAt: number;
   rescores: Record<string, RescoreResult>;
   hits: AlertHit[];
+  /** Live reading of every rule by id — the same evaluation the server pass runs. */
+  alertStatus: Record<string, Evaluation>;
+  /** The signed-in account's server-side alert record; null signed out or before the first load. */
+  inbox: Inbox | null;
   rescoring: string | null;
   analyzing: boolean;
   setDesk: (desk: LiveDesk) => void;
   setError: (error: string | null) => void;
   setConnecting: () => void;
   setRescore: (r: RescoreResult) => void;
-  setHits: (hits: AlertHit[]) => void;
+  setAlerts: (status: Record<string, Evaluation>, hits: AlertHit[]) => void;
+  setInbox: (inbox: Inbox | null) => void;
   setRescoring: (id: string | null) => void;
   setAnalyzing: (v: boolean) => void;
 }
@@ -33,6 +41,8 @@ export const useLive = create<LiveState>((set) => ({
   updatedAt: 0,
   rescores: {},
   hits: [],
+  alertStatus: {},
+  inbox: null,
   rescoring: null,
   analyzing: false,
   setDesk: (desk) =>
@@ -45,7 +55,8 @@ export const useLive = create<LiveState>((set) => ({
   setError: (error) => set({ error, status: "degraded" }),
   setConnecting: () => set({ status: "connecting" }),
   setRescore: (r) => set((s) => ({ rescores: { ...s.rescores, [r.eventId]: r }, rescoring: null })),
-  setHits: (hits) => set({ hits }),
+  setAlerts: (alertStatus, hits) => set({ alertStatus, hits }),
+  setInbox: (inbox) => set({ inbox }),
   setRescoring: (id) => set({ rescoring: id }),
   setAnalyzing: (v) => set({ analyzing: v }),
 }));
@@ -79,33 +90,77 @@ function startDeskPoll() {
 
 if (typeof window !== "undefined") startDeskPoll();
 
+const INBOX_POLL_MS = 30_000;
+
 export function LiveProvider({ children }: { children: ReactNode }) {
-  const setHits = useLive((s) => s.setHits);
+  const setAlerts = useLive((s) => s.setAlerts);
+  const setInbox = useLive((s) => s.setInbox);
   const alerts = useApp((s) => s.alerts);
+  const deskBooks = useApp((s) => s.deskBooks);
+  const identity = useApp((s) => s.identity);
   const primed = useRef(false);
-  const prevHits = useRef<Set<string>>(new Set());
+  const local = useRef<Record<string, RuleState>>({});
+  /** Inbox rows already toasted in this tab, so a failed acknowledgement cannot repeat them. */
+  const shown = useRef(new Set<number>());
 
   useEffect(() => {
     startDeskPoll();
   }, []);
 
+  // Live status for the rule list. Signed out, this is also the only monitor,
+  // so it notifies on the same episode rule the server uses (fire on the
+  // transition into satisfied; outages hold). Signed in, notifications come
+  // from the server's durable inbox instead, so nothing is announced twice.
   const desk = useLive((s) => s.desk);
   useEffect(() => {
     if (!desk) return;
-    const next = evaluateAlerts(alerts, desk);
-    setHits(next);
-    const ids = new Set(next.map((h) => h.id));
-    if (primed.current) {
-      for (const hit of next) {
-        if (!prevHits.current.has(hit.id)) {
-          const rule = alerts.find((a) => a.id === hit.id);
-          toast(rule?.title ?? "Alert", { description: hit.reason });
-        }
+    const { status, hits } = evaluateAlerts(alerts, desk, deskBooks ?? EMPTY_BOOKS);
+    setAlerts(status, hits);
+    const now = Date.now();
+    for (const a of alerts) {
+      const e = status[a.id];
+      if (!e) continue;
+      const { next, fired } = stepRule(local.current[a.id] ?? null, e, now);
+      local.current[a.id] = next;
+      if (fired && primed.current && identity === null && e.status === "ok") {
+        toast(a.title || "Alert", { description: e.reason });
       }
     }
     primed.current = true;
-    prevHits.current = ids;
-  }, [alerts, desk, setHits]);
+  }, [alerts, desk, deskBooks, identity, setAlerts]);
+
+  // The account's server-side alert record: firings recorded while no tab was
+  // open are shown once, then acknowledged.
+  useEffect(() => {
+    if (typeof identity !== "string") {
+      setInbox(null);
+      return;
+    }
+    let dead = false;
+    let timer = 0;
+    const poll = async () => {
+      try {
+        const inbox = await getAlertInbox();
+        if (dead || useApp.getState().identity !== identity) return;
+        setInbox(inbox);
+        const unseen = inbox.deliveries.filter((d) => d.channel === "inbox" && d.status === "pending");
+        const fresh = unseen.filter((d) => !shown.current.has(d.id));
+        for (const d of fresh.slice(0, 5)) toast(d.title, { description: d.reason });
+        if (fresh.length > 5) toast(`${fresh.length - 5} more alerts`, { description: "See Alerts for the full record." });
+        fresh.forEach((d) => shown.current.add(d.id));
+        if (unseen.length) await ackAlertDeliveries({ data: { ids: unseen.map((d) => d.id) } });
+      } catch {
+        // Offline or signed out mid-request: the next poll retries; nothing is acknowledged.
+      } finally {
+        if (!dead) timer = window.setTimeout(() => void poll(), INBOX_POLL_MS);
+      }
+    };
+    void poll();
+    return () => {
+      dead = true;
+      window.clearTimeout(timer);
+    };
+  }, [identity, setInbox]);
 
   return <LiveCtx.Provider value>{children}</LiveCtx.Provider>;
 }
