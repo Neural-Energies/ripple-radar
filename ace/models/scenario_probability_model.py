@@ -42,6 +42,126 @@ from ace.volatility.har import EPS, forward_vol, har_features
 MODEL_ID = "ace_scenario_distribution"
 MODEL_VERSION = "v1"
 MIN_TRAIN = 500
+TAIL_REFIT_EVERY = 125
+
+
+def realization_dates(r: pd.Series, dates: pd.Index, horizon: int) -> pd.DatetimeIndex:
+    """Session on which each row's forward label is fully observed.
+
+    Both labels at origin D — the realized volatility and the summed move over
+    the next `horizon` sessions of `r` — cover `r`'s positions after D up to
+    D's position + `horizon`, so they become known on that session's date.
+    Measured in sessions of `r` itself, never in rows of a filtered frame: a
+    row dropped for a missing feature does not shorten anyone's horizon.
+    """
+    sessions = pd.Series(r.index, index=r.index).shift(-horizon)
+    return pd.DatetimeIndex(sessions.reindex(dates))
+
+
+def walk_forward(
+    r: pd.Series,
+    feats: pd.DataFrame,
+    horizon: int,
+    *,
+    min_train: int = MIN_TRAIN,
+    refit_every: int = TAIL_REFIT_EVERY,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Point-in-time volatility, drift and tail forecasts at every origin.
+
+    A forecast made at the close of origin D may use a training label only if
+    that label's own window had closed by D (`realization_dates`). An earlier
+    version fitted `lstsq(X[:t], y[:t])`, which includes the previous
+    `horizon - 1` labels whose windows end AFTER t: on a synthetic
+    850-session panel, multiplying only returns after the origin by ten moved
+    that origin's forecast volatility from 0.04534 to 0.05904. With mature
+    labels only it is 0.04653 either way. The tail parameter is held to the
+    same rule, and so is the drift, which reads returns through D by date.
+
+    Returns (forecasts, design): forecasts is indexed by origin with columns
+    sigma_h, drift, df, move, realized_at; design is the feature frame.
+    """
+    y_vol = np.log(np.maximum(forward_vol(r, horizon), EPS)).rename("log_fwd_vol")
+    # realized move over the same forward window the vol refers to
+    fwd_move = r.shift(-1).rolling(horizon).sum().shift(-(horizon - 1)).rename("fwd_move")
+
+    d = pd.concat([feats, y_vol, fwd_move], axis=1).dropna()
+    cols = list(feats.columns)
+    X = np.column_stack([np.ones(len(d))] + [d[c].to_numpy() for c in cols])
+    yv = d["log_fwd_vol"].to_numpy()
+    moves = d["fwd_move"].to_numpy()
+
+    realized_at = realization_dates(r, d.index, horizon)
+    # Rows whose label had closed by each origin. `realized_at` rises with the
+    # row, so the mature set is a prefix; a label closing ON the origin session
+    # is known at that close and counts.
+    n_mature = realized_at.searchsorted(d.index, side="right")
+    n_returns = r.index.searchsorted(d.index, side="right")
+    cum_ret = np.concatenate([[0.0], np.cumsum(r.to_numpy(dtype=float))])
+
+    sigma_pred = np.full(len(d), np.nan)
+    df_used = np.full(len(d), np.nan)
+    # Expected move over the horizon, estimated from past returns only.
+    # Centring every scenario band on zero ignores drift, which showed up as a
+    # 50% interval covering ~41%: the centre was in the wrong place even though
+    # the tails were right.
+    drift_pred = np.full(len(d), np.nan)
+    tail_df: float | None = None
+    fitted = 0
+    for t in range(len(d)):
+        m = int(n_mature[t])
+        if m < min_train:
+            continue
+        try:
+            coef = np.linalg.lstsq(X[:m], yv[:m], rcond=None)[0]
+        except np.linalg.LinAlgError:
+            continue
+        sigma_pred[t] = float(np.exp(X[t] @ coef) * np.sqrt(horizon))
+        k = int(n_returns[t])
+        drift_pred[t] = float(cum_ret[k] / k * horizon) if k > 250 else 0.0
+        # tail parameter from matured standardized moves only, refit periodically
+        if tail_df is None or fitted % refit_every == 0:
+            # Standardize by the FORECAST volatility, not the realized one.
+            # Dividing a move by the volatility actually realized over its own
+            # window gives a near-unit-variance series by construction, which
+            # drove the fitted df straight to its ceiling and made the
+            # distribution look Gaussian. What the tail parameter must describe
+            # is how far moves land relative to what was FORECAST.
+            hist = np.isfinite(sigma_pred[:m])
+            if hist.sum() >= 150:
+                z_past = (moves[:m][hist] - drift_pred[:m][hist]) / np.maximum(sigma_pred[:m][hist], 1e-12)
+                tail_df = fit_tail_df(z_past)
+            else:
+                tail_df = 5.0
+        df_used[t] = tail_df
+        fitted += 1
+
+    forecasts = pd.DataFrame(
+        {"sigma_h": sigma_pred, "drift": drift_pred, "df": df_used,
+         "move": moves, "realized_at": realized_at},
+        index=d.index,
+    )
+    return forecasts, d[cols]
+
+
+def non_overlapping(origins: pd.Index, realized_at: pd.DatetimeIndex) -> np.ndarray:
+    """Positions of forecast windows that share no session with each other.
+
+    Each next window starts at the first origin on or after the previous
+    window's closing session — by date, so a gap in the rows cannot let two
+    windows overlap the way a fixed row stride would.
+    """
+    keep: list[int] = []
+    closed = None
+    for i, origin in enumerate(origins):
+        if closed is None or origin >= closed:
+            keep.append(i)
+            closed = realized_at[i]
+    return np.asarray(keep, dtype=int)
+
+
+def residual_history(z: np.ndarray, realized_at: pd.DatetimeIndex, origin: pd.Timestamp) -> np.ndarray:
+    """Standardized residuals whose own outcome was known at `origin`."""
+    return z[: int(realized_at.searchsorted(origin, side="right"))]
 
 
 def run(channel: str, horizon: int, seed: int) -> dict:
@@ -53,73 +173,32 @@ def run(channel: str, horizon: int, seed: int) -> dict:
     if "VIX" in panel.columns:
         vix = panel["VIX"].reindex(r.index).ffill()
         feats["log_vix"] = np.log(np.maximum(vix / 100.0 / np.sqrt(252), EPS))
-    y_vol = np.log(np.maximum(forward_vol(r, horizon), EPS)).rename("log_fwd_vol")
-    # realized move over the same forward window the vol refers to
-    fwd_move = np.log(r.index.to_series().map(lambda _: 1.0))  # placeholder replaced below
-    px_ret = r.shift(-1).rolling(horizon).sum().shift(-(horizon - 1))
-    fwd_move = px_ret.rename("fwd_move")
 
-    d = pd.concat([feats, y_vol, fwd_move], axis=1).dropna()
-    cols = [c for c in feats.columns]
-    X = np.column_stack([np.ones(len(d))] + [d[c].to_numpy() for c in cols])
-    yv = d["log_fwd_vol"].to_numpy()
-    moves = d["fwd_move"].to_numpy()
-    print(f"{channel}: {len(d)} rows  {d.index.min().date()} -> {d.index.max().date()}  horizon {horizon}d")
+    wf, design = walk_forward(r, feats, horizon)
+    print(f"{channel}: {len(wf)} rows  {wf.index.min().date()} -> {wf.index.max().date()}  horizon {horizon}d")
 
-    sigma_pred = np.full(len(d), np.nan)
-    df_used = np.full(len(d), np.nan)
-    # Expected move over the horizon, estimated from past returns only.
-    # Centring every scenario band on zero ignores drift, which showed up as a
-    # 50% interval covering ~41%: the centre was in the wrong place even though
-    # the tails were right.
-    drift_pred = np.full(len(d), np.nan)
-    for t in range(MIN_TRAIN, len(d)):
-        try:
-            coef = np.linalg.lstsq(X[:t], yv[:t], rcond=None)[0]
-        except np.linalg.LinAlgError:
-            continue
-        sigma_h = float(np.exp(X[t] @ coef) * np.sqrt(horizon))
-        sigma_pred[t] = sigma_h
-        drift_pred[t] = float(np.mean(r.to_numpy()[:t]) * horizon) if t > 250 else 0.0
-        # tail parameter from PAST standardized moves only, refit periodically
-        if t == MIN_TRAIN or (t - MIN_TRAIN) % 125 == 0:
-            # Standardize by the FORECAST volatility, not the realized one.
-            # Dividing a move by the volatility actually realized over its own
-            # window gives a near-unit-variance series by construction, which
-            # drove the fitted df straight to its ceiling and made the
-            # distribution look Gaussian. What the tail parameter must describe
-            # is how far moves land relative to what was FORECAST.
-            hist = np.isfinite(sigma_pred[:t])
-            if hist.sum() >= 150:
-                z_past = (moves[:t][hist] - drift_pred[:t][hist]) / np.maximum(sigma_pred[:t][hist], 1e-12)
-                df_used[t] = fit_tail_df(z_past)
-            else:
-                df_used[t] = 5.0
-        else:
-            df_used[t] = df_used[t - 1]
-
-    ok = np.isfinite(sigma_pred) & np.isfinite(df_used) & np.isfinite(moves) & np.isfinite(drift_pred)
-    sig_all, dfs_all, mv_all, dr_all = sigma_pred[ok], df_used[ok], moves[ok], drift_pred[ok]
-    dates_all = d.index[ok]
+    ok = wf.dropna(subset=["sigma_h", "drift", "df", "move"])
+    sig_all = ok["sigma_h"].to_numpy()
+    dfs_all = ok["df"].to_numpy()
+    mv_all = ok["move"].to_numpy()
+    dr_all = ok["drift"].to_numpy()
+    dates_all = ok.index
+    realized_all = pd.DatetimeIndex(ok["realized_at"])
 
     # Calibration tests assume independent observations. A 20-session forward
     # window sampled every day overlaps 19/20 with its neighbour, so KS on the
     # daily series tests a sample roughly 20x smaller than it looks and reports
     # spurious rejection. Score calibration on NON-OVERLAPPING windows.
-    step = horizon
-    idx_ind = np.arange(0, len(mv_all), step)
+    idx_ind = non_overlapping(dates_all, realized_all)
     sig, dfs, mv, dr = sig_all[idx_ind], dfs_all[idx_ind], mv_all[idx_ind], dr_all[idx_ind]
     dates = dates_all[idx_ind]
     print(f"scored {len(mv_all)} overlapping windows -> {len(mv)} non-overlapping for calibration")
     print(f"fitted df range {dfs.min():.2f}-{dfs.max():.2f}")
 
     # Expanding standardized-residual history: residual_sets[i] holds only
-    # residuals whose own outcome was known before observation i.
+    # residuals whose own outcome was known at observation i's origin.
     z_all = (mv_all - dr_all) / np.maximum(sig_all, 1e-12)
-    residual_sets = []
-    for pos in idx_ind:
-        usable = max(0, pos - horizon)          # drop overlapping neighbours
-        residual_sets.append(z_all[:usable])
+    residual_sets = [residual_history(z_all, realized_all, origin) for origin in dates]
     fhs_ok = [i for i, z in enumerate(residual_sets) if len(z) >= 50]
     if fhs_ok:
         fi = np.array(fhs_ok)
@@ -194,7 +273,7 @@ def run(channel: str, horizon: int, seed: int) -> dict:
         "best_method": best_name, "fhs_pit": fhs_diag, "fhs_coverage": fhs_cov,
         "student_t_worst_miss": round(worst, 4),
         "example_bands": bands.to_dict(),
-        "_hash_frame": d[cols],
+        "_hash_frame": design,
     }
 
 

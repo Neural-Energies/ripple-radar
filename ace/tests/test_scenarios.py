@@ -175,3 +175,83 @@ def test_fhs_probabilities_count_the_empirical_set():
 def test_fhs_refuses_a_residual_history_too_short_to_use():
     with pytest.raises(ValueError):
         fhs_quantiles(np.array([0.1, -0.2, 0.3]), sigma_h=0.05)
+
+
+# ------------------------------------------- walk-forward label maturity (A12) --
+
+def _audit_panel() -> pd.Series:
+    """The external audit's reproduction: 850 business-day N(0, 1%) returns,
+    seed 42, whose feature/label frame puts row 500 on 2022-03-02."""
+    rng = np.random.default_rng(42)
+    return pd.Series(rng.normal(0, 0.01, 850), index=pd.bdate_range("2020-01-01", periods=850))
+
+
+def test_future_returns_cannot_change_an_earlier_forecast():
+    """PR #5 A12. Before the fix, fitting on `X[:t]` pulled in the previous
+    horizon-1 labels whose windows had not closed, and multiplying only the
+    returns AFTER the origin by ten moved the origin's forecast volatility
+    from 0.0453424301 to 0.0590359855 (+30.2%)."""
+    from ace.models.scenario_probability_model import walk_forward
+
+    horizon = 20
+    r = _audit_panel()
+    base, _ = walk_forward(r, har_features(r), horizon, min_train=100)
+    origin = base.index[500]
+    assert origin == pd.Timestamp("2022-03-02")
+
+    tampered_r = r.copy()
+    tampered_r[tampered_r.index > origin] *= 10.0
+    tampered, _ = walk_forward(tampered_r, har_features(tampered_r), horizon, min_train=100)
+
+    upto = base.index <= origin
+    for col in ("sigma_h", "drift", "df"):
+        pd.testing.assert_series_equal(base.loc[upto, col], tampered.loc[upto, col])
+    # the mature-labels-only value the audit computed independently
+    assert base.loc[origin, "sigma_h"] == pytest.approx(0.0465315581, abs=1e-9)
+
+
+def test_a_label_closes_on_the_session_horizon_steps_after_its_origin():
+    from ace.models.scenario_probability_model import realization_dates
+
+    r = _audit_panel()
+    at = realization_dates(r, r.index[:10], horizon=20)
+    assert list(at) == list(r.index[20:30])
+
+
+def test_a_dropped_row_does_not_shorten_anyone_s_horizon():
+    """Horizons are sessions of the return series, not rows of the filtered
+    frame: a feature row lost to NaN must not pull a later label's closing
+    date one row earlier."""
+    from ace.models.scenario_probability_model import walk_forward
+
+    horizon = 20
+    r = _audit_panel()
+    feats = har_features(r)
+    gap = feats.index[300]
+    feats.loc[gap, "log_rv_w"] = np.nan
+    wf, _ = walk_forward(r, feats, horizon, min_train=100)
+
+    assert gap not in wf.index
+    positions = r.index.get_indexer(wf.index)
+    assert list(wf["realized_at"]) == list(r.index[positions + horizon])
+
+
+def test_a_label_closing_exactly_at_the_origin_is_used_and_one_after_is_not():
+    from ace.models.scenario_probability_model import residual_history
+
+    z = np.arange(5.0)
+    closes = pd.DatetimeIndex(pd.bdate_range("2021-01-04", periods=5))
+    assert list(residual_history(z, closes, closes[2])) == [0.0, 1.0, 2.0]
+    assert list(residual_history(z, closes, closes[2] - pd.Timedelta(hours=1))) == [0.0, 1.0]
+
+
+def test_non_overlapping_windows_share_no_session_even_across_a_gap():
+    from ace.models.scenario_probability_model import non_overlapping, realization_dates
+
+    horizon = 20
+    r = _audit_panel()
+    origins = r.index[:300].delete([25, 26, 27])  # rows lost to missing features
+    closes = realization_dates(r, origins, horizon)
+    keep = non_overlapping(origins, closes)
+    for prev, nxt in zip(keep, keep[1:]):
+        assert origins[nxt] >= closes[prev]
