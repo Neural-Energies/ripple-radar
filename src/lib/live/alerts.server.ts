@@ -20,11 +20,11 @@ import type { Sql } from "@/lib/db";
 import { normalizeDesk } from "@/lib/desk-model";
 import { episodeKey, evaluateRule, stepRule, worldFromDesk, type AlertWorld, type Evaluation, type RuleState, type WorldQuote } from "./alerts";
 import type { LiveDesk } from "./types";
+import { postWebhook } from "./webhook-send.server";
 
 export const MAX_ATTEMPTS = 5;
 /** Minutes to wait after the n-th failed attempt. */
 export const BACKOFF_MIN = [1, 5, 15, 60];
-const WEBHOOK_TIMEOUT_MS = 5_000;
 const WEBHOOK_BATCH = 50;
 
 export interface AlertPassDeps {
@@ -47,8 +47,8 @@ export interface AlertPassSummary {
 /**
  * A webhook URL this server will call. HTTPS only, default port, and never a
  * literal IP or an internal host name — the server must not be steered into
- * its own network. (DNS that resolves a public name to a private address is
- * not caught here.)
+ * its own network. A public name that resolves to a private address is
+ * refused at send time, on the connection itself (`postWebhook`).
  */
 export function checkWebhookUrl(raw: string): { ok: true; url: string } | { ok: false; error: string } {
   let u: URL;
@@ -199,15 +199,12 @@ export async function runAlertPass(sql: Sql, desk: LiveDesk, deps: AlertPassDeps
   return summary;
 }
 
-async function defaultFetch(url: string, init: RequestInit) {
-  const ctl = new AbortController();
-  const timer = setTimeout(() => ctl.abort(), WEBHOOK_TIMEOUT_MS);
-  try {
-    const res = await fetch(url, { ...init, signal: ctl.signal, redirect: "manual" });
-    return { ok: res.ok, status: res.status };
-  } finally {
-    clearTimeout(timer);
-  }
+function defaultFetch(url: string, init: RequestInit) {
+  return postWebhook(url, {
+    method: init.method ?? "POST",
+    headers: init.headers as Record<string, string>,
+    body: String(init.body ?? ""),
+  });
 }
 
 /** Send due webhook deliveries; failures back off and give up after MAX_ATTEMPTS. */
