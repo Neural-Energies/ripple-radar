@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main, alpha-recon-main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Engine tests
+        run: npm run test:engine
+      - name: App tests
+        run: npm run test:app
+      - name: Build
+        run: npm run build
+
+  ace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            ace/requirements.txt
+            ace/constraints.txt
+      - run: pip install -r ace/requirements.txt -c ace/constraints.txt
+      - name: ACE tests
+        run: python -m pytest -q ace/tests
