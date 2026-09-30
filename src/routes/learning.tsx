@@ -12,6 +12,7 @@ import {
 import { goToEvent } from "@/lib/hooks/use-event-param-sync";
 import { useLiveEvents } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
+import { thesisOutcomes } from "@/lib/thesis";
 import { cn } from "@/lib/utils";
 
 type Scored = Awaited<ReturnType<typeof getScoredLedger>>[number];
@@ -161,6 +162,7 @@ function LearningPage() {
       </div>
 
       <LiveCalibrationPanel onResolved={load} />
+      <ThesisOutcomesPanel />
 
       <div className="grid gap-3 lg:grid-cols-2">
         <Panel
@@ -209,6 +211,95 @@ function LearningPage() {
       <ScoredLedgerPanel rows={scored} />
       <ReplayPanel />
     </div>
+  );
+}
+
+const OUTCOME_TONE = { right: "up", wrong: "down", mixed: "warn", unclear: "neutral" } as const;
+
+/**
+ * The account's own theses, as reviewed: what the desk forecast is scored
+ * against above, this is scored against the trader's own calls.
+ */
+function ThesisOutcomesPanel() {
+  const theses = useApp((st) => st.theses);
+  const [now] = useState(() => new Date());
+  const o = thesisOutcomes(theses, now);
+  const pct = (n: number | null) => (n == null ? "—" : `${Math.round(n)}%`);
+  return (
+    <Panel
+      title="Your theses · reviewed outcomes"
+      action={
+        <Link to="/theses" className="text-micro text-primary hover:underline">
+          {o.awaitingReview > 0 ? `${o.awaitingReview} due for review` : "Open theses"}
+        </Link>
+      }
+    >
+      {o.reviewed === 0 ? (
+        <div className="py-4 text-center">
+          <p className="text-caption text-muted">No reviewed theses yet.</p>
+          <p className="mt-1 text-micro text-subtle">
+            Save a thesis from a book&apos;s scenarios, then review it on or after its date. Its
+            outcome is scored here against the probability it was saved at.
+          </p>
+        </div>
+      ) : (
+        <>
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-caption sm:grid-cols-4">
+            <div>
+              <dt className="text-micro uppercase tracking-wider text-subtle">Reviewed</dt>
+              <dd className="font-mono tabular-nums">
+                {o.reviewed}{" "}
+                <span className="text-muted">
+                  ({o.right} right · {o.wrong} wrong · {o.mixed} mixed · {o.unclear} unclear)
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-micro uppercase tracking-wider text-subtle">Hit rate, decided</dt>
+              <dd className="font-mono tabular-nums">
+                {o.hitRate == null ? "—" : `${Math.round(o.hitRate * 100)}%`}{" "}
+                <span className="text-muted">n={o.decided}</span>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-micro uppercase tracking-wider text-subtle">Brier, at saved probability</dt>
+              <dd className="font-mono tabular-nums">
+                {o.brier == null ? "—" : o.brier.toFixed(4)}{" "}
+                <span className="text-muted">
+                  saved at {pct(o.meanSavedRight)} right / {pct(o.meanSavedWrong)} wrong
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-micro uppercase tracking-wider text-subtle">Instruments as called</dt>
+              <dd className="font-mono tabular-nums">
+                {o.instruments.withMove === 0 ? "—" : `${o.instruments.asExpected} of ${o.instruments.withMove}`}
+              </dd>
+            </div>
+          </dl>
+          <ul className="mt-3 flex flex-col divide-y divide-border/70 border-t border-border/70">
+            {o.recent.map((t) => (
+              <li key={t.id} className="flex flex-wrap items-baseline justify-between gap-2 py-1.5 text-caption">
+                <span className="min-w-0 flex-1 truncate">
+                  <span className="text-foreground">{t.statement}</span>{" "}
+                  <span className="text-muted">· {t.eventTitle}</span>
+                </span>
+                <span className="flex shrink-0 items-center gap-1.5">
+                  <span className="font-mono text-micro text-subtle">
+                    saved at {t.scenarioProbability ?? t.bookProbability}% · {day(t.review!.at)}
+                  </span>
+                  <Badge tone={OUTCOME_TONE[t.review!.outcome]}>{t.review!.outcome}</Badge>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1.5 text-micro text-subtle">
+            Your own judgement at review, not the model judge&apos;s. Mixed and unclear reviews are
+            counted but not scored. With few reviews these rates move a lot.
+          </p>
+        </>
+      )}
+    </Panel>
   );
 }
 

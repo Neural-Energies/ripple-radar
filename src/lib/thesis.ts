@@ -260,3 +260,61 @@ export function reviewTally(theses: Thesis[]) {
   const count = (o: NonNullable<Thesis["review"]>["outcome"]) => reviewed.filter((t) => t.review!.outcome === o).length;
   return { reviewed: reviewed.length, right: count("right"), wrong: count("wrong"), mixed: count("mixed"), unclear: count("unclear") };
 }
+
+export interface ThesisOutcomes {
+  reviewed: number;
+  right: number;
+  wrong: number;
+  mixed: number;
+  unclear: number;
+  /** right / (right + wrong); null until one thesis is decided either way. */
+  hitRate: number | null;
+  /**
+   * Brier score of the probability each decided thesis was saved at (its
+   * scenario's, else the book's), against right = 1, wrong = 0. Mixed and
+   * unclear reviews are not scored.
+   */
+  brier: number | null;
+  decided: number;
+  /** Mean saved probability, in percent, of theses later judged right and wrong. */
+  meanSavedRight: number | null;
+  meanSavedWrong: number | null;
+  /** Instruments in reviewed theses whose price at review moved as expected, of those with a move. */
+  instruments: { withMove: number; asExpected: number };
+  /** Open theses past their review date. */
+  awaitingReview: number;
+  /** Most recent reviews first. */
+  recent: Thesis[];
+}
+
+const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+
+/** How the account's own reviewed theses turned out, for the learning page. */
+export function thesisOutcomes(theses: Thesis[], now: Date, recent = 5): ThesisOutcomes {
+  const tally = reviewTally(theses);
+  const reviewed = theses.filter((t) => t.status === "reviewed" && t.review);
+  const decided = reviewed.filter((t) => t.review!.outcome === "right" || t.review!.outcome === "wrong");
+  const saved = (t: Thesis) => t.scenarioProbability ?? t.bookProbability;
+  const brier = mean(decided.map((t) => (saved(t) / 100 - (t.review!.outcome === "right" ? 1 : 0)) ** 2));
+  let withMove = 0;
+  let asExpected = 0;
+  for (const t of reviewed) {
+    for (const p of t.review!.prices) {
+      const expected = t.instruments.find((i) => i.ticker === p.ticker)?.expected;
+      if (!expected || p.changePct == null || p.changePct === 0) continue;
+      withMove += 1;
+      if ((p.changePct > 0) === (expected === "up")) asExpected += 1;
+    }
+  }
+  return {
+    ...tally,
+    hitRate: tally.right + tally.wrong > 0 ? tally.right / (tally.right + tally.wrong) : null,
+    brier: brier == null ? null : Math.round(brier * 10_000) / 10_000,
+    decided: decided.length,
+    meanSavedRight: mean(decided.filter((t) => t.review!.outcome === "right").map(saved)),
+    meanSavedWrong: mean(decided.filter((t) => t.review!.outcome === "wrong").map(saved)),
+    instruments: { withMove, asExpected },
+    awaitingReview: theses.filter((t) => t.status === "open" && Date.parse(t.reviewAt) <= now.getTime()).length,
+    recent: [...reviewed].sort((a, b) => Date.parse(b.review!.at) - Date.parse(a.review!.at)).slice(0, recent),
+  };
+}

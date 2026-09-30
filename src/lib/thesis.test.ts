@@ -15,6 +15,7 @@ import {
   reviewRecord,
   reviewTally,
   shortestHorizonLabel,
+  thesisOutcomes,
 } from "./thesis";
 
 const scenario = (id: string, name: string, probability: number): Scenario => ({
@@ -148,4 +149,30 @@ test("a review appends the outcome and the state at review time; the original cl
 test("the horizon label is the book's own shortest", () => {
   assert.equal(shortestHorizonLabel(book({ horizons: [], forecastHorizon: "2q / 12m" })), "2q");
   assert.equal(shortestHorizonLabel(book({ horizons: [], forecastHorizon: undefined })), "72h");
+});
+
+test("outcomes score decided theses at the probability they were saved at, and count moves against the call", () => {
+  const draft = draftFromEvent(book());
+  const at = (i: number) => new Date(Date.parse("2026-10-06T12:00:00Z") + i * 3_600_000);
+  const saved = (id: string) => buildThesis(book(), draft, quotes, NOW, id);
+  const review = (id: string, outcome: "right" | "wrong" | "mixed", uso: number, i: number) => {
+    const t = saved(id);
+    return { ...t, status: "reviewed" as const, review: reviewRecord(t, book(), { USO: { last: uso } }, at(i), outcome, "") };
+  };
+  // Saved on Escalation at 55%: right once, wrong once, mixed once; one still open and overdue.
+  const theses = [review("r1", "right", 88, 0), review("r2", "wrong", 76, 1), review("r3", "mixed", 80, 2), saved("open")];
+  const o = thesisOutcomes(theses, new Date("2026-12-01T00:00:00Z"));
+  assert.equal(o.reviewed, 3);
+  assert.equal(o.decided, 2);
+  assert.equal(o.hitRate, 0.5);
+  // (0.55 - 1)^2 and (0.55 - 0)^2, averaged; mixed is not scored.
+  assert.equal(o.brier, Math.round(((0.45 ** 2 + 0.55 ** 2) / 2) * 10_000) / 10_000);
+  assert.equal(o.meanSavedRight, 55);
+  assert.equal(o.meanSavedWrong, 55);
+  // USO was called up: +10% as expected, -5% against, flat not counted; XLE had no price.
+  assert.deepEqual(o.instruments, { withMove: 2, asExpected: 1 });
+  assert.equal(o.awaitingReview, 1);
+  assert.deepEqual(o.recent.map((t) => t.id), ["r3", "r2", "r1"]);
+  assert.equal(thesisOutcomes([], NOW).hitRate, null);
+  assert.equal(thesisOutcomes([], NOW).brier, null);
 });
