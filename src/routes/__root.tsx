@@ -15,6 +15,7 @@ import { DeskSync } from "@/components/desk-sync";
 import { LiveProvider } from "@/lib/live/provider";
 import { getQueryClient } from "@/lib/query";
 import { useApp } from "@/lib/store";
+import { THEME_BOOT, useTheme } from "@/lib/theme";
 import appCss from "../styles.css?url";
 
 const APP_NAME = "Alpha Recon";
@@ -50,8 +51,10 @@ export const Route = createRootRoute({
 
 function Root() {
   return (
-    <html lang="en" className="antialiased" suppressHydrationWarning>
+    <html lang="en" className="antialiased" data-theme="dark" suppressHydrationWarning>
       <head>
+        {/* Before first paint: apply the viewer's saved theme (dark by default). */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         <HeadContent />
       </head>
       <body>
@@ -69,21 +72,28 @@ function Root() {
             </HydrateStore>
           </AuthProvider>
         </QueryClientProvider>
-        <Toaster
-          theme="dark"
-          position="bottom-right"
-          closeButton
-          toastOptions={{
-            style: {
-              background: "var(--color-card-2)",
-              border: "1px solid var(--color-border)",
-              color: "var(--color-foreground)",
-            },
-          }}
-        />
+        <ThemedToaster />
         <Scripts />
       </body>
     </html>
+  );
+}
+
+function ThemedToaster() {
+  const { resolved } = useTheme();
+  return (
+    <Toaster
+      theme={resolved}
+      position="bottom-right"
+      closeButton
+      toastOptions={{
+        style: {
+          background: "var(--color-card-2)",
+          border: "1px solid var(--color-border)",
+          color: "var(--color-foreground)",
+        },
+      }}
+    />
   );
 }
 

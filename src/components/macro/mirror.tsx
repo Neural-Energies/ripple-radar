@@ -22,7 +22,7 @@ export type MacroReadPayload = Awaited<ReturnType<typeof getMacroRegime>>;
 type Read = MacroReadPayload | null;
 type State = MacroState | MacroStateUnavailable | null;
 
-const tip = { background: "#101c32", border: "1px solid #1c2d4a", borderRadius: 6, fontSize: 11, color: "#e8eef8" };
+const tip = { background: "var(--color-card-2)", border: "1px solid var(--color-border)", borderRadius: 6, fontSize: 11, color: "var(--color-foreground)" };
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function monthLabel(date?: string | null) {
@@ -129,7 +129,7 @@ function Contrib({ label, value, unit, scale }: { label: string; value: number; 
   return (
     <div className="grid grid-cols-[minmax(0,7.2rem)_minmax(0,1fr)_4.6rem] items-center gap-1 py-px text-[11px]">
       <span className="truncate text-muted" title={label}>{label}</span>
-      <span className="h-1.5 rounded-[1px] bg-[#122033]">
+      <span className="h-1.5 rounded-[1px] bg-card-3">
         <span className={cn("block h-full rounded-[1px]", pos ? "bg-up" : "bg-down")} style={{ width: `${pct}%` }} />
       </span>
       <span className={cn("whitespace-nowrap text-right font-mono text-[10px] tabular-nums", pos ? "text-up" : "text-down")}>
@@ -677,9 +677,9 @@ function PathChart({
     <div className="h-20">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
-          <CartesianGrid stroke="#1a2740" vertical={false} />
-          <XAxis dataKey="t" tick={{ fill: "#5a6d88", fontSize: 10 }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fill: "#5a6d88", fontSize: 9 }} axisLine={false} tickLine={false} width={26} />
+          <CartesianGrid stroke="var(--color-border)" vertical={false} />
+          <XAxis dataKey="t" tick={{ fill: "var(--color-subtle)", fontSize: 10 }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fill: "var(--color-subtle)", fontSize: 9 }} axisLine={false} tickLine={false} width={26} />
           <Tooltip contentStyle={tip} />
           {lines.map((l) => (
             <Line key={l.key} dataKey={l.key} stroke={l.color} strokeWidth={1.6} dot={false} name={l.name} connectNulls />
@@ -716,7 +716,7 @@ export function GrowthDetailView({ read, state }: { read: Read; state: State }) 
   const f = factorOf(state, "output_activity");
   const labor = factorOf(state, "labor");
   return (
-    <section className="min-h-0 rounded-sm border border-[#1a2740] bg-card p-2">
+    <section className="min-h-0 rounded-sm border border-border bg-card p-2">
       <Subhead crumb="Macro → Growth" title="Growth Detail" note="Live five-leg FRED basket; factor drivers from the point-in-time panel." />
       <div className="grid grid-cols-2 gap-3">
         <div>
@@ -748,7 +748,7 @@ export function InflationDetailView({ read, state }: { read: Read; state: State 
   const pce = [...rows].reverse().find((r) => r.pceCore != null);
   const f = factorOf(state, "inflation");
   return (
-    <section className="min-h-0 rounded-sm border border-[#1a2740] bg-card p-2">
+    <section className="min-h-0 rounded-sm border border-border bg-card p-2">
       <Subhead crumb="Macro → Inflation" title="Inflation Detail" note="Year-over-year, FRED, monthly." />
       <div className="grid grid-cols-2 gap-2">
         <div className="rounded-sm bg-card-2 p-2">
@@ -772,8 +772,8 @@ export function InflationDetailView({ read, state }: { read: Read; state: State 
       <PathChart
         data={rows}
         lines={[
-          { key: "cpi", color: "#f07178", name: "Headline CPI" },
-          { key: "core", color: "#3ec8e8", name: "Core CPI" },
+          { key: "cpi", color: "var(--color-down)", name: "Headline CPI" },
+          { key: "core", color: "var(--color-r1)", name: "Core CPI" },
           { key: "pceCore", color: "#c4b5fd", name: "Core PCE" },
         ]}
       />
@@ -793,7 +793,7 @@ export function RatesDetailView({ read }: { read: Read }) {
   const two = printOf(read, "DGS2");
   const rule = read?.status === "ok" ? read.policyRule : undefined;
   return (
-    <section className="min-h-0 rounded-sm border border-[#1a2740] bg-card p-2">
+    <section className="min-h-0 rounded-sm border border-border bg-card p-2">
       <Subhead crumb="Macro → Rates" title="Rates" note="Treasury yields and the policy rule; no term-premium split is fitted." />
       <div className="grid grid-cols-2 gap-2">
         <div>
@@ -823,7 +823,7 @@ export function RatesDetailView({ read }: { read: Read }) {
       <PathChart
         data={chartRows(read)}
         lines={[
-          { key: "dgs10", color: "#3ec8e8", name: "10Y" },
+          { key: "dgs10", color: "var(--color-r1)", name: "10Y" },
           { key: "funds", color: "#f0a05a", name: "Fed funds" },
         ]}
       />
@@ -838,7 +838,7 @@ export function GlobalDetailView({ state }: { state: State }) {
   const external = factorOf(state, "trade_external");
   const commodities = factorOf(state, "commodities");
   return (
-    <section className="min-h-0 rounded-sm border border-[#1a2740] bg-card p-2">
+    <section className="min-h-0 rounded-sm border border-border bg-card p-2">
       <Subhead
         crumb="Macro → Global"
         title="External & Commodities"

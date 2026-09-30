@@ -26,6 +26,7 @@ import {
 import { CommandPalette } from "@/components/command-palette";
 import { Logo } from "@/components/logo";
 import { AuthSlot } from "@/components/auth-slot";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge, Button, Kbd } from "@/components/ui";
 import {
   useAlertHits,
@@ -171,6 +172,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </span>
           </button>
 
+          <ThemeToggle />
           <Link
             to="/alerts"
             className="relative inline-flex size-9 items-center justify-center rounded-md text-muted hover:bg-card-2 hover:text-foreground"

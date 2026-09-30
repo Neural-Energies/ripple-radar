@@ -1,6 +1,7 @@
 import { Bell, Search } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { AuthSlot } from "@/components/auth-slot";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { LogoMark } from "@/components/logo";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +31,7 @@ export function MacroTopNav({
   const path = useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-[#07101c]">
+    <header className="sticky top-0 z-40 border-b border-border bg-card">
       <div className="flex h-8 items-center gap-0.5 px-2">
         <Link to="/" className="mr-2 flex shrink-0 items-center gap-1.5">
           <LogoMark className="size-4" />
@@ -46,11 +47,11 @@ export function MacroTopNav({
                 to={item.to}
                 className={cn(
                   "relative flex h-full items-center px-2.5 text-[11px] text-muted transition-colors hover:text-foreground",
-                  on && "bg-[#10223a] text-[#66c9ff]",
+                  on && "bg-primary/15 text-primary",
                 )}
               >
                 {item.label}
-                {on ? <span className="absolute inset-x-0 bottom-0 h-px bg-[#52bdf4]" /> : null}
+                {on ? <span className="absolute inset-x-0 bottom-0 h-px bg-primary" /> : null}
               </Link>
             );
           })}
@@ -59,12 +60,13 @@ export function MacroTopNav({
         <button
           type="button"
           onClick={onSearch}
-          className="ml-auto hidden h-6 w-52 items-center gap-2 rounded-sm border border-border bg-[#0c1828] px-2 text-left text-[11px] text-subtle hover:border-primary/40 xl:flex"
+          className="ml-auto hidden h-6 w-52 items-center gap-2 rounded-sm border border-border bg-card-2 px-2 text-left text-[11px] text-subtle hover:border-primary/40 xl:flex"
         >
           <Search className="size-3.5 shrink-0" />
           <span className="truncate">Search assets, events, or data...</span>
         </button>
 
+        <ThemeToggle className="size-8 rounded-sm" />
         <Link
           to="/alerts"
           className="relative inline-flex size-8 items-center justify-center rounded-sm text-muted hover:bg-card-2 hover:text-foreground"

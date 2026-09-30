@@ -21,11 +21,11 @@ import type { HeatPoint, Scenario, SeriesPoint } from "@/data/types";
 import { cn } from "@/lib/utils";
 
 const tooltipStyle = {
-  background: "#101c32",
-  border: "1px solid #1c2d4a",
+  background: "var(--color-card-2)",
+  border: "1px solid var(--color-border)",
   borderRadius: 8,
   fontSize: 11,
-  color: "#e8eef8",
+  color: "var(--color-foreground)",
 };
 
 export function ProbabilityChart({ data }: { data: SeriesPoint[] }) {
@@ -35,15 +35,15 @@ export function ProbabilityChart({ data }: { data: SeriesPoint[] }) {
         <AreaChart data={data} margin={{ top: 6, right: 6, left: -18, bottom: 0 }}>
           <defs>
             <linearGradient id="probFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3ec8e8" stopOpacity={0.35} />
-              <stop offset="100%" stopColor="#3ec8e8" stopOpacity={0} />
+              <stop offset="0%" stopColor="var(--color-r1)" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="var(--color-r1)" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid stroke="#1c2d4a" strokeDasharray="3 3" vertical={false} />
-          <XAxis dataKey="date" tick={{ fill: "#5a6d88", fontSize: 10 }} axisLine={false} tickLine={false} />
+          <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
+          <XAxis dataKey="date" tick={{ fill: "var(--color-subtle)", fontSize: 10 }} axisLine={false} tickLine={false} />
           <YAxis
             domain={[0, 100]}
-            tick={{ fill: "#5a6d88", fontSize: 10 }}
+            tick={{ fill: "var(--color-subtle)", fontSize: 10 }}
             axisLine={false}
             tickLine={false}
             tickFormatter={(v) => `${v}%`}
@@ -52,7 +52,7 @@ export function ProbabilityChart({ data }: { data: SeriesPoint[] }) {
             contentStyle={tooltipStyle}
             formatter={(v) => [`${String(v)}%`, "Probability"]}
           />
-          <Area type="monotone" dataKey="value" stroke="#3ec8e8" strokeWidth={2} fill="url(#probFill)" />
+          <Area type="monotone" dataKey="value" stroke="var(--color-r1)" strokeWidth={2} fill="url(#probFill)" />
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -64,13 +64,13 @@ export function HeatChart({ data }: { data: HeatPoint[] }) {
     <div className="h-28 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 6, right: 6, left: -18, bottom: 0 }}>
-          <CartesianGrid stroke="#1c2d4a" strokeDasharray="3 3" vertical={false} />
-          <XAxis dataKey="date" tick={{ fill: "#5a6d88", fontSize: 10 }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fill: "#5a6d88", fontSize: 10 }} axisLine={false} tickLine={false} />
+          <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
+          <XAxis dataKey="date" tick={{ fill: "var(--color-subtle)", fontSize: 10 }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fill: "var(--color-subtle)", fontSize: 10 }} axisLine={false} tickLine={false} />
           <Tooltip contentStyle={tooltipStyle} />
-          <Line type="monotone" dataKey="news" name="News" stroke="#3ec8e8" strokeWidth={1.6} dot={false} />
-          <Line type="monotone" dataKey="social" name="Social" stroke="#4ade80" strokeWidth={1.6} dot={false} />
-          <Line type="monotone" dataKey="search" name="Search" stroke="#e0b35c" strokeWidth={1.6} dot={false} />
+          <Line type="monotone" dataKey="news" name="News" stroke="var(--color-r1)" strokeWidth={1.6} dot={false} />
+          <Line type="monotone" dataKey="social" name="Social" stroke="var(--color-r2)" strokeWidth={1.6} dot={false} />
+          <Line type="monotone" dataKey="search" name="Search" stroke="var(--color-r3)" strokeWidth={1.6} dot={false} />
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -86,12 +86,12 @@ export function LearningChart({
     <div className="h-32 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 6, right: 6, left: -18, bottom: 0 }}>
-          <CartesianGrid stroke="#1c2d4a" strokeDasharray="3 3" vertical={false} />
-          <XAxis dataKey="date" tick={{ fill: "#5a6d88", fontSize: 10 }} axisLine={false} tickLine={false} />
-          <YAxis yAxisId="a" domain={[40, 80]} tick={{ fill: "#5a6d88", fontSize: 10 }} axisLine={false} tickLine={false} />
+          <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
+          <XAxis dataKey="date" tick={{ fill: "var(--color-subtle)", fontSize: 10 }} axisLine={false} tickLine={false} />
+          <YAxis yAxisId="a" domain={[40, 80]} tick={{ fill: "var(--color-subtle)", fontSize: 10 }} axisLine={false} tickLine={false} />
           <Tooltip contentStyle={tooltipStyle} />
-          <Line yAxisId="a" type="monotone" dataKey="accuracy" name="Accuracy" stroke="#4ade80" strokeWidth={1.8} dot={{ r: 2.5 }} />
-          <Line yAxisId="a" type="monotone" dataKey="brier" name="Brier ×100" stroke="#3ec8e8" strokeWidth={1.8} dot={{ r: 2.5 }} />
+          <Line yAxisId="a" type="monotone" dataKey="accuracy" name="Accuracy" stroke="var(--color-r2)" strokeWidth={1.8} dot={{ r: 2.5 }} />
+          <Line yAxisId="a" type="monotone" dataKey="brier" name="Brier ×100" stroke="var(--color-r1)" strokeWidth={1.8} dot={{ r: 2.5 }} />
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -107,12 +107,12 @@ export function CalibrationChart({
     <div className="h-48 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
-          <CartesianGrid stroke="#1c2d4a" strokeDasharray="3 3" vertical={false} />
-          <XAxis dataKey="bucket" tick={{ fill: "#5a6d88", fontSize: 10 }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fill: "#5a6d88", fontSize: 10 }} axisLine={false} tickLine={false} />
+          <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
+          <XAxis dataKey="bucket" tick={{ fill: "var(--color-subtle)", fontSize: 10 }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fill: "var(--color-subtle)", fontSize: 10 }} axisLine={false} tickLine={false} />
           <Tooltip contentStyle={tooltipStyle} />
-          <Bar dataKey="predicted" name="Predicted" fill="#3ec8e8" radius={[3, 3, 0, 0]} />
-          <Bar dataKey="observed" name="Observed" fill="#4ade80" radius={[3, 3, 0, 0]} />
+          <Bar dataKey="predicted" name="Predicted" fill="var(--color-r1)" radius={[3, 3, 0, 0]} />
+          <Bar dataKey="observed" name="Observed" fill="var(--color-r2)" radius={[3, 3, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -149,7 +149,7 @@ export function Donut({
 }
 
 
-export const SCENARIO_COLORS = ["#3ec8e8", "#4ade80", "#e0b35c", "#f07178", "#a78bfa", "#94a3b8"];
+export const SCENARIO_COLORS = ["var(--color-r1)", "var(--color-r2)", "var(--color-r3)", "var(--color-down)", "#a78bfa", "#94a3b8"];
 
 /** Scenario mass as labeled rows. Color is not required to read the mix. */
 export function ScenarioDistributionBar({
@@ -287,21 +287,21 @@ export function ExposureScatter({
     <div className="h-56 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <ScatterChart margin={{ top: 12, right: 16, left: 4, bottom: 12 }}>
-          <CartesianGrid stroke="#1c2d4a" strokeDasharray="3 3" />
+          <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" />
           <XAxis
             type="number"
             dataKey="distance"
             name="Distance"
             domain={[-0.2, 4.2]}
             ticks={[0, 1, 2, 3, 4]}
-            tick={{ fill: "#5a6d88", fontSize: 10 }}
+            tick={{ fill: "var(--color-subtle)", fontSize: 10 }}
             axisLine={false}
             tickLine={false}
             label={{
               value: "Ripple distance",
               position: "insideBottom",
               offset: -4,
-              fill: "#5a6d88",
+              fill: "var(--color-subtle)",
               fontSize: 10,
             }}
           />
@@ -309,7 +309,7 @@ export function ExposureScatter({
             type="number"
             dataKey="score"
             name="Research rank"
-            tick={{ fill: "#5a6d88", fontSize: 10 }}
+            tick={{ fill: "var(--color-subtle)", fontSize: 10 }}
             axisLine={false}
             tickLine={false}
             width={40}
@@ -317,7 +317,7 @@ export function ExposureScatter({
               value: "Research rank",
               angle: -90,
               position: "insideLeft",
-              fill: "#5a6d88",
+              fill: "var(--color-subtle)",
               fontSize: 10,
             }}
           />
@@ -349,7 +349,7 @@ export function ExposureScatter({
           />
           <Scatter
             data={points}
-            fill="#3ec8e8"
+            fill="var(--color-r1)"
             onClick={(d) => {
               const row = d as { ticker?: string };
               if (row?.ticker && onSelect) onSelect(row.ticker);
@@ -359,8 +359,8 @@ export function ExposureScatter({
             {points.map((p) => (
               <Cell
                 key={p.ticker}
-                fill={p.change >= 0 ? "#4ade80" : "#f07178"}
-                stroke={highlight === p.ticker ? "#e8eef8" : "transparent"}
+                fill={p.change >= 0 ? "var(--color-r2)" : "var(--color-down)"}
+                stroke={highlight === p.ticker ? "var(--color-foreground)" : "transparent"}
                 strokeWidth={highlight === p.ticker ? 2 : 0}
               />
             ))}

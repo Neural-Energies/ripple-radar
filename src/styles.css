@@ -67,6 +67,68 @@
   --map-stage-min: 30rem;
 }
 
+/*
+ * Light theme (PR #6 B01). Dark stays the default; `data-theme` is set before
+ * first paint from the viewer's saved choice (src/lib/theme.ts). The same
+ * tokens are restated for "system" when the OS prefers light. Unlayered, so
+ * they win over the @theme defaults.
+ */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-background: #f5f7fa;
+  --color-foreground: #0d1726;
+  --color-card: #ffffff;
+  --color-card-2: #f0f3f8;
+  --color-card-3: #e3e9f1;
+  --color-muted: #44536b;
+  --color-subtle: #5f6e86;
+  --color-primary: #0a7394;
+  --color-primary-foreground: #ffffff;
+  --color-border: #d3dbe6;
+  --color-ring: #0a7394;
+  --color-up: #0b7a45;
+  --color-down: #c0303a;
+  --color-warn: #9a6200;
+  --color-core: #c62828;
+  --color-r1: #0a7394;
+  --color-r2: #15803d;
+  --color-r3: #9a6200;
+  --color-r4: #3651c9;
+  --color-overlay: rgb(15 23 42 / 40%);
+  --shadow-border: 0 0 0 1px rgb(15 23 42 / 0.1);
+  --shadow-border-hover: 0 0 0 1px rgb(15 23 42 / 0.18);
+  --shadow-glow: 0 0 20px rgb(10 115 148 / 0.12);
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] {
+    color-scheme: light;
+    --color-background: #f5f7fa;
+    --color-foreground: #0d1726;
+    --color-card: #ffffff;
+    --color-card-2: #f0f3f8;
+    --color-card-3: #e3e9f1;
+    --color-muted: #44536b;
+    --color-subtle: #5f6e86;
+    --color-primary: #0a7394;
+    --color-primary-foreground: #ffffff;
+    --color-border: #d3dbe6;
+    --color-ring: #0a7394;
+    --color-up: #0b7a45;
+    --color-down: #c0303a;
+    --color-warn: #9a6200;
+    --color-core: #c62828;
+    --color-r1: #0a7394;
+    --color-r2: #15803d;
+    --color-r3: #9a6200;
+    --color-r4: #3651c9;
+    --color-overlay: rgb(15 23 42 / 40%);
+    --shadow-border: 0 0 0 1px rgb(15 23 42 / 0.1);
+    --shadow-border-hover: 0 0 0 1px rgb(15 23 42 / 0.18);
+    --shadow-glow: 0 0 20px rgb(10 115 148 / 0.12);
+  }
+}
+
 @layer base {
   html {
     color-scheme: dark;
