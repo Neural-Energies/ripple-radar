@@ -177,9 +177,18 @@ export default defineConfig(({ command, isPreview }) => ({
             // manifest + head-tag middleware). Nitro v3 defaults serverDir to
             // false, so removing this silently unwires /?install=1 on deploys.
             serverDir: "./server",
-            // The durable alert pass (PR #5 B02). Vercel sends
-            // `Authorization: Bearer $CRON_SECRET`; the route refuses without it.
-            vercel: { config: { crons: [{ path: "/api/alerts/run", schedule: "*/5 * * * *" }] } },
+            // The durable alert pass (PR #5 B02) and the hourly forecast
+            // resolution (B06). Vercel sends `Authorization: Bearer
+            // $CRON_SECRET`; both routes refuse without it. /api/health
+            // reports either one going stale.
+            vercel: {
+              config: {
+                crons: [
+                  { path: "/api/alerts/run", schedule: "*/5 * * * *" },
+                  { path: "/api/ledger/resolve", schedule: "17 * * * *" },
+                ],
+              },
+            },
           }),
         ]
       : []),

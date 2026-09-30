@@ -24,6 +24,7 @@ import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as ScenariosRouteImport } from './routes/scenarios'
 import { Route as ThesesRouteImport } from './routes/theses'
 import { Route as WatchlistsRouteImport } from './routes/watchlists'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as AssetsTickerRouteImport } from './routes/assets.$ticker'
 import { Route as MacroIndexRouteImport } from './routes/macro.index'
 import { Route as MacroConditionsRouteImport } from './routes/macro.conditions'
@@ -37,6 +38,7 @@ import { Route as MacroRatesRouteImport } from './routes/macro.rates'
 import { Route as MacroShocksRouteImport } from './routes/macro.shocks'
 import { Route as ApiAlertsRunRouteImport } from './routes/api/alerts/run'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiLedgerResolveRouteImport } from './routes/api/ledger/resolve'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -113,6 +115,11 @@ const WatchlistsRoute = WatchlistsRouteImport.update({
   path: '/watchlists',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AssetsTickerRoute = AssetsTickerRouteImport.update({
   id: '/$ticker',
   path: '/$ticker',
@@ -178,6 +185,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiLedgerResolveRoute = ApiLedgerResolveRouteImport.update({
+  id: '/api/ledger/resolve',
+  path: '/api/ledger/resolve',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -195,6 +207,7 @@ export interface FileRoutesByFullPath {
   '/scenarios': typeof ScenariosRoute
   '/theses': typeof ThesesRoute
   '/watchlists': typeof WatchlistsRoute
+  '/api/health': typeof ApiHealthRoute
   '/assets/$ticker': typeof AssetsTickerRoute
   '/macro/conditions': typeof MacroConditionsRoute
   '/macro/cycle': typeof MacroCycleRoute
@@ -208,6 +221,7 @@ export interface FileRoutesByFullPath {
   '/macro/': typeof MacroIndexRoute
   '/api/alerts/run': typeof ApiAlertsRunRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/ledger/resolve': typeof ApiLedgerResolveRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -224,6 +238,7 @@ export interface FileRoutesByTo {
   '/scenarios': typeof ScenariosRoute
   '/theses': typeof ThesesRoute
   '/watchlists': typeof WatchlistsRoute
+  '/api/health': typeof ApiHealthRoute
   '/assets/$ticker': typeof AssetsTickerRoute
   '/macro/conditions': typeof MacroConditionsRoute
   '/macro/cycle': typeof MacroCycleRoute
@@ -237,6 +252,7 @@ export interface FileRoutesByTo {
   '/macro': typeof MacroIndexRoute
   '/api/alerts/run': typeof ApiAlertsRunRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/ledger/resolve': typeof ApiLedgerResolveRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -255,6 +271,7 @@ export interface FileRoutesById {
   '/scenarios': typeof ScenariosRoute
   '/theses': typeof ThesesRoute
   '/watchlists': typeof WatchlistsRoute
+  '/api/health': typeof ApiHealthRoute
   '/assets/$ticker': typeof AssetsTickerRoute
   '/macro/conditions': typeof MacroConditionsRoute
   '/macro/cycle': typeof MacroCycleRoute
@@ -268,6 +285,7 @@ export interface FileRoutesById {
   '/macro/': typeof MacroIndexRoute
   '/api/alerts/run': typeof ApiAlertsRunRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/ledger/resolve': typeof ApiLedgerResolveRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -287,6 +305,7 @@ export interface FileRouteTypes {
     | '/scenarios'
     | '/theses'
     | '/watchlists'
+    | '/api/health'
     | '/assets/$ticker'
     | '/macro/conditions'
     | '/macro/cycle'
@@ -300,6 +319,7 @@ export interface FileRouteTypes {
     | '/macro/'
     | '/api/alerts/run'
     | '/api/auth/$'
+    | '/api/ledger/resolve'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -316,6 +336,7 @@ export interface FileRouteTypes {
     | '/scenarios'
     | '/theses'
     | '/watchlists'
+    | '/api/health'
     | '/assets/$ticker'
     | '/macro/conditions'
     | '/macro/cycle'
@@ -329,6 +350,7 @@ export interface FileRouteTypes {
     | '/macro'
     | '/api/alerts/run'
     | '/api/auth/$'
+    | '/api/ledger/resolve'
   id:
     | '__root__'
     | '/'
@@ -346,6 +368,7 @@ export interface FileRouteTypes {
     | '/scenarios'
     | '/theses'
     | '/watchlists'
+    | '/api/health'
     | '/assets/$ticker'
     | '/macro/conditions'
     | '/macro/cycle'
@@ -359,6 +382,7 @@ export interface FileRouteTypes {
     | '/macro/'
     | '/api/alerts/run'
     | '/api/auth/$'
+    | '/api/ledger/resolve'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -377,8 +401,10 @@ export interface RootRouteChildren {
   ScenariosRoute: typeof ScenariosRoute
   ThesesRoute: typeof ThesesRoute
   WatchlistsRoute: typeof WatchlistsRoute
+  ApiHealthRoute: typeof ApiHealthRoute
   ApiAlertsRunRoute: typeof ApiAlertsRunRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiLedgerResolveRoute: typeof ApiLedgerResolveRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -488,6 +514,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WatchlistsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/assets/$ticker': {
       id: '/assets/$ticker'
       path: '/$ticker'
@@ -579,6 +612,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ledger/resolve': {
+      id: '/api/ledger/resolve'
+      path: '/api/ledger/resolve'
+      fullPath: '/api/ledger/resolve'
+      preLoaderRoute: typeof ApiLedgerResolveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -637,8 +677,10 @@ const rootRouteChildren: RootRouteChildren = {
   ScenariosRoute: ScenariosRoute,
   ThesesRoute: ThesesRoute,
   WatchlistsRoute: WatchlistsRoute,
+  ApiHealthRoute: ApiHealthRoute,
   ApiAlertsRunRoute: ApiAlertsRunRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiLedgerResolveRoute: ApiLedgerResolveRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
