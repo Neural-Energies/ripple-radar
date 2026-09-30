@@ -84,6 +84,9 @@ MIN_STATE_VARIANCE_FRACTION = 1e-8
 #: require.
 MIN_BIC_GAIN = 2.0
 
+#: EM iteration cap for the DFM behind the regime table (see `_run_panel`).
+REGIME_DFM_MAXITER = 1000
+
 
 @dataclass(frozen=True)
 class SpecTest:
@@ -321,7 +324,10 @@ def _run_panel(build, label: str) -> dict:
 
     print(f"\n=== {label} ===")
     print(build.describe())
-    fit = fit_factors(build, maxiter=120)
+    # EM stops as soon as it meets its tolerance, so this cap only costs what
+    # convergence needs. At 120 both panels stopped at criterion ~2.3e-6 against
+    # a 1e-6 tolerance: unconverged by the A05 reading, for want of iterations.
+    fit = fit_factors(build, maxiter=REGIME_DFM_MAXITER)
     print(fit.describe())
     results = assess_factors(fit.factors)
     _report(results)

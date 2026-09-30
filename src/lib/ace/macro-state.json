@@ -1,9 +1,9 @@
 {
- "generatedAt": "2026-09-29T17:35:59.299Z",
+ "generatedAt": "2026-09-30T02:38:30.317Z",
  "provenance": {
   "pca": {
    "file": "artifacts/reports/macro_pca_research.json",
-   "sha256": "e982e9c6dae621d1"
+   "sha256": "db311ac84601f759"
   },
   "news": {
    "file": "artifacts/reports/macro_what_changed.json",
@@ -11,7 +11,7 @@
   },
   "regimes": {
    "file": "artifacts/reports/macro_regime_mean_vs_variance.json",
-   "sha256": "767c6985b89da011"
+   "sha256": "9650b2013b6da1fc"
   },
   "panel": {
    "file": "artifacts/reports/macro_panel_build.json",
@@ -39,8 +39,8 @@
   ]
  },
  "factorModel": {
-  "asOf": "2026-09-29",
-  "lastFit": "2026-09-29",
+  "asOf": "2026-09-30",
+  "lastFit": "2026-09-30",
   "method": "Static PCA on the point-in-time panel (global + 12 domains)",
   "version": "factor_state v1",
   "validation": "Descriptive. Levels, percentiles and drivers are computed; static PCA has no posterior, so no uncertainty band is claimed."
@@ -51,7 +51,7 @@
    "domain": "global",
    "name": "global PC1",
    "asOf": "2026-06-01",
-   "lastFit": "2026-09-29",
+   "lastFit": "2026-09-30",
    "modelVersion": "v1",
    "level": 4.8128,
    "percentile": 90,
@@ -60,8 +60,8 @@
    "acceleration": -3.6337,
    "change1m": 0.4164,
    "change3m": -0.1326,
-   "changeSincePreviousRun": 1.7035,
-   "freshnessDays": 120,
+   "changeSincePreviousRun": 0,
+   "freshnessDays": 121,
    "coverage": 0.994,
    "activeSeries": 164,
    "missingSeries": 1,
@@ -82,40 +82,40 @@
    ],
    "drivers": [
     {
-     "seriesId": "WALCL",
-     "label": "Fed balance sheet",
-     "loading": -0.1756,
-     "z": 42515065.7261,
-     "contribution": -7463805.0191,
-     "through": "2026-09-23",
-     "daysBehind": 6
-    },
-    {
-     "seriesId": "WTREGEN",
-     "label": "Treasury general account",
-     "loading": -0.0276,
-     "z": 2095545.7483,
-     "contribution": -57782.6544,
-     "through": "2026-09-23",
-     "daysBehind": 6
-    },
-    {
-     "seriesId": "MTSDS133FMS",
-     "label": "Federal Surplus or Deficit [-]",
-     "loading": -0.0366,
-     "z": -71102.333,
-     "contribution": 2603.9442,
+     "seriesId": "AWHMAN",
+     "label": "Mfg weekly hours",
+     "loading": 0.1879,
+     "z": 2.0082,
+     "contribution": 0.3773,
      "through": "2026-08-01",
-     "daysBehind": 59
+     "daysBehind": 60
     },
     {
-     "seriesId": "BOPGSTB",
-     "label": "Trade Balance: Goods and Services, Balance of Payments Basis",
-     "loading": -0.0061,
-     "z": -77154.2942,
-     "contribution": 469.7722,
+     "seriesId": "ISRATIO",
+     "label": "Inventory/sales ratio",
+     "loading": -0.1276,
+     "z": 1.9675,
+     "contribution": -0.2511,
      "through": "2026-07-01",
-     "daysBehind": 90
+     "daysBehind": 91
+    },
+    {
+     "seriesId": "T10Y3M",
+     "label": "10y-3m slope",
+     "loading": 0.17,
+     "z": 1.2856,
+     "contribution": 0.2186,
+     "through": "2026-09-25",
+     "daysBehind": 5
+    },
+    {
+     "seriesId": "M2REAL",
+     "label": "Real M2",
+     "loading": 0.0736,
+     "z": 2.5806,
+     "contribution": 0.19,
+     "through": "2026-08-01",
+     "daysBehind": 60
     }
    ]
   },
@@ -124,7 +124,7 @@
    "domain": "banking",
    "name": "banking PC1",
    "asOf": "2026-08-01",
-   "lastFit": "2026-09-29",
+   "lastFit": "2026-09-30",
    "modelVersion": "v1",
    "level": -0.4955,
    "percentile": 27.92,
@@ -133,8 +133,8 @@
    "acceleration": -0.2426,
    "change1m": -0.5754,
    "change3m": -0.6213,
-   "changeSincePreviousRun": 0.0481,
-   "freshnessDays": 59,
+   "changeSincePreviousRun": 0,
+   "freshnessDays": 60,
    "coverage": 1,
    "activeSeries": 4,
    "missingSeries": 0,
@@ -155,40 +155,40 @@
    ],
    "drivers": [
     {
-     "seriesId": "TOTBKCR",
-     "label": "Bank Credit, All Commercial Banks",
-     "loading": 0.6279,
-     "z": 0.1089,
-     "contribution": 0.0684,
-     "through": "2026-09-16",
-     "daysBehind": 13
+     "seriesId": "USGSEC",
+     "label": "Treasury and Agency Securities, All Commercial Banks",
+     "loading": 0.3645,
+     "z": -0.6923,
+     "contribution": -0.2523,
+     "through": "2026-08-01",
+     "daysBehind": 60
     },
     {
      "seriesId": "TLAACBW027SBOG",
      "label": "Total Assets, All Commercial Banks",
      "loading": 0.5743,
-     "z": 0.076,
-     "contribution": 0.0437,
+     "z": -0.3516,
+     "contribution": -0.202,
      "through": "2026-09-16",
-     "daysBehind": 13
+     "daysBehind": 14
     },
     {
-     "seriesId": "USGSEC",
-     "label": "Treasury and Agency Securities, All Commercial Banks",
-     "loading": 0.3645,
-     "z": 0.0842,
-     "contribution": 0.0307,
-     "through": "2026-08-01",
-     "daysBehind": 59
+     "seriesId": "TOTBKCR",
+     "label": "Bank Credit, All Commercial Banks",
+     "loading": 0.6279,
+     "z": -0.179,
+     "contribution": -0.1124,
+     "through": "2026-09-16",
+     "daysBehind": 14
     },
     {
      "seriesId": "CREACBM027NBOG",
      "label": "Real Estate Loans: Commercial Real Estate Loans, All Commercial Banks",
      "loading": 0.3782,
-     "z": 0.0007,
-     "contribution": 0.0003,
+     "z": 0.1882,
+     "contribution": 0.0712,
      "through": "2026-08-01",
-     "daysBehind": 59
+     "daysBehind": 60
     }
    ]
   },
@@ -197,7 +197,7 @@
    "domain": "commodities",
    "name": "commodities PC1",
    "asOf": "2026-07-01",
-   "lastFit": "2026-09-29",
+   "lastFit": "2026-09-30",
    "modelVersion": "v1",
    "level": -0.122,
    "percentile": 44.2,
@@ -206,8 +206,8 @@
    "acceleration": 0.0602,
    "change1m": 2.4086,
    "change3m": -1.1645,
-   "changeSincePreviousRun": -4.1764,
-   "freshnessDays": 90,
+   "changeSincePreviousRun": 0,
+   "freshnessDays": 91,
    "coverage": 1,
    "activeSeries": 5,
    "missingSeries": 0,
@@ -231,37 +231,37 @@
      "seriesId": "GASREGW",
      "label": "US Regular All Formulations Gas Price",
      "loading": 0.4078,
-     "z": 0.0637,
-     "contribution": 0.026,
+     "z": 0.9846,
+     "contribution": 0.4015,
      "through": "2026-09-28",
-     "daysBehind": 1
+     "daysBehind": 2
     },
     {
      "seriesId": "PINDUINDEXM",
      "label": "Global price of Industrial Materials index",
      "loading": 0.4907,
-     "z": -0.0169,
-     "contribution": -0.0083,
+     "z": -0.5084,
+     "contribution": -0.2495,
      "through": "2026-07-01",
-     "daysBehind": 90
+     "daysBehind": 91
     },
     {
      "seriesId": "PALLFNFINDEXM",
      "label": "Global Price Index of All Commodities",
      "loading": 0.4891,
-     "z": -0.0073,
-     "contribution": -0.0036,
+     "z": -0.2604,
+     "contribution": -0.1274,
      "through": "2026-07-01",
-     "daysBehind": 90
+     "daysBehind": 91
     },
     {
      "seriesId": "PRAWMINDEXM",
      "label": "Global price of Agr. Raw Material Index",
      "loading": 0.3956,
-     "z": -0.0068,
-     "contribution": -0.0027,
+     "z": -0.2743,
+     "contribution": -0.1085,
      "through": "2026-07-01",
-     "daysBehind": 90
+     "daysBehind": 91
     }
    ]
   },
@@ -270,7 +270,7 @@
    "domain": "consumer",
    "name": "consumer PC1",
    "asOf": "2026-07-01",
-   "lastFit": "2026-09-29",
+   "lastFit": "2026-09-30",
    "modelVersion": "v1",
    "level": -0.4818,
    "percentile": 18.53,
@@ -279,8 +279,8 @@
    "acceleration": -1.9118,
    "change1m": -0.8398,
    "change3m": -0.676,
-   "changeSincePreviousRun": -0.0943,
-   "freshnessDays": 90,
+   "changeSincePreviousRun": 0,
+   "freshnessDays": 91,
    "coverage": 1,
    "activeSeries": 13,
    "missingSeries": 0,
@@ -304,37 +304,37 @@
      "seriesId": "UMCSENT",
      "label": "U Michigan sentiment",
      "loading": 0.1261,
-     "z": 5.4371,
-     "contribution": 0.6858,
+     "z": 1.3725,
+     "contribution": 0.1731,
      "through": "2026-08-01",
-     "daysBehind": 59
+     "daysBehind": 60
     },
     {
-     "seriesId": "PSAVERT",
-     "label": "Personal saving rate",
-     "loading": -0.3182,
-     "z": 0.2695,
-     "contribution": -0.0858,
-     "through": "2026-07-01",
-     "daysBehind": 90
+     "seriesId": "RSAFS",
+     "label": "Advance Retail Sales: Retail Trade and Food Services",
+     "loading": 0.3445,
+     "z": -0.367,
+     "contribution": -0.1264,
+     "through": "2026-08-01",
+     "daysBehind": 60
     },
     {
-     "seriesId": "PCE",
-     "label": "Personal Consumption Expenditures",
-     "loading": 0.3676,
-     "z": 0.0814,
-     "contribution": 0.0299,
-     "through": "2026-07-01",
-     "daysBehind": 90
+     "seriesId": "RRSFS",
+     "label": "Real retail sales",
+     "loading": 0.3412,
+     "z": -0.3638,
+     "contribution": -0.1241,
+     "through": "2026-08-01",
+     "daysBehind": 60
     },
     {
-     "seriesId": "W875RX1",
-     "label": "Real income ex transfers",
-     "loading": 0.2223,
-     "z": 0.0672,
-     "contribution": 0.0149,
-     "through": "2026-07-01",
-     "daysBehind": 90
+     "seriesId": "TOTALSA",
+     "label": "Total vehicle sales",
+     "loading": 0.2598,
+     "z": -0.4202,
+     "contribution": -0.1092,
+     "through": "2026-08-01",
+     "daysBehind": 60
     }
    ]
   },
@@ -343,7 +343,7 @@
    "domain": "credit",
    "name": "credit PC1",
    "asOf": "2026-07-01",
-   "lastFit": "2026-09-29",
+   "lastFit": "2026-09-30",
    "modelVersion": "v1",
    "level": -0.9556,
    "percentile": 11.76,
@@ -352,8 +352,8 @@
    "acceleration": 0.0255,
    "change1m": 0.4271,
    "change3m": -0.6846,
-   "changeSincePreviousRun": -0.0919,
-   "freshnessDays": 90,
+   "changeSincePreviousRun": 0,
+   "freshnessDays": 91,
    "coverage": 1,
    "activeSeries": 12,
    "missingSeries": 0,
@@ -374,40 +374,40 @@
    ],
    "drivers": [
     {
-     "seriesId": "BAA10Y",
-     "label": "Baa - 10y spread",
-     "loading": 0.1542,
-     "z": 12.8199,
-     "contribution": 1.9763,
-     "through": "2026-09-24",
-     "daysBehind": 5
+     "seriesId": "BUSLOANS",
+     "label": "Commercial & industrial loans",
+     "loading": 0.419,
+     "z": -0.785,
+     "contribution": -0.3289,
+     "through": "2026-08-01",
+     "daysBehind": 60
     },
     {
-     "seriesId": "BAMLH0A0HYM2",
-     "label": "High yield OAS",
-     "loading": 0.1973,
-     "z": 2.7996,
-     "contribution": 0.5523,
-     "through": "2026-09-24",
-     "daysBehind": 5
+     "seriesId": "TOTCI",
+     "label": "Total C&I loans (weekly)",
+     "loading": 0.4459,
+     "z": -0.4396,
+     "contribution": -0.196,
+     "through": "2026-09-16",
+     "daysBehind": 14
     },
     {
      "seriesId": "BAMLC0A4CBBB",
      "label": "ICE BofA BBB US Corporate Index Option-Adjusted Spread",
      "loading": 0.1882,
-     "z": 0.9345,
-     "contribution": 0.1759,
+     "z": -0.8933,
+     "contribution": -0.1681,
      "through": "2026-09-28",
-     "daysBehind": 1
+     "daysBehind": 2
     },
     {
      "seriesId": "BAMLC0A0CM",
      "label": "ICE BofA US Corporate Index Option-Adjusted Spread",
      "loading": 0.1851,
-     "z": 0.7403,
-     "contribution": 0.137,
+     "z": -0.861,
+     "contribution": -0.1594,
      "through": "2026-09-28",
-     "daysBehind": 1
+     "daysBehind": 2
     }
    ]
   },
@@ -416,7 +416,7 @@
    "domain": "financial_conditions",
    "name": "financial_conditions PC1",
    "asOf": "2026-08-01",
-   "lastFit": "2026-09-29",
+   "lastFit": "2026-09-30",
    "modelVersion": "v1",
    "level": -1.9733,
    "percentile": 15,
@@ -425,8 +425,8 @@
    "acceleration": -0.6927,
    "change1m": -0.8473,
    "change3m": -0.6238,
-   "changeSincePreviousRun": -0.3941,
-   "freshnessDays": 59,
+   "changeSincePreviousRun": 0,
+   "freshnessDays": 60,
    "coverage": 1,
    "activeSeries": 13,
    "missingSeries": 0,
@@ -447,40 +447,40 @@
    ],
    "drivers": [
     {
-     "seriesId": "VIXCLS",
-     "label": "VIX",
-     "loading": 0.2779,
-     "z": 21.7644,
-     "contribution": 6.0483,
-     "through": "2026-09-22",
-     "daysBehind": 7
-    },
-    {
      "seriesId": "NFCI",
      "label": "Chicago Fed financial conditions",
      "loading": 0.3571,
-     "z": -1.789,
-     "contribution": -0.6388,
+     "z": -1.1658,
+     "contribution": -0.4163,
      "through": "2026-09-18",
-     "daysBehind": 11
+     "daysBehind": 12
+    },
+    {
+     "seriesId": "STLFSI4",
+     "label": "St Louis financial stress",
+     "loading": 0.3343,
+     "z": -1.2331,
+     "contribution": -0.4122,
+     "through": "2026-09-18",
+     "daysBehind": 12
     },
     {
      "seriesId": "ANFCI",
      "label": "Adjusted NFCI",
      "loading": 0.3843,
-     "z": -1.5936,
-     "contribution": -0.6124,
+     "z": -0.977,
+     "contribution": -0.3754,
      "through": "2026-09-18",
-     "daysBehind": 11
+     "daysBehind": 12
     },
     {
-     "seriesId": "T10Y2Y",
-     "label": "10y-2y slope",
-     "loading": -0.2165,
-     "z": 2.185,
-     "contribution": -0.473,
-     "through": "2026-09-25",
-     "daysBehind": 4
+     "seriesId": "VIXCLS",
+     "label": "VIX",
+     "loading": 0.2779,
+     "z": -0.7724,
+     "contribution": -0.2146,
+     "through": "2026-09-22",
+     "daysBehind": 8
     }
    ]
   },
@@ -489,7 +489,7 @@
    "domain": "housing",
    "name": "housing PC1",
    "asOf": "2026-06-01",
-   "lastFit": "2026-09-29",
+   "lastFit": "2026-09-30",
    "modelVersion": "v1",
    "level": 0.7794,
    "percentile": 50.87,
@@ -498,8 +498,8 @@
    "acceleration": -0.994,
    "change1m": 0.7753,
    "change3m": -0.5492,
-   "changeSincePreviousRun": -0.1113,
-   "freshnessDays": 120,
+   "changeSincePreviousRun": 0,
+   "freshnessDays": 121,
    "coverage": 1,
    "activeSeries": 15,
    "missingSeries": 0,
@@ -520,40 +520,40 @@
    ],
    "drivers": [
     {
+     "seriesId": "HNFSEPUSSA",
+     "label": "New One Family Homes for Sale in the United States",
+     "loading": 0.2294,
+     "z": 1.2649,
+     "contribution": 0.2901,
+     "through": "2026-08-01",
+     "daysBehind": 60
+    },
+    {
+     "seriesId": "HOUSTMW",
+     "label": "Housing starts: Midwest",
+     "loading": 0.2977,
+     "z": 0.5777,
+     "contribution": 0.172,
+     "through": "2026-08-01",
+     "daysBehind": 60
+    },
+    {
+     "seriesId": "HOUSTS",
+     "label": "Housing starts: South",
+     "loading": 0.3261,
+     "z": 0.4895,
+     "contribution": 0.1596,
+     "through": "2026-08-01",
+     "daysBehind": 60
+    },
+    {
      "seriesId": "HOUST",
      "label": "Housing starts",
      "loading": 0.3389,
-     "z": 6.7896,
-     "contribution": 2.3011,
+     "z": 0.3522,
+     "contribution": 0.1194,
      "through": "2026-08-01",
-     "daysBehind": 59
-    },
-    {
-     "seriesId": "PERMIT",
-     "label": "Building permits",
-     "loading": 0.3343,
-     "z": 6.7495,
-     "contribution": 2.2562,
-     "through": "2026-08-01",
-     "daysBehind": 59
-    },
-    {
-     "seriesId": "COMPUTSA",
-     "label": "New Privately-Owned Housing Units Completed: Total Units",
-     "loading": 0.3231,
-     "z": 6.6832,
-     "contribution": 2.1593,
-     "through": "2026-08-01",
-     "daysBehind": 59
-    },
-    {
-     "seriesId": "HOUST1F",
-     "label": "New Privately-Owned Housing Units Started: Single-Family Units",
-     "loading": 0.3346,
-     "z": 6.1052,
-     "contribution": 2.0429,
-     "through": "2026-08-01",
-     "daysBehind": 59
+     "daysBehind": 60
     }
    ]
   },
@@ -562,7 +562,7 @@
    "domain": "inflation",
    "name": "inflation PC1",
    "asOf": "2026-07-01",
-   "lastFit": "2026-09-29",
+   "lastFit": "2026-09-30",
    "modelVersion": "v1",
    "level": 4.3477,
    "percentile": 95.29,
@@ -571,8 +571,8 @@
    "acceleration": 5.6905,
    "change1m": 15.9969,
    "change3m": 4.8075,
-   "changeSincePreviousRun": 0.704,
-   "freshnessDays": 90,
+   "changeSincePreviousRun": 0,
+   "freshnessDays": 91,
    "coverage": 1,
    "activeSeries": 33,
    "missingSeries": 0,
@@ -593,40 +593,40 @@
    ],
    "drivers": [
     {
-     "seriesId": "MEDCPIM158SFRBCLE",
-     "label": "Median Consumer Price Index",
-     "loading": 0.1085,
-     "z": 1.1426,
-     "contribution": 0.124,
+     "seriesId": "CPIAUCSL",
+     "label": "CPI",
+     "loading": 0.2921,
+     "z": 1.903,
+     "contribution": 0.5558,
      "through": "2026-08-01",
-     "daysBehind": 59
+     "daysBehind": 60
     },
     {
-     "seriesId": "MICH",
-     "label": "University of Michigan: Inflation Expectation",
-     "loading": 0.0461,
-     "z": -0.4947,
-     "contribution": -0.0228,
-     "through": "2026-08-01",
-     "daysBehind": 59
-    },
-    {
-     "seriesId": "CORESTICKM159SFRBATL",
-     "label": "Sticky Price Consumer Price Index less Food and Energy",
-     "loading": 0.0522,
-     "z": -0.3566,
-     "contribution": -0.0186,
-     "through": "2026-08-01",
-     "daysBehind": 59
-    },
-    {
-     "seriesId": "PCETRIM12M159SFRBDAL",
-     "label": "Trimmed Mean PCE Inflation Rate",
-     "loading": 0.0722,
-     "z": -0.1753,
-     "contribution": -0.0127,
+     "seriesId": "PCEPI",
+     "label": "PCE price index",
+     "loading": 0.2935,
+     "z": 1.3049,
+     "contribution": 0.383,
      "through": "2026-07-01",
-     "daysBehind": 90
+     "daysBehind": 91
+    },
+    {
+     "seriesId": "CUSR0000SAC",
+     "label": "CPI commodities",
+     "loading": 0.2641,
+     "z": 1.4492,
+     "contribution": 0.3828,
+     "through": "2026-08-01",
+     "daysBehind": 60
+    },
+    {
+     "seriesId": "CPITRNSL",
+     "label": "Consumer Price Index for All Urban Consumers: Transportation in U.S. City Average",
+     "loading": 0.2679,
+     "z": 1.3864,
+     "contribution": 0.3714,
+     "through": "2026-08-01",
+     "daysBehind": 60
     }
    ]
   },
@@ -635,7 +635,7 @@
    "domain": "labor",
    "name": "labor PC1",
    "asOf": "2026-08-01",
-   "lastFit": "2026-09-29",
+   "lastFit": "2026-09-30",
    "modelVersion": "v1",
    "level": 0.9041,
    "percentile": 87.24,
@@ -644,8 +644,8 @@
    "acceleration": -0.0881,
    "change1m": 1.3539,
    "change3m": 0.6131,
-   "changeSincePreviousRun": 1.6305,
-   "freshnessDays": 59,
+   "changeSincePreviousRun": 0,
+   "freshnessDays": 60,
    "coverage": 1,
    "activeSeries": 26,
    "missingSeries": 0,
@@ -666,40 +666,40 @@
    ],
    "drivers": [
     {
-     "seriesId": "AWHMAN",
-     "label": "Mfg weekly hours",
-     "loading": 0.0852,
-     "z": 46.7771,
-     "contribution": 3.9875,
+     "seriesId": "CIVPART",
+     "label": "Labor force participation",
+     "loading": 0.2117,
+     "z": 0.9674,
+     "contribution": 0.2048,
      "through": "2026-08-01",
-     "daysBehind": 59
+     "daysBehind": 60
     },
     {
-     "seriesId": "AWHAETP",
-     "label": "Average Weekly Hours of All Employees, Total Private",
-     "loading": 0.066,
-     "z": 34.3045,
-     "contribution": 2.2656,
+     "seriesId": "CLF16OV",
+     "label": "Civilian Labor Force Level",
+     "loading": 0.2099,
+     "z": 0.9615,
+     "contribution": 0.2018,
      "through": "2026-08-01",
-     "daysBehind": 59
+     "daysBehind": 60
     },
     {
      "seriesId": "UEMPMEAN",
      "label": "Mean duration unemployed",
      "loading": 0.1459,
-     "z": 0.9887,
-     "contribution": 0.1442,
+     "z": 1.013,
+     "contribution": 0.1478,
      "through": "2026-08-01",
-     "daysBehind": 59
+     "daysBehind": 60
     },
     {
-     "seriesId": "CIVPART",
-     "label": "Labor force participation",
-     "loading": 0.2117,
-     "z": 0.2266,
-     "contribution": 0.048,
+     "seriesId": "CES0500000011",
+     "label": "Average Weekly Earnings of All Employees, Total Private",
+     "loading": -0.1648,
+     "z": 0.6919,
+     "contribution": -0.114,
      "through": "2026-08-01",
-     "daysBehind": 59
+     "daysBehind": 60
     }
    ]
   },
@@ -708,7 +708,7 @@
    "domain": "liquidity_money",
    "name": "liquidity_money PC1",
    "asOf": "2026-08-01",
-   "lastFit": "2026-09-29",
+   "lastFit": "2026-09-30",
    "modelVersion": "v1",
    "level": -0.7652,
    "percentile": 20.92,
@@ -717,8 +717,8 @@
    "acceleration": -2.348,
    "change1m": -0.5064,
    "change3m": -1.7092,
-   "changeSincePreviousRun": -0.9783,
-   "freshnessDays": 59,
+   "changeSincePreviousRun": 0,
+   "freshnessDays": 60,
    "coverage": 0.9,
    "activeSeries": 9,
    "missingSeries": 1,
@@ -739,40 +739,40 @@
    ],
    "drivers": [
     {
-     "seriesId": "WALCL",
-     "label": "Fed balance sheet",
-     "loading": -0.1451,
-     "z": 6739428.4782,
-     "contribution": -978156.6653,
-     "through": "2026-09-23",
-     "daysBehind": 6
-    },
-    {
-     "seriesId": "WTREGEN",
-     "label": "Treasury general account",
-     "loading": -0.1152,
-     "z": 960157.1717,
-     "contribution": -110634.8237,
-     "through": "2026-09-23",
-     "daysBehind": 6
-    },
-    {
-     "seriesId": "M2REAL",
-     "label": "Real M2",
-     "loading": 0.3698,
-     "z": -0.0589,
-     "contribution": -0.0218,
+     "seriesId": "BOGMBASE",
+     "label": "Monetary base",
+     "loading": 0.4048,
+     "z": -0.8481,
+     "contribution": -0.3433,
      "through": "2026-08-01",
-     "daysBehind": 59
+     "daysBehind": 60
     },
     {
      "seriesId": "TOTRESNS",
      "label": "Total reserves",
      "loading": 0.416,
-     "z": -0.0378,
-     "contribution": -0.0157,
+     "z": -0.5815,
+     "contribution": -0.2419,
      "through": "2026-08-01",
-     "daysBehind": 59
+     "daysBehind": 60
+    },
+    {
+     "seriesId": "DPSACBW027SBOG",
+     "label": "Deposits, All Commercial Banks",
+     "loading": 0.3843,
+     "z": 0.5921,
+     "contribution": 0.2276,
+     "through": "2026-09-16",
+     "daysBehind": 14
+    },
+    {
+     "seriesId": "WTREGEN",
+     "label": "Treasury general account",
+     "loading": -0.1152,
+     "z": 1.7595,
+     "contribution": -0.2027,
+     "through": "2026-09-23",
+     "daysBehind": 7
     }
    ]
   },
@@ -781,7 +781,7 @@
    "domain": "manufacturing",
    "name": "manufacturing PC1",
    "asOf": "2026-07-01",
-   "lastFit": "2026-09-29",
+   "lastFit": "2026-09-30",
    "modelVersion": "v1",
    "level": 1.2986,
    "percentile": 79.7,
@@ -790,8 +790,8 @@
    "acceleration": -2.7882,
    "change1m": 0.9362,
    "change3m": -0.8344,
-   "changeSincePreviousRun": 0.0842,
-   "freshnessDays": 90,
+   "changeSincePreviousRun": 0,
+   "freshnessDays": 91,
    "coverage": 1,
    "activeSeries": 9,
    "missingSeries": 0,
@@ -815,37 +815,37 @@
      "seriesId": "GACDFSA066MSFRBPHI",
      "label": "Current General Activity; Diffusion Index for Federal Reserve District 3: Philadelphia",
      "loading": 0.3307,
-     "z": 43.88,
-     "contribution": 14.5103,
+     "z": 2.0482,
+     "contribution": 0.6773,
      "through": "2026-09-01",
-     "daysBehind": 28
+     "daysBehind": 29
     },
     {
      "seriesId": "GACDISA066MSFRBNY",
      "label": "Current General Business Conditions; Diffusion Index for New York",
      "loading": 0.3317,
-     "z": 15.9441,
-     "contribution": 5.2883,
+     "z": 0.6491,
+     "contribution": 0.2153,
      "through": "2026-09-01",
-     "daysBehind": 28
+     "daysBehind": 29
     },
     {
-     "seriesId": "BACTSAMFRBDAL",
-     "label": "Current General Business Activity; Diffusion Index for Texas",
-     "loading": 0.3379,
-     "z": 1.3002,
-     "contribution": 0.4393,
-     "through": "2026-09-01",
-     "daysBehind": 28
-    },
-    {
-     "seriesId": "CFNAI",
-     "label": "Chicago Fed National Activity Index",
-     "loading": 0.3735,
-     "z": 0.1152,
-     "contribution": 0.043,
+     "seriesId": "AMDMVS",
+     "label": "Manufacturers' Value of Shipments: Durable Goods",
+     "loading": 0.3773,
+     "z": 0.3111,
+     "contribution": 0.1174,
      "through": "2026-08-01",
-     "daysBehind": 59
+     "daysBehind": 60
+    },
+    {
+     "seriesId": "AMTMNO",
+     "label": "Manufacturers' New Orders: Total Manufacturing",
+     "loading": 0.3868,
+     "z": 0.2389,
+     "contribution": 0.0924,
+     "through": "2026-07-01",
+     "daysBehind": 91
     }
    ]
   },
@@ -854,7 +854,7 @@
    "domain": "output_activity",
    "name": "output_activity PC1",
    "asOf": "2026-07-01",
-   "lastFit": "2026-09-29",
+   "lastFit": "2026-09-30",
    "modelVersion": "v1",
    "level": 0.0197,
    "percentile": 50,
@@ -863,8 +863,8 @@
    "acceleration": -3.7016,
    "change1m": 0.0517,
    "change3m": -1.4161,
-   "changeSincePreviousRun": -0.6284,
-   "freshnessDays": 90,
+   "changeSincePreviousRun": 0,
+   "freshnessDays": 91,
    "coverage": 1,
    "activeSeries": 13,
    "missingSeries": 0,
@@ -885,40 +885,40 @@
    ],
    "drivers": [
     {
-     "seriesId": "IPMANSICS",
-     "label": "IP: manufacturing",
-     "loading": 0.3318,
-     "z": 0.0706,
-     "contribution": 0.0234,
-     "through": "2026-08-01",
-     "daysBehind": 59
+     "seriesId": "RETAILIRSA",
+     "label": "Retailers: Inventories to Sales Ratio",
+     "loading": -0.2164,
+     "z": 0.5271,
+     "contribution": -0.114,
+     "through": "2026-07-01",
+     "daysBehind": 91
     },
     {
      "seriesId": "IPBUSEQ",
      "label": "IP: business equipment",
      "loading": 0.321,
-     "z": 0.0657,
-     "contribution": 0.0211,
+     "z": 0.3287,
+     "contribution": 0.1055,
      "through": "2026-08-01",
-     "daysBehind": 59
+     "daysBehind": 60
     },
     {
-     "seriesId": "IPFINAL",
-     "label": "IP: final products",
-     "loading": 0.3274,
-     "z": 0.0613,
-     "contribution": 0.0201,
+     "seriesId": "FRGSHPUSM649NCIS",
+     "label": "Cass Freight Index: Shipments",
+     "loading": 0.1513,
+     "z": -0.6581,
+     "contribution": -0.0996,
      "through": "2026-08-01",
-     "daysBehind": 59
+     "daysBehind": 60
     },
     {
-     "seriesId": "INDPRO",
-     "label": "Industrial production",
-     "loading": 0.3303,
-     "z": 0.0597,
-     "contribution": 0.0197,
+     "seriesId": "IPCONGD",
+     "label": "IP: consumer goods",
+     "loading": 0.314,
+     "z": -0.1654,
+     "contribution": -0.0519,
      "through": "2026-08-01",
-     "daysBehind": 59
+     "daysBehind": 60
     }
    ]
   },
@@ -927,7 +927,7 @@
    "domain": "trade_external",
    "name": "trade_external PC1",
    "asOf": "2026-07-01",
-   "lastFit": "2026-09-29",
+   "lastFit": "2026-09-30",
    "modelVersion": "v1",
    "level": -0.4207,
    "percentile": 31.64,
@@ -936,8 +936,8 @@
    "acceleration": -1.7926,
    "change1m": -0.0598,
    "change3m": -1.5243,
-   "changeSincePreviousRun": -0.9439,
-   "freshnessDays": 90,
+   "changeSincePreviousRun": 0,
+   "freshnessDays": 91,
    "coverage": 1,
    "activeSeries": 6,
    "missingSeries": 0,
@@ -958,40 +958,40 @@
    ],
    "drivers": [
     {
-     "seriesId": "BOPGSTB",
-     "label": "Trade Balance: Goods and Services, Balance of Payments Basis",
-     "loading": -0.1197,
-     "z": -88791.4216,
-     "contribution": 10632.5035,
+     "seriesId": "BOPGEXP",
+     "label": "Exports of Goods, Balance of Payments Basis",
+     "loading": 0.4978,
+     "z": -1.1832,
+     "contribution": -0.589,
      "through": "2026-07-01",
-     "daysBehind": 90
+     "daysBehind": 91
     },
     {
      "seriesId": "BOPGIMP",
      "label": "Imports of Goods: Balance of Payments Basis",
      "loading": 0.4406,
-     "z": 0.0362,
-     "contribution": 0.016,
+     "z": 1.118,
+     "contribution": 0.4926,
      "through": "2026-07-01",
-     "daysBehind": 90
+     "daysBehind": 91
     },
     {
-     "seriesId": "BOPGEXP",
-     "label": "Exports of Goods, Balance of Payments Basis",
-     "loading": 0.4978,
-     "z": -0.0304,
-     "contribution": -0.0152,
+     "seriesId": "BOPSIMP",
+     "label": "Imports of Services, Balance of Payments Basis",
+     "loading": 0.5216,
+     "z": -0.6966,
+     "contribution": -0.3634,
      "through": "2026-07-01",
-     "daysBehind": 90
+     "daysBehind": 91
     },
     {
-     "seriesId": "DEXCHUS",
-     "label": "Chinese Yuan Renminbi to U.S. Dollar Spot Exchange Rate",
-     "loading": -0.1065,
-     "z": 0.0919,
-     "contribution": -0.0098,
-     "through": "2026-09-25",
-     "daysBehind": 4
+     "seriesId": "BOPGSTB",
+     "label": "Trade Balance: Goods and Services, Balance of Payments Basis",
+     "loading": -0.1197,
+     "z": -2.2022,
+     "contribution": 0.2637,
+     "through": "2026-07-01",
+     "daysBehind": 91
     }
    ]
   }
@@ -2085,7 +2085,7 @@
  "regimes": {
   "asOf": "2026-09-29",
   "method": "Two-state Markov switching per factor: switching mean vs switching variance, BIC",
-  "converged": false,
+  "converged": true,
   "status": "provisional",
   "validation": "Descriptive. No regime probability is published until the climatology test (WP3) passes; the factor model behind it reports non-convergence when converged is false.",
   "series": 89,
@@ -2094,36 +2094,36 @@
     "factor": "global",
     "levelRegime": false,
     "verdict": "mean buys nothing over switching variance; means 0.21 SD apart",
-    "meanSeparation": 0.215,
+    "meanSeparation": 0.213,
     "meanBuysBic": 5,
-    "varianceRatio": 139,
+    "varianceRatio": 139.1,
     "durations": [
-     57.5,
-     7.3
+     57.3,
+     7.2
     ]
    },
    {
     "factor": "growth",
     "levelRegime": false,
-    "verdict": "mean buys nothing over switching variance; means 0.34 SD apart; shortest state 3.9 months",
-    "meanSeparation": 0.343,
+    "verdict": "mean buys nothing over switching variance; means 0.34 SD apart; shortest state 3.8 months",
+    "meanSeparation": 0.344,
     "meanBuysBic": 4.5,
-    "varianceRatio": 11.27,
+    "varianceRatio": 11.44,
     "durations": [
-     59.9,
-     3.9
+     59.2,
+     3.8
     ]
    },
    {
     "factor": "manufacturing",
     "levelRegime": false,
-    "verdict": "mean buys nothing over switching variance; means 0.10 SD apart",
-    "meanSeparation": 0.096,
-    "meanBuysBic": 6,
-    "varianceRatio": 51.47,
+    "verdict": "mean buys nothing over switching variance; means 0.18 SD apart",
+    "meanSeparation": 0.185,
+    "meanBuysBic": 5.2,
+    "varianceRatio": 76.33,
     "durations": [
-     61.3,
-     10.1
+     73,
+     10.7
     ]
    },
    {
@@ -2132,22 +2132,22 @@
     "verdict": "mean buys nothing over switching variance; means 0.11 SD apart; shortest state 2.5 months",
     "meanSeparation": 0.113,
     "meanBuysBic": 6.2,
-    "varianceRatio": 268.9,
+    "varianceRatio": 266.2,
     "durations": [
-     100.5,
+     100.2,
      2.5
     ]
    },
    {
     "factor": "consumer",
     "levelRegime": false,
-    "verdict": "mean buys nothing over switching variance; means 0.04 SD apart; shortest state 2.7 months",
-    "meanSeparation": 0.036,
+    "verdict": "mean buys nothing over switching variance; means 0.04 SD apart; shortest state 2.9 months",
+    "meanSeparation": 0.04,
     "meanBuysBic": 6.3,
-    "varianceRatio": 161.4,
+    "varianceRatio": 156.9,
     "durations": [
-     28.3,
-     2.7
+     27.1,
+     2.9
     ]
    },
    {
@@ -2156,34 +2156,34 @@
     "verdict": "LEVEL REGIME",
     "meanSeparation": 2.064,
     "meanBuysBic": -155.6,
-    "varianceRatio": 5.38,
+    "varianceRatio": 5.39,
     "durations": [
-     77.8,
-     44.9
+     77.3,
+     45
     ]
    },
    {
     "factor": "inflation",
     "levelRegime": false,
     "verdict": "mean buys nothing over switching variance; means 0.05 SD apart",
-    "meanSeparation": 0.054,
+    "meanSeparation": 0.051,
     "meanBuysBic": 6.1,
-    "varianceRatio": 8.25,
+    "varianceRatio": 8.22,
     "durations": [
-     18,
-     8.8
+     18.5,
+     8.7
     ]
    },
    {
     "factor": "liquidity",
     "levelRegime": true,
     "verdict": "LEVEL REGIME",
-    "meanSeparation": 1.417,
-    "meanBuysBic": -97.9,
-    "varianceRatio": 22.43,
+    "meanSeparation": 1.429,
+    "meanBuysBic": -90.5,
+    "varianceRatio": 22.51,
     "durations": [
-     111.6,
-     65.5
+     115.7,
+     65.2
     ]
    },
    {
@@ -2192,7 +2192,7 @@
     "verdict": "mean buys nothing over switching variance; means 0.28 SD apart; shortest state 3.0 months",
     "meanSeparation": 0.282,
     "meanBuysBic": 5.1,
-    "varianceRatio": 37.58,
+    "varianceRatio": 37.6,
     "durations": [
      47.9,
      3
@@ -2202,12 +2202,12 @@
     "factor": "financial",
     "levelRegime": true,
     "verdict": "LEVEL REGIME",
-    "meanSeparation": 1.407,
-    "meanBuysBic": -38.4,
-    "varianceRatio": 10.83,
+    "meanSeparation": 1.494,
+    "meanBuysBic": -44.3,
+    "varianceRatio": 10.5,
     "durations": [
-     43,
-     11.7
+     44.3,
+     11.4
     ]
    }
   ]
@@ -2283,52 +2283,52 @@
    "daysBehind": 59,
    "frequency": "monthly"
   },
-  "WALCL": {
-   "label": "Fed balance sheet",
+  "AWHMAN": {
+   "label": "Mfg weekly hours",
    "units": null,
    "source": "FRED",
    "transformation": 1,
-   "releaseLagDays": 5,
-   "through": "2026-09-23",
-   "daysBehind": 6,
-   "frequency": "weekly"
+   "releaseLagDays": 34,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
   },
-  "WTREGEN": {
-   "label": "Treasury general account",
+  "ISRATIO": {
+   "label": "Inventory/sales ratio",
+   "units": null,
+   "source": "FRED",
+   "transformation": 2,
+   "releaseLagDays": 74,
+   "through": "2026-07-01",
+   "daysBehind": 90,
+   "frequency": "monthly"
+  },
+  "T10Y3M": {
+   "label": "10y-3m slope",
    "units": null,
    "source": "FRED",
    "transformation": 1,
-   "releaseLagDays": 1,
-   "through": "2026-09-23",
-   "daysBehind": 6,
-   "frequency": "weekly"
+   "releaseLagDays": 0,
+   "through": "2026-09-25",
+   "daysBehind": 4,
+   "frequency": "daily"
   },
-  "MTSDS133FMS": {
-   "label": "Federal Surplus or Deficit [-]",
-   "units": "Millions of Dollars",
+  "M2REAL": {
+   "label": "Real M2",
+   "units": null,
    "source": "FRED",
-   "transformation": 1,
-   "releaseLagDays": 41,
-   "through": null,
-   "daysBehind": null,
-   "frequency": null
+   "transformation": 5,
+   "releaseLagDays": 49,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
   },
-  "BOPGSTB": {
-   "label": "Trade Balance: Goods and Services, Balance of Payments Basis",
-   "units": "Millions of Dollars",
-   "source": "FRED",
-   "transformation": 1,
-   "releaseLagDays": 70,
-   "through": null,
-   "daysBehind": null,
-   "frequency": null
-  },
-  "TOTBKCR": {
-   "label": "Bank Credit, All Commercial Banks",
+  "USGSEC": {
+   "label": "Treasury and Agency Securities, All Commercial Banks",
    "units": "Billions of U.S. Dollars",
    "source": "FRED",
    "transformation": 5,
-   "releaseLagDays": 9,
+   "releaseLagDays": 41,
    "through": null,
    "daysBehind": null,
    "frequency": null
@@ -2343,12 +2343,12 @@
    "daysBehind": null,
    "frequency": null
   },
-  "USGSEC": {
-   "label": "Treasury and Agency Securities, All Commercial Banks",
+  "TOTBKCR": {
+   "label": "Bank Credit, All Commercial Banks",
    "units": "Billions of U.S. Dollars",
    "source": "FRED",
    "transformation": 5,
-   "releaseLagDays": 41,
+   "releaseLagDays": 9,
    "through": null,
    "daysBehind": null,
    "frequency": null
@@ -2413,55 +2413,55 @@
    "daysBehind": 59,
    "frequency": "monthly"
   },
-  "PSAVERT": {
-   "label": "Personal saving rate",
-   "units": null,
-   "source": "FRED",
-   "transformation": 2,
-   "releaseLagDays": 59,
-   "through": "2026-07-01",
-   "daysBehind": 90,
-   "frequency": "monthly"
-  },
-  "PCE": {
-   "label": "Personal Consumption Expenditures",
-   "units": "Billions of Dollars",
+  "RSAFS": {
+   "label": "Advance Retail Sales: Retail Trade and Food Services",
+   "units": "Millions of Dollars",
    "source": "FRED",
    "transformation": 5,
-   "releaseLagDays": 58,
+   "releaseLagDays": 44,
    "through": null,
    "daysBehind": null,
    "frequency": null
   },
-  "W875RX1": {
-   "label": "Real income ex transfers",
+  "RRSFS": {
+   "label": "Real retail sales",
    "units": null,
    "source": "FRED",
    "transformation": 5,
-   "releaseLagDays": 59,
-   "through": "2026-07-01",
-   "daysBehind": 90,
+   "releaseLagDays": 45,
+   "through": "2026-08-01",
+   "daysBehind": 59,
    "frequency": "monthly"
   },
-  "BAA10Y": {
-   "label": "Baa - 10y spread",
+  "TOTALSA": {
+   "label": "Total vehicle sales",
    "units": null,
    "source": "FRED",
-   "transformation": 1,
-   "releaseLagDays": 0,
-   "through": "2026-09-24",
-   "daysBehind": 5,
-   "frequency": "daily"
+   "transformation": 5,
+   "releaseLagDays": 34,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
   },
-  "BAMLH0A0HYM2": {
-   "label": "High yield OAS",
+  "BUSLOANS": {
+   "label": "Commercial & industrial loans",
    "units": null,
    "source": "FRED",
-   "transformation": 1,
-   "releaseLagDays": 0,
-   "through": "2026-09-24",
-   "daysBehind": 5,
-   "frequency": "daily"
+   "transformation": 6,
+   "releaseLagDays": 41,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "TOTCI": {
+   "label": "Total C&I loans (weekly)",
+   "units": null,
+   "source": "FRED",
+   "transformation": 6,
+   "releaseLagDays": 9,
+   "through": "2026-09-16",
+   "daysBehind": 13,
+   "frequency": "weekly"
   },
   "BAMLC0A4CBBB": {
    "label": "ICE BofA BBB US Corporate Index Option-Adjusted Spread",
@@ -2483,22 +2483,22 @@
    "daysBehind": null,
    "frequency": null
   },
-  "VIXCLS": {
-   "label": "VIX",
-   "units": null,
-   "source": "FRED",
-   "transformation": 1,
-   "releaseLagDays": 0,
-   "through": "2026-09-22",
-   "daysBehind": 7,
-   "frequency": "daily"
-  },
   "NFCI": {
    "label": "Chicago Fed financial conditions",
    "units": null,
    "source": "FRED",
    "transformation": 1,
    "releaseLagDays": 5,
+   "through": "2026-09-18",
+   "daysBehind": 11,
+   "frequency": "weekly"
+  },
+  "STLFSI4": {
+   "label": "St Louis financial stress",
+   "units": null,
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 6,
    "through": "2026-09-18",
    "daysBehind": 11,
    "frequency": "weekly"
@@ -2513,15 +2513,45 @@
    "daysBehind": 11,
    "frequency": "weekly"
   },
-  "T10Y2Y": {
-   "label": "10y-2y slope",
+  "VIXCLS": {
+   "label": "VIX",
    "units": null,
    "source": "FRED",
    "transformation": 1,
    "releaseLagDays": 0,
-   "through": "2026-09-25",
-   "daysBehind": 4,
+   "through": "2026-09-22",
+   "daysBehind": 7,
    "frequency": "daily"
+  },
+  "HNFSEPUSSA": {
+   "label": "New One Family Homes for Sale in the United States",
+   "units": "Thousands of Units",
+   "source": "FRED",
+   "transformation": 4,
+   "releaseLagDays": 54,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "HOUSTMW": {
+   "label": "Housing starts: Midwest",
+   "units": null,
+   "source": "FRED",
+   "transformation": 4,
+   "releaseLagDays": 47,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "HOUSTS": {
+   "label": "Housing starts: South",
+   "units": null,
+   "source": "FRED",
+   "transformation": 4,
+   "releaseLagDays": 47,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
   },
   "HOUST": {
    "label": "Housing starts",
@@ -2533,91 +2563,61 @@
    "daysBehind": 59,
    "frequency": "monthly"
   },
-  "PERMIT": {
-   "label": "Building permits",
+  "CPIAUCSL": {
+   "label": "CPI",
    "units": null,
    "source": "FRED",
-   "transformation": 4,
-   "releaseLagDays": 47,
+   "transformation": 6,
+   "releaseLagDays": 45,
    "through": "2026-08-01",
    "daysBehind": 59,
    "frequency": "monthly"
   },
-  "COMPUTSA": {
-   "label": "New Privately-Owned Housing Units Completed: Total Units",
-   "units": "Thousands of Units",
-   "source": "FRED",
-   "transformation": 4,
-   "releaseLagDays": 47,
-   "through": null,
-   "daysBehind": null,
-   "frequency": null
-  },
-  "HOUST1F": {
-   "label": "New Privately-Owned Housing Units Started: Single-Family Units",
-   "units": "Thousands of Units",
-   "source": "FRED",
-   "transformation": 4,
-   "releaseLagDays": 47,
-   "through": null,
-   "daysBehind": null,
-   "frequency": null
-  },
-  "MEDCPIM158SFRBCLE": {
-   "label": "Median Consumer Price Index",
-   "units": "Percent Change at Annual Rate",
-   "source": "FRED",
-   "transformation": 2,
-   "releaseLagDays": 42,
-   "through": null,
-   "daysBehind": null,
-   "frequency": null
-  },
-  "MICH": {
-   "label": "University of Michigan: Inflation Expectation",
-   "units": "Percent",
-   "source": "FRED",
-   "transformation": 2,
-   "releaseLagDays": 26.5,
-   "through": null,
-   "daysBehind": null,
-   "frequency": null
-  },
-  "CORESTICKM159SFRBATL": {
-   "label": "Sticky Price Consumer Price Index less Food and Energy",
-   "units": "Percent Change from Year Ago",
-   "source": "FRED",
-   "transformation": 2,
-   "releaseLagDays": 42,
-   "through": null,
-   "daysBehind": null,
-   "frequency": null
-  },
-  "PCETRIM12M159SFRBDAL": {
-   "label": "Trimmed Mean PCE Inflation Rate",
-   "units": "Percent Change from Year Ago",
-   "source": "FRED",
-   "transformation": 2,
-   "releaseLagDays": 59,
-   "through": null,
-   "daysBehind": null,
-   "frequency": null
-  },
-  "AWHMAN": {
-   "label": "Mfg weekly hours",
+  "PCEPI": {
+   "label": "PCE price index",
    "units": null,
    "source": "FRED",
-   "transformation": 1,
+   "transformation": 6,
+   "releaseLagDays": 59,
+   "through": "2026-07-01",
+   "daysBehind": 90,
+   "frequency": "monthly"
+  },
+  "CUSR0000SAC": {
+   "label": "CPI commodities",
+   "units": null,
+   "source": "FRED",
+   "transformation": 6,
+   "releaseLagDays": 43,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
+  },
+  "CPITRNSL": {
+   "label": "Consumer Price Index for All Urban Consumers: Transportation in U.S. City Average",
+   "units": "Index 1982-1984=100",
+   "source": "FRED",
+   "transformation": 6,
+   "releaseLagDays": 44,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "CIVPART": {
+   "label": "Labor force participation",
+   "units": null,
+   "source": "FRED",
+   "transformation": 2,
    "releaseLagDays": 34,
    "through": "2026-08-01",
    "daysBehind": 59,
    "frequency": "monthly"
   },
-  "AWHAETP": {
-   "label": "Average Weekly Hours of All Employees, Total Private",
-   "units": "Hours",
+  "CLF16OV": {
+   "label": "Civilian Labor Force Level",
+   "units": "Thousands of Persons",
    "source": "FRED",
-   "transformation": 1,
+   "transformation": 5,
    "releaseLagDays": 34,
    "through": null,
    "daysBehind": null,
@@ -2633,22 +2633,22 @@
    "daysBehind": 59,
    "frequency": "monthly"
   },
-  "CIVPART": {
-   "label": "Labor force participation",
-   "units": null,
-   "source": "FRED",
-   "transformation": 2,
-   "releaseLagDays": 34,
-   "through": "2026-08-01",
-   "daysBehind": 59,
-   "frequency": "monthly"
-  },
-  "M2REAL": {
-   "label": "Real M2",
-   "units": null,
+  "CES0500000011": {
+   "label": "Average Weekly Earnings of All Employees, Total Private",
+   "units": "Dollars per Week",
    "source": "FRED",
    "transformation": 5,
-   "releaseLagDays": 49,
+   "releaseLagDays": 34,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "BOGMBASE": {
+   "label": "Monetary base",
+   "units": null,
+   "source": "FRED",
+   "transformation": 6,
+   "releaseLagDays": 43,
    "through": "2026-08-01",
    "daysBehind": 59,
    "frequency": "monthly"
@@ -2662,6 +2662,26 @@
    "through": "2026-08-01",
    "daysBehind": 59,
    "frequency": "monthly"
+  },
+  "DPSACBW027SBOG": {
+   "label": "Deposits, All Commercial Banks",
+   "units": "Billions of U.S. Dollars",
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 9,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "WTREGEN": {
+   "label": "Treasury general account",
+   "units": null,
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 1,
+   "through": "2026-09-23",
+   "daysBehind": 6,
+   "frequency": "weekly"
   },
   "GACDFSA066MSFRBPHI": {
    "label": "Current General Activity; Diffusion Index for Federal Reserve District 3: Philadelphia",
@@ -2683,35 +2703,35 @@
    "daysBehind": null,
    "frequency": null
   },
-  "BACTSAMFRBDAL": {
-   "label": "Current General Business Activity; Diffusion Index for Texas",
-   "units": "Index",
-   "source": "FRED",
-   "transformation": 1,
-   "releaseLagDays": 27,
-   "through": null,
-   "daysBehind": null,
-   "frequency": null
-  },
-  "CFNAI": {
-   "label": "Chicago Fed National Activity Index",
-   "units": "Index",
-   "source": "FRED",
-   "transformation": 1,
-   "releaseLagDays": 53,
-   "through": null,
-   "daysBehind": null,
-   "frequency": null
-  },
-  "IPMANSICS": {
-   "label": "IP: manufacturing",
-   "units": null,
+  "AMDMVS": {
+   "label": "Manufacturers' Value of Shipments: Durable Goods",
+   "units": "Millions of Dollars",
    "source": "FRED",
    "transformation": 5,
-   "releaseLagDays": 45,
-   "through": "2026-08-01",
-   "daysBehind": 59,
-   "frequency": "monthly"
+   "releaseLagDays": 55.5,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "AMTMNO": {
+   "label": "Manufacturers' New Orders: Total Manufacturing",
+   "units": "Millions of Dollars",
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 64,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "RETAILIRSA": {
+   "label": "Retailers: Inventories to Sales Ratio",
+   "units": "Ratio",
+   "source": "FRED",
+   "transformation": 2,
+   "releaseLagDays": 75,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
   },
   "IPBUSEQ": {
    "label": "IP: business equipment",
@@ -2723,35 +2743,25 @@
    "daysBehind": 59,
    "frequency": "monthly"
   },
-  "IPFINAL": {
-   "label": "IP: final products",
-   "units": null,
+  "FRGSHPUSM649NCIS": {
+   "label": "Cass Freight Index: Shipments",
+   "units": "Index Jan 1990=1",
    "source": "FRED",
    "transformation": 5,
-   "releaseLagDays": 45,
-   "through": "2026-08-01",
-   "daysBehind": 59,
-   "frequency": "monthly"
-  },
-  "INDPRO": {
-   "label": "Industrial production",
-   "units": null,
-   "source": "FRED",
-   "transformation": 5,
-   "releaseLagDays": 45,
-   "through": "2026-08-01",
-   "daysBehind": 59,
-   "frequency": "monthly"
-  },
-  "BOPGIMP": {
-   "label": "Imports of Goods: Balance of Payments Basis",
-   "units": "Millions of Dollars",
-   "source": "FRED",
-   "transformation": 5,
-   "releaseLagDays": 70,
+   "releaseLagDays": 44,
    "through": null,
    "daysBehind": null,
    "frequency": null
+  },
+  "IPCONGD": {
+   "label": "IP: consumer goods",
+   "units": null,
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 45,
+   "through": "2026-08-01",
+   "daysBehind": 59,
+   "frequency": "monthly"
   },
   "BOPGEXP": {
    "label": "Exports of Goods, Balance of Payments Basis",
@@ -2763,12 +2773,32 @@
    "daysBehind": null,
    "frequency": null
   },
-  "DEXCHUS": {
-   "label": "Chinese Yuan Renminbi to U.S. Dollar Spot Exchange Rate",
-   "units": "Chinese Yuan Renminbi to One U.S. Dollar",
+  "BOPGIMP": {
+   "label": "Imports of Goods: Balance of Payments Basis",
+   "units": "Millions of Dollars",
    "source": "FRED",
    "transformation": 5,
-   "releaseLagDays": 5,
+   "releaseLagDays": 70,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "BOPSIMP": {
+   "label": "Imports of Services, Balance of Payments Basis",
+   "units": "Millions of Dollars",
+   "source": "FRED",
+   "transformation": 5,
+   "releaseLagDays": 70,
+   "through": null,
+   "daysBehind": null,
+   "frequency": null
+  },
+  "BOPGSTB": {
+   "label": "Trade Balance: Goods and Services, Balance of Payments Basis",
+   "units": "Millions of Dollars",
+   "source": "FRED",
+   "transformation": 1,
+   "releaseLagDays": 70,
    "through": null,
    "daysBehind": null,
    "frequency": null

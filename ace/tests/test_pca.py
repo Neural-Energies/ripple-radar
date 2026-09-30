@@ -366,3 +366,44 @@ def test_dropped_for_coverage_reaches_the_serialised_dict():
     assert "SPARSE" in result.dropped_for_coverage
     assert "SPARSE" in result.to_dict()["dropped_for_coverage"]
     assert "SPARSE" not in result.series
+
+
+def test_fit_moments_map_the_frames_own_units_to_the_fitted_basis():
+    """The fit standardises twice (whole frame, then the admitted balanced
+    window). Its stored moments must compose both, so `(x - mean) / std` on a
+    value in the frame's own units lands exactly on the matrix the SVD ran
+    on. Storing only the second stage's moments left them in z-units, and the
+    driver table read the Fed balance sheet at z = 42 million.
+    """
+    from types import SimpleNamespace
+
+    from ace.factors.factor_state import _drivers
+    from ace.factors.pca import _admit_matrix
+    from ace.state.transforms import standardize
+
+    rng = np.random.default_rng(7)
+    n_obs = 240
+    idx = pd.date_range("2000-01-01", periods=n_obs, freq="MS", tz="UTC")
+    common = rng.normal(size=n_obs)
+    frame = pd.DataFrame(
+        {
+            # A level series in the millions (a balance sheet), a small-scale
+            # rate, and a late starter so the balanced window is not the frame.
+            "BIG": 6.7e6 + 2.0e5 * common + rng.normal(scale=5e4, size=n_obs),
+            "RATE": 0.03 + 0.01 * common + rng.normal(scale=0.002, size=n_obs),
+            "MID": 100 + 5 * common + rng.normal(scale=1, size=n_obs),
+            "LATE": np.r_[np.full(60, np.nan), (2 * common + rng.normal(size=n_obs))[60:]],
+        },
+        index=idx,
+    )
+    result = fit(frame, as_of="2020-01-01", label="test", k=1)
+
+    z, _, _ = standardize(frame)
+    admitted = _admit_matrix(z.dropna(axis=1, how="all")).frame
+    cols = list(admitted.columns)
+    rebuilt = (frame.loc[admitted.index, cols] - result.mean[cols]) / result.std[cols]
+    np.testing.assert_allclose(rebuilt.to_numpy(), admitted.to_numpy(), rtol=1e-9, atol=1e-9)
+
+    drivers = _drivers(result, SimpleNamespace(frame=frame, edge={}), result.components[0])
+    assert drivers, "the newest month is attributed"
+    assert all(abs(d.z) < 10 for d in drivers), [(d.series_id, d.z) for d in drivers]

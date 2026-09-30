@@ -117,11 +117,14 @@ class PCAFit:
     components: tuple[ComponentLoadings, ...]
     #: T x k matrix of factor scores, indexed by date.
     scores: pd.DataFrame
-    #: The ADMITTED matrix's own mean/std (see `_admit_matrix`) — the
-    #: balanced, coverage-filtered subsample this fit actually ran on, not
-    #: the original ragged frame's. A later date scored against the wrong
-    #: moments would not be in the basis the loadings were fit in; see
-    #: `_AdmittedMatrix`'s docstring for the bug this fixed.
+    #: Moments that take a value IN THE UNITS OF THE FRAME PASSED TO `fit()`
+    #: straight to the basis the loadings were fit in:
+    #: `(x - mean) / std`. The fit standardises twice — the whole frame
+    #: first, then the admitted balanced window again (see `_admit_matrix`)
+    #: — so these compose both: mean = mu0 + sigma0 * mu_bal and
+    #: std = sigma0 * sigma_bal. Storing only the second stage's moments (as
+    #: before) left them in the first stage's z-units, and a driver table that
+    #: applied them to raw prints read the Fed balance sheet at z = 42 million.
     mean: pd.Series
     std: pd.Series
     #: Series dropped for falling below `MIN_COLUMN_COVERAGE`, with their
@@ -340,7 +343,7 @@ def fit(
     function adds nothing to the point-in-time discipline; it only decomposes
     what it is handed.
     """
-    z, _, _ = standardize(frame)
+    z, mu0, sigma0 = standardize(frame)
     z = z.dropna(axis=1, how="all")
     if z.shape[1] < 2:
         raise ValueError(f"only {z.shape[1]} usable series after standardising")
@@ -394,7 +397,9 @@ def fit(
         n_obs=int(len(scores)), series=tuple(balanced_cols),
         dates=tuple(scores.index), factor_count=count,
         components=tuple(components), scores=scores,
-        mean=admitted.mean, std=admitted.std,
+        # Compose the two standardisations into the frame's own units.
+        mean=mu0.reindex(admitted.mean.index) + sigma0.reindex(admitted.mean.index) * admitted.mean,
+        std=sigma0.reindex(admitted.std.index) * admitted.std,
         dropped_for_coverage=admitted.dropped_columns,
     )
 

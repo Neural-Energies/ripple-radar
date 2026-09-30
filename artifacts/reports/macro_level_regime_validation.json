@@ -1,136 +1,3512 @@
 {
-  "anchors": [
-    "2010-01-01",
-    "2016-01-01",
-    "2022-01-01"
-  ],
   "generated": "2026-09-29",
-  "horizon_months": 6.0,
-  "question": "Does a level-regime probability forecast the factor's own forward direction better than climatology \u2014 and does a Phase 6/7 domain PCA factor do this better, worse, or the same as the production DFM's?",
+  "manifest": {
+    "anchors": {
+      "financial": [
+        "1995-01-01",
+        "1995-07-01",
+        "1996-01-01",
+        "1996-07-01",
+        "1997-01-01",
+        "1997-07-01",
+        "1998-01-01",
+        "1998-07-01",
+        "1999-01-01",
+        "1999-07-01",
+        "2000-01-01",
+        "2000-07-01",
+        "2001-01-01",
+        "2001-07-01",
+        "2002-01-01",
+        "2002-07-01",
+        "2003-01-01",
+        "2003-07-01",
+        "2004-01-01",
+        "2004-07-01",
+        "2005-01-01",
+        "2005-07-01",
+        "2006-01-01",
+        "2006-07-01",
+        "2007-01-01",
+        "2007-07-01",
+        "2008-01-01",
+        "2008-07-01",
+        "2009-01-01",
+        "2009-07-01",
+        "2010-01-01",
+        "2010-07-01",
+        "2011-01-01",
+        "2011-07-01",
+        "2012-01-01",
+        "2012-07-01",
+        "2013-01-01",
+        "2013-07-01",
+        "2014-01-01",
+        "2014-07-01",
+        "2015-01-01",
+        "2015-07-01",
+        "2016-01-01",
+        "2016-07-01",
+        "2017-01-01",
+        "2017-07-01",
+        "2018-01-01",
+        "2018-07-01",
+        "2019-01-01",
+        "2019-07-01",
+        "2020-01-01",
+        "2020-07-01",
+        "2021-01-01",
+        "2021-07-01",
+        "2022-01-01",
+        "2022-07-01",
+        "2023-01-01",
+        "2023-07-01",
+        "2024-01-01",
+        "2024-07-01",
+        "2025-01-01",
+        "2025-07-01",
+        "2026-01-01"
+      ],
+      "housing": [
+        "1995-01-01",
+        "1995-07-01",
+        "1996-01-01",
+        "1996-07-01",
+        "1997-01-01",
+        "1997-07-01",
+        "1998-01-01",
+        "1998-07-01",
+        "1999-01-01",
+        "1999-07-01",
+        "2000-01-01",
+        "2000-07-01",
+        "2001-01-01",
+        "2001-07-01",
+        "2002-01-01",
+        "2002-07-01",
+        "2003-01-01",
+        "2003-07-01",
+        "2004-01-01",
+        "2004-07-01",
+        "2005-01-01",
+        "2005-07-01",
+        "2006-01-01",
+        "2006-07-01",
+        "2007-01-01",
+        "2007-07-01",
+        "2008-01-01",
+        "2008-07-01",
+        "2009-01-01",
+        "2009-07-01",
+        "2010-01-01",
+        "2010-07-01",
+        "2011-01-01",
+        "2011-07-01",
+        "2012-01-01",
+        "2012-07-01",
+        "2013-01-01",
+        "2013-07-01",
+        "2014-01-01",
+        "2014-07-01",
+        "2015-01-01",
+        "2015-07-01",
+        "2016-01-01",
+        "2016-07-01",
+        "2017-01-01",
+        "2017-07-01",
+        "2018-01-01",
+        "2018-07-01",
+        "2019-01-01",
+        "2019-07-01",
+        "2020-01-01",
+        "2020-07-01",
+        "2021-01-01",
+        "2021-07-01",
+        "2022-01-01",
+        "2022-07-01",
+        "2023-01-01",
+        "2023-07-01",
+        "2024-01-01",
+        "2024-07-01",
+        "2025-01-01",
+        "2025-07-01",
+        "2026-01-01"
+      ]
+    },
+    "code": {
+      "git_sha": "3faad0c4d473fdba91918d4059391cc9a00762b8",
+      "module": "__main__"
+    },
+    "comparisons": [
+      [
+        "housing",
+        "dfm"
+      ],
+      [
+        "housing",
+        "domain_pca"
+      ],
+      [
+        "financial",
+        "dfm"
+      ],
+      [
+        "financial",
+        "domain_pca"
+      ]
+    ],
+    "inputs": {
+      "comprehensive_panel": {
+        "A091RC1Q027SBEA": "77a533330d09f181",
+        "A261RX1Q020SBEA": "8ce0b79a2c5eb43c",
+        "AAA10Y": "040983e88f39e6a4",
+        "AMDMUO": "a83180d55dc214ed",
+        "AMDMVS": "fd1e5a0eb8f4c30c",
+        "AMTMNO": "65aefe424bb24a80",
+        "ANDEVS": "0e609cf038462a58",
+        "ANFCI": "eb170bdd34316438",
+        "AWHAETP": "52aa24ea37d48850",
+        "AWHMAN": "3f47fe200c0891d6",
+        "AWOTMAN": "514572e2fb94ea89",
+        "B009RC1Q027SBEA": "e521e51d2137b71e",
+        "BAA10Y": "4ecf056f3d81ede4",
+        "BACTSAMFRBDAL": "3bd7be9e58290d62",
+        "BAMLC0A0CM": "5ee5d5667bd0202b",
+        "BAMLC0A4CBBB": "77dcc8e1984fe4c3",
+        "BAMLH0A0HYM2": "3820021473563a8c",
+        "BOGMBASE": "79cb511df35d3ba6",
+        "BOPGEXP": "10cf8b13be5fd43b",
+        "BOPGIMP": "00636b8146be3e9d",
+        "BOPGSTB": "b490d5af07f78175",
+        "BOPSEXP": "535d9e08120b4aa0",
+        "BOPSIMP": "f8bf08986b1efba9",
+        "BUSINV": "c6c54f036a9430b0",
+        "BUSLOANS": "c89c33243bc9210a",
+        "CCSA": "7396b3ef6ed739e6",
+        "CE16OV": "0cc8d350e8c5e36f",
+        "CES0500000003": "ecbb02c047385ef5",
+        "CES0500000011": "9925550946c88d64",
+        "CFNAI": "0db9fc036c796f56",
+        "CIVPART": "99d9b8f03832e9e8",
+        "CLF16OV": "3cdee24f61678219",
+        "COMPNFB": "dd889eca153b66a4",
+        "COMPUTSA": "0f56a4762455fe90",
+        "CONSUMER": "cc0a4642044a2c1a",
+        "CORALACBS": "7006ab7b6ce826ac",
+        "CORESTICKM159SFRBATL": "1d310de40643a915",
+        "CP": "e9f2b1a49761e3af",
+        "CPATAX": "9fb2dd8ed8f34328",
+        "CPIAPPSL": "dd57a9a33b7d2686",
+        "CPIAUCSL": "777321ecd1870441",
+        "CPIEDUSL": "638a37aa64292ca6",
+        "CPIENGSL": "f3b4827564ecab73",
+        "CPILFESL": "484446d555798954",
+        "CPIMEDSL": "a809737f69afe04d",
+        "CPIRECSL": "ea52d27203dcbe9f",
+        "CPITRNSL": "b768a116d6f4b691",
+        "CPIUFDSL": "831a54c7def0749d",
+        "CREACBM027NBOG": "6def58c8006ac9e7",
+        "CSUSHPINSA": "70d8fbc5d24cceb3",
+        "CUSR0000SAC": "048aea1ae977aacd",
+        "CUSR0000SAH1": "df4aeedfdd5d7acd",
+        "CUSR0000SAS": "89c75e192f87a487",
+        "CUSR0000SEHA": "e792d1492fb490a2",
+        "CUSR0000SEHC": "66a78c87659095fb",
+        "CUSR0000SETA01": "2314986934f78273",
+        "CUSR0000SETA02": "fe63da3e8a04be55",
+        "DEXCHUS": "45032fe5b3274f8f",
+        "DFII10": "fda15d36f7f8cd4a",
+        "DGDSRG3M086SBEA": "66f55472cefb0c40",
+        "DGORDER": "3b5aa38ae0a53e7c",
+        "DGS10": "d7f026a99d5b659f",
+        "DGS2": "cc383620201f7a09",
+        "DHUTRG3Q086SBEA": "92cc06ddec686b64",
+        "DPCXRG3M086SBEA": "b24510a6ff0464e0",
+        "DPSACBW027SBOG": "78b0c6a530553359",
+        "DRCCLACBS": "c5b2b1f2ad1e1b3e",
+        "DRSFRMACBS": "aec77148cea3301a",
+        "DRTSCILM": "b0b7250de2e161f0",
+        "DSERRG3M086SBEA": "84da5480a86eeff2",
+        "DSPI": "34b13652023a0c07",
+        "DSPIC96": "04f1d9b39f33ade0",
+        "DTWEXBGS": "fd7b888908fbe2cf",
+        "ECIWAG": "4e948875ab3979e3",
+        "EMRATIO": "5d125795988d4c36",
+        "EXPGS": "2b7c3dfa33252b31",
+        "EXPGSC1": "b4de8677e4bd7500",
+        "FEDFUNDS": "e00e74a66d4a7bb2",
+        "FGCE": "0f3baca7aba014db",
+        "FGEXPND": "de5cba240f319ba8",
+        "FGRECPT": "158fa7973a070b69",
+        "FINSLC1": "12576babdfb564b1",
+        "FRGSHPUSM649NCIS": "9e9a4dc3dd6d6f5b",
+        "FYGFDPUN": "5563a64e842cd4d4",
+        "GACDFSA066MSFRBPHI": "dd33e7b1a9770ec2",
+        "GACDISA066MSFRBNY": "d6de48cddd9aa82b",
+        "GASREGW": "ead8e4082618c49f",
+        "GCE": "86adeb19042e0858",
+        "GDI": "5c65b401888a1a2a",
+        "GDP": "a61c5dd448441c06",
+        "GDPC1": "9a85443362ffccf8",
+        "GFDEBTN": "9d99421a4b2db159",
+        "HNFSEPUSSA": "2232737fa7e640a6",
+        "HOANBS": "fef02f7ac94c5665",
+        "HOUST": "c91f8b47fee7845e",
+        "HOUST1F": "98184053d2b1709a",
+        "HOUSTMW": "a0ecf263e0f4626b",
+        "HOUSTNE": "b7ee7127db57e6d0",
+        "HOUSTS": "9b61188befa3313d",
+        "HOUSTW": "3126872423a42c00",
+        "HSN1F": "7380476818d18c7c",
+        "ICSA": "d3c765daa779f614",
+        "IEABC": "c450c21201b83e4e",
+        "IMPGS": "9422704dd54f0fac",
+        "IMPGSC1": "353c3d8aa8b767d2",
+        "INDPRO": "9369a2847c47e1f7",
+        "IORB": "dbe91356bbc1e353",
+        "IPBUSEQ": "a78048c1cdae44bf",
+        "IPCONGD": "83ef421d104923e2",
+        "IPFINAL": "be0bc2cae8c051e5",
+        "IPG32411S": "404dcb670c292d18",
+        "IPMANSICS": "dd33fdf3c6f79c15",
+        "IPMAT": "c4fd91bff9bf0616",
+        "IPUTIL": "e69dd0d61163a29a",
+        "IQ": "dac31dd2c58a93e3",
+        "IR": "f2eb9f4a031140ce",
+        "ISRATIO": "284020a3fea9e4ed",
+        "IURSA": "d4cc9496eb9fa2e3",
+        "JTSHIR": "df77c8752492a659",
+        "JTSJOL": "3d5bc4a63d1c5f6e",
+        "JTSLDR": "c65e8d28db4e2bb4",
+        "JTSQUR": "2d21597079c04b8c",
+        "M1SL": "d285eb53a58c6059",
+        "M2REAL": "acdb6154d037b5f1",
+        "M2SL": "df398119d6ffc9a1",
+        "MANEMP": "f2e528b024caa88d",
+        "MCUMFN": "72039d02fc612942",
+        "MEDCPIM158SFRBCLE": "eef3e95ef6e05fb4",
+        "MICH": "47487f730dbdd9a9",
+        "MORTGAGE15US": "f08d5258c0319eb6",
+        "MORTGAGE30US": "855c63dabf33f413",
+        "MSACSR": "29889ddb40bb379a",
+        "MTSDS133FMS": "f9baf9835c536b4d",
+        "NEWORDER": "9a0e7ca7f52ee9db",
+        "NFCI": "1f7fc2cefe2db2c7",
+        "NONREVSL": "32a0bc27d47e547c",
+        "OPHNFB": "1db1c17f6266df22",
+        "OUTNFB": "4724fc2c40e4ae2d",
+        "PALLFNFINDEXM": "f51255d808027307",
+        "PAYEMS": "b5c6fa2037c6e861",
+        "PCE": "d5cd9ca45c0b3090",
+        "PCEC96": "a9d175faf95912b3",
+        "PCEPI": "701c33babc59e721",
+        "PCEPILFE": "d19beb25ea76c30c",
+        "PCETRIM12M159SFRBDAL": "8afe572a1c83c54f",
+        "PCOPPUSDM": "6e7f6f7b699330b6",
+        "PERMIT": "db8ac6208f3be8a1",
+        "PI": "637e821f8c97d808",
+        "PINDUINDEXM": "12af060c038c6148",
+        "PNFI": "ac79c22ceeed654a",
+        "PNRESCONS": "771401138c97024c",
+        "PPIACO": "da133d16b416274a",
+        "PPIFES": "e52af156239cbd1c",
+        "PPIFIS": "788e5cac92c320d3",
+        "PRAWMINDEXM": "6945d098f9c576d2",
+        "PRFI": "1376f445dd4dd47f",
+        "PROPINC": "75bd6ff76970790f",
+        "PSAVERT": "1da7f1b987d8e57b",
+        "RCPHBS": "0d234d35cd26ae21",
+        "REALLN": "bb3a7cb879bc9280",
+        "RETAILIRSA": "e3871d887c7cb108",
+        "REVOLSL": "0b3d7a8a77f7b1e9",
+        "RHVRUSQ156N": "f781962021c52b3a",
+        "RPI": "ae8f1378d05d648c",
+        "RRPONTSYD": "49c525bb55abe02a",
+        "RRSFS": "03b7f8fd7f7eb387",
+        "RRVRUSQ156N": "8638aed4ac8c2c0c",
+        "RSAFS": "09157ad93145fe0f",
+        "RSFSXMV": "ff38ce7c0a14b794",
+        "SOFR": "6022f3542ad30415",
+        "SRVPRD": "27d4ac3d1a07b06c",
+        "STLFSI4": "72a5700ef3b4621e",
+        "T10Y2Y": "b9057b01b7a06d65",
+        "T10Y3M": "587acbe0ba0cdffc",
+        "T10YIE": "e95ecc707d1e5698",
+        "TCU": "c1d754f3fc75d8ac",
+        "TDSP": "23c057944630e67b",
+        "TEMPHELPS": "44b4375202e5d8bb",
+        "TLAACBW027SBOG": "97c2c083dc429dab",
+        "TOTALSA": "51a5f44fa4ce39ba",
+        "TOTALSL": "54be10bafb602d40",
+        "TOTBKCR": "95c9392ed482430e",
+        "TOTCI": "02c18c9fe508daf1",
+        "TOTRESNS": "c4e68ec0f1eeacaf",
+        "TTLCONS": "ec59db9b29a01359",
+        "U6RATE": "958fd2e3a21179f4",
+        "UEMPMEAN": "b93a7ad0cca2077d",
+        "ULCNFB": "1b18b3d79e2b84a9",
+        "UMCSENT": "982bea2512558893",
+        "UNRATE": "97222b958b9e3c26",
+        "USCONS": "d7f14d8396884b2c",
+        "USGOVT": "efd1bd4f5fd2ad42",
+        "USGSEC": "780c6cec3d287064",
+        "USPRIV": "c75cc5ffadd85306",
+        "USSTHPI": "2431ed43711f8b8e",
+        "USTRADE": "ba9adfbfa310271e",
+        "VIXCLS": "5045f6030cb28ab3",
+        "W875RX1": "3c9418bdfd26499f",
+        "WALCL": "9867c4ab3910accf",
+        "WHLSLRIMSA": "e8621697cd22ed54",
+        "WPSFD49207": "dde0fe25adf7749d",
+        "WPUID61": "4b6e289445ed12d2",
+        "WRESBAL": "be5a04b70cda10f7",
+        "WTREGEN": "2e88d3c499a8a09b",
+        "Y001RC1Q027SBEA": "8ee665273f372c27",
+        "Y033RC1Q027SBEA": "8863936d63250f93"
+      },
+      "production_panel": {
+        "AAA10Y": "040983e88f39e6a4",
+        "AMDMUO": "a83180d55dc214ed",
+        "ANFCI": "eb170bdd34316438",
+        "AWHMAN": "3f47fe200c0891d6",
+        "AWOTMAN": "514572e2fb94ea89",
+        "BAA10Y": "4ecf056f3d81ede4",
+        "BAMLH0A0HYM2": "3820021473563a8c",
+        "BOGMBASE": "79cb511df35d3ba6",
+        "BUSINV": "c6c54f036a9430b0",
+        "BUSLOANS": "c89c33243bc9210a",
+        "CCSA": "7396b3ef6ed739e6",
+        "CES0500000003": "ecbb02c047385ef5",
+        "CIVPART": "99d9b8f03832e9e8",
+        "CPIAUCSL": "777321ecd1870441",
+        "CPIENGSL": "f3b4827564ecab73",
+        "CPILFESL": "484446d555798954",
+        "CPIUFDSL": "831a54c7def0749d",
+        "CSUSHPINSA": "70d8fbc5d24cceb3",
+        "CUSR0000SAC": "048aea1ae977aacd",
+        "CUSR0000SAS": "89c75e192f87a487",
+        "DFII10": "fda15d36f7f8cd4a",
+        "DGORDER": "3b5aa38ae0a53e7c",
+        "DGS10": "d7f026a99d5b659f",
+        "DGS2": "cc383620201f7a09",
+        "DRTSCILM": "b0b7250de2e161f0",
+        "DSPIC96": "04f1d9b39f33ade0",
+        "DTWEXBGS": "fd7b888908fbe2cf",
+        "ECIWAG": "4e948875ab3979e3",
+        "FEDFUNDS": "e00e74a66d4a7bb2",
+        "GDPC1": "9a85443362ffccf8",
+        "HOUST": "c91f8b47fee7845e",
+        "HOUSTMW": "a0ecf263e0f4626b",
+        "HOUSTNE": "b7ee7127db57e6d0",
+        "HOUSTS": "9b61188befa3313d",
+        "HOUSTW": "3126872423a42c00",
+        "HSN1F": "7380476818d18c7c",
+        "ICSA": "d3c765daa779f614",
+        "INDPRO": "9369a2847c47e1f7",
+        "IPBUSEQ": "a78048c1cdae44bf",
+        "IPCONGD": "83ef421d104923e2",
+        "IPFINAL": "be0bc2cae8c051e5",
+        "IPMANSICS": "dd33fdf3c6f79c15",
+        "IPMAT": "c4fd91bff9bf0616",
+        "ISRATIO": "284020a3fea9e4ed",
+        "JTSJOL": "3d5bc4a63d1c5f6e",
+        "JTSLDR": "c65e8d28db4e2bb4",
+        "JTSQUR": "2d21597079c04b8c",
+        "M1SL": "d285eb53a58c6059",
+        "M2REAL": "acdb6154d037b5f1",
+        "M2SL": "df398119d6ffc9a1",
+        "MANEMP": "f2e528b024caa88d",
+        "MORTGAGE30US": "855c63dabf33f413",
+        "NEWORDER": "9a0e7ca7f52ee9db",
+        "NFCI": "1f7fc2cefe2db2c7",
+        "NONREVSL": "32a0bc27d47e547c",
+        "PAYEMS": "b5c6fa2037c6e861",
+        "PCEC96": "a9d175faf95912b3",
+        "PCEPI": "701c33babc59e721",
+        "PCEPILFE": "d19beb25ea76c30c",
+        "PERMIT": "db8ac6208f3be8a1",
+        "PPIACO": "da133d16b416274a",
+        "PPIFIS": "788e5cac92c320d3",
+        "PSAVERT": "1da7f1b987d8e57b",
+        "REALLN": "bb3a7cb879bc9280",
+        "REVOLSL": "0b3d7a8a77f7b1e9",
+        "RRPONTSYD": "49c525bb55abe02a",
+        "RRSFS": "03b7f8fd7f7eb387",
+        "SP500": "ee10dc1e9106e32a",
+        "SRVPRD": "27d4ac3d1a07b06c",
+        "STLFSI4": "72a5700ef3b4621e",
+        "T10Y2Y": "b9057b01b7a06d65",
+        "T10Y3M": "587acbe0ba0cdffc",
+        "T10YIE": "e95ecc707d1e5698",
+        "TCU": "c1d754f3fc75d8ac",
+        "TOTALSA": "51a5f44fa4ce39ba",
+        "TOTALSL": "54be10bafb602d40",
+        "TOTCI": "02c18c9fe508daf1",
+        "TOTRESNS": "c4e68ec0f1eeacaf",
+        "U6RATE": "958fd2e3a21179f4",
+        "UEMPMEAN": "b93a7ad0cca2077d",
+        "UMCSENT": "982bea2512558893",
+        "UNRATE": "97222b958b9e3c26",
+        "USCONS": "d7f14d8396884b2c",
+        "USTRADE": "ba9adfbfa310271e",
+        "VIXCLS": "5045f6030cb28ab3",
+        "W875RX1": "3c9418bdfd26499f",
+        "WALCL": "9867c4ab3910accf",
+        "WPSFD49207": "dde0fe25adf7749d",
+        "WTREGEN": "2e88d3c499a8a09b"
+      }
+    },
+    "manifest_sha256": "54da8d9432b435406d85ba6e1739096dec9a1bd0bda7e22ed44ed6c58fb0fcd9",
+    "protocol": {
+      "anchor_step_months": 6.0,
+      "calibration_min_each_class": 3.0,
+      "calibration_min_pairs": 12.0,
+      "confirmation_share": 0.4,
+      "family_alpha": 0.05,
+      "first_anchor": "1995-01-01",
+      "horizon_months": 6.0,
+      "min_orientation_corr": 0.1,
+      "seed": 17.0,
+      "sufficiency": {
+        "min_events": 6.0,
+        "min_n": 20.0,
+        "min_non_events": 6.0
+      },
+      "version": "wp3-v2"
+    },
+    "results_sha256": "ea2b77edc021cbb2a002b597c7d5830e3f771e01038b5d9a4ec565adbd13259e",
+    "targets": [
+      {
+        "block": "housing",
+        "description": "Housing starts in month m+6 above month m, where m is the last month in the anchor's data; final vintage.",
+        "domain": "housing",
+        "observable": "HOUST"
+      },
+      {
+        "block": "financial",
+        "description": "VIX monthly average in month m+6 above month m (more stress); never revised.",
+        "domain": "financial_conditions",
+        "observable": "VIXCLS"
+      }
+    ]
+  },
+  "question": "Does a level-regime model's probability of a pre-registered observable event beat point-in-time climatology on untouched chronological confirmation, and does the comprehensive-panel domain PCA factor do better or worse than the production DFM's?",
   "results": {
     "financial": {
       "dfm": {
-        "ci": {
-          "hi": 0.232824,
-          "lo": -0.740623,
-          "n_anchors": 3.0,
-          "n_boot": 2000.0,
-          "point": -0.409787
+        "alpha_per_comparison": 0.0125,
+        "anchors_considered": 63.0,
+        "burn_in": {
+          "1995-01-01": "calibration burn-in: 0 published earlier labels",
+          "1995-07-01": "calibration burn-in: 1 published earlier labels",
+          "1996-01-01": "calibration burn-in: 2 published earlier labels",
+          "1996-07-01": "calibration burn-in: 3 published earlier labels",
+          "1997-01-01": "calibration burn-in: 4 published earlier labels",
+          "1997-07-01": "calibration burn-in: 5 published earlier labels",
+          "1998-01-01": "calibration burn-in: 6 published earlier labels",
+          "1998-07-01": "calibration burn-in: 7 published earlier labels",
+          "1999-01-01": "calibration burn-in: 8 published earlier labels",
+          "1999-07-01": "calibration burn-in: 9 published earlier labels",
+          "2000-01-01": "calibration burn-in: 10 published earlier labels",
+          "2000-07-01": "calibration burn-in: 11 published earlier labels"
         },
-        "climatology_brier": 0.247022,
-        "horizon_months": 6.0,
-        "model_brier": 0.656808,
-        "n_anchors": 3.0,
-        "readings": [
+        "confirmation": {
+          "ci": null,
+          "climatology_brier": 0.243934,
+          "events": 7.0,
+          "model_brier": 0.272821,
+          "n_anchors": 18.0,
+          "non_events": 11.0,
+          "readings": [
+            {
+              "as_of": "2017-07-01",
+              "climatology_probability": 0.4475,
+              "model_probability": 0.4255,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2018-01-01",
+              "climatology_probability": 0.4424,
+              "model_probability": 0.304,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2018-07-01",
+              "climatology_probability": 0.4524,
+              "model_probability": 0.4306,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2019-01-01",
+              "climatology_probability": 0.4532,
+              "model_probability": 0.5435,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2019-07-01",
+              "climatology_probability": 0.4569,
+              "model_probability": 0.4596,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2020-01-01",
+              "climatology_probability": 0.4576,
+              "model_probability": 0.4526,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2020-07-01",
+              "climatology_probability": 0.4667,
+              "model_probability": 0.5259,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2021-01-01",
+              "climatology_probability": 0.4645,
+              "model_probability": 0.4944,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2021-07-01",
+              "climatology_probability": 0.4624,
+              "model_probability": 0.4664,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2022-01-01",
+              "climatology_probability": 0.463,
+              "model_probability": 0.4742,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2022-07-01",
+              "climatology_probability": 0.4661,
+              "model_probability": 0.5181,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2023-01-01",
+              "climatology_probability": 0.4615,
+              "model_probability": 0.5109,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2023-07-01",
+              "climatology_probability": 0.4545,
+              "model_probability": 0.4569,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2024-01-01",
+              "climatology_probability": 0.4502,
+              "model_probability": 0.3686,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2024-07-01",
+              "climatology_probability": 0.4461,
+              "model_probability": 0.331,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2025-01-01",
+              "climatology_probability": 0.4541,
+              "model_probability": 0.4112,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2025-07-01",
+              "climatology_probability": 0.4595,
+              "model_probability": 0.3912,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2026-01-01",
+              "climatology_probability": 0.4554,
+              "model_probability": 0.3766,
+              "outcome": 1.0
+            }
+          ],
+          "skill": -0.028887,
+          "skill_diff_lag1_autocorr": -0.3595,
+          "sufficiency": {
+            "min_events": 6.0,
+            "min_n": 20.0,
+            "min_non_events": 6.0
+          },
+          "verdict": "INCONCLUSIVE \u2014 insufficient sample (n=18 < 20)"
+        },
+        "development": {
+          "ci": {
+            "block": 3.0,
+            "hi": 0.054384,
+            "level": 0.9875,
+            "lo": -0.132451,
+            "n_anchors": 25.0,
+            "n_boot": 2000.0,
+            "point": -0.031841
+          },
+          "climatology_brier": 0.243735,
+          "events": 10.0,
+          "model_brier": 0.275576,
+          "n_anchors": 25.0,
+          "non_events": 15.0,
+          "readings": [
+            {
+              "as_of": "2001-01-01",
+              "climatology_probability": 0.4841,
+              "model_probability": 0.7131,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2001-07-01",
+              "climatology_probability": 0.4924,
+              "model_probability": 0.7084,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2002-01-01",
+              "climatology_probability": 0.5,
+              "model_probability": 0.8628,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2002-07-01",
+              "climatology_probability": 0.4861,
+              "model_probability": 0.8732,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2003-01-01",
+              "climatology_probability": 0.5067,
+              "model_probability": 0.8826,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2003-07-01",
+              "climatology_probability": 0.4872,
+              "model_probability": 0.7073,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2004-01-01",
+              "climatology_probability": 0.4691,
+              "model_probability": 0.6742,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2004-07-01",
+              "climatology_probability": 0.4583,
+              "model_probability": 0.5786,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2005-01-01",
+              "climatology_probability": 0.4483,
+              "model_probability": 0.5431,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2005-07-01",
+              "climatology_probability": 0.4444,
+              "model_probability": 0.5069,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2006-01-01",
+              "climatology_probability": 0.4462,
+              "model_probability": 0.5406,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2006-07-01",
+              "climatology_probability": 0.4479,
+              "model_probability": 0.5691,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2007-01-01",
+              "climatology_probability": 0.4444,
+              "model_probability": 0.54,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2007-07-01",
+              "climatology_probability": 0.4559,
+              "model_probability": 0.5592,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2008-01-01",
+              "climatology_probability": 0.4714,
+              "model_probability": 0.5739,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2008-07-01",
+              "climatology_probability": 0.4815,
+              "model_probability": 0.5854,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2009-01-01",
+              "climatology_probability": 0.4865,
+              "model_probability": 0.6088,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2013-07-01",
+              "climatology_probability": 0.4529,
+              "model_probability": 0.4988,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2014-01-01",
+              "climatology_probability": 0.4539,
+              "model_probability": 0.2513,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2014-07-01",
+              "climatology_probability": 0.4479,
+              "model_probability": 0.4181,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2015-01-01",
+              "climatology_probability": 0.4524,
+              "model_probability": 0.6087,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2015-07-01",
+              "climatology_probability": 0.4567,
+              "model_probability": 0.5224,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2016-01-01",
+              "climatology_probability": 0.4608,
+              "model_probability": 0.5481,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2016-07-01",
+              "climatology_probability": 0.4583,
+              "model_probability": 0.4896,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2017-01-01",
+              "climatology_probability": 0.4528,
+              "model_probability": 0.3941,
+              "outcome": 0.0
+            }
+          ],
+          "skill": -0.031841,
+          "skill_diff_lag1_autocorr": 0.2081,
+          "sufficiency": {
+            "min_events": 6.0,
+            "min_n": 20.0,
+            "min_non_events": 6.0
+          },
+          "verdict": "NO SIGNIFICANT DIFFERENCE FROM CLIMATOLOGY (CI spans zero)"
+        },
+        "rows": [
           {
-            "as_of": "2010-01-01",
-            "climatology_probability": 0.5113,
-            "model_probability": 0.0103,
-            "outcome": 1.0
+            "anchor": "2001-01-01",
+            "calibrated": 0.7131374376362789,
+            "climatology": 0.48412698412698413,
+            "known_labels": 12.0,
+            "month": "2000-12-01",
+            "orientation_corr": 0.4216,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9349679173305638,
+            "raw": 0.30571902495460807
           },
           {
-            "as_of": "2016-01-01",
-            "climatology_probability": 0.5164,
-            "model_probability": 0.9682,
-            "outcome": 1.0
+            "anchor": "2001-07-01",
+            "calibrated": 0.7084008881908371,
+            "climatology": 0.49242424242424243,
+            "known_labels": 13.0,
+            "month": "2001-06-01",
+            "orientation_corr": 0.4436,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9980483862860455,
+            "raw": 0.8270193929527244
           },
           {
-            "as_of": "2022-01-01",
-            "climatology_probability": 0.4819,
-            "model_probability": 0.005,
-            "outcome": 1.0
+            "anchor": "2002-01-01",
+            "calibrated": 0.8628104573174541,
+            "climatology": 0.5,
+            "known_labels": 14.0,
+            "month": "2001-12-01",
+            "orientation_corr": 0.3845,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9993900437297639,
+            "raw": 0.880187518620857
+          },
+          {
+            "anchor": "2002-07-01",
+            "calibrated": 0.8731701984717329,
+            "climatology": 0.4861111111111111,
+            "known_labels": 15.0,
+            "month": "2002-06-01",
+            "orientation_corr": 0.3845,
+            "outcome": 1.0,
+            "p_high_state_now": 0.011436813036031288,
+            "raw": 0.7997694549386867
+          },
+          {
+            "anchor": "2003-01-01",
+            "calibrated": 0.8825839692340913,
+            "climatology": 0.5066666666666667,
+            "known_labels": 16.0,
+            "month": "2002-12-01",
+            "orientation_corr": 0.2265,
+            "outcome": 0.0,
+            "p_high_state_now": 0.010473552256494923,
+            "raw": 0.7557907586301145
+          },
+          {
+            "anchor": "2003-07-01",
+            "calibrated": 0.7073418163243584,
+            "climatology": 0.48717948717948717,
+            "known_labels": 17.0,
+            "month": "2003-06-01",
+            "orientation_corr": 0.2318,
+            "outcome": 0.0,
+            "p_high_state_now": 0.010153731962509991,
+            "raw": 0.5850472873324198
+          },
+          {
+            "anchor": "2004-01-01",
+            "calibrated": 0.6742002050635549,
+            "climatology": 0.4691358024691358,
+            "known_labels": 18.0,
+            "month": "2003-12-01",
+            "orientation_corr": 0.2757,
+            "outcome": 0.0,
+            "p_high_state_now": 0.009090917748550214,
+            "raw": 0.7639045703211458
+          },
+          {
+            "anchor": "2004-07-01",
+            "calibrated": 0.578566486352152,
+            "climatology": 0.4583333333333333,
+            "known_labels": 19.0,
+            "month": "2004-06-01",
+            "orientation_corr": 0.271,
+            "outcome": 0.0,
+            "p_high_state_now": 0.009979696805993908,
+            "raw": 0.3500270876693897
+          },
+          {
+            "anchor": "2005-01-01",
+            "calibrated": 0.5430623981209793,
+            "climatology": 0.4482758620689655,
+            "known_labels": 20.0,
+            "month": "2004-12-01",
+            "orientation_corr": 0.2511,
+            "outcome": 0.0,
+            "p_high_state_now": 0.39654535940720137,
+            "raw": 0.1506734632614455
+          },
+          {
+            "anchor": "2005-07-01",
+            "calibrated": 0.506916345084073,
+            "climatology": 0.4444444444444444,
+            "known_labels": 21.0,
+            "month": "2005-06-01",
+            "orientation_corr": 0.216,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9998118441113268,
+            "raw": 0.20168203289399902
+          },
+          {
+            "anchor": "2006-01-01",
+            "calibrated": 0.5405975447522454,
+            "climatology": 0.44623655913978494,
+            "known_labels": 22.0,
+            "month": "2005-12-01",
+            "orientation_corr": 0.1495,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9993991106328588,
+            "raw": 0.2639296580514063
+          },
+          {
+            "anchor": "2006-07-01",
+            "calibrated": 0.5690650726175719,
+            "climatology": 0.4479166666666667,
+            "known_labels": 23.0,
+            "month": "2006-06-01",
+            "orientation_corr": 0.1147,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9965103959959316,
+            "raw": 0.45849216952367355
+          },
+          {
+            "anchor": "2007-01-01",
+            "calibrated": 0.5399942744297904,
+            "climatology": 0.4444444444444444,
+            "known_labels": 24.0,
+            "month": "2006-12-01",
+            "orientation_corr": 0.1518,
+            "outcome": 1.0,
+            "p_high_state_now": 0.04355978087998414,
+            "raw": 0.13874237526960054
+          },
+          {
+            "anchor": "2007-07-01",
+            "calibrated": 0.5591699447457662,
+            "climatology": 0.45588235294117646,
+            "known_labels": 25.0,
+            "month": "2007-06-01",
+            "orientation_corr": 0.3848,
+            "outcome": 1.0,
+            "p_high_state_now": 0.0022055055926846947,
+            "raw": 0.3545738109680845
+          },
+          {
+            "anchor": "2008-01-01",
+            "calibrated": 0.5739041460738139,
+            "climatology": 0.4714285714285714,
+            "known_labels": 26.0,
+            "month": "2007-12-01",
+            "orientation_corr": 0.706,
+            "outcome": 1.0,
+            "p_high_state_now": 0.0008813359181989811,
+            "raw": 0.4055598856733063
+          },
+          {
+            "anchor": "2008-07-01",
+            "calibrated": 0.5853892222771505,
+            "climatology": 0.48148148148148145,
+            "known_labels": 27.0,
+            "month": "2008-06-01",
+            "orientation_corr": -0.6433,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9955021593291741,
+            "raw": 0.5678478749059716
+          },
+          {
+            "anchor": "2009-01-01",
+            "calibrated": 0.6087655009792285,
+            "climatology": 0.4864864864864865,
+            "known_labels": 28.0,
+            "month": "2008-12-01",
+            "orientation_corr": -0.142,
+            "outcome": 0.0,
+            "p_high_state_now": 0.23042662009938808,
+            "raw": 0.7109327215117729
+          },
+          {
+            "anchor": "2013-07-01",
+            "calibrated": 0.49880596155903373,
+            "climatology": 0.4528985507246377,
+            "known_labels": 29.0,
+            "month": "2013-06-01",
+            "orientation_corr": -0.4046,
+            "outcome": 0.0,
+            "p_high_state_now": 0.00021695639930532595,
+            "raw": 0.9806725194129686
+          },
+          {
+            "anchor": "2014-01-01",
+            "calibrated": 0.25134078904966106,
+            "climatology": 0.45390070921985815,
+            "known_labels": 30.0,
+            "month": "2013-12-01",
+            "orientation_corr": -0.5823,
+            "outcome": 0.0,
+            "p_high_state_now": 0.0006795897786186463,
+            "raw": 0.9971140679127504
+          },
+          {
+            "anchor": "2014-07-01",
+            "calibrated": 0.41805723115986104,
+            "climatology": 0.4479166666666667,
+            "known_labels": 31.0,
+            "month": "2014-06-01",
+            "orientation_corr": -0.6701,
+            "outcome": 1.0,
+            "p_high_state_now": 0.0012289902662756386,
+            "raw": 0.8280525700154092
+          },
+          {
+            "anchor": "2015-01-01",
+            "calibrated": 0.6086534947432244,
+            "climatology": 0.4523809523809524,
+            "known_labels": 32.0,
+            "month": "2014-12-01",
+            "orientation_corr": -0.674,
+            "outcome": 0.0,
+            "p_high_state_now": 0.07310121554122373,
+            "raw": 0.2800764226162327
+          },
+          {
+            "anchor": "2015-07-01",
+            "calibrated": 0.5223521123771323,
+            "climatology": 0.45666666666666667,
+            "known_labels": 33.0,
+            "month": "2015-06-01",
+            "orientation_corr": -0.6322,
+            "outcome": 0.0,
+            "p_high_state_now": 0.07248156718399523,
+            "raw": 0.5559577527801016
+          },
+          {
+            "anchor": "2016-01-01",
+            "calibrated": 0.5481342289211116,
+            "climatology": 0.46078431372549017,
+            "known_labels": 34.0,
+            "month": "2015-12-01",
+            "orientation_corr": -0.582,
+            "outcome": 0.0,
+            "p_high_state_now": 0.03183925400513068,
+            "raw": 0.37410455323055614
+          },
+          {
+            "anchor": "2016-07-01",
+            "calibrated": 0.4896242813594069,
+            "climatology": 0.4583333333333333,
+            "known_labels": 35.0,
+            "month": "2016-06-01",
+            "orientation_corr": -0.6495,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9686677277290281,
+            "raw": 0.5564629659644114
+          },
+          {
+            "anchor": "2017-01-01",
+            "calibrated": 0.3940559294447644,
+            "climatology": 0.4528301886792453,
+            "known_labels": 36.0,
+            "month": "2016-12-01",
+            "orientation_corr": -0.6421,
+            "outcome": 0.0,
+            "p_high_state_now": 0.001771126618961001,
+            "raw": 0.8331104598555461
+          },
+          {
+            "anchor": "2017-07-01",
+            "calibrated": 0.4254879552336161,
+            "climatology": 0.44753086419753085,
+            "known_labels": 37.0,
+            "month": "2017-06-01",
+            "orientation_corr": -0.6552,
+            "outcome": 0.0,
+            "p_high_state_now": 0.0037571727104437117,
+            "raw": 0.6766315800973655
+          },
+          {
+            "anchor": "2018-01-01",
+            "calibrated": 0.3039678498169985,
+            "climatology": 0.44242424242424244,
+            "known_labels": 38.0,
+            "month": "2017-12-01",
+            "orientation_corr": -0.8638,
+            "outcome": 1.0,
+            "p_high_state_now": 0.0008214256103379769,
+            "raw": 0.9117787559738155
+          },
+          {
+            "anchor": "2018-07-01",
+            "calibrated": 0.4306065407836347,
+            "climatology": 0.4523809523809524,
+            "known_labels": 39.0,
+            "month": "2018-06-01",
+            "orientation_corr": -0.8668,
+            "outcome": 1.0,
+            "p_high_state_now": 0.0007742657572651636,
+            "raw": 0.7281705886320295
+          },
+          {
+            "anchor": "2019-01-01",
+            "calibrated": 0.5435168437710309,
+            "climatology": 0.45321637426900585,
+            "known_labels": 40.0,
+            "month": "2018-12-01",
+            "orientation_corr": -0.8696,
+            "outcome": 0.0,
+            "p_high_state_now": 0.0027927712237497087,
+            "raw": 0.2803356847301204
+          },
+          {
+            "anchor": "2019-07-01",
+            "calibrated": 0.45961868264586425,
+            "climatology": 0.45689655172413796,
+            "known_labels": 41.0,
+            "month": "2019-06-01",
+            "orientation_corr": -0.8842,
+            "outcome": 0.0,
+            "p_high_state_now": 0.0007045978957972124,
+            "raw": 0.6432420452228345
+          },
+          {
+            "anchor": "2020-01-01",
+            "calibrated": 0.45259455289300393,
+            "climatology": 0.4576271186440678,
+            "known_labels": 42.0,
+            "month": "2019-12-01",
+            "orientation_corr": -0.8891,
+            "outcome": 1.0,
+            "p_high_state_now": 0.0005973555550730558,
+            "raw": 0.612762551672975
+          },
+          {
+            "anchor": "2020-07-01",
+            "calibrated": 0.5259219580588088,
+            "climatology": 0.4666666666666667,
+            "known_labels": 43.0,
+            "month": "2020-06-01",
+            "orientation_corr": -0.7735,
+            "outcome": 0.0,
+            "p_high_state_now": 0.999614707100642,
+            "raw": 0.29113544279491327
+          },
+          {
+            "anchor": "2021-01-01",
+            "calibrated": 0.49442864249211677,
+            "climatology": 0.4644808743169399,
+            "known_labels": 44.0,
+            "month": "2020-12-01",
+            "orientation_corr": 0.6964,
+            "outcome": 0.0,
+            "p_high_state_now": 0.07443656471595704,
+            "raw": 0.3812364821570111
+          },
+          {
+            "anchor": "2021-07-01",
+            "calibrated": 0.4663537204597559,
+            "climatology": 0.46236559139784944,
+            "known_labels": 45.0,
+            "month": "2021-06-01",
+            "orientation_corr": 0.7445,
+            "outcome": 1.0,
+            "p_high_state_now": 0.0091643424109373,
+            "raw": 0.4856572165434355
+          },
+          {
+            "anchor": "2022-01-01",
+            "calibrated": 0.4742206077067454,
+            "climatology": 0.46296296296296297,
+            "known_labels": 46.0,
+            "month": "2021-12-01",
+            "orientation_corr": 0.6722,
+            "outcome": 1.0,
+            "p_high_state_now": 0.005032968233501032,
+            "raw": 0.5114143264265755
+          },
+          {
+            "anchor": "2022-07-01",
+            "calibrated": 0.5180809505488163,
+            "climatology": 0.4661458333333333,
+            "known_labels": 47.0,
+            "month": "2022-06-01",
+            "orientation_corr": 0.7419,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9998000394263721,
+            "raw": 0.30471336049600195
+          },
+          {
+            "anchor": "2023-01-01",
+            "calibrated": 0.5109007277401663,
+            "climatology": 0.46153846153846156,
+            "known_labels": 48.0,
+            "month": "2022-12-01",
+            "orientation_corr": 0.7286,
+            "outcome": 0.0,
+            "p_high_state_now": 0.014549267752590422,
+            "raw": 0.2671464404245938
+          },
+          {
+            "anchor": "2023-07-01",
+            "calibrated": 0.4569468775622359,
+            "climatology": 0.45454545454545453,
+            "known_labels": 49.0,
+            "month": "2023-06-01",
+            "orientation_corr": 0.7133,
+            "outcome": 0.0,
+            "p_high_state_now": 0.00716893199336433,
+            "raw": 0.5811795341710118
+          },
+          {
+            "anchor": "2024-01-01",
+            "calibrated": 0.3685625883703552,
+            "climatology": 0.4502487562189055,
+            "known_labels": 50.0,
+            "month": "2023-12-01",
+            "orientation_corr": 0.7131,
+            "outcome": 0.0,
+            "p_high_state_now": 0.03732107857620383,
+            "raw": 0.9481026743148048
+          },
+          {
+            "anchor": "2024-07-01",
+            "calibrated": 0.3309537110812858,
+            "climatology": 0.44607843137254904,
+            "known_labels": 51.0,
+            "month": "2024-06-01",
+            "orientation_corr": 0.7147,
+            "outcome": 1.0,
+            "p_high_state_now": 0.23223864772051275,
+            "raw": 0.9552942881573983
+          },
+          {
+            "anchor": "2025-01-01",
+            "calibrated": 0.4112090269621024,
+            "climatology": 0.45410628019323673,
+            "known_labels": 52.0,
+            "month": "2024-12-01",
+            "orientation_corr": 0.7125,
+            "outcome": 0.0,
+            "p_high_state_now": 0.02253262272033711,
+            "raw": 0.8903454983144319
+          },
+          {
+            "anchor": "2025-07-01",
+            "calibrated": 0.3912211846598387,
+            "climatology": 0.4595238095238095,
+            "known_labels": 53.0,
+            "month": "2025-06-01",
+            "orientation_corr": 0.7052,
+            "outcome": 0.0,
+            "p_high_state_now": 0.015246611881557938,
+            "raw": 0.8905690735045286
+          },
+          {
+            "anchor": "2026-01-01",
+            "calibrated": 0.3765935161548089,
+            "climatology": 0.45539906103286387,
+            "known_labels": 54.0,
+            "month": "2025-12-01",
+            "orientation_corr": 0.7083,
+            "outcome": 1.0,
+            "p_high_state_now": 0.012001339988756592,
+            "raw": 0.8800820097037776
           }
         ],
-        "skill": -0.409787,
-        "skipped": {},
-        "verdict": "NO SIGNIFICANT DIFFERENCE FROM CLIMATOLOGY (CI spans zero)"
+        "skipped": {
+          "2009-07-01": "factor sign undetermined against the observable",
+          "2010-01-01": "factor sign undetermined against the observable",
+          "2010-07-01": "factor sign undetermined against the observable",
+          "2011-01-01": "factor sign undetermined against the observable",
+          "2011-07-01": "factor sign undetermined against the observable",
+          "2012-01-01": "factor sign undetermined against the observable",
+          "2012-07-01": "factor sign undetermined against the observable",
+          "2013-01-01": "factor sign undetermined against the observable"
+        },
+        "split": {
+          "confirmation": [
+            "2017-07-01",
+            "2026-01-01"
+          ],
+          "development": [
+            "2001-01-01",
+            "2017-01-01"
+          ]
+        },
+        "verdict": "INCONCLUSIVE \u2014 insufficient sample (n=18 < 20)"
       },
       "domain_pca": {
-        "ci": null,
-        "climatology_brier": null,
-        "horizon_months": 6.0,
-        "model_brier": null,
-        "n_anchors": 0.0,
-        "skill": null,
-        "skipped": {
-          "2010-01-01": "only 82 observations",
-          "2016-01-01": "reference series has no realized future value yet",
-          "2022-01-01": "only 43 observations"
+        "alpha_per_comparison": 0.0125,
+        "anchors_considered": 63.0,
+        "burn_in": {
+          "2000-07-01": "calibration burn-in: 0 published earlier labels",
+          "2001-01-01": "calibration burn-in: 1 published earlier labels",
+          "2001-07-01": "calibration burn-in: 2 published earlier labels",
+          "2002-01-01": "calibration burn-in: 3 published earlier labels",
+          "2002-07-01": "calibration burn-in: 4 published earlier labels",
+          "2003-01-01": "calibration burn-in: 5 published earlier labels",
+          "2003-07-01": "calibration burn-in: 6 published earlier labels",
+          "2004-01-01": "calibration burn-in: 7 published earlier labels",
+          "2004-07-01": "calibration burn-in: 8 published earlier labels",
+          "2005-01-01": "calibration burn-in: 9 published earlier labels",
+          "2005-07-01": "calibration burn-in: 10 published earlier labels",
+          "2006-01-01": "calibration burn-in: 11 published earlier labels"
         },
-        "verdict": "no anchors produced a reading"
+        "confirmation": {
+          "ci": null,
+          "climatology_brier": 0.247083,
+          "events": 2.0,
+          "model_brier": 0.254124,
+          "n_anchors": 5.0,
+          "non_events": 3.0,
+          "readings": [
+            {
+              "as_of": "2019-01-01",
+              "climatology_probability": 0.4532,
+              "model_probability": 0.4166,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2019-07-01",
+              "climatology_probability": 0.4569,
+              "model_probability": 0.4544,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2020-01-01",
+              "climatology_probability": 0.4576,
+              "model_probability": 0.43,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2020-07-01",
+              "climatology_probability": 0.4667,
+              "model_probability": 0.4578,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2021-01-01",
+              "climatology_probability": 0.4645,
+              "model_probability": 0.4349,
+              "outcome": 0.0
+            }
+          ],
+          "skill": -0.007041,
+          "skill_diff_lag1_autocorr": -0.0585,
+          "sufficiency": {
+            "min_events": 6.0,
+            "min_n": 20.0,
+            "min_non_events": 6.0
+          },
+          "verdict": "INCONCLUSIVE \u2014 insufficient sample (n=5 < 20, events=2 < 6, non-events=3 < 6)"
+        },
+        "development": {
+          "ci": null,
+          "climatology_brier": 0.250284,
+          "events": 3.0,
+          "model_brier": 0.265065,
+          "n_anchors": 7.0,
+          "non_events": 4.0,
+          "readings": [
+            {
+              "as_of": "2015-07-01",
+              "climatology_probability": 0.4567,
+              "model_probability": 0.4244,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2016-01-01",
+              "climatology_probability": 0.4608,
+              "model_probability": 0.3849,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2016-07-01",
+              "climatology_probability": 0.4583,
+              "model_probability": 0.3572,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2017-01-01",
+              "climatology_probability": 0.4528,
+              "model_probability": 0.3321,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2017-07-01",
+              "climatology_probability": 0.4475,
+              "model_probability": 0.3049,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2018-01-01",
+              "climatology_probability": 0.4424,
+              "model_probability": 0.3461,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2018-07-01",
+              "climatology_probability": 0.4524,
+              "model_probability": 0.3846,
+              "outcome": 1.0
+            }
+          ],
+          "skill": -0.01478,
+          "skill_diff_lag1_autocorr": 0.4093,
+          "sufficiency": {
+            "min_events": 6.0,
+            "min_n": 20.0,
+            "min_non_events": 6.0
+          },
+          "verdict": "INCONCLUSIVE \u2014 insufficient sample (n=7 < 20, events=3 < 6, non-events=4 < 6)"
+        },
+        "rows": [
+          {
+            "anchor": "2015-07-01",
+            "calibrated": 0.42437310238263354,
+            "climatology": 0.45666666666666667,
+            "known_labels": 12.0,
+            "month": "2015-06-01",
+            "orientation_corr": 0.882,
+            "outcome": 0.0,
+            "p_high_state_now": 0.006500076696863321,
+            "raw": 0.23897439566146889
+          },
+          {
+            "anchor": "2016-01-01",
+            "calibrated": 0.384874063118754,
+            "climatology": 0.46078431372549017,
+            "known_labels": 13.0,
+            "month": "2015-11-01",
+            "orientation_corr": 0.8803,
+            "outcome": 0.0,
+            "p_high_state_now": 0.003196032376328071,
+            "raw": 0.5245218992328644
+          },
+          {
+            "anchor": "2016-07-01",
+            "calibrated": 0.35715304370108303,
+            "climatology": 0.4583333333333333,
+            "known_labels": 14.0,
+            "month": "2016-05-01",
+            "orientation_corr": 0.88,
+            "outcome": 0.0,
+            "p_high_state_now": 0.0025349062281621116,
+            "raw": 0.4947079290703583
+          },
+          {
+            "anchor": "2017-01-01",
+            "calibrated": 0.33206464505323624,
+            "climatology": 0.4528301886792453,
+            "known_labels": 15.0,
+            "month": "2016-11-01",
+            "orientation_corr": 0.8776,
+            "outcome": 0.0,
+            "p_high_state_now": 0.0017286859608026423,
+            "raw": 0.8622713195595881
+          },
+          {
+            "anchor": "2017-07-01",
+            "calibrated": 0.3049271611727799,
+            "climatology": 0.44753086419753085,
+            "known_labels": 16.0,
+            "month": "2017-05-01",
+            "orientation_corr": 0.8791,
+            "outcome": 1.0,
+            "p_high_state_now": 0.0014102195479989647,
+            "raw": 0.6636388749402725
+          },
+          {
+            "anchor": "2018-01-01",
+            "calibrated": 0.3461360354235789,
+            "climatology": 0.44242424242424244,
+            "known_labels": 17.0,
+            "month": "2017-11-01",
+            "orientation_corr": 0.8977,
+            "outcome": 1.0,
+            "p_high_state_now": 0.0010426492259311786,
+            "raw": 0.8693682344084788
+          },
+          {
+            "anchor": "2018-07-01",
+            "calibrated": 0.3845800185687429,
+            "climatology": 0.4523809523809524,
+            "known_labels": 18.0,
+            "month": "2018-05-01",
+            "orientation_corr": 0.8932,
+            "outcome": 1.0,
+            "p_high_state_now": 0.0011099554267759552,
+            "raw": 0.47674894306074866
+          },
+          {
+            "anchor": "2019-01-01",
+            "calibrated": 0.4165640849392158,
+            "climatology": 0.45321637426900585,
+            "known_labels": 19.0,
+            "month": "2018-11-01",
+            "orientation_corr": 0.8876,
+            "outcome": 1.0,
+            "p_high_state_now": 0.001057376798031467,
+            "raw": 0.45293829463860413
+          },
+          {
+            "anchor": "2019-07-01",
+            "calibrated": 0.4544066435417308,
+            "climatology": 0.45689655172413796,
+            "known_labels": 20.0,
+            "month": "2019-06-01",
+            "orientation_corr": 0.8943,
+            "outcome": 0.0,
+            "p_high_state_now": 0.001006987277574978,
+            "raw": 0.6440124846459591
+          },
+          {
+            "anchor": "2020-01-01",
+            "calibrated": 0.42995308784851094,
+            "climatology": 0.4576271186440678,
+            "known_labels": 21.0,
+            "month": "2019-11-01",
+            "orientation_corr": 0.8956,
+            "outcome": 1.0,
+            "p_high_state_now": 0.0009414025664627102,
+            "raw": 0.5924228667722673
+          },
+          {
+            "anchor": "2020-07-01",
+            "calibrated": 0.4578268067703962,
+            "climatology": 0.4666666666666667,
+            "known_labels": 22.0,
+            "month": "2020-06-01",
+            "orientation_corr": 0.886,
+            "outcome": 0.0,
+            "p_high_state_now": 0.8816972448125023,
+            "raw": 0.6360841522767263
+          },
+          {
+            "anchor": "2021-01-01",
+            "calibrated": 0.4349457904780531,
+            "climatology": 0.4644808743169399,
+            "known_labels": 23.0,
+            "month": "2020-11-01",
+            "orientation_corr": 0.867,
+            "outcome": 0.0,
+            "p_high_state_now": 0.0037284735352033256,
+            "raw": 0.5527883020160539
+          }
+        ],
+        "skipped": {
+          "1995-01-01": "factor has 60 observations, need 120",
+          "1995-07-01": "factor has 66 observations, need 120",
+          "1996-01-01": "factor has 72 observations, need 120",
+          "1996-07-01": "factor has 78 observations, need 120",
+          "1997-01-01": "factor has 83 observations, need 120",
+          "1997-07-01": "factor has 89 observations, need 120",
+          "1998-01-01": "factor has 95 observations, need 120",
+          "1998-07-01": "factor has 101 observations, need 120",
+          "1999-01-01": "factor has 107 observations, need 120",
+          "1999-07-01": "factor has 113 observations, need 120",
+          "2000-01-01": "factor has 119 observations, need 120",
+          "2006-07-01": "factor has 40 observations, need 120",
+          "2007-01-01": "factor has 46 observations, need 120",
+          "2007-07-01": "factor has 52 observations, need 120",
+          "2008-01-01": "factor has 58 observations, need 120",
+          "2008-07-01": "factor has 64 observations, need 120",
+          "2009-01-01": "factor has 70 observations, need 120",
+          "2009-07-01": "factor has 76 observations, need 120",
+          "2010-01-01": "factor has 82 observations, need 120",
+          "2010-07-01": "factor has 88 observations, need 120",
+          "2011-01-01": "factor has 94 observations, need 120",
+          "2011-07-01": "factor has 77 observations, need 120",
+          "2012-01-01": "factor has 83 observations, need 120",
+          "2012-07-01": "factor has 89 observations, need 120",
+          "2013-01-01": "factor has 95 observations, need 120",
+          "2013-07-01": "factor has 101 observations, need 120",
+          "2014-01-01": "factor has 107 observations, need 120",
+          "2014-07-01": "factor has 113 observations, need 120",
+          "2015-01-01": "factor has 119 observations, need 120",
+          "2021-07-01": "factor has 38 observations, need 120",
+          "2022-01-01": "factor has 43 observations, need 120",
+          "2022-07-01": "factor has 50 observations, need 120",
+          "2023-01-01": "factor has 55 observations, need 120",
+          "2023-07-01": "factor has 61 observations, need 120",
+          "2024-01-01": "factor has 67 observations, need 120",
+          "2024-07-01": "factor has 74 observations, need 120",
+          "2025-01-01": "factor has 39 observations, need 120",
+          "2025-07-01": "factor has 46 observations, need 120",
+          "2026-01-01": "factor has 51 observations, need 120"
+        },
+        "split": {
+          "confirmation": [
+            "2019-01-01",
+            "2021-01-01"
+          ],
+          "development": [
+            "2015-07-01",
+            "2018-07-01"
+          ]
+        },
+        "verdict": "INCONCLUSIVE \u2014 insufficient sample (n=5 < 20, events=2 < 6, non-events=3 < 6)"
       }
     },
     "housing": {
       "dfm": {
-        "ci": {
-          "hi": -0.677748,
-          "lo": -0.780575,
-          "n_anchors": 3.0,
-          "n_boot": 2000.0,
-          "point": -0.738908
+        "alpha_per_comparison": 0.0125,
+        "anchors_considered": 63.0,
+        "burn_in": {
+          "1995-01-01": "calibration burn-in: 0 published earlier labels",
+          "1995-07-01": "calibration burn-in: 0 published earlier labels",
+          "1996-01-01": "calibration burn-in: 1 published earlier labels",
+          "1996-07-01": "calibration burn-in: 2 published earlier labels",
+          "1997-01-01": "calibration burn-in: 3 published earlier labels",
+          "1997-07-01": "calibration burn-in: 4 published earlier labels",
+          "1998-01-01": "calibration burn-in: 5 published earlier labels",
+          "1998-07-01": "calibration burn-in: 6 published earlier labels",
+          "1999-01-01": "calibration burn-in: 7 published earlier labels",
+          "1999-07-01": "calibration burn-in: 8 published earlier labels",
+          "2000-01-01": "calibration burn-in: 9 published earlier labels",
+          "2000-07-01": "calibration burn-in: 10 published earlier labels",
+          "2001-01-01": "calibration burn-in: 11 published earlier labels"
         },
-        "climatology_brier": 0.257223,
-        "horizon_months": 6.0,
-        "model_brier": 0.996131,
-        "n_anchors": 3.0,
-        "readings": [
+        "confirmation": {
+          "ci": {
+            "block": 3.0,
+            "hi": 0.005349,
+            "level": 0.9875,
+            "lo": -0.015818,
+            "n_anchors": 20.0,
+            "n_boot": 2000.0,
+            "point": -0.004749
+          },
+          "climatology_brier": 0.248518,
+          "events": 11.0,
+          "model_brier": 0.253267,
+          "n_anchors": 20.0,
+          "non_events": 9.0,
+          "readings": [
+            {
+              "as_of": "2016-07-01",
+              "climatology_probability": 0.5476,
+              "model_probability": 0.5849,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2017-01-01",
+              "climatology_probability": 0.5469,
+              "model_probability": 0.5836,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2017-07-01",
+              "climatology_probability": 0.5508,
+              "model_probability": 0.5835,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2018-01-01",
+              "climatology_probability": 0.5479,
+              "model_probability": 0.579,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2018-07-01",
+              "climatology_probability": 0.5451,
+              "model_probability": 0.5821,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2019-01-01",
+              "climatology_probability": 0.538,
+              "model_probability": 0.5648,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2019-07-01",
+              "climatology_probability": 0.5375,
+              "model_probability": 0.5591,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2020-01-01",
+              "climatology_probability": 0.5412,
+              "model_probability": 0.5812,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2020-07-01",
+              "climatology_probability": 0.5407,
+              "model_probability": 0.5579,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2021-01-01",
+              "climatology_probability": 0.5402,
+              "model_probability": 0.5529,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2021-07-01",
+              "climatology_probability": 0.5479,
+              "model_probability": 0.573,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2022-01-01",
+              "climatology_probability": 0.5433,
+              "model_probability": 0.5732,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2022-07-01",
+              "climatology_probability": 0.5527,
+              "model_probability": 0.5996,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2023-01-01",
+              "climatology_probability": 0.5462,
+              "model_probability": 0.5799,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2023-07-01",
+              "climatology_probability": 0.5417,
+              "model_probability": 0.5574,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2024-01-01",
+              "climatology_probability": 0.5413,
+              "model_probability": 0.5615,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2024-07-01",
+              "climatology_probability": 0.5408,
+              "model_probability": 0.5783,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2025-01-01",
+              "climatology_probability": 0.5385,
+              "model_probability": 0.5689,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2025-07-01",
+              "climatology_probability": 0.5399,
+              "model_probability": 0.5767,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2026-01-01",
+              "climatology_probability": 0.5387,
+              "model_probability": 0.5678,
+              "outcome": 1.0
+            }
+          ],
+          "skill": -0.004749,
+          "skill_diff_lag1_autocorr": -0.3364,
+          "sufficiency": {
+            "min_events": 6.0,
+            "min_n": 20.0,
+            "min_non_events": 6.0
+          },
+          "verdict": "NO SIGNIFICANT DIFFERENCE FROM CLIMATOLOGY (CI spans zero)"
+        },
+        "development": {
+          "ci": {
+            "block": 3.0,
+            "hi": 0.036381,
+            "level": 0.9875,
+            "lo": -0.208653,
+            "n_anchors": 30.0,
+            "n_boot": 2000.0,
+            "point": -0.060182
+          },
+          "climatology_brier": 0.249318,
+          "events": 17.0,
+          "model_brier": 0.3095,
+          "n_anchors": 30.0,
+          "non_events": 13.0,
+          "readings": [
+            {
+              "as_of": "2001-07-01",
+              "climatology_probability": 0.5578,
+              "model_probability": 0.8131,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2002-01-01",
+              "climatology_probability": 0.5525,
+              "model_probability": 0.9647,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2002-07-01",
+              "climatology_probability": 0.5551,
+              "model_probability": 0.5647,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2003-01-01",
+              "climatology_probability": 0.5539,
+              "model_probability": 0.6583,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2003-07-01",
+              "climatology_probability": 0.5564,
+              "model_probability": 0.7005,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2004-01-01",
+              "climatology_probability": 0.5658,
+              "model_probability": 0.6844,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2004-07-01",
+              "climatology_probability": 0.5645,
+              "model_probability": 0.6574,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2005-01-01",
+              "climatology_probability": 0.5631,
+              "model_probability": 0.6733,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2005-07-01",
+              "climatology_probability": 0.5652,
+              "model_probability": 0.749,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2006-01-01",
+              "climatology_probability": 0.5639,
+              "model_probability": 0.7403,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2006-07-01",
+              "climatology_probability": 0.5627,
+              "model_probability": 0.5862,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2007-01-01",
+              "climatology_probability": 0.5521,
+              "model_probability": 0.5311,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2007-07-01",
+              "climatology_probability": 0.5449,
+              "model_probability": 0.4863,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2008-01-01",
+              "climatology_probability": 0.535,
+              "model_probability": 0.4651,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2008-07-01",
+              "climatology_probability": 0.5224,
+              "model_probability": 0.2707,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2009-01-01",
+              "climatology_probability": 0.5161,
+              "model_probability": 0.4905,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2009-07-01",
+              "climatology_probability": 0.5072,
+              "model_probability": 0.1682,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2010-01-01",
+              "climatology_probability": 0.5156,
+              "model_probability": 0.0297,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2010-07-01",
+              "climatology_probability": 0.5209,
+              "model_probability": 0.0436,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2011-01-01",
+              "climatology_probability": 0.5123,
+              "model_probability": 0.0676,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2011-07-01",
+              "climatology_probability": 0.5121,
+              "model_probability": 0.1097,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2012-01-01",
+              "climatology_probability": 0.5172,
+              "model_probability": 0.3379,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2012-07-01",
+              "climatology_probability": 0.5248,
+              "model_probability": 0.5255,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2013-01-01",
+              "climatology_probability": 0.5321,
+              "model_probability": 0.5537,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2013-07-01",
+              "climatology_probability": 0.5367,
+              "model_probability": 0.5774,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2014-01-01",
+              "climatology_probability": 0.5337,
+              "model_probability": 0.5618,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2014-07-01",
+              "climatology_probability": 0.5381,
+              "model_probability": 0.5726,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2015-01-01",
+              "climatology_probability": 0.54,
+              "model_probability": 0.5585,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2015-07-01",
+              "climatology_probability": 0.5418,
+              "model_probability": 0.5743,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2016-01-01",
+              "climatology_probability": 0.5459,
+              "model_probability": 0.5922,
+              "outcome": 1.0
+            }
+          ],
+          "skill": -0.060182,
+          "skill_diff_lag1_autocorr": 0.3913,
+          "sufficiency": {
+            "min_events": 6.0,
+            "min_n": 20.0,
+            "min_non_events": 6.0
+          },
+          "verdict": "NO SIGNIFICANT DIFFERENCE FROM CLIMATOLOGY (CI spans zero)"
+        },
+        "rows": [
           {
-            "as_of": "2010-01-01",
-            "climatology_probability": 0.4915,
-            "model_probability": 1.0,
-            "outcome": 0.0
+            "anchor": "2001-07-01",
+            "calibrated": 0.8131194449509715,
+            "climatology": 0.5577689243027888,
+            "known_labels": 12.0,
+            "month": "2001-06-01",
+            "orientation_corr": 0.6416,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9999982354704916,
+            "raw": 0.05074015075976899
           },
           {
-            "as_of": "2016-01-01",
-            "climatology_probability": 0.5399,
-            "model_probability": 0.0039,
-            "outcome": 1.0
+            "anchor": "2002-01-01",
+            "calibrated": 0.964720119803611,
+            "climatology": 0.5525291828793775,
+            "known_labels": 13.0,
+            "month": "2001-12-01",
+            "orientation_corr": 0.6598,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9999999985264462,
+            "raw": 0.004035949572832705
           },
           {
-            "as_of": "2022-01-01",
-            "climatology_probability": 0.5643,
-            "model_probability": 0.9981,
-            "outcome": 0.0
+            "anchor": "2002-07-01",
+            "calibrated": 0.564721064471683,
+            "climatology": 0.5551330798479087,
+            "known_labels": 14.0,
+            "month": "2002-06-01",
+            "orientation_corr": 0.6751,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9999793818662455,
+            "raw": 0.21026595910843504
+          },
+          {
+            "anchor": "2003-01-01",
+            "calibrated": 0.6582891458872757,
+            "climatology": 0.5539033457249071,
+            "known_labels": 15.0,
+            "month": "2002-12-01",
+            "orientation_corr": 0.6764,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9999941736026478,
+            "raw": 0.13252967674537033
+          },
+          {
+            "anchor": "2003-07-01",
+            "calibrated": 0.7005119685517297,
+            "climatology": 0.5563636363636364,
+            "known_labels": 16.0,
+            "month": "2003-06-01",
+            "orientation_corr": 0.682,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9999991825431429,
+            "raw": 0.10910801364979734
+          },
+          {
+            "anchor": "2004-01-01",
+            "calibrated": 0.6844302170329167,
+            "climatology": 0.5658362989323843,
+            "known_labels": 17.0,
+            "month": "2003-12-01",
+            "orientation_corr": 0.6806,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9999967428523535,
+            "raw": 0.21697315770185738
+          },
+          {
+            "anchor": "2004-07-01",
+            "calibrated": 0.6573585039660641,
+            "climatology": 0.5644599303135889,
+            "known_labels": 18.0,
+            "month": "2004-06-01",
+            "orientation_corr": 0.6959,
+            "outcome": 1.0,
+            "p_high_state_now": 0.999981556724518,
+            "raw": 0.3510495450143437
+          },
+          {
+            "anchor": "2005-01-01",
+            "calibrated": 0.6733294751587803,
+            "climatology": 0.5631399317406144,
+            "known_labels": 19.0,
+            "month": "2004-12-01",
+            "orientation_corr": 0.6981,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9999986507386741,
+            "raw": 0.1884712814234438
+          },
+          {
+            "anchor": "2005-07-01",
+            "calibrated": 0.7489689763612722,
+            "climatology": 0.5652173913043478,
+            "known_labels": 20.0,
+            "month": "2005-06-01",
+            "orientation_corr": 0.6876,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9999999672414147,
+            "raw": 0.07640882602680857
+          },
+          {
+            "anchor": "2006-01-01",
+            "calibrated": 0.7403390337693155,
+            "climatology": 0.5639344262295082,
+            "known_labels": 21.0,
+            "month": "2005-12-01",
+            "orientation_corr": 0.6765,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9999932052346158,
+            "raw": 0.12407338639656776
+          },
+          {
+            "anchor": "2006-07-01",
+            "calibrated": 0.5861575787556327,
+            "climatology": 0.5627009646302251,
+            "known_labels": 22.0,
+            "month": "2006-06-01",
+            "orientation_corr": 0.6617,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9999191387001518,
+            "raw": 0.5813508653385733
+          },
+          {
+            "anchor": "2007-01-01",
+            "calibrated": 0.5311312662073969,
+            "climatology": 0.5520504731861199,
+            "known_labels": 23.0,
+            "month": "2006-12-01",
+            "orientation_corr": 0.6565,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9969039527086598,
+            "raw": 0.8817342949831873
+          },
+          {
+            "anchor": "2007-07-01",
+            "calibrated": 0.4863357933304712,
+            "climatology": 0.544891640866873,
+            "known_labels": 24.0,
+            "month": "2007-06-01",
+            "orientation_corr": 0.6538,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9971070675838486,
+            "raw": 0.8037492737156374
+          },
+          {
+            "anchor": "2008-01-01",
+            "calibrated": 0.4650586050420158,
+            "climatology": 0.5349544072948328,
+            "known_labels": 25.0,
+            "month": "2007-12-01",
+            "orientation_corr": 0.7392,
+            "outcome": 1.0,
+            "p_high_state_now": 2.5668982010144193e-08,
+            "raw": 0.6528856207455902
+          },
+          {
+            "anchor": "2008-07-01",
+            "calibrated": 0.2706607075482121,
+            "climatology": 0.5223880597014925,
+            "known_labels": 26.0,
+            "month": "2008-06-01",
+            "orientation_corr": 0.7515,
+            "outcome": 0.0,
+            "p_high_state_now": 3.095179393115352e-13,
+            "raw": 0.9398665975986409
+          },
+          {
+            "anchor": "2009-01-01",
+            "calibrated": 0.4904644544472077,
+            "climatology": 0.5161290322580645,
+            "known_labels": 27.0,
+            "month": "2008-12-01",
+            "orientation_corr": 0.7136,
+            "outcome": 1.0,
+            "p_high_state_now": 1.2054667579644693e-07,
+            "raw": 0.5686785769231938
+          },
+          {
+            "anchor": "2009-07-01",
+            "calibrated": 0.16820953837000832,
+            "climatology": 0.5072046109510087,
+            "known_labels": 28.0,
+            "month": "2009-06-01",
+            "orientation_corr": 0.6345,
+            "outcome": 0.0,
+            "p_high_state_now": 6.360849499466067e-15,
+            "raw": 0.9889689908395828
+          },
+          {
+            "anchor": "2010-01-01",
+            "calibrated": 0.029681785507403836,
+            "climatology": 0.5155807365439093,
+            "known_labels": 29.0,
+            "month": "2009-12-01",
+            "orientation_corr": 0.6312,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9999993959562562,
+            "raw": 0.9999840215197909
+          },
+          {
+            "anchor": "2010-07-01",
+            "calibrated": 0.04362904349513329,
+            "climatology": 0.520891364902507,
+            "known_labels": 30.0,
+            "month": "2010-06-01",
+            "orientation_corr": 0.6692,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9999999999835221,
+            "raw": 0.9997506054280523
+          },
+          {
+            "anchor": "2011-01-01",
+            "calibrated": 0.0675900397423622,
+            "climatology": 0.5123287671232877,
+            "known_labels": 31.0,
+            "month": "2010-12-01",
+            "orientation_corr": 0.6892,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9999999999999956,
+            "raw": 0.9989555659640614
+          },
+          {
+            "anchor": "2011-07-01",
+            "calibrated": 0.10974305568678641,
+            "climatology": 0.5121293800539084,
+            "known_labels": 32.0,
+            "month": "2011-06-01",
+            "orientation_corr": 0.7035,
+            "outcome": 1.0,
+            "p_high_state_now": 1.0,
+            "raw": 0.9946529667079147
+          },
+          {
+            "anchor": "2012-01-01",
+            "calibrated": 0.33788067967754526,
+            "climatology": 0.5172413793103449,
+            "known_labels": 33.0,
+            "month": "2011-12-01",
+            "orientation_corr": 0.6795,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9999999999947964,
+            "raw": 0.977234787304827
+          },
+          {
+            "anchor": "2012-07-01",
+            "calibrated": 0.5255398081579743,
+            "climatology": 0.5248041775456919,
+            "known_labels": 34.0,
+            "month": "2012-06-01",
+            "orientation_corr": 0.6869,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9999999807857002,
+            "raw": 0.9453792649703922
+          },
+          {
+            "anchor": "2013-01-01",
+            "calibrated": 0.55373550519131,
+            "climatology": 0.532133676092545,
+            "known_labels": 35.0,
+            "month": "2012-12-01",
+            "orientation_corr": 0.6876,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9999966881279228,
+            "raw": 0.9133077001742356
+          },
+          {
+            "anchor": "2013-07-01",
+            "calibrated": 0.5773922004976324,
+            "climatology": 0.5367088607594936,
+            "known_labels": 36.0,
+            "month": "2013-06-01",
+            "orientation_corr": 0.6983,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9764175520802376,
+            "raw": 0.8159968042516306
+          },
+          {
+            "anchor": "2014-01-01",
+            "calibrated": 0.5617591330710872,
+            "climatology": 0.5336658354114713,
+            "known_labels": 37.0,
+            "month": "2013-12-01",
+            "orientation_corr": 0.7057,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9176537280263013,
+            "raw": 0.7942648196589507
+          },
+          {
+            "anchor": "2014-07-01",
+            "calibrated": 0.5725547280951668,
+            "climatology": 0.538083538083538,
+            "known_labels": 38.0,
+            "month": "2014-06-01",
+            "orientation_corr": 0.7421,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9788344281191663,
+            "raw": 0.8146565244990832
+          },
+          {
+            "anchor": "2015-01-01",
+            "calibrated": 0.5585315517308533,
+            "climatology": 0.5399515738498789,
+            "known_labels": 39.0,
+            "month": "2014-12-01",
+            "orientation_corr": 0.7438,
+            "outcome": 1.0,
+            "p_high_state_now": 0.999647932987722,
+            "raw": 0.7954325117257939
+          },
+          {
+            "anchor": "2015-07-01",
+            "calibrated": 0.5743217865356345,
+            "climatology": 0.5417661097852029,
+            "known_labels": 40.0,
+            "month": "2015-06-01",
+            "orientation_corr": 0.7607,
+            "outcome": 0.0,
+            "p_high_state_now": 0.2900966474462401,
+            "raw": 0.713954726899756
+          },
+          {
+            "anchor": "2016-01-01",
+            "calibrated": 0.592235720170479,
+            "climatology": 0.5458823529411765,
+            "known_labels": 41.0,
+            "month": "2015-12-01",
+            "orientation_corr": 0.7872,
+            "outcome": 1.0,
+            "p_high_state_now": 0.003876764415365671,
+            "raw": 0.5256561924001951
+          },
+          {
+            "anchor": "2016-07-01",
+            "calibrated": 0.5848829505555833,
+            "climatology": 0.5475638051044084,
+            "known_labels": 42.0,
+            "month": "2016-06-01",
+            "orientation_corr": 0.7779,
+            "outcome": 1.0,
+            "p_high_state_now": 0.004118260424633133,
+            "raw": 0.3529992629456946
+          },
+          {
+            "anchor": "2017-01-01",
+            "calibrated": 0.5836151081779121,
+            "climatology": 0.5469107551487414,
+            "known_labels": 43.0,
+            "month": "2016-12-01",
+            "orientation_corr": 0.7804,
+            "outcome": 0.0,
+            "p_high_state_now": 0.003858797411174291,
+            "raw": 0.6506816142050593
+          },
+          {
+            "anchor": "2017-07-01",
+            "calibrated": 0.5834544988780884,
+            "climatology": 0.5507900677200903,
+            "known_labels": 44.0,
+            "month": "2017-06-01",
+            "orientation_corr": 0.78,
+            "outcome": 0.0,
+            "p_high_state_now": 0.005730410847626075,
+            "raw": 0.8130058367377345
+          },
+          {
+            "anchor": "2018-01-01",
+            "calibrated": 0.5790327948928643,
+            "climatology": 0.5478841870824054,
+            "known_labels": 45.0,
+            "month": "2017-12-01",
+            "orientation_corr": 0.7772,
+            "outcome": 1.0,
+            "p_high_state_now": 0.003711660782578566,
+            "raw": 0.6675895151008402
+          },
+          {
+            "anchor": "2018-07-01",
+            "calibrated": 0.582119081519452,
+            "climatology": 0.545054945054945,
+            "known_labels": 46.0,
+            "month": "2018-06-01",
+            "orientation_corr": 0.7807,
+            "outcome": 0.0,
+            "p_high_state_now": 0.003548821220278448,
+            "raw": 0.3616450616631034
+          },
+          {
+            "anchor": "2019-01-01",
+            "calibrated": 0.5647661363001651,
+            "climatology": 0.5379609544468547,
+            "known_labels": 47.0,
+            "month": "2018-12-01",
+            "orientation_corr": 0.7769,
+            "outcome": 1.0,
+            "p_high_state_now": 0.003317337985009816,
+            "raw": 0.4636077141298059
+          },
+          {
+            "anchor": "2019-07-01",
+            "calibrated": 0.5591497680088591,
+            "climatology": 0.5374732334047109,
+            "known_labels": 48.0,
+            "month": "2019-06-01",
+            "orientation_corr": 0.7852,
+            "outcome": 1.0,
+            "p_high_state_now": 0.0039666088208803844,
+            "raw": 0.2788581660162335
+          },
+          {
+            "anchor": "2020-01-01",
+            "calibrated": 0.5812153042563318,
+            "climatology": 0.5412262156448203,
+            "known_labels": 49.0,
+            "month": "2019-12-01",
+            "orientation_corr": 0.7871,
+            "outcome": 0.0,
+            "p_high_state_now": 0.00971151458973142,
+            "raw": 0.1236791775091268
+          },
+          {
+            "anchor": "2020-07-01",
+            "calibrated": 0.55787600182618,
+            "climatology": 0.5407098121085595,
+            "known_labels": 50.0,
+            "month": "2020-06-01",
+            "orientation_corr": 0.9633,
+            "outcome": 1.0,
+            "p_high_state_now": 1.4663887858188435e-07,
+            "raw": 0.7102106898894417
+          },
+          {
+            "anchor": "2021-01-01",
+            "calibrated": 0.5529314115456888,
+            "climatology": 0.5402061855670103,
+            "known_labels": 51.0,
+            "month": "2020-12-01",
+            "orientation_corr": 0.964,
+            "outcome": 1.0,
+            "p_high_state_now": 0.8994565164411866,
+            "raw": 0.5604852823912153
+          },
+          {
+            "anchor": "2021-07-01",
+            "calibrated": 0.5729987130122276,
+            "climatology": 0.5478615071283096,
+            "known_labels": 52.0,
+            "month": "2021-06-01",
+            "orientation_corr": 0.9618,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9934857746467194,
+            "raw": 0.7566796083768864
+          },
+          {
+            "anchor": "2022-01-01",
+            "calibrated": 0.5731578869398433,
+            "climatology": 0.5432595573440644,
+            "known_labels": 53.0,
+            "month": "2021-12-01",
+            "orientation_corr": 0.9618,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9980650267214565,
+            "raw": 0.44863567840871366
+          },
+          {
+            "anchor": "2022-07-01",
+            "calibrated": 0.5996333109332511,
+            "climatology": 0.5526838966202783,
+            "known_labels": 54.0,
+            "month": "2022-06-01",
+            "orientation_corr": 0.9603,
+            "outcome": 0.0,
+            "p_high_state_now": 0.99810813245194,
+            "raw": 0.46797519231773904
+          },
+          {
+            "anchor": "2023-01-01",
+            "calibrated": 0.5799037272390363,
+            "climatology": 0.5461689587426326,
+            "known_labels": 55.0,
+            "month": "2022-12-01",
+            "orientation_corr": 0.9575,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9955338678264427,
+            "raw": 0.7163825687437684
+          },
+          {
+            "anchor": "2023-07-01",
+            "calibrated": 0.5573538157524641,
+            "climatology": 0.541747572815534,
+            "known_labels": 56.0,
+            "month": "2023-06-01",
+            "orientation_corr": 0.9591,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9979246827266527,
+            "raw": 0.48206185567717946
+          },
+          {
+            "anchor": "2024-01-01",
+            "calibrated": 0.5614585666081601,
+            "climatology": 0.5412667946257198,
+            "known_labels": 57.0,
+            "month": "2023-12-01",
+            "orientation_corr": 0.9615,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9966566822355382,
+            "raw": 0.6546331579586532
+          },
+          {
+            "anchor": "2024-07-01",
+            "calibrated": 0.5782500814635196,
+            "climatology": 0.540796963946869,
+            "known_labels": 58.0,
+            "month": "2024-06-01",
+            "orientation_corr": 0.9621,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9612420684809759,
+            "raw": 0.8622246781774245
+          },
+          {
+            "anchor": "2025-01-01",
+            "calibrated": 0.5688716925142402,
+            "climatology": 0.5384615384615384,
+            "known_labels": 59.0,
+            "month": "2024-12-01",
+            "orientation_corr": 0.962,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9725780213428394,
+            "raw": 0.8514451761159207
+          },
+          {
+            "anchor": "2025-07-01",
+            "calibrated": 0.5767469498142925,
+            "climatology": 0.5398886827458256,
+            "known_labels": 60.0,
+            "month": "2025-06-01",
+            "orientation_corr": 0.9628,
+            "outcome": 0.0,
+            "p_high_state_now": 0.967868450584689,
+            "raw": 0.8669961606717427
+          },
+          {
+            "anchor": "2026-01-01",
+            "calibrated": 0.5677807061335934,
+            "climatology": 0.5387453874538746,
+            "known_labels": 61.0,
+            "month": "2025-12-01",
+            "orientation_corr": 0.9632,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9880314874477647,
+            "raw": 0.8233109246123351
           }
         ],
-        "skill": -0.738908,
         "skipped": {},
-        "verdict": "WORSE THAN CLIMATOLOGY (CI excludes zero)"
+        "split": {
+          "confirmation": [
+            "2016-07-01",
+            "2026-01-01"
+          ],
+          "development": [
+            "2001-07-01",
+            "2016-01-01"
+          ]
+        },
+        "verdict": "NO SIGNIFICANT DIFFERENCE FROM CLIMATOLOGY (CI spans zero)"
       },
       "domain_pca": {
-        "ci": {
-          "hi": 0.302033,
-          "lo": -0.817139,
-          "n_anchors": 3.0,
-          "n_boot": 2000.0,
-          "point": -0.11239
+        "alpha_per_comparison": 0.0125,
+        "anchors_considered": 63.0,
+        "burn_in": {
+          "1995-01-01": "calibration burn-in: 0 published earlier labels",
+          "1995-07-01": "calibration burn-in: 1 published earlier labels",
+          "1996-01-01": "calibration burn-in: 1 published earlier labels",
+          "1996-07-01": "calibration burn-in: 3 published earlier labels",
+          "1997-01-01": "calibration burn-in: 4 published earlier labels",
+          "1997-07-01": "calibration burn-in: 5 published earlier labels",
+          "1998-01-01": "calibration burn-in: 6 published earlier labels",
+          "1998-07-01": "calibration burn-in: 7 published earlier labels",
+          "1999-01-01": "calibration burn-in: 8 published earlier labels",
+          "1999-07-01": "calibration burn-in: 9 published earlier labels",
+          "2000-01-01": "calibration burn-in: 10 published earlier labels",
+          "2000-07-01": "calibration burn-in: 11 published earlier labels"
         },
-        "climatology_brier": 0.220758,
-        "horizon_months": 6.0,
-        "model_brier": 0.333148,
-        "n_anchors": 3.0,
-        "readings": [
+        "confirmation": {
+          "ci": {
+            "block": 3.0,
+            "hi": 0.004934,
+            "level": 0.9875,
+            "lo": -0.016064,
+            "n_anchors": 21.0,
+            "n_boot": 2000.0,
+            "point": -0.006134
+          },
+          "climatology_brier": 0.245995,
+          "events": 12.0,
+          "model_brier": 0.252129,
+          "n_anchors": 21.0,
+          "non_events": 9.0,
+          "readings": [
+            {
+              "as_of": "2016-01-01",
+              "climatology_probability": 0.5459,
+              "model_probability": 0.4997,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2016-07-01",
+              "climatology_probability": 0.5476,
+              "model_probability": 0.5137,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2017-01-01",
+              "climatology_probability": 0.5469,
+              "model_probability": 0.5295,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2017-07-01",
+              "climatology_probability": 0.5508,
+              "model_probability": 0.5114,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2018-01-01",
+              "climatology_probability": 0.5479,
+              "model_probability": 0.5244,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2018-07-01",
+              "climatology_probability": 0.5451,
+              "model_probability": 0.5114,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2019-01-01",
+              "climatology_probability": 0.538,
+              "model_probability": 0.5,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2019-07-01",
+              "climatology_probability": 0.5375,
+              "model_probability": 0.5116,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2020-01-01",
+              "climatology_probability": 0.5412,
+              "model_probability": 0.5228,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2020-07-01",
+              "climatology_probability": 0.5407,
+              "model_probability": 0.5079,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2021-01-01",
+              "climatology_probability": 0.5402,
+              "model_probability": 0.52,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2021-07-01",
+              "climatology_probability": 0.5479,
+              "model_probability": 0.5323,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2022-01-01",
+              "climatology_probability": 0.5433,
+              "model_probability": 0.4903,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2022-07-01",
+              "climatology_probability": 0.5527,
+              "model_probability": 0.5277,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2023-01-01",
+              "climatology_probability": 0.5462,
+              "model_probability": 0.522,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2023-07-01",
+              "climatology_probability": 0.5417,
+              "model_probability": 0.503,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2024-01-01",
+              "climatology_probability": 0.5413,
+              "model_probability": 0.5212,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2024-07-01",
+              "climatology_probability": 0.5408,
+              "model_probability": 0.4687,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2025-01-01",
+              "climatology_probability": 0.5385,
+              "model_probability": 0.4908,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2025-07-01",
+              "climatology_probability": 0.5399,
+              "model_probability": 0.5313,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2026-01-01",
+              "climatology_probability": 0.5387,
+              "model_probability": 0.534,
+              "outcome": 1.0
+            }
+          ],
+          "skill": -0.006134,
+          "skill_diff_lag1_autocorr": -0.3079,
+          "sufficiency": {
+            "min_events": 6.0,
+            "min_n": 20.0,
+            "min_non_events": 6.0
+          },
+          "verdict": "NO SIGNIFICANT DIFFERENCE FROM CLIMATOLOGY (CI spans zero)"
+        },
+        "development": {
+          "ci": {
+            "block": 3.0,
+            "hi": 0.002166,
+            "level": 0.9875,
+            "lo": -0.056643,
+            "n_anchors": 30.0,
+            "n_boot": 2000.0,
+            "point": -0.02736
+          },
+          "climatology_brier": 0.260873,
+          "events": 13.0,
+          "model_brier": 0.288232,
+          "n_anchors": 30.0,
+          "non_events": 17.0,
+          "readings": [
+            {
+              "as_of": "2001-01-01",
+              "climatology_probability": 0.5551,
+              "model_probability": 0.585,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2001-07-01",
+              "climatology_probability": 0.5578,
+              "model_probability": 0.6305,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2002-01-01",
+              "climatology_probability": 0.5525,
+              "model_probability": 0.6841,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2002-07-01",
+              "climatology_probability": 0.5551,
+              "model_probability": 0.6077,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2003-01-01",
+              "climatology_probability": 0.5539,
+              "model_probability": 0.4591,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2003-07-01",
+              "climatology_probability": 0.5564,
+              "model_probability": 0.5683,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2004-01-01",
+              "climatology_probability": 0.5658,
+              "model_probability": 0.7178,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2004-07-01",
+              "climatology_probability": 0.5645,
+              "model_probability": 0.2352,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2005-01-01",
+              "climatology_probability": 0.5631,
+              "model_probability": 0.366,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2005-07-01",
+              "climatology_probability": 0.5652,
+              "model_probability": 0.3751,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2006-01-01",
+              "climatology_probability": 0.5639,
+              "model_probability": 0.4422,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2006-07-01",
+              "climatology_probability": 0.5627,
+              "model_probability": 0.4673,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2007-01-01",
+              "climatology_probability": 0.5521,
+              "model_probability": 0.6203,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2007-07-01",
+              "climatology_probability": 0.5449,
+              "model_probability": 0.6305,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2008-01-01",
+              "climatology_probability": 0.535,
+              "model_probability": 0.567,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2008-07-01",
+              "climatology_probability": 0.5224,
+              "model_probability": 0.5441,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2009-01-01",
+              "climatology_probability": 0.5161,
+              "model_probability": 0.5057,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2009-07-01",
+              "climatology_probability": 0.5072,
+              "model_probability": 0.3618,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2010-01-01",
+              "climatology_probability": 0.5156,
+              "model_probability": 0.4802,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2010-07-01",
+              "climatology_probability": 0.5209,
+              "model_probability": 0.5149,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2011-01-01",
+              "climatology_probability": 0.5123,
+              "model_probability": 0.394,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2011-07-01",
+              "climatology_probability": 0.5121,
+              "model_probability": 0.4291,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2012-01-01",
+              "climatology_probability": 0.5172,
+              "model_probability": 0.4435,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2012-07-01",
+              "climatology_probability": 0.5248,
+              "model_probability": 0.4432,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2013-01-01",
+              "climatology_probability": 0.5321,
+              "model_probability": 0.4622,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2013-07-01",
+              "climatology_probability": 0.5367,
+              "model_probability": 0.4441,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2014-01-01",
+              "climatology_probability": 0.5337,
+              "model_probability": 0.4654,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2014-07-01",
+              "climatology_probability": 0.5381,
+              "model_probability": 0.4859,
+              "outcome": 0.0
+            },
+            {
+              "as_of": "2015-01-01",
+              "climatology_probability": 0.54,
+              "model_probability": 0.5014,
+              "outcome": 1.0
+            },
+            {
+              "as_of": "2015-07-01",
+              "climatology_probability": 0.5418,
+              "model_probability": 0.5193,
+              "outcome": 0.0
+            }
+          ],
+          "skill": -0.02736,
+          "skill_diff_lag1_autocorr": -0.3551,
+          "sufficiency": {
+            "min_events": 6.0,
+            "min_n": 20.0,
+            "min_non_events": 6.0
+          },
+          "verdict": "NO SIGNIFICANT DIFFERENCE FROM CLIMATOLOGY (CI spans zero)"
+        },
+        "rows": [
           {
-            "as_of": "2010-01-01",
-            "climatology_probability": 0.5496,
-            "model_probability": 0.0,
-            "outcome": 0.0
+            "anchor": "2001-01-01",
+            "calibrated": 0.5850232628638123,
+            "climatology": 0.5551020408163265,
+            "known_labels": 12.0,
+            "month": "2000-10-01",
+            "orientation_corr": 0.9713,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9995417412116518,
+            "raw": 0.3678140457043234
           },
           {
-            "as_of": "2016-01-01",
-            "climatology_probability": 0.573,
-            "model_probability": 0.0003,
-            "outcome": 1.0
+            "anchor": "2001-07-01",
+            "calibrated": 0.630461126132256,
+            "climatology": 0.5577689243027888,
+            "known_labels": 13.0,
+            "month": "2001-05-01",
+            "orientation_corr": 0.9704,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9997045612853607,
+            "raw": 0.18344043796179071
           },
           {
-            "as_of": "2022-01-01",
-            "climatology_probability": 0.5782,
-            "model_probability": 0.9981,
-            "outcome": 1.0
+            "anchor": "2002-01-01",
+            "calibrated": 0.6840565783141949,
+            "climatology": 0.5525291828793775,
+            "known_labels": 14.0,
+            "month": "2001-11-01",
+            "orientation_corr": 0.9707,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9997025520899129,
+            "raw": 0.1610970142662904
+          },
+          {
+            "anchor": "2002-07-01",
+            "calibrated": 0.6076892082532322,
+            "climatology": 0.5551330798479087,
+            "known_labels": 15.0,
+            "month": "2002-05-01",
+            "orientation_corr": 0.9708,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9997256456169132,
+            "raw": 0.054692121741461895
+          },
+          {
+            "anchor": "2003-01-01",
+            "calibrated": 0.45908858848787854,
+            "climatology": 0.5539033457249071,
+            "known_labels": 16.0,
+            "month": "2002-11-01",
+            "orientation_corr": 0.9712,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9991848409101991,
+            "raw": 0.0656736120814595
+          },
+          {
+            "anchor": "2003-07-01",
+            "calibrated": 0.5683079670672698,
+            "climatology": 0.5563636363636364,
+            "known_labels": 17.0,
+            "month": "2003-05-01",
+            "orientation_corr": 0.9716,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9991894347361844,
+            "raw": 0.04012249355802671
+          },
+          {
+            "anchor": "2004-01-01",
+            "calibrated": 0.7177537012887515,
+            "climatology": 0.5658362989323843,
+            "known_labels": 18.0,
+            "month": "2003-11-01",
+            "orientation_corr": 0.9732,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9998303464037815,
+            "raw": 0.0017432926780647092
+          },
+          {
+            "anchor": "2004-07-01",
+            "calibrated": 0.23515016584013873,
+            "climatology": 0.5644599303135889,
+            "known_labels": 19.0,
+            "month": "2004-05-01",
+            "orientation_corr": 0.9745,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9999279225128811,
+            "raw": 0.0035185687533284375
+          },
+          {
+            "anchor": "2005-01-01",
+            "calibrated": 0.36595754774218425,
+            "climatology": 0.5631399317406144,
+            "known_labels": 20.0,
+            "month": "2004-11-01",
+            "orientation_corr": 0.9755,
+            "outcome": 1.0,
+            "p_high_state_now": 0.023902552528330838,
+            "raw": 0.05192956534219699
+          },
+          {
+            "anchor": "2005-07-01",
+            "calibrated": 0.37507098017718593,
+            "climatology": 0.5652173913043478,
+            "known_labels": 21.0,
+            "month": "2005-05-01",
+            "orientation_corr": 0.9768,
+            "outcome": 1.0,
+            "p_high_state_now": 0.000317565676060538,
+            "raw": 0.02829645157236337
+          },
+          {
+            "anchor": "2006-01-01",
+            "calibrated": 0.4421855288792396,
+            "climatology": 0.5639344262295082,
+            "known_labels": 22.0,
+            "month": "2005-11-01",
+            "orientation_corr": 0.9783,
+            "outcome": 0.0,
+            "p_high_state_now": 4.120675826656315e-05,
+            "raw": 0.031345171236694745
+          },
+          {
+            "anchor": "2006-07-01",
+            "calibrated": 0.46731949253525834,
+            "climatology": 0.5627009646302251,
+            "known_labels": 23.0,
+            "month": "2006-05-01",
+            "orientation_corr": 0.9792,
+            "outcome": 0.0,
+            "p_high_state_now": 0.002148962246080223,
+            "raw": 0.07698044162625303
+          },
+          {
+            "anchor": "2007-01-01",
+            "calibrated": 0.6202963175904973,
+            "climatology": 0.5520504731861199,
+            "known_labels": 24.0,
+            "month": "2006-11-01",
+            "orientation_corr": 0.9794,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9678978085061406,
+            "raw": 0.5028893369686539
+          },
+          {
+            "anchor": "2007-07-01",
+            "calibrated": 0.6304919530089741,
+            "climatology": 0.544891640866873,
+            "known_labels": 25.0,
+            "month": "2007-05-01",
+            "orientation_corr": 0.9795,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9914964944385606,
+            "raw": 0.7244619803321896
+          },
+          {
+            "anchor": "2008-01-01",
+            "calibrated": 0.5669527512753909,
+            "climatology": 0.5349544072948328,
+            "known_labels": 26.0,
+            "month": "2007-11-01",
+            "orientation_corr": 0.9797,
+            "outcome": 0.0,
+            "p_high_state_now": 1.9409928810811896e-05,
+            "raw": 0.7318349499231542
+          },
+          {
+            "anchor": "2008-07-01",
+            "calibrated": 0.544091467625496,
+            "climatology": 0.5223880597014925,
+            "known_labels": 27.0,
+            "month": "2008-05-01",
+            "orientation_corr": 0.981,
+            "outcome": 0.0,
+            "p_high_state_now": 2.084663680174454e-11,
+            "raw": 0.8929817745585511
+          },
+          {
+            "anchor": "2009-01-01",
+            "calibrated": 0.5056774294083097,
+            "climatology": 0.5161290322580645,
+            "known_labels": 28.0,
+            "month": "2008-11-01",
+            "orientation_corr": 0.9831,
+            "outcome": 0.0,
+            "p_high_state_now": 5.776986787559606e-33,
+            "raw": 0.995001086877977
+          },
+          {
+            "anchor": "2009-07-01",
+            "calibrated": 0.36175237059927917,
+            "climatology": 0.5072046109510087,
+            "known_labels": 29.0,
+            "month": "2009-05-01",
+            "orientation_corr": 0.9869,
+            "outcome": 1.0,
+            "p_high_state_now": 4.85782923361703e-37,
+            "raw": 0.9931110996114523
+          },
+          {
+            "anchor": "2010-01-01",
+            "calibrated": 0.48018087803930787,
+            "climatology": 0.5155807365439093,
+            "known_labels": 30.0,
+            "month": "2009-11-01",
+            "orientation_corr": 0.9882,
+            "outcome": 0.0,
+            "p_high_state_now": 7.317833187765294e-27,
+            "raw": 0.9722207934612855
+          },
+          {
+            "anchor": "2010-07-01",
+            "calibrated": 0.5148806585516041,
+            "climatology": 0.520891364902507,
+            "known_labels": 31.0,
+            "month": "2010-05-01",
+            "orientation_corr": 0.9961,
+            "outcome": 0.0,
+            "p_high_state_now": 6.024978571345387e-13,
+            "raw": 0.9048159049881692
+          },
+          {
+            "anchor": "2011-01-01",
+            "calibrated": 0.39397577874563744,
+            "climatology": 0.5123287671232877,
+            "known_labels": 32.0,
+            "month": "2010-11-01",
+            "orientation_corr": 0.9964,
+            "outcome": 1.0,
+            "p_high_state_now": 3.118211597929161e-13,
+            "raw": 0.8780950751406011
+          },
+          {
+            "anchor": "2011-07-01",
+            "calibrated": 0.4290725813222407,
+            "climatology": 0.5121293800539084,
+            "known_labels": 33.0,
+            "month": "2011-05-01",
+            "orientation_corr": 0.9945,
+            "outcome": 1.0,
+            "p_high_state_now": 5.666430589050058e-10,
+            "raw": 0.8550114514642893
+          },
+          {
+            "anchor": "2012-01-01",
+            "calibrated": 0.44353679294065734,
+            "climatology": 0.5172413793103449,
+            "known_labels": 34.0,
+            "month": "2011-10-01",
+            "orientation_corr": 0.9943,
+            "outcome": 1.0,
+            "p_high_state_now": 4.884963154859392e-09,
+            "raw": 0.45468568860594916
+          },
+          {
+            "anchor": "2012-07-01",
+            "calibrated": 0.44324459882450623,
+            "climatology": 0.5248041775456919,
+            "known_labels": 35.0,
+            "month": "2012-04-01",
+            "orientation_corr": 0.9937,
+            "outcome": 1.0,
+            "p_high_state_now": 2.912046967815665e-07,
+            "raw": 0.10396399077709924
+          },
+          {
+            "anchor": "2013-01-01",
+            "calibrated": 0.46215737218360303,
+            "climatology": 0.532133676092545,
+            "known_labels": 36.0,
+            "month": "2012-10-01",
+            "orientation_corr": 0.9935,
+            "outcome": 0.0,
+            "p_high_state_now": 1.2709973702457322e-05,
+            "raw": 0.06000771814342149
+          },
+          {
+            "anchor": "2013-07-01",
+            "calibrated": 0.4441152232877199,
+            "climatology": 0.5367088607594936,
+            "known_labels": 37.0,
+            "month": "2013-05-01",
+            "orientation_corr": 0.9929,
+            "outcome": 1.0,
+            "p_high_state_now": 1.548853726678986e-05,
+            "raw": 0.08579487910137562
+          },
+          {
+            "anchor": "2014-01-01",
+            "calibrated": 0.4654244196008168,
+            "climatology": 0.5336658354114713,
+            "known_labels": 38.0,
+            "month": "2013-10-01",
+            "orientation_corr": 0.993,
+            "outcome": 1.0,
+            "p_high_state_now": 3.406924108026463e-05,
+            "raw": 0.08464881155789894
+          },
+          {
+            "anchor": "2014-07-01",
+            "calibrated": 0.48593985374197535,
+            "climatology": 0.538083538083538,
+            "known_labels": 39.0,
+            "month": "2014-05-01",
+            "orientation_corr": 0.9925,
+            "outcome": 0.0,
+            "p_high_state_now": 1.9805466404671223e-05,
+            "raw": 0.14302113145152293
+          },
+          {
+            "anchor": "2015-01-01",
+            "calibrated": 0.5014257052941107,
+            "climatology": 0.5399515738498789,
+            "known_labels": 40.0,
+            "month": "2014-10-01",
+            "orientation_corr": 0.9923,
+            "outcome": 1.0,
+            "p_high_state_now": 8.840207347147738e-05,
+            "raw": 0.11462275013208703
+          },
+          {
+            "anchor": "2015-07-01",
+            "calibrated": 0.519316016066608,
+            "climatology": 0.5417661097852029,
+            "known_labels": 41.0,
+            "month": "2015-04-01",
+            "orientation_corr": 0.9921,
+            "outcome": 0.0,
+            "p_high_state_now": 0.0021721169048818548,
+            "raw": 0.06267140009859064
+          },
+          {
+            "anchor": "2016-01-01",
+            "calibrated": 0.49971912457486517,
+            "climatology": 0.5458823529411765,
+            "known_labels": 42.0,
+            "month": "2015-10-01",
+            "orientation_corr": 0.9918,
+            "outcome": 1.0,
+            "p_high_state_now": 0.0002802383527205338,
+            "raw": 0.12327822606505535
+          },
+          {
+            "anchor": "2016-07-01",
+            "calibrated": 0.5136646324887355,
+            "climatology": 0.5475638051044084,
+            "known_labels": 43.0,
+            "month": "2016-04-01",
+            "orientation_corr": 0.9916,
+            "outcome": 1.0,
+            "p_high_state_now": 0.00034835701685997835,
+            "raw": 0.13535990820969188
+          },
+          {
+            "anchor": "2017-01-01",
+            "calibrated": 0.5295420354587194,
+            "climatology": 0.5469107551487414,
+            "known_labels": 44.0,
+            "month": "2016-10-01",
+            "orientation_corr": 0.9913,
+            "outcome": 0.0,
+            "p_high_state_now": 0.008288744320443901,
+            "raw": 0.06879025154657598
+          },
+          {
+            "anchor": "2017-07-01",
+            "calibrated": 0.5114154764129587,
+            "climatology": 0.5507900677200903,
+            "known_labels": 45.0,
+            "month": "2017-04-01",
+            "orientation_corr": 0.9912,
+            "outcome": 1.0,
+            "p_high_state_now": 0.0009135792408359689,
+            "raw": 0.1543080472031589
+          },
+          {
+            "anchor": "2018-01-01",
+            "calibrated": 0.5244487555088327,
+            "climatology": 0.5478841870824054,
+            "known_labels": 46.0,
+            "month": "2017-10-01",
+            "orientation_corr": 0.9912,
+            "outcome": 1.0,
+            "p_high_state_now": 0.00843617280403619,
+            "raw": 0.08673126741402912
+          },
+          {
+            "anchor": "2018-07-01",
+            "calibrated": 0.5113805490421597,
+            "climatology": 0.545054945054945,
+            "known_labels": 47.0,
+            "month": "2018-04-01",
+            "orientation_corr": 0.991,
+            "outcome": 0.0,
+            "p_high_state_now": 0.09978552390301869,
+            "raw": 0.1734319395279429
+          },
+          {
+            "anchor": "2019-01-01",
+            "calibrated": 0.5,
+            "climatology": 0.5379609544468547,
+            "known_labels": 48.0,
+            "month": "2018-10-01",
+            "orientation_corr": 0.9909,
+            "outcome": 1.0,
+            "p_high_state_now": 0.004266591851620124,
+            "raw": 0.16010242099244337
+          },
+          {
+            "anchor": "2019-07-01",
+            "calibrated": 0.5116269238418449,
+            "climatology": 0.5374732334047109,
+            "known_labels": 49.0,
+            "month": "2019-04-01",
+            "orientation_corr": 0.9909,
+            "outcome": 1.0,
+            "p_high_state_now": 0.007889352940581257,
+            "raw": 0.11443359703283482
+          },
+          {
+            "anchor": "2020-01-01",
+            "calibrated": 0.5227708027614043,
+            "climatology": 0.5412262156448203,
+            "known_labels": 50.0,
+            "month": "2019-10-01",
+            "orientation_corr": 0.9908,
+            "outcome": 0.0,
+            "p_high_state_now": 0.022805702149292284,
+            "raw": 0.13805672265135138
+          },
+          {
+            "anchor": "2020-07-01",
+            "calibrated": 0.5079145485212249,
+            "climatology": 0.5407098121085595,
+            "known_labels": 51.0,
+            "month": "2020-04-01",
+            "orientation_corr": 0.9907,
+            "outcome": 1.0,
+            "p_high_state_now": 0.0022315073244002885,
+            "raw": 0.537737546363247
+          },
+          {
+            "anchor": "2021-01-01",
+            "calibrated": 0.5200490345312366,
+            "climatology": 0.5402061855670103,
+            "known_labels": 52.0,
+            "month": "2020-10-01",
+            "orientation_corr": 0.9906,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9273839007201564,
+            "raw": 0.7043930916965759
+          },
+          {
+            "anchor": "2021-07-01",
+            "calibrated": 0.5322911117298282,
+            "climatology": 0.5478615071283096,
+            "known_labels": 53.0,
+            "month": "2021-04-01",
+            "orientation_corr": 0.9907,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9999185323854081,
+            "raw": 0.536999881681974
+          },
+          {
+            "anchor": "2022-01-01",
+            "calibrated": 0.49034034779221236,
+            "climatology": 0.5432595573440644,
+            "known_labels": 54.0,
+            "month": "2021-10-01",
+            "orientation_corr": 0.9904,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9981032552958429,
+            "raw": 0.7291847244011145
+          },
+          {
+            "anchor": "2022-07-01",
+            "calibrated": 0.5277257251380663,
+            "climatology": 0.5526838966202783,
+            "known_labels": 55.0,
+            "month": "2022-04-01",
+            "orientation_corr": 0.9902,
+            "outcome": 0.0,
+            "p_high_state_now": 0.999552021033217,
+            "raw": 0.33692151736231807
+          },
+          {
+            "anchor": "2023-01-01",
+            "calibrated": 0.522047696752606,
+            "climatology": 0.5461689587426326,
+            "known_labels": 56.0,
+            "month": "2022-10-01",
+            "orientation_corr": 0.9902,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9970618270055587,
+            "raw": 0.807135103805975
+          },
+          {
+            "anchor": "2023-07-01",
+            "calibrated": 0.5029784960181628,
+            "climatology": 0.541747572815534,
+            "known_labels": 57.0,
+            "month": "2023-04-01",
+            "orientation_corr": 0.9902,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9960439027477664,
+            "raw": 0.8239571192828846
+          },
+          {
+            "anchor": "2024-01-01",
+            "calibrated": 0.5212158190085826,
+            "climatology": 0.5412667946257198,
+            "known_labels": 58.0,
+            "month": "2023-10-01",
+            "orientation_corr": 0.9903,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9888542168252198,
+            "raw": 0.8326275312599121
+          },
+          {
+            "anchor": "2024-07-01",
+            "calibrated": 0.4687337090926928,
+            "climatology": 0.540796963946869,
+            "known_labels": 59.0,
+            "month": "2024-04-01",
+            "orientation_corr": 0.9904,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9908890787539908,
+            "raw": 0.8035510621705491
+          },
+          {
+            "anchor": "2025-01-01",
+            "calibrated": 0.49079743584314167,
+            "climatology": 0.5384615384615384,
+            "known_labels": 60.0,
+            "month": "2024-10-01",
+            "orientation_corr": 0.9903,
+            "outcome": 1.0,
+            "p_high_state_now": 0.9957943274524432,
+            "raw": 0.6915329862201964
+          },
+          {
+            "anchor": "2025-07-01",
+            "calibrated": 0.5313335272877944,
+            "climatology": 0.5398886827458256,
+            "known_labels": 61.0,
+            "month": "2025-04-01",
+            "orientation_corr": 0.9904,
+            "outcome": 0.0,
+            "p_high_state_now": 0.9954849758914297,
+            "raw": 0.719891809395786
+          },
+          {
+            "anchor": "2026-01-01",
+            "calibrated": 0.5339713913227488,
+            "climatology": 0.5387453874538746,
+            "known_labels": 61.0,
+            "month": "2025-08-01",
+            "orientation_corr": 0.9904,
+            "outcome": 1.0,
+            "p_high_state_now": 0.991454404448949,
+            "raw": 0.8304853411675955
           }
         ],
-        "skill": -0.11239,
         "skipped": {},
+        "split": {
+          "confirmation": [
+            "2016-01-01",
+            "2026-01-01"
+          ],
+          "development": [
+            "2001-01-01",
+            "2015-07-01"
+          ]
+        },
         "verdict": "NO SIGNIFICANT DIFFERENCE FROM CLIMATOLOGY (CI spans zero)"
       }
     }

@@ -25,9 +25,9 @@ on 2024-03-15 it is 311.054 (February), because February printed on the 12th.
 | **Competing risks (Aalen-Johansen)** | **PASSES (v2, censor-aware holdout) — on earthquake aftershock data** | **Yes** — cumulative incidence by horizon, for that population. As a news-book prior it is a cross-domain transfer, and the app says so. |
 | **Conflict cascade (GDELT Hawkes)** | **PASSES — 15/20 countries, shape unverified** | Partly — that escalation clusters, yes. Not the branching ratio to three digits. |
 | Game theory (Nash + Monte Carlo) | **Exact in `ace/`; the app's pure-strategy scan had its axes inverted until PR #5 A01** (9 of 10 shipped matrices solved wrong) — fixed and checked against unilateral deviation | Yes — equilibria now verified against the definition for every shipped matrix. Payoffs remain an assumption. |
-| Regime (Markov switching) | **Descriptive, provisional. On as-of vintages 3 of 10 factors carry LEVEL regimes (housing, liquidity, financial); the DFM behind them reports non-convergence** | Not until the climatology test (WP3 exit) passes. |
+| Regime (Markov switching) | **Descriptive. On as-of vintages 3 of 10 factors carry LEVEL regimes (housing, liquidity, financial), now on a converged DFM. WP3 exit test: no skill over climatology** (housing: no significant difference on untouched confirmation; financial: inconclusive, too few anchors) | **No** as a forecast — the exit test did not pass. The regime reading stays a description. |
 | **Macro data registry** | **208/208 series live**, 256-concept target universe, 39% covered before this work | N/A — infrastructure, not a model. |
-| **Static PCA (global + domain)** | **Domain PCA works on 12/12 blocks. A single GLOBAL fit across the full 164-series breadth does not** (32 overlapping months, 8.8% variance) | Domain loadings — yes, as interpretation alongside the DFM. A flat global PCA factor — no. |
+| **Static PCA (global + domain)** | **Domain PCA works on 12/12 blocks. A single GLOBAL fit across the full 164-series breadth does not** (30 overlapping months, PC1 11.6% of variance on the as-of rebuild) | Domain loadings — yes, as interpretation alongside the DFM. A flat global PCA factor — no. |
 | Historical analogs | **Validated, descriptive** | Yes — as a distribution of what followed similar states. |
 | **Growth/inflation quad** | **Classification validated; positioning FAILED 0/6; vol forecast FAILED 0/6** | Yes, as an environment label with its data lag, margin and revision survival stated. **No** as a positioning signal and **no** as a risk-sizing signal. |
 | **Quad revision risk** | **Measured (v2, as-of vintages)** | **Yes** — 87.8% of real-time labels survived revision (74.2% under first-print vintages, which measured something else), and the per-margin rates are calibrated. |
@@ -54,32 +54,35 @@ previous table was measured on first-print-forever vintages; the answer moved.
 
 | Factor | Mean buys (BIC) | Mean separation | Variance ratio | State durations | Verdict |
 |---|---:|---:|---:|---|---|
-| housing | +155.6 | 2.06 | 5.4x | 78 / 45 mo | **level regime** |
-| liquidity | +97.9 | 1.42 | 22x | 112 / 65 mo | **level regime** (was a volatility regime) |
-| financial | +38.4 | 1.41 | 11x | 43 / 12 mo | **level regime** |
-| growth | −4.5 | 0.34 | 11x | 60 / 3.9 mo | volatility regime |
+| housing | +155.6 | 2.06 | 5.4x | 77 / 45 mo | **level regime** |
+| liquidity | +90.5 | 1.43 | 22x | 116 / 65 mo | **level regime** (was a volatility regime) |
+| financial | +44.3 | 1.49 | 10x | 44 / 11 mo | **level regime** |
+| growth | −4.5 | 0.34 | 11x | 59 / 3.8 mo | volatility regime |
+| global | −5.0 | 0.21 | 139x | 57 / 7.2 mo | volatility regime |
 | credit | −5.1 | 0.28 | 38x | 48 / 3.0 mo | volatility regime |
-| global | −5.0 | 0.21 | 139x | 58 / 7.3 mo | volatility regime |
-| manufacturing | −6.0 | 0.10 | 51x | 61 / 10 mo | volatility regime (was degenerate) |
-| inflation | −6.1 | 0.05 | 8.3x | 18 / 8.8 mo | volatility regime |
-| labor | −6.2 | 0.11 | 269x | 100 / 2.5 mo | volatility regime |
-| consumer | −6.3 | 0.04 | 161x | 28 / 2.7 mo | volatility regime |
+| manufacturing | −5.2 | 0.18 | 76x | 73 / 11 mo | volatility regime (was degenerate) |
+| inflation | −6.1 | 0.05 | 8.2x | 18 / 8.7 mo | volatility regime |
+| labor | −6.2 | 0.11 | 266x | 100 / 2.5 mo | volatility regime |
+| consumer | −6.3 | 0.04 | 157x | 27 / 2.9 mo | volatility regime |
 
 A negative "mean buys" means switching variance ALONE is the better model.
 Seven of the ten factors are there. Housing and financial conditions keep
 their level regimes; liquidity gains one — on first prints the Fed balance
 sheet and reserve series were read unrevised-forever, and the as-of reads move
-its separation from 0.26 to 1.42 SD. **The DFM behind both panels reports
-`converged: false`** under the corrected convergence reading (PR #5 A05), so
-these factor estimates are EM-limited and the table is provisional until the
-fit converges.
+its separation from 0.26 to 1.43 SD. **The DFM behind both panels now
+converges** (llf −33,751.4 on 89 series, −4,776.5 on 14). The first as-of run
+capped EM at 120 iterations and stopped at a criterion of 2.3e-6 against a
+1e-6 tolerance, which the corrected reading (PR #5 A05) rightly called
+unconverged. The cap is now 1,000 (EM stops as soon as it meets tolerance).
+Every verdict is the same as on the capped fit; the statistics above moved by
+at most 7 BIC points and 0.08 SD.
 
 **The same test on the panel the earlier finding was measured on.** Same as-of
 date, same code, same seeds; only the series differ.
 
 | Panel | Factors | Level regimes | Best mean separation |
 |---|---:|---|---:|
-| 15-series | 6 | **labor** (1.79 SD; was none) | 1.79 (labor) |
+| 14-series | 6 | **labor** (1.79 SD; was none) | 1.79 (labor) |
 | 89-series | 10 | **housing, liquidity, financial** | 2.06 (housing) |
 
 On first prints the small panel had no level regime at all; on as-of vintages
@@ -89,10 +92,51 @@ depends on which panel the labour block sits in is not a settled one.
 
 **What this permits.** The four-name growth/inflation taxonomy stays withheld:
 neither the growth nor the inflation factor supports a level-based name. The
-housing, liquidity and financial-conditions regimes are candidates for
-ENVIRONMENT LABELS with their probabilities — and only candidates: whether
-those probabilities beat climatology on Brier is the WP3 exit test, and
-nothing may drive a user-facing number until it passes.
+housing, liquidity and financial-conditions regimes were candidates for
+ENVIRONMENT LABELS with their probabilities. The WP3 exit test below asked
+whether those probabilities forecast anything better than climatology; they
+do not, so the regimes stay descriptive.
+
+### WP3 exit test (PR #5 B04): regime probabilities do not beat climatology
+
+`python -m ace.regime.level_regime_validation`, protocol `wp3-v2`, fixed
+before any score was computed. Artifact:
+`artifacts/reports/macro_level_regime_validation.json`, manifest sha256
+`54da8d9432b43540…` (it records the protocol, targets, anchors, splits, seed,
+per-series input hashes and git revision).
+
+- **Target.** An observable, not the latent factor. Housing: HOUST in month
+  m+6 above month m. Financial conditions: VIX in month m+6 above month m.
+  NFCI was the first choice but was not published before 2011; VIX was
+  picked on data availability before any score was seen. Both months must
+  exist exactly in the final vintage.
+- **Forecast.** Each semiannual anchor refits the factor (production DFM
+  block, or the comprehensive-panel domain PCA) on data published by then.
+  The factor is oriented against the as-of observable. The
+  switching-mean-and-variance model gives P(rise in 6 months) from its
+  filtered state and transition matrix. That probability is calibrated to
+  the observable event on earlier anchors whose labels had been published
+  (12-pair burn-in).
+- **Baseline.** Climatology is the up-share in the anchor's own vintage.
+- **Verdict.** Read on the later 40% of scored anchors only: at least 20
+  anchors with 6 events and 6 non-events, moving-block bootstrap, alpha
+  0.05/4 across the four comparisons.
+
+| Block · factor source | Scored (dev / conf) | Confirmation Brier: model vs climatology | Skill (98.75% CI) | Verdict |
+|---|---|---|---|---|
+| housing · DFM | 30 / 20 | 0.2533 vs 0.2485 | −0.0047 [−0.0158, +0.0053] | no significant difference |
+| housing · domain PCA | 30 / 21 | 0.2521 vs 0.2460 | −0.0061 [−0.0161, +0.0049] | no significant difference |
+| financial · DFM | 25 / 18 | 0.2728 vs 0.2439 | −0.0289 (no CI) | inconclusive: 18 < 20 anchors |
+| financial · domain PCA | 7 / 5 | 0.2541 vs 0.2471 | −0.0070 (no CI) | inconclusive: 5 < 20 anchors |
+
+Every point estimate is slightly worse than climatology, and the
+development periods say the same: housing DFM −0.060, PCA −0.027, financial
+DFM −0.032, all with intervals spanning zero. The financial comparisons are
+short because the factor's sign could not be fixed against VIX at 8
+anchors, and the comprehensive-panel financial domain has too little
+history before 2015. **The exit condition is not met.** No regime
+probability is published as a forecast. The factors and their regime
+readings stay descriptive: no sizing, no probability on the page.
 
 ---
 
@@ -117,8 +161,9 @@ clear a coverage floor measured within each series' own active range (not
 against the full panel window — an earlier version of that measure starved
 four entire domain blocks to zero columns by penalising a series for simply
 starting later than 1980). But the DATE-RANGE OVERLAP those 164 series share —
-the number of months every one of them has data for — is **32 months**. PC1
-explains 8.8% of variance and is not economically legible. This is the
+the number of months every one of them has data for — is **30 months** on
+the as-of rebuild (32 before it). PC1 explains 11.6% of variance (8.8% before)
+and is not economically legible. This is the
 brief's own hypothesis, confirmed empirically: a single PCA cannot explain
 the whole economy at once once the panel is genuinely comprehensive.
 
@@ -169,22 +214,36 @@ validation plan calls for, and the factor structure the data actually has.
 
 **PCA and DFM substantially agree on the dominant common factor.** On the same
 fair (deep-history, monthly-only, no quarterly) subset: sign-aligned
-correlation of the two methods' global factor LEVEL is 0.84; the LOADING
-correlation — do the two methods agree on which series drive it — is 0.98 over
-67 common series. DFM's advantage is not a different answer on shared ground;
+correlation of the two methods' global factor LEVEL is 0.98 (0.979, 386
+common months); the LOADING correlation — do the two methods agree on which
+series drive it — is 0.996 over 137 common series. (Before the as-of rebuild,
+PR #5 A11, the same comparison read 0.84 and 0.98 over 67 series.) DFM's advantage is not a different answer on shared ground;
 it is handling the ragged edge and breadth PCA cannot use directly. A first
 attempt to fit DFM on the FULL 206-series, 41-quarterly panel grew past 12GB of
 resident memory before being killed — the quarterly Mariano-Murasawa lag
 expansion combined with 206 idiosyncratic AR(1) terms pushes the Kalman
 filter's state dimension into the hundreds — so the comparison runs on the
 deep-history subset, a stated scope limit rather than a silent downsizing.
-This fit's own `converged` flag now reads `false` (audit finding A05 — the
-flag used to default to `true` unconditionally; see below), which is itself
-new, honest information: the comparison's agreement holds even though the DFM
-side had not fully converged at this run's `maxiter`.
+The flag behind "converged" was fixed by audit finding A05 (it used to
+default to `true` unconditionally; see below). Under the corrected reading
+this comparison's DFM (137 series, 15 factors, maxiter 150) **converges** on
+the as-of rebuild.
 
 Artifacts: `artifacts/reports/macro_registry.json`,
 `macro_comprehensive_panel_build.json`, `macro_pca_research.json`.
+
+**Factor State driver tables were in the wrong units until 2026-09-30.** A
+driver row is a series' loading times this month's standardised print. The
+fit standardises twice (the whole frame, then the admitted balanced window),
+but `PCAFit.mean/std` kept only the second stage's moments, and the driver
+table applied them to raw prints. The Fed balance sheet (WALCL) read at
+z = 42,515,065, and /macro showed a trade-balance contribution of 10,632.
+`mean/std` now compose both stages (mean = mu0 + sigma0 * mu_bal,
+std = sigma0 * sigma_bal). Across all 396 driver rows the largest |z| is now
+4.18 and the largest contribution 1.63. Loadings, scores and every other
+figure in this section never used those moments and are unchanged, which
+the regenerated artifact confirms leaf by leaf. Regression:
+`test_fit_moments_map_the_frames_own_units_to_the_fitted_basis`.
 
 ### DFM convergence: the flag was never actually checking anything
 
