@@ -20,6 +20,18 @@ export const getLiveDesk = createServerFn({ method: "POST" }).handler(async () =
   return buildDesk();
 });
 
+/** Quotes for held names outside the desk list (watchlists, theses, alert rules). Public market data. */
+export const getQuotes = createServerFn({ method: "POST" })
+  .validator((input: { tickers: string[] }) => ({
+    tickers: Array.isArray(input?.tickers)
+      ? input.tickers.filter((t): t is string => typeof t === "string").slice(0, 40)
+      : [],
+  }))
+  .handler(async ({ data }) => {
+    const { quotesFor } = await import("./build.server");
+    return quotesFor(data.tickers);
+  });
+
 // Paid compute (PR #5 B05): signed in, scoped to the account; the entitlement
 // and the per-account allowance are checked inside, before any model call.
 export const rescoreBook = createServerFn({ method: "POST" })

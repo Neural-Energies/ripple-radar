@@ -3,6 +3,7 @@ import { Sparkline } from "@/components/sparkline";
 import { Badge, Button, Panel } from "@/components/ui";
 import { goToEvent } from "@/lib/hooks/use-event-param-sync";
 import { useLiveAsset, useLiveAssets, useLiveEvents, useQuote } from "@/lib/live/provider";
+import { FUTURES } from "@/lib/live/symbols";
 import { useApp } from "@/lib/store";
 import { cn, formatPct, formatPrice } from "@/lib/utils";
 
@@ -58,6 +59,13 @@ function AssetDetail() {
                   : "Last mark"}
               {quote?.exchange ? ` · ${quote.exchange}` : ""}
             </div>
+            {FUTURES[asset.ticker] ? (
+              <div className="mt-0.5 max-w-xs text-tiny text-subtle">
+                {FUTURES[asset.ticker]!.contract} · {FUTURES[asset.ticker]!.exchange} front month, continuous; rolls{" "}
+                {FUTURES[asset.ticker]!.roll}, so a change across a roll spans two contracts. Delayed ~
+                {FUTURES[asset.ticker]!.delayMinutes} min · {FUTURES[asset.ticker]!.session}
+              </div>
+            ) : null}
             <Sparkline data={quote?.spark ?? []} className="ml-auto mt-2" />
           </div>
         </div>

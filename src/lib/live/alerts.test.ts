@@ -250,6 +250,30 @@ test("webhook delivery retries with backoff, sends one idempotency key per firin
   assert.equal(bob.lastError, "HTTP 500");
 });
 
+test("a rule on a name outside the desk list is priced on demand; a failed fetch is no reading, not a crossing", async () => {
+  const sql = await db();
+  const esRule = rule({ id: "es", title: "ES over 6000", metric: "price_last", operator: "above", threshold: 6000, ticker: "ES" });
+  await saveRules(sql, "alice", [esRule]);
+  const tape = desk([], [quote("XLE", 101, 0)]); // ES is not in the tape's quotes
+  const asked: string[][] = [];
+  const noQuotes = await runAlertPass(sql, tape, { now: () => 1, fetch: noSend });
+  assert.equal(noQuotes.unavailable, 1, "without a quote source the rule has no reading");
+  const failing = await runAlertPass(sql, tape, { now: () => 2, fetch: noSend, quotes: async () => Promise.reject(new Error("feed down")) });
+  assert.equal(failing.fired, 0);
+  assert.equal(failing.unavailable, 1);
+  const priced = await runAlertPass(sql, tape, {
+    now: () => 3,
+    fetch: noSend,
+    quotes: async (tickers) => {
+      asked.push(tickers);
+      return { ES: quote("ES", 6012.5, 0.4) };
+    },
+  });
+  assert.deepEqual(asked, [["ES"]], "only the missing ticker is requested, once per pass");
+  assert.equal(priced.fired, 1);
+  assert.match((await inboxFor(sql, "alice")).deliveries[0]!.reason, /ES: last price 6012\.50/);
+});
+
 test("accounts are isolated: rules see only their own desk books, and inboxes are per account", async () => {
   const sql = await db();
   const book: DeskBook = { id: "desk-a", title: "A's book", region: "", note: "", created: "", payload: event("desk-a", 80) };

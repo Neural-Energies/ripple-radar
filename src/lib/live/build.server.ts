@@ -8,7 +8,7 @@ import { headlineToEvidence } from "./evidence";
 import { etParts, quoteState, sessionFlags } from "./clock";
 import { attachFredEvidence, fetchFredSeriesBundle, latestFredEvidence } from "./fred.server";
 import { parseRss } from "./rss";
-import { DESK_TICKERS, fromYahoo, toYahoo } from "./symbols";
+import { DESK_TICKERS, fromYahoo, QUOTABLE, toYahoo } from "./symbols";
 import type { LiveBook, LiveCluster, LiveDesk, LiveHeadline, LiveQuote } from "./types";
 
 const UA =
@@ -151,6 +151,51 @@ async function loadQuotes(): Promise<Record<string, LiveQuote>> {
   }
   quoteCache = { at: Date.now(), quotes };
   return quotes;
+}
+
+/** Quotes fetched on demand for names outside the desk list, cached per ticker. */
+const extraQuoteCache = new Map<string, { at: number; quote: LiveQuote | null }>();
+export const MAX_EXTRA_TICKERS = 40;
+const EXTRA_CACHE_MAX = 500;
+
+/**
+ * Quotes for tickers people hold (watchlists, theses, alert rules) that the
+ * desk list does not cover. Without this a held name outside DESK_TICKERS
+ * never had a price: its alerts read "no reading" and its thesis "unpriced".
+ * Bounded per call, validated, and cached per ticker for the desk's TTL; a
+ * symbol the feed does not know is cached as missing, not retried each poll.
+ */
+export async function quotesFor(tickers: string[]): Promise<Record<string, LiveQuote>> {
+  const wanted = [...new Set(tickers.map((t) => t.trim().toUpperCase()))]
+    .filter((t) => QUOTABLE.test(t))
+    .slice(0, MAX_EXTRA_TICKERS);
+  const now = Date.now();
+  const out: Record<string, LiveQuote> = {};
+  const desk = quoteCache && now - quoteCache.at < QUOTE_TTL ? quoteCache.quotes : {};
+  const missing: string[] = [];
+  for (const t of wanted) {
+    if (desk[t]) {
+      out[t] = desk[t];
+      continue;
+    }
+    const hit = extraQuoteCache.get(t);
+    if (hit && now - hit.at < QUOTE_TTL) {
+      if (hit.quote) out[t] = hit.quote;
+    } else {
+      missing.push(t);
+    }
+  }
+  for (let i = 0; i < missing.length; i += 12) {
+    const chunk = missing.slice(i, i + 12);
+    const got = await sparkBatch(chunk).catch(() => null);
+    if (!got) continue; // a failed fetch is retried next call, not cached as missing
+    for (const t of chunk) {
+      extraQuoteCache.set(t, { at: now, quote: got[t] ?? null });
+      if (got[t]) out[t] = got[t];
+    }
+  }
+  while (extraQuoteCache.size > EXTRA_CACHE_MAX) extraQuoteCache.delete(extraQuoteCache.keys().next().value!);
+  return out;
 }
 
 function clockOf(ms: number) {

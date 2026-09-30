@@ -18,7 +18,7 @@
 import type { AlertRule, DeskBook } from "@/data/types";
 import type { Sql } from "@/lib/db";
 import { normalizeDesk } from "@/lib/desk-model";
-import { episodeKey, evaluateRule, stepRule, worldFromDesk, type AlertWorld, type Evaluation, type RuleState } from "./alerts";
+import { episodeKey, evaluateRule, stepRule, worldFromDesk, type AlertWorld, type Evaluation, type RuleState, type WorldQuote } from "./alerts";
 import type { LiveDesk } from "./types";
 
 export const MAX_ATTEMPTS = 5;
@@ -30,6 +30,8 @@ const WEBHOOK_BATCH = 50;
 export interface AlertPassDeps {
   now?: () => number;
   fetch?: (url: string, init: RequestInit) => Promise<{ ok: boolean; status: number }>;
+  /** Quotes for rule tickers the desk does not cover (the route passes `quotesFor`). */
+  quotes?: (tickers: string[]) => Promise<Record<string, WorldQuote>>;
 }
 
 export interface AlertPassSummary {
@@ -121,13 +123,30 @@ export async function runAlertPass(sql: Sql, desk: LiveDesk, deps: AlertPassDeps
     webhooks: { delivered: 0, retrying: 0, failed: 0 },
   };
   const tape = worldFromDesk(desk, []);
-  const accounts = await sql<{ user_id: string; payload: string }>`select user_id, payload from desk_state`;
+  const accounts = (await sql<{ user_id: string; payload: string }>`select user_id, payload from desk_state`).map((a) => ({
+    ...a,
+    parsed: parseDesk(a.payload),
+  }));
   const channels = new Map(
     (await sql<{ user_id: string; webhook_url: string | null }>`select user_id, webhook_url from alert_channels`).map((r) => [r.user_id, r.webhook_url]),
   );
 
+  // A rule on a name outside the desk list still gets a price: fetch every
+  // such ticker once for the whole pass. A failed fetch leaves it unquoted,
+  // which the rule reports as "no reading", never as a crossing.
+  if (deps.quotes) {
+    const missing = new Set<string>();
+    for (const a of accounts) {
+      for (const r of a.parsed?.alerts ?? []) if (r.active && r.ticker && !tape.quotes[r.ticker]) missing.add(r.ticker);
+    }
+    if (missing.size) {
+      const extra = await deps.quotes([...missing]).catch(() => ({}) as Record<string, WorldQuote>);
+      tape.quotes = { ...extra, ...tape.quotes };
+    }
+  }
+
   for (const account of accounts) {
-    const parsed = parseDesk(account.payload);
+    const parsed = account.parsed;
     if (!parsed) continue;
     const rules = parsed.alerts.filter((a) => a.metric);
     summary.accounts += 1;

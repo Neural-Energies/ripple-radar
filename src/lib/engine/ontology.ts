@@ -266,6 +266,17 @@ export const TICKER_META: Record<
   UNP: { name: "Union Pacific", tags: ["logistics", "energy", "labor"], kind: "company", category: "stock", lag: "weeks" },
   ICLN: { name: "Clean Energy", tags: ["energy", "alt"], kind: "etf", category: "etf", lag: "weeks" },
   XRT: { name: "Retail", tags: ["consumer"], kind: "etf", category: "etf", lag: "weeks" },
+  // Front-month index, rates and metals futures, for traders who hold them
+  // (PR #5 B06). Tagged "futures" first, so the engine keeps its existing
+  // default expression for each tag (SPX/QQQ/TNX/GC) and these rank behind it.
+  // Contract conventions: `FUTURES` in src/lib/live/symbols.ts.
+  ES: { name: "E-mini S&P 500 (front month)", tags: ["futures", "equity"], kind: "futures", category: "futures", lag: "minutes–days" },
+  NQ: { name: "E-mini Nasdaq-100 (front month)", tags: ["futures", "equity", "tech"], kind: "futures", category: "futures", lag: "minutes–days" },
+  YM: { name: "E-mini Dow (front month)", tags: ["futures", "equity"], kind: "futures", category: "futures", lag: "minutes–days" },
+  RTY: { name: "E-mini Russell 2000 (front month)", tags: ["futures", "equity", "conditions"], kind: "futures", category: "futures", lag: "days–weeks" },
+  ZN: { name: "10-year T-note (front month)", tags: ["futures", "rates", "duration"], kind: "futures", category: "futures", lag: "minutes" },
+  ZB: { name: "30-year T-bond (front month)", tags: ["futures", "rates", "duration"], kind: "futures", category: "futures", lag: "minutes–weeks" },
+  SI: { name: "Silver (front month)", tags: ["futures", "gold", "industrial"], kind: "futures", category: "commodities", lag: "minutes–days" },
 };
 
 /** Word/phrase → tags. This is NER, not a list of events. */

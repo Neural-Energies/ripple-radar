@@ -4,10 +4,11 @@ import { create } from "zustand";
 import { useApp } from "@/lib/store";
 import { ackAlertDeliveries, getAlertInbox } from "./alert-inbox";
 import { evaluateAlerts, stepRule, type Evaluation, type RuleState } from "./alerts";
-import { analyzeEvent, getLiveDesk, rescoreBook } from "./desk";
+import { analyzeEvent, getLiveDesk, getQuotes, rescoreBook } from "./desk";
 import { EMPTY_BOOKS, EMPTY_CLUSTERS, EMPTY_HEADLINES } from "./empty";
 import { liveAssets, liveEventsList, liveGetAsset, liveGetEvent } from "./overlay";
-import type { AlertHit, LiveDesk, RescoreResult } from "./types";
+import { DESK_TICKERS } from "./symbols";
+import type { AlertHit, LiveDesk, LiveQuote, RescoreResult } from "./types";
 
 type Inbox = Awaited<ReturnType<typeof getAlertInbox>>;
 
@@ -22,9 +23,12 @@ interface LiveState {
   alertStatus: Record<string, Evaluation>;
   /** The signed-in account's server-side alert record; null signed out or before the first load. */
   inbox: Inbox | null;
+  /** Quotes for held names outside the desk list, merged into `desk.quotes`. */
+  extraQuotes: Record<string, LiveQuote>;
   rescoring: string | null;
   analyzing: boolean;
   setDesk: (desk: LiveDesk) => void;
+  setExtraQuotes: (quotes: Record<string, LiveQuote>) => void;
   setError: (error: string | null) => void;
   setConnecting: () => void;
   setRescore: (r: RescoreResult) => void;
@@ -43,15 +47,22 @@ export const useLive = create<LiveState>((set) => ({
   hits: [],
   alertStatus: {},
   inbox: null,
+  extraQuotes: {},
   rescoring: null,
   analyzing: false,
   setDesk: (desk) =>
-    set({
-      desk,
+    set((s) => ({
+      // The desk's own quotes win; held names it does not cover keep their last on-demand quote.
+      desk: { ...desk, quotes: { ...s.extraQuotes, ...desk.quotes } },
       status: desk.status === "live" ? "live" : "degraded",
       error: null,
       updatedAt: Date.now(),
-    }),
+    })),
+  setExtraQuotes: (extraQuotes) =>
+    set((s) => ({
+      extraQuotes,
+      desk: s.desk ? { ...s.desk, quotes: { ...extraQuotes, ...s.desk.quotes } } : s.desk,
+    })),
   setError: (error) => set({ error, status: "degraded" }),
   setConnecting: () => set({ status: "connecting" }),
   setRescore: (r) => set((s) => ({ rescores: { ...s.rescores, [r.eventId]: r }, rescoring: null })),
@@ -128,6 +139,36 @@ export function LiveProvider({ children }: { children: ReactNode }) {
     }
     primed.current = true;
   }, [alerts, desk, deskBooks, identity, setAlerts]);
+
+  // Held names outside the desk list (watchlists, open theses, alert rules)
+  // get their own quotes, refreshed with each desk poll, so an alert or a
+  // thesis on them has a price to read.
+  const watchlists = useApp((s) => s.watchlists);
+  const theses = useApp((s) => s.theses);
+  const deskAsOf = desk?.asOf;
+  const held = useMemo(() => {
+    const onDesk = new Set<string>(DESK_TICKERS);
+    const names = new Set<string>([
+      ...watchlists.flatMap((w) => w.tickers),
+      ...theses.filter((t) => t.status === "open").flatMap((t) => t.instruments.map((i) => i.ticker)),
+      ...alerts.map((a) => a.ticker ?? "").filter(Boolean),
+    ]);
+    return [...names].filter((t) => !onDesk.has(t)).sort().slice(0, 40);
+  }, [watchlists, theses, alerts]);
+  useEffect(() => {
+    if (!deskAsOf || held.length === 0) return;
+    let dead = false;
+    void getQuotes({ data: { tickers: held } })
+      .then((quotes) => {
+        if (!dead) useLive.getState().setExtraQuotes(quotes);
+      })
+      .catch(() => {
+        // Keep the last quotes; the next desk poll retries.
+      });
+    return () => {
+      dead = true;
+    };
+  }, [deskAsOf, held]);
 
   // The account's server-side alert record: firings recorded while no tab was
   // open are shown once, then acknowledged.
