@@ -212,10 +212,32 @@ export interface GameTheory {
   };
 }
 
+/**
+ * What a ranked name's score is made of. `base` is the book's own rank for the
+ * name; the rest are the tape adjustments `discover.scoreTrade` applies.
+ * Crowding is a proxy read from headline mentions and the session move — not
+ * positioning data.
+ */
+export interface ScoreParts {
+  base: number;
+  confirmation: number;
+  underCovered: number;
+  crowding: number;
+  /** Headlines on the tape that name the ticker or its company. */
+  mentions: number;
+  /** The name's session move, percent; null without a quote. */
+  movePct: number | null;
+  /** The book's headline ticker's session move, percent, when there is one. */
+  headlineMovePct: number | null;
+  /** The direction the book implies for the name. */
+  expected: "up" | "down" | "mixed";
+}
+
 export interface TradeIdea {
   ticker: string;
   name: string;
   score: number;
+  scoreParts?: ScoreParts;
   reason: string;
   side: TradeSide;
   category: TradeCategory;
@@ -476,6 +498,7 @@ export interface AssetRecord {
   last: number;
   change: number;
   score: number;
+  scoreParts?: ScoreParts;
   eventIds: string[];
   thesis: string;
   bottleneck: string;

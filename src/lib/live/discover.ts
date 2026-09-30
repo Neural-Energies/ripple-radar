@@ -1,4 +1,4 @@
-import type { AssetRecord, Confirmation, Crowding, Liquidity, RadarEvent, TradeIdea } from "@/data/types";
+import type { AssetRecord, Confirmation, Crowding, Liquidity, RadarEvent, ScoreParts, TradeIdea } from "@/data/types";
 import type { LiveHeadline, LiveQuote } from "./types";
 
 export interface DiscoverCtx {
@@ -54,7 +54,16 @@ const CROWD_PENALTY: Record<Crowding, number> = {
   saturated: 36,
 };
 
+const CONF_BOOST: Record<Confirmation, number> = { strong: 10, confirming: 6, early: 3, none: 0, diverging: -6, invalidating: -12 };
+const round1 = (n: number) => Math.round(n * 10) / 10;
+
+/**
+ * Re-rank a book's name against the tape. Idempotent: the adjustments are
+ * applied to the book's own rank (`scoreParts.base` once scored), so a trade
+ * scored on the server and again on the client is not boosted twice.
+ */
 export function scoreTrade(trade: TradeIdea, ctx: DiscoverCtx): TradeIdea {
+  const base = trade.scoreParts?.base ?? trade.score;
   const q = ctx.quotes[trade.ticker];
   const node = ctx.event.nodes.find((n) => n.ticker === trade.ticker);
   const hits = mentions(ctx.headlines, trade.ticker, trade.name);
@@ -65,13 +74,24 @@ export function scoreTrade(trade: TradeIdea, ctx: DiscoverCtx): TradeIdea {
   const confirmation = confirmationOf(q?.changePct, expected, headQ);
   const awareness = clamp(hits * 18 + (trade.headline ? 40 : 0) + abs * 6, 4, 96);
   const liquidity = trade.liquidity ?? liquidityOf(trade.category);
-  const confBoost =
-    confirmation === "strong" ? 10 : confirmation === "confirming" ? 6 : confirmation === "early" ? 3 : confirmation === "invalidating" ? -12 : confirmation === "diverging" ? -6 : 0;
+  const confBoost = CONF_BOOST[confirmation];
   const underowned = crowding === "low" || crowding === "emerging" ? 8 : 0;
-  const score = clamp(trade.score + confBoost + underowned - CROWD_PENALTY[crowding] * 0.35, 8, 99);
+  const crowdPenalty = round1(CROWD_PENALTY[crowding] * 0.35);
+  const score = clamp(base + confBoost + underowned - crowdPenalty, 8, 99);
+  const scoreParts: ScoreParts = {
+    base,
+    confirmation: confBoost,
+    underCovered: underowned,
+    crowding: -crowdPenalty,
+    mentions: hits,
+    movePct: q?.changePct != null ? round1(q.changePct) : null,
+    headlineMovePct: headQ != null && ctx.event.headlineTicker !== trade.ticker ? round1(headQ) : null,
+    expected,
+  };
   return {
     ...trade,
     score: Math.round(score),
+    scoreParts,
     crowding,
     confirmation,
     awareness: Math.round(awareness),
@@ -100,6 +120,7 @@ export function scoreAsset(asset: AssetRecord, ctx: DiscoverCtx): AssetRecord {
   return {
     ...asset,
     score: scored?.score ?? base,
+    scoreParts: scored?.scoreParts,
     crowding,
     confirmation,
     awareness: scored?.awareness ?? clamp(hits * 15, 4, 80),
@@ -116,4 +137,20 @@ export function rankTrades(event: RadarEvent, ctx: Omit<DiscoverCtx, "event">): 
   return event.trades
     .map((t) => scoreTrade(t, { ...ctx, event }))
     .sort((a, b) => b.score - a.score);
+}
+
+/**
+ * The score as lines a trader can check: each component with the observation
+ * behind it. The final score is clamped to 8–99, so the lines can sum past it.
+ */
+export function explainScore(p: ScoreParts, crowding: Crowding | undefined, confirmation: Confirmation | undefined): { label: string; points: number; basis: string }[] {
+  const move = p.movePct == null ? "no quote" : `${p.movePct > 0 ? "+" : ""}${p.movePct}% on the session`;
+  const vs = p.headlineMovePct == null ? "" : `, headline ticker ${p.headlineMovePct > 0 ? "+" : ""}${p.headlineMovePct}%`;
+  const mentions = `${p.mentions} headline mention${p.mentions === 1 ? "" : "s"}`;
+  return [
+    { label: "Book rank", points: p.base, basis: "The book's own rank for this name, from its causal path." },
+    { label: `Tape ${confirmation ?? "none"}`, points: p.confirmation, basis: `${move}${vs}; the book implies ${p.expected === "mixed" ? "a mixed move" : p.expected}.` },
+    { label: "Under-covered", points: p.underCovered, basis: p.underCovered ? `${mentions}, ${move}: the move is not yet in the headlines.` : "Already covered, so no bonus." },
+    { label: `Crowding ${crowding ?? "low"}`, points: p.crowding, basis: `${mentions}, ${move}. A proxy from headlines and price, not positioning data.` },
+  ];
 }

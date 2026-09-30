@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Sparkline } from "@/components/sparkline";
+import type { Confirmation, Crowding, ScoreParts } from "@/data/types";
 import { Badge, Button, Panel } from "@/components/ui";
 import { goToEvent } from "@/lib/hooks/use-event-param-sync";
 import { useLiveAsset, useLiveAssets, useLiveEvents, useQuote } from "@/lib/live/provider";
+import { explainScore } from "@/lib/live/discover";
 import { FUTURES } from "@/lib/live/symbols";
 import { useApp } from "@/lib/store";
 import { cn, formatPct, formatPrice } from "@/lib/utils";
@@ -91,6 +93,7 @@ function AssetDetail() {
             {asset.invalidation}
           </p>
         )}
+        <WhyThisScore ticker={asset.ticker} events={related} fallback={asset} />
         <div className="mt-3 flex flex-wrap gap-2">
           {lists.map((w) => (
             <Button key={w.id} size="sm" variant="secondary" onClick={() => add(w.id, asset.ticker)}>
@@ -170,6 +173,55 @@ function Field({ k, v }: { k: string; v: string }) {
     <div>
       <dt className="text-micro uppercase tracking-wider text-subtle">{k}</dt>
       <dd className="text-caption">{v}</dd>
+    </div>
+  );
+}
+
+/**
+ * What the score is made of, on the book that ranks this name highest, and
+ * which other names on that book point the same way (one driver, one bet).
+ */
+function WhyThisScore({
+  ticker,
+  events,
+  fallback,
+}: {
+  ticker: string;
+  events: ReturnType<typeof useLiveEvents>;
+  fallback: { scoreParts?: ScoreParts; crowding?: Crowding; confirmation?: Confirmation };
+}) {
+  const ranked = events
+    .map((e) => ({ event: e, trade: e.trades.find((t) => t.ticker === ticker) }))
+    .filter((r): r is { event: (typeof events)[number]; trade: NonNullable<(typeof r)["trade"]> } => Boolean(r.trade))
+    .sort((a, b) => b.trade.score - a.trade.score)[0];
+  const parts = ranked?.trade.scoreParts ?? fallback.scoreParts;
+  if (!parts) return null;
+  const lines = explainScore(parts, ranked?.trade.crowding ?? fallback.crowding, ranked?.trade.confirmation ?? fallback.confirmation);
+  const sameSide = ranked ? ranked.event.trades.filter((t) => t.ticker !== ticker && t.side === ranked.trade.side) : [];
+  return (
+    <div className="mt-3 rounded-sm bg-card-2 p-2">
+      <div className="text-micro uppercase tracking-wider text-subtle">
+        Why this score{ranked ? ` · ${ranked.event.title}` : ""}
+      </div>
+      <ul className="mt-1 flex flex-col gap-0.5">
+        {lines.map((l) => (
+          <li key={l.label} className="grid grid-cols-[8.5rem_3.5rem_1fr] items-baseline gap-2 text-caption max-sm:grid-cols-[1fr_auto]">
+            <span className="text-foreground">{l.label}</span>
+            <span className={cn("text-right font-mono tabular-nums", l.label === "Book rank" ? "" : l.points > 0 ? "text-up" : l.points < 0 ? "text-down" : "text-muted")}>
+              {l.label === "Book rank" ? l.points : `${l.points > 0 ? "+" : ""}${l.points}`}
+            </span>
+            <span className="text-micro text-muted max-sm:col-span-2">{l.basis}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-1 text-micro text-subtle">Scores are clamped to 8–99, so the lines can sum past the score.</p>
+      {sameSide.length ? (
+        <p className="mt-1 text-micro text-muted">
+          Same book, same side: {sameSide.slice(0, 8).map((t) => t.ticker).join(", ")}
+          {sameSide.length > 8 ? ` and ${sameSide.length - 8} more` : ""}. They share this book&apos;s driver, so holding
+          several is one bet, not several.
+        </p>
+      ) : null}
     </div>
   );
 }
