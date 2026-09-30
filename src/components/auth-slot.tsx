@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Cloud, CloudOff } from "lucide-react";
 import { UserButton } from "@/lib/auth/gates";
@@ -8,8 +9,13 @@ import { cn } from "@/lib/utils";
 export function AuthSlot({ compact = false }: { compact?: boolean }) {
   const { user, isPending } = useCurrentUserState();
   const sync = useSyncMode();
+  // The server always renders the pending placeholder; the client can know the
+  // session before hydration finishes. Match the server's first paint, then
+  // react to the real state after mount (same guard as DeskHint).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
-  if (isPending) {
+  if (!mounted || isPending) {
     return <div className="size-8 shrink-0 animate-pulse rounded-full bg-card-3" aria-hidden />;
   }
 
