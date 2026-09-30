@@ -58,6 +58,12 @@ export const getMacroRegime = createServerFn({ method: "GET" }).handler(async ()
   return loadMacroRegime();
 });
 
+/** Scheduled US macro releases over the next three weeks (FRED calendar, cached 6h). */
+export const getReleaseCalendar = createServerFn({ method: "GET" }).handler(async () => {
+  const { loadReleaseCalendar } = await import("./release-calendar.server");
+  return loadReleaseCalendar();
+});
+
 export const getLiveCalibration = createServerFn({ method: "GET" }).handler(async () => {
   const { getCalibration } = await import("./forecast-ledger.server");
   return getCalibration();

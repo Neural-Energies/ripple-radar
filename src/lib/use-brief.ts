@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { baselineFrom, baselineKey, briefTickers, buildBrief, readBaseline, writeBaseline, type BriefBaseline } from "@/lib/brief";
 import { deskKey } from "@/lib/desk-merge";
+import { getReleaseCalendar } from "@/lib/live/desk";
+import type { ReleaseCalendar } from "@/lib/live/release-calendar";
 import { useLive, useLiveEvents } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
 
@@ -23,9 +25,24 @@ export function useBrief() {
     return () => window.clearInterval(t);
   }, []);
 
+  const [calendar, setCalendar] = useState<ReleaseCalendar | null>(null);
+  useEffect(() => {
+    let live = true;
+    const load = () =>
+      void getReleaseCalendar()
+        .then((c) => live && setCalendar(c))
+        .catch(() => live && setCalendar({ status: "unavailable", detail: "Release calendar request failed.", fetchedAt: new Date().toISOString(), items: [] }));
+    load();
+    const t = window.setInterval(load, 60 * 60_000);
+    return () => {
+      live = false;
+      window.clearInterval(t);
+    };
+  }, []);
+
   const brief = useMemo(
-    () => buildBrief({ events, quotes, watchlists, theses, baseline, now }),
-    [events, quotes, watchlists, theses, baseline, now],
+    () => buildBrief({ events, quotes, watchlists, theses, baseline, now, calendar }),
+    [events, quotes, watchlists, theses, baseline, now, calendar],
   );
 
   const markRead = useCallback(() => {

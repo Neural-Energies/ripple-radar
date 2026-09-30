@@ -152,6 +152,74 @@ function MacroReleases({ macro }: { macro: MacroState | MacroStateUnavailable | 
   );
 }
 
+/** A calendar date (YYYY-MM-DD, New York) as "Thu 02 Oct". */
+function calendarDay(date: string) {
+  return new Date(`${date}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short", timeZone: "UTC" });
+}
+
+/** Scheduled releases, thesis reviews and awaited evidence over the next week. */
+export function ComingUp({ upcoming }: { upcoming: Brief["upcoming"] }) {
+  const { releases, reviews, awaiting, calendar } = upcoming;
+  return (
+    <div className="flex flex-col gap-2 text-caption">
+      <section>
+        <h3 className="text-micro uppercase tracking-wider text-subtle">Macro releases</h3>
+        {releases.length ? (
+          <ul className="mt-0.5 flex flex-col">
+            {releases.map((r) => (
+              <li key={`${r.releaseId}-${r.date}`} className="flex items-baseline justify-between gap-2 border-b border-border/50 py-0.5 last:border-b-0">
+                <a href={r.url} target="_blank" rel="noreferrer" className="min-w-0 truncate hover:text-primary" title={`Moves: ${r.moves.join(", ")}`}>
+                  {r.name}
+                </a>
+                <span className="shrink-0 font-mono text-micro text-muted">{r.date === upcoming.today ? "today" : calendarDay(r.date)}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-0.5 text-muted">
+            {calendar.status === "loading" ? "Loading…" : calendar.status === "unavailable" ? calendar.detail : `None scheduled in the next ${upcoming.days} days.`}
+          </p>
+        )}
+        {calendar.status === "partial" ? <p className="mt-0.5 text-micro text-warn">{calendar.detail}</p> : null}
+      </section>
+      {reviews.length ? (
+        <section>
+          <h3 className="text-micro uppercase tracking-wider text-subtle">Thesis reviews</h3>
+          <ul className="mt-0.5 flex flex-col">
+            {reviews.map(({ thesis, reviewAt }) => (
+              <li key={thesis.id} className="flex items-baseline justify-between gap-2 py-0.5">
+                <Link to="/theses" className="min-w-0 truncate hover:text-primary">
+                  {thesis.statement}
+                </Link>
+                <span className="shrink-0 font-mono text-micro text-muted">{reviewDate(reviewAt)}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+      {awaiting.length ? (
+        <section>
+          <h3 className="text-micro uppercase tracking-wider text-subtle">Awaited on your books</h3>
+          <ul className="mt-0.5 flex flex-col gap-1">
+            {awaiting.map((a, i) => (
+              <li key={`${a.eventId}-${i}`}>
+                <span className="text-foreground">{a.observe}</span>
+                {a.lag ? <span className="font-mono text-micro text-muted"> · within {a.lag}</span> : null}
+                <div className="truncate text-micro text-subtle">
+                  <Link to="/scenarios" search={{ event: a.eventId }} className="hover:text-primary">
+                    {a.title}
+                  </Link>
+                  {a.scenario ? ` · confirms ${a.scenario}` : ""}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
 export function BriefView({
   brief,
   macro,
@@ -162,7 +230,7 @@ export function BriefView({
   onMarkRead: () => void;
 }) {
   return (
-    <div className="grid gap-3 xl:grid-cols-[1fr_22rem]">
+    <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_22rem]">
       <div className="flex flex-col gap-3">
         <Panel
           className="h-auto"
@@ -231,6 +299,9 @@ export function BriefView({
               ))}
             </ul>
           )}
+        </Panel>
+        <Panel className="h-auto" title={`Coming up · next ${brief.upcoming.days} days`}>
+          <ComingUp upcoming={brief.upcoming} />
         </Panel>
         <Panel className="h-auto" title="Your names moving without a book">
           {brief.unexplained.length === 0 ? (

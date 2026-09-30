@@ -11,6 +11,7 @@
  */
 import type { RadarEvent, Thesis } from "@/data/types";
 import type { Watchlist } from "@/lib/desk-model";
+import { addDays, nyDate, type CalendarItem, type ReleaseCalendar } from "@/lib/live/release-calendar";
 import { monitorThesis, shortestHorizonLabel, type QuoteLookup, type ThesisMonitor } from "@/lib/thesis";
 
 /** What the book and tape looked like when you last marked the brief read. */
@@ -69,7 +70,27 @@ export interface Brief {
   /** Open theses that are due, or where something has broken. */
   theses: { thesis: Thesis; monitor: ThesisMonitor }[];
   exposureCount: number;
+  upcoming: Upcoming;
 }
+
+/** What is scheduled or awaited in the next `UPCOMING_DAYS`. */
+export interface Upcoming {
+  days: number;
+  /** New York's calendar date the window starts on. */
+  today: string;
+  /** Scheduled macro releases (FRED calendar). */
+  releases: CalendarItem[];
+  /** "loading" until the calendar has been asked for; the calendar's own status after. */
+  calendar: { status: ReleaseCalendar["status"] | "loading"; detail: string };
+  /** Open theses whose review date falls inside the window (not yet due). */
+  reviews: { thesis: Thesis; reviewAt: string; hoursLeft: number }[];
+  /** Expected evidence not yet seen, on books that touch your names. */
+  awaiting: { eventId: string; title: string; scenario: string | null; observe: string; lag: string }[];
+}
+
+export const UPCOMING_DAYS = 7;
+const MAX_AWAITING = 8;
+const MAX_AWAITING_PER_BOOK = 3;
 
 /** Book moves below this, in probability points, are not called material. */
 export const MATERIAL_PTS = 5;
@@ -194,6 +215,8 @@ export function buildBrief(input: {
   theses: Thesis[];
   baseline: BriefBaseline | null;
   now: Date;
+  /** The release calendar; null while it has not been fetched. */
+  calendar?: ReleaseCalendar | null;
 }): Brief {
   const { events, quotes, watchlists, theses, baseline, now } = input;
   const names = yourNames(watchlists, theses);
@@ -237,6 +260,53 @@ export function buildBrief(input: {
     unexplained,
     theses: attention,
     exposureCount: names.size,
+    upcoming: upcomingFor(books, byId, theses, input.calendar ?? null, now),
+  };
+}
+
+function upcomingFor(
+  books: BookBrief[],
+  byId: Map<string, RadarEvent>,
+  theses: Thesis[],
+  calendar: ReleaseCalendar | null,
+  now: Date,
+): Upcoming {
+  const today = nyDate(now.getTime());
+  const until = addDays(today, UPCOMING_DAYS);
+  const horizonMs = now.getTime() + UPCOMING_DAYS * 24 * 3_600_000;
+  const reviews = theses
+    .filter((t) => t.status === "open")
+    .map((thesis) => ({ thesis, reviewAt: thesis.reviewAt, ms: Date.parse(thesis.reviewAt) }))
+    .filter((r) => r.ms > now.getTime() && r.ms <= horizonMs)
+    .sort((a, b) => a.ms - b.ms)
+    .map(({ thesis, reviewAt, ms }) => ({ thesis, reviewAt, hoursLeft: round1((ms - now.getTime()) / 3_600_000) }));
+  const awaiting: Upcoming["awaiting"] = [];
+  for (const b of books) {
+    const event = byId.get(b.eventId);
+    // One row per observation per book; an observation several scenarios
+    // share names all of them.
+    const rows = new Map<string, Upcoming["awaiting"][number]>();
+    for (const e of event?.expectedEvidence ?? []) {
+      if (e.appeared) continue;
+      const scenario = event!.scenarios.find((s) => s.id === e.scenarioId)?.name ?? null;
+      const row = rows.get(e.observe);
+      if (row) {
+        if (scenario && row.scenario !== scenario && !row.scenario?.split(" / ").includes(scenario)) row.scenario = row.scenario ? `${row.scenario} / ${scenario}` : scenario;
+      } else {
+        rows.set(e.observe, { eventId: b.eventId, title: b.title, scenario, observe: e.observe, lag: e.lag });
+      }
+    }
+    awaiting.push(...[...rows.values()].slice(0, MAX_AWAITING_PER_BOOK));
+    if (awaiting.length >= MAX_AWAITING) break;
+  }
+  awaiting.splice(MAX_AWAITING);
+  return {
+    days: UPCOMING_DAYS,
+    today,
+    releases: (calendar?.items ?? []).filter((i) => i.date >= today && i.date <= until),
+    calendar: calendar ? { status: calendar.status, detail: calendar.detail } : { status: "loading", detail: "Loading the release calendar." },
+    reviews,
+    awaiting,
   };
 }
 

@@ -123,3 +123,37 @@ test("the read-marker round-trips and a missing store is not an error", () => {
   assert.equal(readBaseline("bad"), null);
   assert.equal(readBaseline("absent"), null);
 });
+
+test("coming up: this week's releases, reviews inside the week, and evidence still awaited on your books", () => {
+  const withEvidence = {
+    ...oil,
+    expectedEvidence: [
+      { id: "e1", scenarioId: "oil-a", ifTrue: "", observe: "Tanker rates spike", lag: "2d", appeared: false },
+      { id: "e2", scenarioId: "oil-b", ifTrue: "", observe: "Already seen", lag: "1d", appeared: true },
+      { id: "e3", scenarioId: "oil-b", ifTrue: "", observe: "Tanker rates spike", lag: "2d", appeared: false },
+    ],
+  };
+  const quietWithEvidence = { ...quiet, expectedEvidence: [{ id: "q", scenarioId: "quiet-a", ifTrue: "", observe: "Not yours", lag: "1d", appeared: false }] };
+  const soon = { ...buildThesis(oil, draftFromEvent(oil), {}, new Date("2026-09-27T12:00:00Z"), "soon"), reviewAt: "2026-10-01T12:00:00Z" };
+  const later = { ...buildThesis(oil, draftFromEvent(oil), {}, NOW, "later"), reviewAt: "2026-10-20T12:00:00Z" };
+  const calendar = {
+    status: "ok" as const,
+    detail: "",
+    fetchedAt: NOW.toISOString(),
+    items: [
+      { releaseId: 180, name: "Weekly Jobless Claims", date: "2026-10-01", moves: ["Initial claims"], url: "" },
+      { releaseId: 50, name: "Employment Situation", date: "2026-10-02", moves: ["Payrolls"], url: "" },
+      { releaseId: 10, name: "Consumer Price Index", date: "2026-10-14", moves: ["CPI"], url: "" },
+    ],
+  };
+  const brief = buildBrief({ events: [withEvidence, quietWithEvidence], quotes: {}, watchlists: lists, theses: [soon, later], baseline: null, now: NOW, calendar });
+  const u = brief.upcoming;
+  assert.deepEqual(u.releases.map((r) => r.name), ["Weekly Jobless Claims", "Employment Situation"], "CPI on the 14th is past the week");
+  assert.deepEqual(u.reviews.map((r) => [r.thesis.id, r.hoursLeft]), [["soon", 48]]);
+  assert.deepEqual(u.awaiting, [{ eventId: "oil", title: "oil", scenario: "A / B", observe: "Tanker rates spike", lag: "2d" }], "one row per observation, naming every scenario it confirms");
+  assert.equal(u.calendar.status, "ok");
+
+  const loading = buildBrief({ events: [], quotes: {}, watchlists: [], theses: [], baseline: null, now: NOW });
+  assert.equal(loading.upcoming.calendar.status, "loading", "not fetched yet is not 'nothing scheduled'");
+  assert.deepEqual(loading.upcoming.releases, []);
+});
