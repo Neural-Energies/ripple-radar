@@ -38,6 +38,7 @@ import { Route as MacroRatesRouteImport } from './routes/macro.rates'
 import { Route as MacroShocksRouteImport } from './routes/macro.shocks'
 import { Route as ApiAlertsRunRouteImport } from './routes/api/alerts/run'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webhook'
 import { Route as ApiLedgerResolveRouteImport } from './routes/api/ledger/resolve'
 
 const IndexRoute = IndexRouteImport.update({
@@ -185,6 +186,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBillingWebhookRoute = ApiBillingWebhookRouteImport.update({
+  id: '/api/billing/webhook',
+  path: '/api/billing/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiLedgerResolveRoute = ApiLedgerResolveRouteImport.update({
   id: '/api/ledger/resolve',
   path: '/api/ledger/resolve',
@@ -221,6 +227,7 @@ export interface FileRoutesByFullPath {
   '/macro/': typeof MacroIndexRoute
   '/api/alerts/run': typeof ApiAlertsRunRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/ledger/resolve': typeof ApiLedgerResolveRoute
 }
 export interface FileRoutesByTo {
@@ -252,6 +259,7 @@ export interface FileRoutesByTo {
   '/macro': typeof MacroIndexRoute
   '/api/alerts/run': typeof ApiAlertsRunRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/ledger/resolve': typeof ApiLedgerResolveRoute
 }
 export interface FileRoutesById {
@@ -285,6 +293,7 @@ export interface FileRoutesById {
   '/macro/': typeof MacroIndexRoute
   '/api/alerts/run': typeof ApiAlertsRunRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/ledger/resolve': typeof ApiLedgerResolveRoute
 }
 export interface FileRouteTypes {
@@ -319,6 +328,7 @@ export interface FileRouteTypes {
     | '/macro/'
     | '/api/alerts/run'
     | '/api/auth/$'
+    | '/api/billing/webhook'
     | '/api/ledger/resolve'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -350,6 +360,7 @@ export interface FileRouteTypes {
     | '/macro'
     | '/api/alerts/run'
     | '/api/auth/$'
+    | '/api/billing/webhook'
     | '/api/ledger/resolve'
   id:
     | '__root__'
@@ -382,6 +393,7 @@ export interface FileRouteTypes {
     | '/macro/'
     | '/api/alerts/run'
     | '/api/auth/$'
+    | '/api/billing/webhook'
     | '/api/ledger/resolve'
   fileRoutesById: FileRoutesById
 }
@@ -404,6 +416,7 @@ export interface RootRouteChildren {
   ApiHealthRoute: typeof ApiHealthRoute
   ApiAlertsRunRoute: typeof ApiAlertsRunRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiBillingWebhookRoute: typeof ApiBillingWebhookRoute
   ApiLedgerResolveRoute: typeof ApiLedgerResolveRoute
 }
 
@@ -612,6 +625,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/billing/webhook': {
+      id: '/api/billing/webhook'
+      path: '/api/billing/webhook'
+      fullPath: '/api/billing/webhook'
+      preLoaderRoute: typeof ApiBillingWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ledger/resolve': {
       id: '/api/ledger/resolve'
       path: '/api/ledger/resolve'
@@ -680,6 +700,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiHealthRoute: ApiHealthRoute,
   ApiAlertsRunRoute: ApiAlertsRunRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiBillingWebhookRoute: ApiBillingWebhookRoute,
   ApiLedgerResolveRoute: ApiLedgerResolveRoute,
 }
 export const routeTree = rootRouteImport
