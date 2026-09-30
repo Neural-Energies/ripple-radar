@@ -45,6 +45,13 @@ function timeLabel(iso?: string) {
 }
 
 const fixed = (n: number | null | undefined, d = 2) => (n == null || !Number.isFinite(n) ? "—" : n.toFixed(d));
+/** 1st, 2nd, 3rd, 11th, 32nd … for a percentile; "—" when missing. */
+export const ordinal = (n: number | null | undefined) => {
+  if (n == null || !Number.isFinite(n)) return "—";
+  const r = Math.round(n);
+  const suffix = r % 100 >= 11 && r % 100 <= 13 ? "th" : ({ 1: "st", 2: "nd", 3: "rd" } as Record<number, string>)[r % 10] ?? "th";
+  return `${r}${suffix}`;
+};
 const signed = (n: number | null | undefined, d = 2) =>
   n == null || !Number.isFinite(n) ? "—" : `${n > 0 ? "+" : ""}${n.toFixed(d)}`;
 const sigma = (n: number | null | undefined) => (n == null ? "—" : `${signed(n)}σ`);
@@ -156,7 +163,7 @@ function FactorLine({ f }: { f: FactorRow | null }) {
   return (
     <Row
       k={`${f.domain.replace("_", " ")} factor`}
-      v={`${fixed(f.percentile, 0)}th pct ${arrow(f.change1m)}`}
+      v={`${ordinal(f.percentile)} pct ${arrow(f.change1m)}`}
       tone={(f.change1m ?? 0) >= 0 ? "up" : "down"}
     />
   );
@@ -364,7 +371,7 @@ export function MacroOverviewView({ read, state }: { read: Read; state: State })
               {external ? (
                 <>
                   <Stat
-                    value={`${fixed(external.percentile, 0)}th`}
+                    value={`${ordinal(external.percentile)}`}
                     move={`${arrow(external.change1m)} ${fixed(Math.abs(external.change1m ?? 0))} 1m`}
                     good={(external.change1m ?? 0) >= 0}
                     hint="percentile of its own history"
@@ -596,7 +603,7 @@ export function ReleaseDrawerView({ state, release }: { state: State; release: R
             <>
               <h3 className="text-caption font-medium">{factor.domain.replace("_", " ")} factor</h3>
               <p className="text-micro text-subtle">
-                {fixed(factor.percentile, 0)}th percentile of its history · {factor.direction} · as of {monthLabel(factor.asOf)}
+                {ordinal(factor.percentile)} percentile of its history · {factor.direction} · as of {monthLabel(factor.asOf)}
               </p>
               <div className="mt-1 grid grid-cols-3 gap-1.5">
                 <Changed
@@ -727,7 +734,7 @@ export function GrowthDetailView({ read, state }: { read: Read; state: State }) 
         <LegTable read={read} side="growth" />
       </div>
       <PathChart data={chartRows(read)} lines={[{ key: "growthYoy", color: "#5eb0e8", name: "Basket YoY" }]} />
-      <div className="mt-1 text-micro font-medium">Output factor drivers {f ? `(${fixed(f.percentile, 0)}th pct)` : ""}</div>
+      <div className="mt-1 text-micro font-medium">Output factor drivers {f ? `(${ordinal(f.percentile)} pct)` : ""}</div>
       {f ? (
         <Contribs rows={f.drivers.map((d) => ({ label: d.label, value: d.contribution ?? 0 }))} unit="σ" />
       ) : (
@@ -735,7 +742,7 @@ export function GrowthDetailView({ read, state }: { read: Read; state: State }) 
       )}
       {labor ? (
         <div className="mt-1 text-micro text-subtle">
-          Labour factor {fixed(labor.percentile, 0)}th pct, {labor.direction}.
+          Labour factor {ordinal(labor.percentile)} pct, {labor.direction}.
         </div>
       ) : null}
     </section>
@@ -781,7 +788,7 @@ export function InflationDetailView({ read, state }: { read: Read; state: State 
       <LegTable read={read} side="inflation" />
       {f ? (
         <div className="mt-1 text-micro text-subtle">
-          Inflation factor {fixed(f.percentile, 0)}th pct, {f.direction}.
+          Inflation factor {ordinal(f.percentile)} pct, {f.direction}.
         </div>
       ) : null}
     </section>
@@ -850,7 +857,7 @@ export function GlobalDetailView({ state }: { state: State }) {
             <div className="flex items-baseline justify-between text-micro">
               <span className="font-medium">{f.domain.replace("_", " ")} factor</span>
               <span className="font-mono">
-                {fixed(f.percentile, 0)}th pct · {f.direction}
+                {ordinal(f.percentile)} pct · {f.direction}
               </span>
             </div>
             <Contribs rows={f.drivers.slice(0, 4).map((d) => ({ label: d.label, value: d.contribution ?? 0 }))} unit="σ" />

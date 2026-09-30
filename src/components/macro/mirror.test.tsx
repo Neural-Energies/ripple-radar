@@ -15,6 +15,7 @@ import {
   GrowthDetailView,
   InflationDetailView,
   MacroOverviewView,
+  ordinal,
   RatesDetailView,
   type MacroReadPayload,
 } from "./mirror.tsx";
@@ -148,7 +149,7 @@ test("live producer values are what renders, with their dates and sources", () =
     "+0.08σ", // surprise
     "Sep 29, 17:37 UTC", // fetchedAt
     "as of 2026-09-29", // factor engine
-    "32th", // external factor percentile, 0dp
+    "32nd", // external factor percentile 31.64, as an ordinal
   ]) {
     assert.ok(markup.includes(expected), `missing producer value: ${expected}`);
   }
@@ -159,4 +160,11 @@ test("a release's drawer is bound to its own block decomposition", () => {
   assert.match(markup, /Payrolls estimate/);
   assert.match(markup, /\+0\.100/);
   assert.match(markup, /\+0\.120/);
+});
+
+test("percentiles read as ordinals", () => {
+  assert.deepEqual([1, 2, 3, 4, 11, 12, 13, 21, 22, 31.64, 100, 101, 112].map(ordinal), [
+    "1st", "2nd", "3rd", "4th", "11th", "12th", "13th", "21st", "22nd", "32nd", "100th", "101st", "112th",
+  ]);
+  assert.equal(ordinal(null), "—");
 });
