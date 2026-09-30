@@ -13,6 +13,113 @@ drift watch, then Now/Next/Later coverage.
 
 ---
 
+## 2026-09-30 — cycle 5 (PR #5 A01–A15 and B01–B06 closed out; WP3 exit test run)
+
+**Checked.** Cycle 4 left A11 and fourteen other PR #5 findings open. This
+cycle closes them, adds the B-series product findings (B01–B06, PR #5/#6),
+and runs the WP3 exit test live. Checks at `5095697`:
+
+- `npx tsc --noEmit`: clean.
+- `eslint .`: 0 errors, 37 warnings, none in files changed this cycle.
+- `test:engine`: 362/362. `test:app`: 75/75. `test:scripts`: 184/201. Its 17
+  failures predate this cycle and are not in CI (see Open).
+- `pytest ace/tests`: 471 in this workspace. In a clean checkout with a
+  fresh venv built from `ace/constraints.txt`: 467 passed, 4 skipped (they
+  need the local GDELT cache).
+- `npm run build`: ok. Vercel crons in the output: alerts every 5 minutes,
+  resolution hourly.
+- SSR sweep: all 26 page routes 200.
+- Browser checks (Playwright, dark and light, 1400px and 390px): brief,
+  learning, scenarios, assets, macro, theses, alerts, watchlists. No
+  hydration errors.
+
+### A-series (PR #5), all fixed; replies with evidence are on each thread
+
+| Finding | Commit |
+|---|---|
+| A01 Nash scan maximised the wrong player's moves | 127d21d |
+| A02 ledger graded outcomes past the horizon | f27e69a |
+| A03 polls erased Dirichlet concentration | e0b36b7 |
+| A04 PCA sample inconsistency, A05 DFM convergence flag | 12636da (cycle 4) |
+| A06/A07 competing-risks censoring, CIF step function | 47c4669 |
+| A08/A10 Hawkes first-arrival probability, observation clock | 8cf6623 |
+| A09 calibration selection reused training labels | f68c9b9 |
+| A11 first-print vintages, revision answer key, sealed selection | 40a9157, 015c04a, 2bfb9dc, 07f80d1, 4f3e968 |
+| A12/A13 scenario model future labels, frozen family | 9235e23, 1ae82f9 |
+| A14 DBN pairing and normalisation | 0b0fd03 |
+| A15 zero-weight intervention edge | 30baf68 |
+
+### Found while regenerating A11 evidence (not in the audit)
+
+- **Regime DFM did not converge.** EM hit its 120-iteration cap at a
+  criterion of 2.3e-6 against a 1e-6 tolerance, and the corrected A05
+  reading rightly reported it. The cap is now 1,000 (EM stops at
+  tolerance). Both panels converge, and every level/volatility verdict is
+  unchanged (4f3e968).
+- **PCA Factor State drivers were in the wrong units.** The driver table
+  applied the second standardisation's moments to raw prints. /macro showed
+  WALCL at z = 42,515,065 and a 10,632 trade-balance contribution. The fit
+  now composes both stages; the largest |z| over 396 driver rows is 4.18.
+  Every other figure in the artifact is identical leaf by leaf (4f3e968).
+- **Trade scores were boosted twice.** `scoreTrade` added its tape
+  adjustments to `trade.score`, and a book is ranked on the server and
+  again on the client. It now adjusts the book's own rank (43925b7).
+- **Brief overflowed on phones.** Its grid track sized to the longest
+  nowrap line (581px on a 390px screen) (51c380f).
+- **Percentiles read "32th"** (2735dfc).
+
+### WP3 exit test (B04): run, and not passed
+
+Protocol `wp3-v2` has observable targets (HOUST; VIX, since NFCI was not
+published before 2011) at exactly m+6, forward-chained calibration and
+as-of climatology. The verdict is read on the untouched last 40% of anchors
+at alpha 0.05/4. Housing, DFM and domain PCA: no significant difference
+from climatology (skill −0.0047 and −0.0061, both CIs span zero).
+Financial: inconclusive, with 18 and 5 confirmation anchors against 20
+required. **The exit condition is not met.** The regimes stay descriptive.
+Promotion requires a passing evidence manifest (f43c9c1), so nothing can
+promote on this. Manifest sha256 `54da8d94…` in
+`artifacts/reports/macro_level_regime_validation.json`. This also answers
+Phase 10's regime half: the broader domain-PCA factors do no better than
+the DFM's.
+
+### B-series (product) and agreed workflow
+
+| Item | Commit |
+|---|---|
+| B01 /macro renders producer output | 69234e9 |
+| B02 exact alert targets, one unit, server-side delivery | 8ebc5bc; webhook SSRF on the connection fbf34a8 |
+| B03 per-account desk, versioned merging saves | 9b73570 |
+| B04 WP3 target/gates, fail-closed promotion | f43c9c1, evidence 4f3e968 |
+| B05 paid compute: signed in, entitled, per-account quota, cache identity | 82191c2 |
+| B06 thesis → monitor → review loop | 34d6f04, outcomes on /learning a0a40c9 |
+| B06 daily brief | f4e216b, d096f3c; coming up (FRED release calendar, reviews, awaited evidence) 51c380f |
+| B06 scenario confirmation and invalidation | 3faad0c |
+| B06 ES/NQ/futures and held-name quotes | 9ca5bb4 |
+| B06 why this exposure (score components, proxy label, same-driver names) | 43925b7 |
+| B06 operate: CI and pinned Python | d749fef; scheduled resolution and /api/health c201f4e |
+| B06 buy/use/cancel: Stripe checkout, portal, webhook → entitlements | 5095697 |
+| PR #6 B01 light mode | ecf86f7 |
+
+### Open, with reasons
+
+- **Deploy settings.** Nothing is exercised yet against the deployed
+  database: `CRON_SECRET`, `OPERATOR_USER_IDS`, the Stripe keys and
+  webhook endpoint, and migrations 0008–0010 on Neon. A 5-minute cron needs
+  a Vercel plan that allows it.
+- **Billing is built but unverified against Stripe.** No Stripe account is
+  configured here. The signature scheme, event handling and checkout
+  request are unit-tested, not exercised live.
+- **FOMC dates** are not in FRED's release calendar and are not shown.
+- **`test:scripts`:** 17 of 201 fail on main, predating this cycle. They are
+  not in CI until fixed.
+- **Phase 10, quad half.** Whether broader factors improve the quad
+  classification was not run. The regime half answered no, and the quad's
+  positioning and vol tests already failed 0/6. No new model was added
+  this cycle.
+
+---
+
 ## 2026-09-27 — cycle 4 (Factor State API, news decomposition, and an external audit's PCA/DFM findings)
 
 **Checked:** Phases 8-9 of the Macro Factor Engine brief (the Factor State API
