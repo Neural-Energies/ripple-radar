@@ -51,8 +51,8 @@ const FEEDS: { source: string; url: string }[] = [
   { source: "Defense One", url: "https://www.defenseone.com/rss/all/" },
   { source: "Guardian", url: "https://www.theguardian.com/world/rss" },
   { source: "Guardian Business", url: "https://www.theguardian.com/uk/business/rss" },
-  { source: "Reuters World", url: "https://feeds.reuters.com/Reuters/worldNews" },
-  { source: "Reuters Business", url: "https://feeds.reuters.com/reuters/businessNews" },
+  { source: "NPR World", url: "https://feeds.npr.org/1004/rss.xml" },
+  { source: "NPR Business", url: "https://feeds.npr.org/1006/rss.xml" },
   { source: "Fed", url: "https://www.federalreserve.gov/feeds/press_all.xml" },
   { source: "CoinDesk", url: "https://www.coindesk.com/arc/outboundfeeds/rss/" },
   {

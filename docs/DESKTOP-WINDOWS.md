@@ -18,7 +18,7 @@ The interface is light. It does not follow a dark Windows theme.
 4. In PowerShell, from the folder that contains the file:
 
 ```powershell
-Start-Process .\RippleRadar-Setup-0.1.0.exe
+Start-Process .\RippleRadar-Setup-0.2.0.exe
 ```
 
 5. Windows SmartScreen will warn, because the build is not code-signed. Choose **More info**, then **Run anyway**. That prompt is once per publisher until a certificate is added.

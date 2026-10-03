@@ -29,8 +29,8 @@ Coded in `FEEDS` inside `src/lib/live/build.server.ts`:
 | Defense One | `https://www.defenseone.com/rss/all/` | Defense / kinetic |
 | Guardian | `https://www.theguardian.com/world/rss` | Geo |
 | Guardian Business | `https://www.theguardian.com/uk/business/rss` | Macro |
-| Reuters World | `https://feeds.reuters.com/Reuters/worldNews` | Wire (availability not guaranteed) |
-| Reuters Business | `https://feeds.reuters.com/reuters/businessNews` | Wire |
+| NPR World | `https://feeds.npr.org/1004/rss.xml` | Wire replacement (Reuters public RSS retired) |
+| NPR Business | `https://feeds.npr.org/1006/rss.xml` | Wire replacement |
 | Fed | `https://www.federalreserve.gov/feeds/press_all.xml` | Policy primary |
 | CoinDesk | `https://www.coindesk.com/arc/outboundfeeds/rss/` | Crypto **narrative** only |
 | Google News | `https://news.google.com/rss/search?q=when:1d+(markets+OR+geopolitics+OR+%22central+bank%22+OR+%22supply+chain%22+OR+sanctions+OR+hurricane+OR+semiconductor)&hl=en-US&gl=US&ceid=US:en` | Catch-all; demote weight (DS §5c P2) |
