@@ -20,11 +20,12 @@ win:
     - target: nsis
       arch:
         - x64
-  # Unsigned builds still update. Turn this on when a certificate is configured
-  # (CSC_LINK / CSC_KEY_PASSWORD) so Windows can verify the publisher.
+  # Put the icon and version on the exe. Do not sign. A certificate is a separate step.
+  # signAndEditExecutable stays on so the taskbar icon is ours. signExecutable
+  # is off so the build does not look for a certificate.
+  signExecutable: false
   verifyUpdateCodeSignature: false
   requestedExecutionLevel: asInvoker
-  signAndEditExecutable: false
 nsis:
   oneClick: true
   perMachine: false
