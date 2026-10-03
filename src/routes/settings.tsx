@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { Button, Panel } from "@/components/ui";
 import { getDesktopBridge } from "@/lib/desktop/bridge";
+import { deskFileFromStorage, parseDeskFile } from "@/lib/desktop/desk-file";
 import { checkPublishedRelease } from "@/lib/desktop/release";
 import type { ReleaseDecision } from "@/lib/desktop/update-check";
 import { APP_NAME, APP_VERSION } from "@/lib/desktop/version";
@@ -17,6 +18,10 @@ function SettingsPage() {
   const [desktop, setDesktop] = useState(false);
   const [status, setStatus] = useState<ReleaseDecision | null>(null);
   const [busy, setBusy] = useState(false);
+  const [launchAtStartup, setLaunchAtStartup] = useState(false);
+  const [folderNote, setFolderNote] = useState<string | null>(null);
+  const [fileNote, setFileNote] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const bridge = getDesktopBridge();
@@ -25,6 +30,7 @@ function SettingsPage() {
     void bridge.getInfo().then((info) => {
       setVersion(info.version);
       setUserData(info.userData);
+      setLaunchAtStartup(info.launchAtStartup === true);
     });
     return bridge.onUpdateStatus(setStatus);
   }, []);
@@ -65,6 +71,76 @@ function SettingsPage() {
     }
   }
 
+  async function toggleStartup(on: boolean) {
+    const bridge = getDesktopBridge();
+    if (!bridge?.setLaunchAtStartup) return;
+    try {
+      setLaunchAtStartup(await bridge.setLaunchAtStartup(on));
+    } catch {
+      setLaunchAtStartup(!on);
+    }
+  }
+
+  async function backupFolder() {
+    const bridge = getDesktopBridge();
+    if (!bridge?.backupData) return;
+    setBusy(true);
+    setFolderNote("Saving a copy of the data folder. The tape pauses for a moment.");
+    try {
+      const result = await bridge.backupData();
+      setFolderNote(result.message);
+    } catch (err) {
+      setFolderNote(err instanceof Error ? err.message : "Backup failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function restoreFolder() {
+    const bridge = getDesktopBridge();
+    if (!bridge?.restoreData) return;
+    setBusy(true);
+    setFolderNote("Pick a backup folder. Ripple Radar will close and reopen on that copy.");
+    try {
+      const result = await bridge.restoreData();
+      setFolderNote(result.message);
+      if (!result.ok) setBusy(false);
+    } catch (err) {
+      setFolderNote(err instanceof Error ? err.message : "Restore failed.");
+      setBusy(false);
+    }
+  }
+
+  function downloadDesk() {
+    const entries: { key: string; value: string }[] = [];
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+      const value = localStorage.getItem(key);
+      if (value != null) entries.push({ key, value });
+    }
+    const text = deskFileFromStorage(entries);
+    const blob = new Blob([text], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "ripple-radar-desk.json";
+    a.click();
+    URL.revokeObjectURL(url);
+    setFileNote("Downloaded this browser's saved desk.");
+  }
+
+  async function restoreDeskFile(file: File) {
+    const parsed = parseDeskFile(await file.text());
+    if (!parsed.ok) {
+      setFileNote(parsed.message);
+      return;
+    }
+    for (const entry of parsed.entries) localStorage.setItem(entry.key, entry.value);
+    setFileNote("Restored. Reloading so the desk picks it up.");
+    window.location.reload();
+  }
+
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-4">
       <header className="flex items-center gap-3">
@@ -102,6 +178,60 @@ function SettingsPage() {
               Data and settings: <span className="font-mono text-foreground">{userData}</span>
             </p>
           ) : null}
+        </div>
+      </Panel>
+
+      <Panel title="This computer" padded>
+        <div className="flex flex-col gap-3">
+          <p className="text-caption text-muted">
+            Closing the window leaves Ripple Radar in the tray, so alerts can still pop up. Quit from the tray icon when you want it to stop.
+          </p>
+          {desktop ? (
+            <label className="flex items-center gap-2 text-caption text-foreground">
+              <input
+                type="checkbox"
+                checked={launchAtStartup}
+                onChange={(e) => void toggleStartup(e.target.checked)}
+              />
+              Launch Ripple Radar when Windows starts
+            </label>
+          ) : (
+            <p className="text-caption text-muted">Launch at startup and the tray are part of the installed Windows app.</p>
+          )}
+          {desktop ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="secondary" onClick={() => void backupFolder()} disabled={busy}>
+                Save a backup
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => void restoreFolder()} disabled={busy}>
+                Restore a backup
+              </Button>
+            </div>
+          ) : null}
+          {folderNote ? <p className="text-caption text-foreground">{folderNote}</p> : null}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button type="button" variant="secondary" onClick={downloadDesk}>
+              Download this desk
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => fileRef.current?.click()}>
+              Restore a desk file
+            </Button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="application/json,.json"
+              className="sr-only"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (file) void restoreDeskFile(file);
+              }}
+            />
+          </div>
+          <p className="text-micro text-subtle">
+            {fileNote ??
+              "The file is this browser's watchlists, alerts, and theses. The Windows backup also includes the local database."}
+          </p>
         </div>
       </Panel>
     </div>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
+import { BookExport } from "@/components/book-export";
 import { ThesisComposer } from "@/components/thesis";
 import { Badge, Button, Delta } from "@/components/ui";
 import type {
@@ -185,6 +186,7 @@ export function ResearchHeader({
                   {openTheses} open {openTheses === 1 ? "thesis" : "theses"}
                 </Link>
               ) : null}
+              <BookExport event={event} />
               <Button type="button" size="sm" variant={composing ? "secondary" : "default"} onClick={() => setComposing((v) => !v)}>
                 {composing ? "Close" : "Save thesis"}
               </Button>

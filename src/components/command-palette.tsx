@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 const PAGES = [
   { to: "/", label: "Live Desk" },
   { to: "/events", label: "World Tape" },
+  { to: "/sources", label: "Data sources" },
   { to: "/maps", label: "Ripple Map" },
   { to: "/scenarios", label: "Scenarios" },
   { to: "/game-theory", label: "Game Theory" },

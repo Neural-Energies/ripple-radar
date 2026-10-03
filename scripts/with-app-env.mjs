@@ -20,7 +20,7 @@
  * `process.env`, which is why the merge has to happen before Vite starts.
  */
 import { spawn } from "node:child_process";
-import { readFileSync, realpathSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { constants as osConstants } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -104,14 +104,48 @@ export function isMainModule(moduleUrl) {
   }
 }
 
+/** Quote one token for `cmd.exe /c`. */
+export function quoteForCmd(value) {
+  const s = String(value);
+  if (s.length === 0) return '""';
+  if (!/[\s"&|<>^%]/.test(s)) return s;
+  return `"${s.replace(/"/g, '""')}"`;
+}
+
+/**
+ * How to spawn `command`.
+ *
+ * `spawn("vite")` fails on Windows with ENOENT. npm's shim is `vite.cmd`, and
+ * Node does not search PATHEXT. When that shim exists, run it through cmd.exe.
+ * On other systems, prefer the real file under node_modules/.bin so a missing
+ * PATH entry still works.
+ */
+export function commandLaunch(command, args, root, platform = process.platform) {
+  const bare = !/[\\/]/.test(command);
+  if (bare && platform === "win32") {
+    const cmd = join(root, "node_modules", ".bin", `${command}.cmd`);
+    if (existsSync(cmd)) {
+      const line = [quoteForCmd(cmd), ...args.map(quoteForCmd)].join(" ");
+      return { file: process.env.ComSpec || "cmd.exe", args: ["/d", "/s", "/c", line] };
+    }
+  }
+  if (bare) {
+    const bin = join(root, "node_modules", ".bin", command);
+    if (existsSync(bin)) return { file: bin, args };
+  }
+  return { file: command, args };
+}
+
 function main(argv) {
   const [command, ...args] = argv;
   if (!command) {
     console.error("usage: node scripts/with-app-env.mjs <command> [args…]");
     process.exit(2);
   }
-  const env = mergeAppEnv(readAppEnv(projectRoot()), process.env);
-  const child = spawn(command, args, { stdio: "inherit", env });
+  const root = projectRoot();
+  const env = mergeAppEnv(readAppEnv(root), process.env);
+  const launch = commandLaunch(command, args, root);
+  const child = spawn(launch.file, launch.args, { stdio: "inherit", env });
   // The dev server is long-running and is stopped by signalling this wrapper.
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {
     process.on(signal, () => child.kill(signal));

@@ -2,7 +2,9 @@
 
 **Branch:** `cursor/desktop-engine-depth-5477`  
 **Date:** 2026-10-03  
-**Scope:** What the app does today. No new features in this pass.
+**Scope:** What the app did when this note was written.
+
+Later on this same branch: backup and restore, a data-sources page, tray alerts with optional launch at startup, book export, and the window title and logo say Ripple Radar. Code signing is still not done.
 
 `docs/ROADMAP.md` is from 21 Sep 2026 and is behind the code. Freeze-and-learn, alerts, billing screens, the light theme, and engine tests are already in. This note treats the running app as the source of truth.
 

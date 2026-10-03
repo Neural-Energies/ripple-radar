@@ -129,7 +129,7 @@ export function parseHlwRstar(buf: Buffer): { value: number; date: string } | nu
 export async function loadHlwRstar(): Promise<{ value: number; date: string } | null> {
   const res = await fetch(
     "https://www.newyorkfed.org/medialibrary/media/research/economists/williams/data/Holston_Laubach_Williams_current_estimates.xlsx",
-    { headers: { "User-Agent": "AlphaRecon" }, signal: AbortSignal.timeout(20000) },
+    { headers: { "User-Agent": "RippleRadar" }, signal: AbortSignal.timeout(20000) },
   );
   if (!res.ok) return null;
   return parseHlwRstar(Buffer.from(await res.arrayBuffer()));

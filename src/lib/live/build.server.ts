@@ -11,20 +11,29 @@ import {
   cacheTtlMs,
   feedStatusNote,
   fetchTextResilient,
+  macroSourceStatus,
+  newsSourceStatus,
+  quoteSourceStatus,
   retainList,
   retainRecord,
 } from "./feed-resilience";
 import { parseRss } from "./rss";
 import { DESK_TICKERS, fromYahoo, QUOTABLE, toYahoo } from "./symbols";
-import type { LiveBook, LiveCluster, LiveDesk, LiveHeadline, LiveQuote } from "./types";
+import type { FeedSourceStatus, LiveBook, LiveCluster, LiveDesk, LiveHeadline, LiveQuote } from "./types";
 
 const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
 const QUOTE_TTL = 12_000;
 
-type QuoteCache = { at: number; quotes: Record<string, LiveQuote>; stale: boolean };
-type NewsCache = { at: number; headlines: LiveHeadline[]; stale: boolean; failed: string[] };
+type QuoteCache = { at: number; quotes: Record<string, LiveQuote>; stale: boolean; status: FeedSourceStatus };
+type NewsCache = {
+  at: number;
+  headlines: LiveHeadline[];
+  stale: boolean;
+  failed: string[];
+  sources: FeedSourceStatus[];
+};
 
 let quoteCache: QuoteCache | null = null;
 let newsCache: NewsCache | null = null;
@@ -69,6 +78,7 @@ async function loadNews(): Promise<LiveHeadline[]> {
     }),
   );
   const failed = results.filter((r) => r.error).map((r) => r.source);
+  const sources = results.map((r) => newsSourceStatus({ source: r.source, count: r.headlines.length, error: r.error }));
   const seen = new Set<string>();
   const headlines: LiveHeadline[] = [];
   for (const r of results) {
@@ -84,7 +94,7 @@ async function loadNews(): Promise<LiveHeadline[]> {
   headlines.sort((a, b) => b.published - a.published);
   const trimmed = headlines.slice(0, 80);
   const kept = retainList(newsCache?.headlines ?? null, trimmed);
-  newsCache = { at: Date.now(), headlines: kept.value, stale: kept.stale, failed };
+  newsCache = { at: Date.now(), headlines: kept.value, stale: kept.stale, failed, sources };
   if (failed.length) {
     console.warn(`[build] ${failed.length} news feed(s) down: ${failed.join(", ")}`);
   }
@@ -164,7 +174,13 @@ async function loadQuotes(): Promise<Record<string, LiveQuote>> {
     else failedChunks += 1;
   }
   const kept = retainRecord(quoteCache?.quotes ?? null, quotes);
-  quoteCache = { at: Date.now(), quotes: kept.value, stale: kept.stale };
+  const status = quoteSourceStatus({
+    count: Object.keys(kept.value).length,
+    failedChunks,
+    chunkCount: chunks.length,
+    stale: kept.stale,
+  });
+  quoteCache = { at: Date.now(), quotes: kept.value, stale: kept.stale, status };
   if (failedChunks) console.warn(`[build] ${failedChunks} quote batch(es) failed`);
   return kept.value;
 }
@@ -218,11 +234,17 @@ function clockOf(ms: number) {
   return etParts(ms).clock.replace(" ET", "");
 }
 
+let fredStatus: FeedSourceStatus = macroSourceStatus({ count: 0, detail: "Not checked yet." });
+
 async function loadFredMacroEvidence(): Promise<EvidenceItem[]> {
   try {
     const bundle = await fetchFredSeriesBundle();
-    return latestFredEvidence(bundle, clockOf);
-  } catch {
+    const evidence = latestFredEvidence(bundle, clockOf);
+    fredStatus = macroSourceStatus({ count: evidence.length, detail: bundle.statusDetail });
+    return evidence;
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : "FRED request failed.";
+    fredStatus = macroSourceStatus({ count: 0, detail });
     return [];
   }
 }
@@ -515,5 +537,6 @@ async function assembleDesk(): Promise<LiveDesk> {
     quoteLive,
     quoteCount,
     macroEvidence: fredEvidence,
+    feeds: [...(newsCache?.sources ?? []), quoteCache?.status ?? quoteSourceStatus({ count: quoteCount, failedChunks: 0, chunkCount: 0, stale: false }), fredStatus],
   };
 }

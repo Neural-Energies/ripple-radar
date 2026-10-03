@@ -62,7 +62,7 @@ async function search(q: string): Promise<GammaEvent[]> {
   const url = new URL("https://gamma-api.polymarket.com/public-search");
   url.searchParams.set("q", q);
   const res = await fetch(url, {
-    headers: { accept: "application/json", "user-agent": "AlphaRecon/1.0" },
+    headers: { accept: "application/json", "user-agent": "RippleRadar/1.0" },
     signal: AbortSignal.timeout(12_000),
   });
   if (!res.ok) throw new Error(`Polymarket returned ${res.status}`);

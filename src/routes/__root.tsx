@@ -18,7 +18,7 @@ import { useApp } from "@/lib/store";
 import { THEME_BOOT, useTheme } from "@/lib/theme";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "Alpha Recon";
+const APP_NAME = "Ripple Radar";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -29,7 +29,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "Don't trade the headline. Trade what it causes next. Alpha Recon maps shocks into transmission chains, probabilities, and ranked second-order exposures.",
+          "Don't trade the headline. Trade what it causes next. Ripple Radar maps shocks into transmission chains, probabilities, and ranked second-order exposures.",
       },
       { name: "theme-color", content: "#f5f7fa" },
     ],

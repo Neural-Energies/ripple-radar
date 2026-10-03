@@ -41,6 +41,9 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Unsigned on purpose. Also stops electron-builder from hunting for a
+          # certificate and from unpacking the Windows signing tools.
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
         run: |
           set -euo pipefail
           publish=never

@@ -16,6 +16,7 @@ import {
   Landmark,
   Menu,
   Newspaper,
+  Radio,
   NotebookPen,
   PanelLeft,
   Radar,
@@ -51,6 +52,7 @@ const NAV_GROUPS: { id: string; label: string; items: NavItem[] }[] = [
       { to: "/", label: "Live Desk", icon: Activity },
       { to: "/brief", label: "Brief", icon: ListChecks },
       { to: "/events", label: "World Tape", icon: Newspaper },
+      { to: "/sources", label: "Data sources", icon: Radio },
     ],
   },
   {
@@ -286,13 +288,13 @@ function LivePill() {
         <Session on={sess?.futures} label="FUT" />
       </span>
       {error ? (
-        <span className="max-w-56 truncate text-down" title={error}>
+        <Link to="/sources" className="max-w-56 truncate text-down" title={error}>
           {error}
-        </span>
+        </Link>
       ) : desk?.statusDetail ? (
-        <span className="hidden max-w-72 truncate xl:inline" title={desk.statusDetail}>
+        <Link to="/sources" className="hidden max-w-72 truncate xl:inline" title={desk.statusDetail}>
           {desk.statusDetail}
-        </span>
+        </Link>
       ) : null}
     </div>
   );

@@ -9,6 +9,7 @@ const NAV = [
   { to: "/macro", label: "Macro" },
   { to: "/assets", label: "Markets" },
   { to: "/events", label: "Events" },
+  { to: "/sources", label: "Sources" },
   { to: "/game-theory", label: "ACE" },
   { to: "/scenarios", label: "Scenarios" },
   { to: "/maps", label: "World" },

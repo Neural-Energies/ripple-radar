@@ -4,7 +4,7 @@
  * allocate a console for a second node.exe. Desk data lives in userData,
  * outside the install directory, so an update does not wipe it.
  */
-const { app, BrowserWindow, ipcMain, shell } = require("electron");
+const { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, Notification, shell, Tray } = require("electron");
 const { spawn } = require("child_process");
 const fs = require("fs");
 const http = require("http");
@@ -14,8 +14,14 @@ const path = require("path");
 const APP_NAME = "Ripple Radar";
 
 let server = null;
+let serverPort = 0;
 let mainWindow = null;
+let tray = null;
+let allowQuit = false;
 let updater = null;
+
+const SKIP_COPY = new Set(["Cache", "GPUCache", "Code Cache", "DawnGraphiteCache", "DawnWebGPUCache", "blob_storage"]);
+const BACKUP_MARKER = "ripple-radar-backup.json";
 let downloaded = false;
 let installWhenReady = false;
 let updateState = {
@@ -102,6 +108,209 @@ function startServer(port) {
   server.stdout.on("data", write);
   server.stderr.on("data", write);
   server.on("exit", (code) => logLine("server.log", `[desktop] server exited ${code}`));
+}
+
+function copyFilter(src) {
+  const base = path.basename(src);
+  return !SKIP_COPY.has(base) && base !== "restore-after-restart.json";
+}
+
+/** Copy what we can. A locked cache file must not fail the whole backup. */
+function copyTree(src, dest, skipped) {
+  fs.mkdirSync(dest, { recursive: true });
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    if (SKIP_COPY.has(entry.name) || entry.name === "restore-after-restart.json") continue;
+    const from = path.join(src, entry.name);
+    const to = path.join(dest, entry.name);
+    try {
+      if (entry.isDirectory()) copyTree(from, to, skipped);
+      else if (entry.isFile()) fs.copyFileSync(from, to);
+    } catch (err) {
+      skipped.n += 1;
+      logLine("server.log", `[desktop] skipped ${from}: ${err instanceof Error ? err.message : err}`);
+    }
+  }
+}
+
+function backupFolderName(now) {
+  const p = (n) => String(n).padStart(2, "0");
+  return `RippleRadar-backup-${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}-${p(now.getHours())}${p(now.getMinutes())}`;
+}
+
+/** Applied before the window opens, so the previous process has released the files. */
+function consumePendingRestore() {
+  let userData;
+  try {
+    userData = app.getPath("userData");
+  } catch {
+    return;
+  }
+  const markerPath = path.join(userData, "restore-after-restart.json");
+  if (!fs.existsSync(markerPath)) return;
+  let from = "";
+  try {
+    from = JSON.parse(fs.readFileSync(markerPath, "utf8")).from || "";
+  } catch {
+    from = "";
+  }
+  fs.rmSync(markerPath, { force: true });
+  if (!from || !fs.existsSync(from)) return;
+  const safety = path.join(app.getPath("temp"), "RippleRadar-before-restore");
+  try {
+    fs.rmSync(safety, { recursive: true, force: true });
+    fs.cpSync(userData, safety, { recursive: true, filter: copyFilter });
+    fs.cpSync(from, userData, { recursive: true, force: true, filter: copyFilter });
+    fs.rmSync(from, { recursive: true, force: true });
+  } catch (err) {
+    logLine("server.log", `[desktop] restore failed: ${err instanceof Error ? err.message : err}`);
+  }
+}
+
+function readOpenAtLogin() {
+  try {
+    return app.getLoginItemSettings().openAtLogin === true;
+  } catch {
+    return false;
+  }
+}
+
+function setOpenAtLogin(open) {
+  try {
+    app.setLoginItemSettings({ openAtLogin: Boolean(open), path: process.execPath });
+  } catch (err) {
+    logLine("server.log", `[desktop] startup setting failed: ${err instanceof Error ? err.message : err}`);
+  }
+  return readOpenAtLogin();
+}
+
+function showMain() {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+}
+
+function trayImage() {
+  const ico = path.join(__dirname, "build", "icon.ico");
+  const png = path.join(__dirname, "build", "icon.png");
+  const file = fs.existsSync(ico) ? ico : fs.existsSync(png) ? png : "";
+  if (!file) return nativeImage.createEmpty();
+  const image = nativeImage.createFromPath(file);
+  return image.isEmpty() ? nativeImage.createEmpty() : image;
+}
+
+function rebuildTrayMenu() {
+  if (!tray) return;
+  tray.setContextMenu(
+    Menu.buildFromTemplate([
+      { label: "Open Ripple Radar", click: showMain },
+      { type: "separator" },
+      {
+        label: "Launch at startup",
+        type: "checkbox",
+        checked: readOpenAtLogin(),
+        click: (item) => {
+          setOpenAtLogin(item.checked);
+        },
+      },
+      { type: "separator" },
+      {
+        label: "Quit",
+        click: () => {
+          allowQuit = true;
+          app.quit();
+        },
+      },
+    ]),
+  );
+}
+
+function createTray() {
+  if (tray) return;
+  try {
+    tray = new Tray(trayImage());
+    tray.setToolTip("Ripple Radar — alerts stay on while this sits in the tray");
+    rebuildTrayMenu();
+    tray.on("click", showMain);
+    tray.on("double-click", showMain);
+  } catch (err) {
+    logLine("server.log", `[desktop] tray failed: ${err instanceof Error ? err.message : err}`);
+    tray = null;
+  }
+}
+
+async function restartServer() {
+  const port = serverPort || (await freePort());
+  serverPort = port;
+  stopServer();
+  startServer(port);
+  await waitForHttp(port);
+}
+
+async function backupData() {
+  const picked = await dialog.showOpenDialog({
+    title: "Choose a folder for the backup",
+    properties: ["openDirectory", "createDirectory"],
+  });
+  if (picked.canceled || !picked.filePaths[0]) return { ok: false, path: null, message: "Backup cancelled." };
+  const dest = path.join(picked.filePaths[0], backupFolderName(new Date()));
+  try {
+    stopServer();
+    const skipped = { n: 0 };
+    copyTree(app.getPath("userData"), dest, skipped);
+    fs.writeFileSync(
+      path.join(dest, BACKUP_MARKER),
+      JSON.stringify({ app: APP_NAME, created: new Date().toISOString() }, null, 2),
+    );
+    await restartServer();
+    const missed = skipped.n ? ` ${skipped.n} locked file${skipped.n === 1 ? "" : "s"} left out — see server.log.` : "";
+    return { ok: true, path: dest, message: `Backup saved to ${dest}.${missed}` };
+  } catch (err) {
+    try {
+      await restartServer();
+    } catch {
+      // The window already explains a dead server.
+    }
+    return { ok: false, path: null, message: err instanceof Error ? err.message : "Backup failed." };
+  }
+}
+
+async function restoreData() {
+  const picked = await dialog.showOpenDialog({
+    title: "Choose a Ripple Radar backup folder",
+    properties: ["openDirectory"],
+  });
+  if (picked.canceled || !picked.filePaths[0]) return { ok: false, message: "Restore cancelled." };
+  const src = picked.filePaths[0];
+  let names = [];
+  try {
+    names = fs.readdirSync(src);
+  } catch {
+    names = [];
+  }
+  if (!names.includes(BACKUP_MARKER) && !names.includes("pglite")) {
+    return { ok: false, message: "That folder is not a Ripple Radar backup." };
+  }
+  const pending = path.join(app.getPath("temp"), "RippleRadar-restore-pending");
+  fs.rmSync(pending, { recursive: true, force: true });
+  fs.cpSync(src, pending, { recursive: true, filter: copyFilter });
+  fs.writeFileSync(path.join(app.getPath("userData"), "restore-after-restart.json"), JSON.stringify({ from: pending }));
+  allowQuit = true;
+  app.relaunch();
+  app.exit(0);
+  return { ok: true, message: "Restoring and reopening." };
+}
+
+function notifyUser(title, body) {
+  if (!Notification.isSupported()) return false;
+  const note = new Notification({
+    title: String(title || APP_NAME).slice(0, 120),
+    body: String(body || "").slice(0, 240),
+    icon: trayImage(),
+  });
+  note.on("click", showMain);
+  note.show();
+  return true;
 }
 
 function stopServer() {
@@ -290,6 +499,13 @@ async function createWindow() {
       sandbox: true,
     },
   });
+  // A hidden window still has to poll the tape, or tray alerts never fire.
+  mainWindow.webContents.setBackgroundThrottling(false);
+  mainWindow.on("close", (event) => {
+    if (allowQuit) return;
+    event.preventDefault();
+    mainWindow.hide();
+  });
   mainWindow.once("ready-to-show", () => mainWindow.show());
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     void shell.openExternal(url);
@@ -297,6 +513,7 @@ async function createWindow() {
   });
   try {
     const port = await freePort();
+    serverPort = port;
     startServer(port);
     await waitForHttp(port);
     await mainWindow.loadURL(`http://127.0.0.1:${port}/`);
@@ -312,30 +529,40 @@ const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
   app.quit();
 } else {
-  app.on("second-instance", () => {
-    if (!mainWindow) return;
-    if (mainWindow.isMinimized()) mainWindow.restore();
-    mainWindow.focus();
-  });
+  app.on("second-instance", () => showMain());
+
+  consumePendingRestore();
 
   app.whenReady().then(() => {
     app.setAppUserModelId("com.neuralenergies.rippleradar");
     updateState.current = app.getVersion();
+    createTray();
     ipcMain.handle("desktop:get-info", () => ({
       version: app.getVersion(),
       name: APP_NAME,
       userData: app.getPath("userData"),
+      launchAtStartup: readOpenAtLogin(),
     }));
     ipcMain.handle("desktop:check-for-updates", () => checkForUpdates());
     ipcMain.handle("desktop:install-update", () => installUpdate());
+    ipcMain.handle("desktop:set-launch-at-startup", (_event, on) => {
+      const next = setOpenAtLogin(on);
+      rebuildTrayMenu();
+      return next;
+    });
+    ipcMain.handle("desktop:backup", () => backupData());
+    ipcMain.handle("desktop:restore", () => restoreData());
+    ipcMain.handle("desktop:notify", (_event, payload) => notifyUser(payload && payload.title, payload && payload.body));
     return createWindow();
   }).catch((err) => {
     logLine("server.log", `[desktop] ${err instanceof Error ? err.stack || err.message : String(err)}`);
   });
 
   app.on("window-all-closed", () => {
-    stopServer();
-    app.quit();
+    // Closing the window hides to the tray. Quit is explicit.
   });
-  app.on("before-quit", () => stopServer());
+  app.on("before-quit", () => {
+    allowQuit = true;
+    stopServer();
+  });
 }

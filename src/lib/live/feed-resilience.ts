@@ -3,6 +3,7 @@
  * an empty body. Callers retry the transient cases, and a total outage keeps
  * the last non-empty payload instead of caching a blank tape over a good one.
  */
+import type { FeedSourceStatus } from "./types";
 
 export const FEED_ATTEMPTS = 3;
 export const NEWS_FRESH_TTL_MS = 40_000;
@@ -102,6 +103,57 @@ export function retainRecord<T extends object>(
 
 export function cacheTtlMs(stale: boolean): number {
   return stale ? NEWS_STALE_TTL_MS : NEWS_FRESH_TTL_MS;
+}
+
+/** One row on the data-sources page. An error string is the feed's own message, not a made-up price. */
+export function newsSourceStatus(row: { source: string; count: number; error: string | null }): FeedSourceStatus {
+  if (row.error) return { name: row.source, kind: "news", state: "down", detail: row.error };
+  if (row.count === 0) return { name: row.source, kind: "news", state: "empty", detail: "Answered, with no headlines." };
+  const n = row.count;
+  return { name: row.source, kind: "news", state: "ok", detail: `${n} headline${n === 1 ? "" : "s"}` };
+}
+
+export function quoteSourceStatus(input: {
+  count: number;
+  failedChunks: number;
+  chunkCount: number;
+  stale: boolean;
+}): FeedSourceStatus {
+  if (input.chunkCount > 0 && input.failedChunks === input.chunkCount) {
+    return {
+      name: "Yahoo quotes",
+      kind: "quotes",
+      state: input.stale ? "stale" : "down",
+      detail: input.stale ? "Using the last good prices." : "The quote feed did not answer.",
+    };
+  }
+  if (input.failedChunks > 0) {
+    return {
+      name: "Yahoo quotes",
+      kind: "quotes",
+      state: "stale",
+      detail: `${input.failedChunks} of ${input.chunkCount} batches failed. ${input.count} prices on the desk.`,
+    };
+  }
+  if (input.stale) return { name: "Yahoo quotes", kind: "quotes", state: "stale", detail: "Using the last good prices." };
+  if (input.count === 0) return { name: "Yahoo quotes", kind: "quotes", state: "empty", detail: "No prices returned." };
+  return { name: "Yahoo quotes", kind: "quotes", state: "ok", detail: `${input.count} prices.` };
+}
+
+export function macroSourceStatus(input: { count: number; detail: string }): FeedSourceStatus {
+  const missing = /FRED_API_KEY missing/i.test(input.detail);
+  const failed = /failed/i.test(input.detail);
+  if (missing) {
+    return {
+      name: "FRED macro",
+      kind: "macro",
+      state: "missing",
+      detail: "No FRED_API_KEY on this machine. Macro pages stay on the last published figures.",
+    };
+  }
+  if (failed && input.count === 0) return { name: "FRED macro", kind: "macro", state: "down", detail: input.detail };
+  if (input.count === 0) return { name: "FRED macro", kind: "macro", state: "empty", detail: input.detail || "No macro prints." };
+  return { name: "FRED macro", kind: "macro", state: "ok", detail: input.detail };
 }
 
 /** One line for the desk status. Names the outage; does not invent a reading. */

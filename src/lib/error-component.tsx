@@ -1,13 +1,6 @@
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { TriangleAlert } from "lucide-react";
-
-const FALLBACK_MESSAGE = "An unexpected error occurred. The rest of the desk is still there — reload this view.";
-
-function errorMessage(error: unknown): string {
-  if (error instanceof Error && error.message) return error.message;
-  if (typeof error === "string" && error) return error;
-  return FALLBACK_MESSAGE;
-}
+import { plainError } from "@/lib/plain-error";
 
 export function AppErrorComponent({ error, reset }: ErrorComponentProps) {
   return (
@@ -16,7 +9,7 @@ export function AppErrorComponent({ error, reset }: ErrorComponentProps) {
         <TriangleAlert className="size-10" strokeWidth={2} />
       </span>
       <h1 className="text-lg font-semibold">This view hit an error</h1>
-      <p className="max-w-md text-sm break-words text-muted">{errorMessage(error)}</p>
+      <p className="max-w-md text-sm break-words text-muted">{plainError(error)}</p>
       <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
         <button
           type="button"

@@ -5,6 +5,9 @@ import {
   cacheTtlMs,
   feedStatusNote,
   fetchTextResilient,
+  macroSourceStatus,
+  newsSourceStatus,
+  quoteSourceStatus,
   retainList,
   retainRecord,
   shouldRetryHttp,
@@ -47,6 +50,15 @@ test("an empty quote batch keeps the last prices", () => {
   const fresh = retainRecord({ CL: { last: 1 } }, { HG: { last: 2 } });
   assert.equal(fresh.stale, false);
   assert.equal(fresh.value.HG?.last, 2);
+});
+
+test("each feed gets its own row, and a missing key is not called a failure", () => {
+  assert.equal(newsSourceStatus({ source: "Reuters World", count: 0, error: "HTTP 404" }).state, "down");
+  assert.equal(newsSourceStatus({ source: "Fed", count: 2, error: null }).detail, "2 headlines");
+  assert.equal(quoteSourceStatus({ count: 4, failedChunks: 2, chunkCount: 3, stale: false }).state, "stale");
+  assert.equal(quoteSourceStatus({ count: 0, failedChunks: 1, chunkCount: 1, stale: true }).detail, "Using the last good prices.");
+  assert.equal(macroSourceStatus({ count: 0, detail: "FRED_API_KEY missing" }).state, "missing");
+  assert.equal(macroSourceStatus({ count: 3, detail: "FRED delayed macro · 3/12 series." }).state, "ok");
 });
 
 test("the status line names the outage and does not invent a price", () => {

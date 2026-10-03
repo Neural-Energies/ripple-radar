@@ -25,6 +25,8 @@ Start-Process .\RippleRadar-Setup-0.1.0.exe
 6. The installer is one click. It does not ask for an admin password. It adds **Ripple Radar** to the Start menu and the desktop.
 7. Open **Ripple Radar**. The window is the desk. **About** (in the left rail) shows the icon, the version, and **Check for updates**.
 
+Closing the window leaves the app in the system tray so alerts can still appear. Quit from the tray icon when you want it to stop. **About** also has **Launch when Windows starts**, **Save a backup**, and **Restore a backup** for the data folder above. **Data sources** in the left rail lists each feed. **Copy book**, **Download**, and **PDF** sit on the desk and on the research pages.
+
 ## Ship an update
 
 Installed copies only see a release that GitHub Releases hosts, with the `latest.yml` file electron-builder writes next to the installer.
