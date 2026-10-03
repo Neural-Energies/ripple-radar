@@ -3,7 +3,7 @@ import { test } from "node:test";
 import type { LiveHeadline } from "../live/types.ts";
 import { clusterHeadlines } from "./cluster.ts";
 import { economicVarsFrom, familyOf } from "./extract.ts";
-import { buildCausalGraph } from "./graph.ts";
+import { buildCausalGraph, selectHopsByOrder } from "./graph.ts";
 import { gameTheoryFor, playersFor, questionsFor, scenariosFor } from "./hypothesize.ts";
 import { hopsFrom, tagsFromText, themeFromTags, TICKER_META, toneOf } from "./ontology.ts";
 import { nodeNavTarget } from "./instruments.ts";
@@ -77,6 +77,12 @@ test("same engine, unrelated fixtures, no event-specific branches", () => {
     assert.ok(b.built.questions.length >= 3, `${b.id} needs research questions`);
     assert.ok(b.built.graph.trades.every((t) => t.causalPath), `${b.id} trades need a causal path`);
     assert.ok(!/hormuz|taiwan strait|red sea|rare earth/i.test(b.built.theme), `${b.id} leaked a fixture theme`);
+    assert.ok(
+      b.built.graph.nodes.some((n) => n.level >= 3),
+      `${b.id} must keep a third-order hop, not only the first siblings`,
+    );
+    const mass = b.built.scenarios.reduce((sum, s) => sum + s.probability, 0);
+    assert.equal(mass, 100, `${b.id} scenario mass`);
   }
 
   const families = new Set(books.map((b) => b.built.family));
@@ -87,6 +93,18 @@ test("same engine, unrelated fixtures, no event-specific branches", () => {
 
   const insights = books.map((b) => b.built.gt.insight);
   assert.ok(new Set(insights).size >= 3, "game-theory insight must follow the event family");
+});
+
+test("a bushy second-order tag does not crowd out a third-order hop", () => {
+  const hops = [
+    ...Array.from({ length: 10 }, (_, i) => ({ tag: `sibling-${i}`, depth: 1 })),
+    { tag: "cross-asset", depth: 2 },
+    { tag: "third", depth: 3 },
+  ];
+  const picked = selectHopsByOrder(hops, 4);
+  assert.ok(picked.some((h) => h.depth === 2));
+  assert.ok(picked.some((h) => h.depth === 3));
+  assert.equal(picked.length, 4);
 });
 
 test("unknown event constructs a full book without new production code", () => {

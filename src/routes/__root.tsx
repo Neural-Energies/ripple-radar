@@ -31,7 +31,7 @@ export const Route = createRootRoute({
         content:
           "Don't trade the headline. Trade what it causes next. Alpha Recon maps shocks into transmission chains, probabilities, and ranked second-order exposures.",
       },
-      { name: "theme-color", content: "#060c18" },
+      { name: "theme-color", content: "#f5f7fa" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
@@ -51,9 +51,9 @@ export const Route = createRootRoute({
 
 function Root() {
   return (
-    <html lang="en" className="antialiased" data-theme="dark" suppressHydrationWarning>
+    <html lang="en" className="antialiased" data-theme="light" suppressHydrationWarning>
       <head>
-        {/* Before first paint: apply the viewer's saved theme (dark by default). */}
+        {/* Before first paint: light, including when an older choice was saved. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         <HeadContent />
       </head>

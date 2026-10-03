@@ -1,0 +1,42 @@
+appId: com.neuralenergies.rippleradar
+productName: Ripple Radar
+copyright: Copyright © Neural Energies
+directories:
+  output: ../dist-desktop
+files:
+  - main.cjs
+  - preload.cjs
+  - package.json
+  - node_modules/**/*
+extraResources:
+  - from: ../.output
+    to: output
+asar: true
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+  # Unsigned builds still update. Turn this on when a certificate is configured
+  # (CSC_LINK / CSC_KEY_PASSWORD) so Windows can verify the publisher.
+  verifyUpdateCodeSignature: false
+  requestedExecutionLevel: asInvoker
+  signAndEditExecutable: false
+nsis:
+  oneClick: true
+  perMachine: false
+  allowElevation: false
+  allowToChangeInstallationDirectory: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Ripple Radar
+  uninstallDisplayName: Ripple Radar
+  artifactName: RippleRadar-Setup-${version}.${ext}
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+publish:
+  provider: github
+  owner: Neural-Energies
+  repo: ripple-radar
+  releaseType: release

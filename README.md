@@ -34,6 +34,10 @@ npm run test
 npm run build
 ```
 
+## Windows app
+
+Ripple Radar installs as a normal Windows app: its own window, taskbar icon, and Start menu entry, with no console. Updates come from GitHub Releases. Install and release steps are in [`docs/DESKTOP-WINDOWS.md`](docs/DESKTOP-WINDOWS.md). The About screen (`/settings`) shows the icon, the version, and **Check for updates**. The interface is light.
+
 ## Repo map
 
 | Path | Role |

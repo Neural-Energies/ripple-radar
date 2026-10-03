@@ -72,6 +72,40 @@ export interface BuiltGraph {
   headlineTicker: string;
 }
 
+/**
+ * Fill the hop budget by order, not by how many siblings the first hop has.
+ * A bushy second-order tag (rates, energy) used to consume the node cap
+ * before a third-order hop was ever added. Round-robin across depths keeps
+ * a deeper cross-asset hop in the map whenever the ontology has one.
+ */
+export function selectHopsByOrder<T extends { depth: number }>(hops: T[], budget: number): T[] {
+  if (budget <= 0 || hops.length === 0) return [];
+  const byDepth = new Map<number, T[]>();
+  for (const hop of hops) {
+    const row = byDepth.get(hop.depth);
+    if (row) row.push(hop);
+    else byDepth.set(hop.depth, [hop]);
+  }
+  const depths = [...byDepth.keys()].sort((a, b) => a - b);
+  const index = new Map(depths.map((d) => [d, 0]));
+  const out: T[] = [];
+  const cap = Math.min(budget, hops.length);
+  while (out.length < cap) {
+    let added = false;
+    for (const depth of depths) {
+      const row = byDepth.get(depth)!;
+      const at = index.get(depth)!;
+      if (at >= row.length) continue;
+      out.push(row[at]!);
+      index.set(depth, at + 1);
+      added = true;
+      if (out.length >= cap) break;
+    }
+    if (!added) break;
+  }
+  return out;
+}
+
 function tradeFrom(
   ticker: string,
   node: RippleNode,
@@ -124,7 +158,10 @@ export function buildCausalGraph(opts: {
   nodeByTag.set("__core", "core");
 
   const primary = tags.length ? tags.slice(0, 3) : (["equity"] as Tag[]);
-  const hopList = primary.flatMap((t) => hopsFrom(t, 4));
+  const hopList = selectHopsByOrder(
+    primary.flatMap((t) => hopsFrom(t, 4)),
+    64,
+  );
 
   function addNode(tag: Tag, level: RippleLevel, i: number, edge?: (typeof hopList)[number]["edge"]) {
     if (nodeByTag.has(tag)) return nodeByTag.get(tag)!;

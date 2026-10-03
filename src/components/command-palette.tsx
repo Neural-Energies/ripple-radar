@@ -20,6 +20,7 @@ const PAGES = [
   { to: "/portfolio", label: "Portfolio" },
   { to: "/learning", label: "Learning" },
   { to: "/docs", label: "Docs" },
+  { to: "/settings", label: "About" },
 ];
 
 export function CommandPalette() {

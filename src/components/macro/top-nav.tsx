@@ -1,7 +1,6 @@
 import { Bell, Search } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { AuthSlot } from "@/components/auth-slot";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { LogoMark } from "@/components/logo";
 import { cn } from "@/lib/utils";
 
@@ -66,7 +65,6 @@ export function MacroTopNav({
           <span className="truncate">Search assets, events, or data...</span>
         </button>
 
-        <ThemeToggle className="size-8 rounded-sm" />
         <Link
           to="/alerts"
           className="relative inline-flex size-8 items-center justify-center rounded-sm text-muted hover:bg-card-2 hover:text-foreground"

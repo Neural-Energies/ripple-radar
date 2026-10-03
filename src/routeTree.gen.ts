@@ -22,6 +22,7 @@ import { Route as MacroRouteImport } from './routes/macro'
 import { Route as MapsRouteImport } from './routes/maps'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as ScenariosRouteImport } from './routes/scenarios'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ThesesRouteImport } from './routes/theses'
 import { Route as WatchlistsRouteImport } from './routes/watchlists'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
@@ -104,6 +105,11 @@ const PortfolioRoute = PortfolioRouteImport.update({
 const ScenariosRoute = ScenariosRouteImport.update({
   id: '/scenarios',
   path: '/scenarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ThesesRoute = ThesesRouteImport.update({
@@ -211,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/maps': typeof MapsRoute
   '/portfolio': typeof PortfolioRoute
   '/scenarios': typeof ScenariosRoute
+  '/settings': typeof SettingsRoute
   '/theses': typeof ThesesRoute
   '/watchlists': typeof WatchlistsRoute
   '/api/health': typeof ApiHealthRoute
@@ -243,6 +250,7 @@ export interface FileRoutesByTo {
   '/maps': typeof MapsRoute
   '/portfolio': typeof PortfolioRoute
   '/scenarios': typeof ScenariosRoute
+  '/settings': typeof SettingsRoute
   '/theses': typeof ThesesRoute
   '/watchlists': typeof WatchlistsRoute
   '/api/health': typeof ApiHealthRoute
@@ -277,6 +285,7 @@ export interface FileRoutesById {
   '/maps': typeof MapsRoute
   '/portfolio': typeof PortfolioRoute
   '/scenarios': typeof ScenariosRoute
+  '/settings': typeof SettingsRoute
   '/theses': typeof ThesesRoute
   '/watchlists': typeof WatchlistsRoute
   '/api/health': typeof ApiHealthRoute
@@ -312,6 +321,7 @@ export interface FileRouteTypes {
     | '/maps'
     | '/portfolio'
     | '/scenarios'
+    | '/settings'
     | '/theses'
     | '/watchlists'
     | '/api/health'
@@ -344,6 +354,7 @@ export interface FileRouteTypes {
     | '/maps'
     | '/portfolio'
     | '/scenarios'
+    | '/settings'
     | '/theses'
     | '/watchlists'
     | '/api/health'
@@ -377,6 +388,7 @@ export interface FileRouteTypes {
     | '/maps'
     | '/portfolio'
     | '/scenarios'
+    | '/settings'
     | '/theses'
     | '/watchlists'
     | '/api/health'
@@ -411,6 +423,7 @@ export interface RootRouteChildren {
   MapsRoute: typeof MapsRoute
   PortfolioRoute: typeof PortfolioRoute
   ScenariosRoute: typeof ScenariosRoute
+  SettingsRoute: typeof SettingsRoute
   ThesesRoute: typeof ThesesRoute
   WatchlistsRoute: typeof WatchlistsRoute
   ApiHealthRoute: typeof ApiHealthRoute
@@ -511,6 +524,13 @@ declare module '@tanstack/react-router' {
       path: '/scenarios'
       fullPath: '/scenarios'
       preLoaderRoute: typeof ScenariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/theses': {
@@ -695,6 +715,7 @@ const rootRouteChildren: RootRouteChildren = {
   MapsRoute: MapsRoute,
   PortfolioRoute: PortfolioRoute,
   ScenariosRoute: ScenariosRoute,
+  SettingsRoute: SettingsRoute,
   ThesesRoute: ThesesRoute,
   WatchlistsRoute: WatchlistsRoute,
   ApiHealthRoute: ApiHealthRoute,

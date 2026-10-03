@@ -7,6 +7,13 @@ import type { EvidenceItem, RadarEvent } from "@/data/types";
 import { headlineToEvidence } from "./evidence";
 import { etParts, quoteState, sessionFlags } from "./clock";
 import { attachFredEvidence, fetchFredSeriesBundle, latestFredEvidence } from "./fred.server";
+import {
+  cacheTtlMs,
+  feedStatusNote,
+  fetchTextResilient,
+  retainList,
+  retainRecord,
+} from "./feed-resilience";
 import { parseRss } from "./rss";
 import { DESK_TICKERS, fromYahoo, QUOTABLE, toYahoo } from "./symbols";
 import type { LiveBook, LiveCluster, LiveDesk, LiveHeadline, LiveQuote } from "./types";
@@ -15,13 +22,13 @@ const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
 const QUOTE_TTL = 12_000;
-const NEWS_TTL = 40_000;
 
-type QuoteCache = { at: number; quotes: Record<string, LiveQuote> };
-type NewsCache = { at: number; headlines: LiveHeadline[] };
+type QuoteCache = { at: number; quotes: Record<string, LiveQuote>; stale: boolean };
+type NewsCache = { at: number; headlines: LiveHeadline[]; stale: boolean; failed: string[] };
 
 let quoteCache: QuoteCache | null = null;
 let newsCache: NewsCache | null = null;
+let lastDesk: LiveDesk | null = null;
 
 const FEEDS: { source: string; url: string }[] = [
   { source: "BBC World", url: "https://feeds.bbci.co.uk/news/world/rss.xml" },
@@ -45,27 +52,27 @@ const FEEDS: { source: string; url: string }[] = [
   },
 ];
 
-async function fetchText(url: string, ms = 7000) {
-  const res = await fetch(url, {
-    headers: { "User-Agent": UA, Accept: "application/rss+xml, application/xml, text/xml, */*" },
-    signal: AbortSignal.timeout(ms),
-  });
-  if (!res.ok) throw new Error(`${res.status} ${url}`);
-  return res.text();
-}
+const FEED_HEADERS = {
+  "User-Agent": UA,
+  Accept: "application/rss+xml, application/xml, text/xml, */*",
+};
 
 async function loadNews(): Promise<LiveHeadline[]> {
-  if (newsCache && Date.now() - newsCache.at < NEWS_TTL) return newsCache.headlines;
+  if (newsCache && Date.now() - newsCache.at < cacheTtlMs(newsCache.stale)) return newsCache.headlines;
   const ingestMs = Date.now();
   const priorAvailable = new Map((newsCache?.headlines ?? []).map((h) => [h.id, h.availableTimeMs]));
-  const results = await Promise.allSettled(
-    FEEDS.map((f) => fetchText(f.url).then((xml) => parseRss(xml, f.source, ingestMs))),
+  const results = await Promise.all(
+    FEEDS.map(async (f) => {
+      const got = await fetchTextResilient(f.url, { timeoutMs: 7000, headers: FEED_HEADERS });
+      if (!got.ok) return { source: f.source, headlines: [] as LiveHeadline[], error: got.error };
+      return { source: f.source, headlines: parseRss(got.text, f.source, ingestMs), error: null as string | null };
+    }),
   );
+  const failed = results.filter((r) => r.error).map((r) => r.source);
   const seen = new Set<string>();
   const headlines: LiveHeadline[] = [];
   for (const r of results) {
-    if (r.status !== "fulfilled") continue;
-    for (const h of r.value) {
+    for (const h of r.headlines) {
       const key = h.title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
       if (seen.has(key) || key.length < 18) continue;
       seen.add(key);
@@ -76,8 +83,12 @@ async function loadNews(): Promise<LiveHeadline[]> {
   }
   headlines.sort((a, b) => b.published - a.published);
   const trimmed = headlines.slice(0, 80);
-  newsCache = { at: Date.now(), headlines: trimmed };
-  return trimmed;
+  const kept = retainList(newsCache?.headlines ?? null, trimmed);
+  newsCache = { at: Date.now(), headlines: kept.value, stale: kept.stale, failed };
+  if (failed.length) {
+    console.warn(`[build] ${failed.length} news feed(s) down: ${failed.join(", ")}`);
+  }
+  return kept.value;
 }
 
 type SparkMeta = {
@@ -99,12 +110,12 @@ type SparkResult = {
 async function sparkBatch(tickers: string[]): Promise<Record<string, LiveQuote>> {
   const symbols = tickers.map(toYahoo).join(",");
   const url = `https://query1.finance.yahoo.com/v7/finance/spark?symbols=${encodeURIComponent(symbols)}&range=1d&interval=5m`;
-  const res = await fetch(url, {
+  const got = await fetchTextResilient(url, {
+    timeoutMs: 8000,
     headers: { "User-Agent": UA, Accept: "application/json" },
-    signal: AbortSignal.timeout(8000),
   });
-  if (!res.ok) throw new Error(`spark ${res.status}`);
-  const json = (await res.json()) as { spark?: { result?: SparkResult[] } };
+  if (!got.ok) throw new Error(got.error);
+  const json = JSON.parse(got.text) as { spark?: { result?: SparkResult[] } };
   const now = Date.now();
   const quotes: Record<string, LiveQuote> = {};
   for (const row of json.spark?.result ?? []) {
@@ -139,18 +150,23 @@ async function sparkBatch(tickers: string[]): Promise<Record<string, LiveQuote>>
 }
 
 async function loadQuotes(): Promise<Record<string, LiveQuote>> {
-  if (quoteCache && Date.now() - quoteCache.at < QUOTE_TTL) return quoteCache.quotes;
+  const ttl = quoteCache?.stale ? Math.min(QUOTE_TTL, cacheTtlMs(true)) : QUOTE_TTL;
+  if (quoteCache && Date.now() - quoteCache.at < ttl) return quoteCache.quotes;
   const chunks: string[][] = [];
   for (let i = 0; i < DESK_TICKERS.length; i += 12) {
     chunks.push([...DESK_TICKERS.slice(i, i + 12)]);
   }
   const parts = await Promise.allSettled(chunks.map((c) => sparkBatch(c)));
   const quotes: Record<string, LiveQuote> = {};
+  let failedChunks = 0;
   for (const p of parts) {
     if (p.status === "fulfilled") Object.assign(quotes, p.value);
+    else failedChunks += 1;
   }
-  quoteCache = { at: Date.now(), quotes };
-  return quotes;
+  const kept = retainRecord(quoteCache?.quotes ?? null, quotes);
+  quoteCache = { at: Date.now(), quotes: kept.value, stale: kept.stale };
+  if (failedChunks) console.warn(`[build] ${failedChunks} quote batch(es) failed`);
+  return kept.value;
 }
 
 /** Quotes fetched on demand for names outside the desk list, cached per ticker. */
@@ -293,6 +309,26 @@ function discover(
 }
 
 export async function buildDesk(): Promise<LiveDesk> {
+  try {
+    const desk = await assembleDesk();
+    lastDesk = desk;
+    return desk;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Tape build failed";
+    console.error("[build] desk failed:", err);
+    if (lastDesk) {
+      return {
+        ...lastDesk,
+        asOf: Date.now(),
+        status: "degraded",
+        statusDetail: `Showing the last tape · ${message}`,
+      };
+    }
+    throw err;
+  }
+}
+
+async function assembleDesk(): Promise<LiveDesk> {
   const now = Date.now();
   const [quotes, rawNews, fredEvidence] = await Promise.all([
     loadQuotes().catch(() => quoteCache?.quotes ?? {}),
@@ -456,6 +492,14 @@ export async function buildDesk(): Promise<LiveDesk> {
     statusDetail = "Quotes live · news feed thin.";
   } else if (fredEvidence.length > 0) {
     statusDetail = "FRED delayed macro available · tape thin.";
+  }
+  const feedNote = feedStatusNote(
+    { stale: newsCache?.stale ?? false, failed: newsCache?.failed ?? [] },
+    { stale: quoteCache?.stale ?? false },
+  );
+  if (feedNote) {
+    if (newsCache?.stale || quoteCache?.stale) status = "degraded";
+    statusDetail = `${statusDetail} · ${feedNote}`;
   }
   return {
     asOf: now,

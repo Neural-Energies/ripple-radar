@@ -145,6 +145,10 @@ function authPopupPlugin(): Plugin {
 // `0.0.0.0:8080` is the live-preview contract — don't change host/port.
 // The dev server starts once `src/router.tsx` and `src/routes/` exist — see
 // AGENTS.md § "First scaffold".
+// RIPPLE_DESKTOP=1 builds a Node server the Windows shell can host. The
+// default build stays the Vercel preset.
+const desktopBuild = process.env.RIPPLE_DESKTOP === "1";
+
 export default defineConfig(({ command, isPreview }) => ({
   server: {
     host: "0.0.0.0",
@@ -172,23 +176,33 @@ export default defineConfig(({ command, isPreview }) => ({
     ...(command === "build" || isPreview
       ? [
           nitro({
-            preset: "vercel",
+            preset: desktopBuild ? "node-server" : "vercel",
             // Auto-registers server/middleware/* (the PWA install page +
             // manifest + head-tag middleware). Nitro v3 defaults serverDir to
             // false, so removing this silently unwires /?install=1 on deploys.
             serverDir: "./server",
+            // PGLite's Node filesystem backend has to stay external so the
+            // desktop app can reopen PGLITE_DATA_DIR after an update.
+            ...(desktopBuild
+              ? { externals: { external: ["@electric-sql/pglite"] } }
+              : {}),
             // The durable alert pass (PR #5 B02) and the hourly forecast
             // resolution (B06). Vercel sends `Authorization: Bearer
             // $CRON_SECRET`; both routes refuse without it. /api/health
-            // reports either one going stale.
-            vercel: {
-              config: {
-                crons: [
-                  { path: "/api/alerts/run", schedule: "*/5 * * * *" },
-                  { path: "/api/ledger/resolve", schedule: "17 * * * *" },
-                ],
-              },
-            },
+            // reports either one going stale. The desktop build has no Vercel
+            // cron runner.
+            ...(desktopBuild
+              ? {}
+              : {
+                  vercel: {
+                    config: {
+                      crons: [
+                        { path: "/api/alerts/run", schedule: "*/5 * * * *" },
+                        { path: "/api/ledger/resolve", schedule: "17 * * * *" },
+                      ],
+                    },
+                  },
+                }),
           }),
         ]
       : []),
