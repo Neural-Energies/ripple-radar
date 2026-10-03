@@ -84,6 +84,13 @@ export interface LiveSessions {
   futures: boolean;
 }
 
+export interface FeedSourceStatus {
+  name: string;
+  kind: "news" | "quotes" | "macro";
+  state: "ok" | "down" | "stale" | "missing" | "empty";
+  detail: string;
+}
+
 export interface LiveDesk {
   asOf: number;
   asOfLabel: string;
@@ -99,6 +106,8 @@ export interface LiveDesk {
   quoteCount: number;
   /** Delayed FRED+ALFRED macro prints. Empty when FRED_API_KEY is unset. */
   macroEvidence?: EvidenceItem[];
+  /** One row per news feed, plus quotes and macro. Absent on older payloads. */
+  feeds?: FeedSourceStatus[];
 }
 
 export interface RescoreResult {

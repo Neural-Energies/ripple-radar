@@ -43,7 +43,7 @@ P0 = wire **after** I(T) ledger + CoS greenlight of that adapter. P1 = next. P2 
 
 ### News / RSS — 16 feeds coded
 
-BBC World/Business, NYT World/Business, Al Jazeera, OilPrice, CNBC World/Markets, Defense One, Guardian World/Business, Reuters World/Business, **Fed `press_all.xml` (P0 policy primary)**, CoinDesk (crypto **narrative** only), Google News search (demote weight).
+BBC World/Business, NYT World/Business, Al Jazeera, OilPrice, CNBC World/Markets, Defense One, Guardian World/Business, NPR World/Business (Reuters public RSS retired), **Fed `press_all.xml` (P0 policy primary)**, CoinDesk (crypto **narrative** only), Google News search (demote weight).
 
 **RSS expansions (P1, official only — not more Google News):** ECB press `https://www.ecb.europa.eu/rss/press.html`; USGS M4.5+ GeoJSON `https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson`; NHC Atlantic `https://www.nhc.noaa.gov/index-at.xml`; Federal Register `https://www.federalregister.gov/api/v1/documents.json`. Verify BoE/BoJ official RSS on-site before adding.
 

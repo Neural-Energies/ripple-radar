@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode } from "react";
 import { toast } from "sonner";
+import { desktopNotify } from "@/lib/desktop/bridge";
+import { plainError } from "@/lib/plain-error";
 import { create } from "zustand";
 import { useApp } from "@/lib/store";
 import { ackAlertDeliveries, getAlertInbox } from "./alert-inbox";
@@ -90,7 +92,7 @@ function startDeskPoll() {
         const desk = await getLiveDesk();
         useLive.getState().setDesk(desk);
       } catch (err) {
-        useLive.getState().setError(err instanceof Error ? err.message : "Tape interrupted");
+        useLive.getState().setError(plainError(err, "The tape did not answer. Open Data sources to see which feed failed."));
       } finally {
         window.setTimeout(loop, POLL_MS);
       }
@@ -134,7 +136,9 @@ export function LiveProvider({ children }: { children: ReactNode }) {
       const { next, fired } = stepRule(local.current[a.id] ?? null, e, now);
       local.current[a.id] = next;
       if (fired && primed.current && identity === null && e.status === "ok") {
-        toast(a.title || "Alert", { description: e.reason });
+        const title = a.title || "Alert";
+        toast(title, { description: e.reason });
+        desktopNotify(title, e.reason);
       }
     }
     primed.current = true;
@@ -186,8 +190,15 @@ export function LiveProvider({ children }: { children: ReactNode }) {
         setInbox(inbox);
         const unseen = inbox.deliveries.filter((d) => d.channel === "inbox" && d.status === "pending");
         const fresh = unseen.filter((d) => !shown.current.has(d.id));
-        for (const d of fresh.slice(0, 5)) toast(d.title, { description: d.reason });
-        if (fresh.length > 5) toast(`${fresh.length - 5} more alerts`, { description: "See Alerts for the full record." });
+        for (const d of fresh.slice(0, 5)) {
+          toast(d.title, { description: d.reason });
+          desktopNotify(d.title, d.reason);
+        }
+        if (fresh.length > 5) {
+          const more = `${fresh.length - 5} more alerts`;
+          toast(more, { description: "See Alerts for the full record." });
+          desktopNotify(more, "See Alerts for the full record.");
+        }
         fresh.forEach((d) => shown.current.add(d.id));
         if (unseen.length) await ackAlertDeliveries({ data: { ids: unseen.map((d) => d.id) } });
       } catch {

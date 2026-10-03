@@ -16,17 +16,18 @@ import {
   Landmark,
   Menu,
   Newspaper,
+  Radio,
   NotebookPen,
   PanelLeft,
   Radar,
   Search,
+  Settings,
   Swords,
   X,
 } from "lucide-react";
 import { CommandPalette } from "@/components/command-palette";
 import { Logo } from "@/components/logo";
 import { AuthSlot } from "@/components/auth-slot";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge, Button, Kbd } from "@/components/ui";
 import {
   useAlertHits,
@@ -37,6 +38,7 @@ import {
 import { goToEvent, useEventParamSync } from "@/lib/hooks/use-event-param-sync";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { DesktopUpdateNotice } from "@/components/desktop-update";
 import { MacroTopNav } from "@/components/macro/top-nav";
 import type { RadarEvent } from "@/data/types";
 
@@ -50,6 +52,7 @@ const NAV_GROUPS: { id: string; label: string; items: NavItem[] }[] = [
       { to: "/", label: "Live Desk", icon: Activity },
       { to: "/brief", label: "Brief", icon: ListChecks },
       { to: "/events", label: "World Tape", icon: Newspaper },
+      { to: "/sources", label: "Data sources", icon: Radio },
     ],
   },
   {
@@ -79,6 +82,7 @@ const NAV_GROUPS: { id: string; label: string; items: NavItem[] }[] = [
     items: [
       { to: "/learning", label: "Learning", icon: GraduationCap },
       { to: "/docs", label: "Docs", icon: BookOpen },
+      { to: "/settings", label: "About", icon: Settings },
     ],
   },
 ];
@@ -124,6 +128,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           Skip to content
         </a>
         <MacroTopNav onSearch={() => setCommand(true)} alertCount={hits.length} />
+        <DesktopUpdateNotice />
         <main id="main" className="min-w-0 flex-1 overflow-x-hidden">
           <div className="px-2 py-1.5">{children}</div>
         </main>
@@ -172,7 +177,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </span>
           </button>
 
-          <ThemeToggle />
           <Link
             to="/alerts"
             className="relative inline-flex size-9 items-center justify-center rounded-md text-muted hover:bg-card-2 hover:text-foreground"
@@ -188,6 +192,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <AuthSlot />
         </div>
       </header>
+      <DesktopUpdateNotice />
 
       <div className="flex min-h-0 flex-1">
         <aside
@@ -248,6 +253,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 function LivePill() {
   const desk = useLive((s) => s.desk);
   const status = useLive((s) => s.status);
+  const error = useLive((s) => s.error);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -281,6 +287,15 @@ function LivePill() {
         <Session on={sess?.tokyo} label="TYO" />
         <Session on={sess?.futures} label="FUT" />
       </span>
+      {error ? (
+        <Link to="/sources" className="max-w-56 truncate text-down" title={error}>
+          {error}
+        </Link>
+      ) : desk?.statusDetail ? (
+        <Link to="/sources" className="hidden max-w-72 truncate xl:inline" title={desk.statusDetail}>
+          {desk.statusDetail}
+        </Link>
+      ) : null}
     </div>
   );
 }

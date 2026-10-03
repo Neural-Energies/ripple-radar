@@ -453,6 +453,19 @@ export const TRANSMIT: Transmit[] = [
   { from: "rates", to: "banking", direction: -1, lag: "days–weeks", mechanism: "Higher path marks AFS books and tightens credit supply.", confidence: 0.6 },
   { from: "fx", to: "equity", direction: -1, lag: "minutes–weeks", mechanism: "A dollar squeeze is a financial-conditions print for risk assets.", confidence: 0.5 },
   { from: "policy", to: "equity", direction: -1, lag: "minutes–weeks", mechanism: "The reaction function hits duration and high-beta first.", confidence: 0.58 },
+  { from: "ag", to: "inflation", direction: 1, lag: "weeks–months", mechanism: "Food is a CPI line. A crop or nutrient shock prints with a lag, not in the headline session.", confidence: 0.62 },
+  { from: "freight", to: "inflation", direction: 1, lag: "weeks–months", mechanism: "Landed-goods costs follow tonne-miles into goods CPI.", confidence: 0.58 },
+  { from: "gas", to: "inflation", direction: 1, lag: "weeks", mechanism: "Utility and feedstock gas is CPI-visible before it is an equity story.", confidence: 0.6 },
+  { from: "weather", to: "insurance", direction: 1, lag: "hours–weeks", mechanism: "Physical loss hits claims and reinsurance before the equity multiple.", confidence: 0.7 },
+  { from: "weather", to: "logistics", direction: 1, lag: "hours–days", mechanism: "Ports, barges, and roads close. Throughput is the transmission.", confidence: 0.66 },
+  { from: "magnets", to: "ev", direction: 1, lag: "weeks–quarters", mechanism: "Motor magnets sit between the oxide and the vehicle.", confidence: 0.64 },
+  { from: "magnets", to: "defense", direction: 1, lag: "weeks–quarters", mechanism: "Qualified magnets gate restock. The mine headline is not the budget.", confidence: 0.6 },
+  { from: "compute", to: "equity", direction: 1, lag: "days–weeks", mechanism: "Lead times and capex reprice the hardware complex after the foundry.", confidence: 0.55 },
+  { from: "banking", to: "liquidity", direction: 1, lag: "hours–days", mechanism: "Deposit flight is a funding print before it is a sector multiple.", confidence: 0.72 },
+  { from: "credit", to: "vol", direction: 1, lag: "hours–days", mechanism: "A spread blowout shows up as gap risk, not only as a bank multiple.", confidence: 0.6 },
+  { from: "insurance", to: "equity", direction: -1, lag: "days–weeks", mechanism: "Combined-ratio stress reprices the carriers after the loss event.", confidence: 0.55 },
+  { from: "consumer", to: "equity", direction: -1, lag: "weeks", mechanism: "Volume and shelf-price stress reaches discretionary equities with a lag.", confidence: 0.5 },
+  { from: "ev", to: "copper", direction: 1, lag: "weeks–quarters", mechanism: "Motors and wiring pull industrial metal after the battery feedstock.", confidence: 0.58 },
 ];
 
 export function toneOf(text: string): "up" | "down" | "neutral" {

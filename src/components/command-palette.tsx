@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 const PAGES = [
   { to: "/", label: "Live Desk" },
   { to: "/events", label: "World Tape" },
+  { to: "/sources", label: "Data sources" },
   { to: "/maps", label: "Ripple Map" },
   { to: "/scenarios", label: "Scenarios" },
   { to: "/game-theory", label: "Game Theory" },
@@ -20,6 +21,7 @@ const PAGES = [
   { to: "/portfolio", label: "Portfolio" },
   { to: "/learning", label: "Learning" },
   { to: "/docs", label: "Docs" },
+  { to: "/settings", label: "About" },
 ];
 
 export function CommandPalette() {

@@ -2,7 +2,7 @@ import type { EvidenceClass, EvidenceItem, EvidenceKind, Reliability } from "@/d
 import type { LiveHeadline } from "./types";
 
 const TIER_A = ["federal reserve", "treasury", "white house", "eia", "sec ", "ecb", "boj", "imf", "opec", "iea"];
-const TIER_B = ["reuters", "bbc", "nyt", "new york times", "ap ", "associated press", "ft ", "financial times", "wsj"];
+const TIER_B = ["reuters", "npr", "bbc", "nyt", "new york times", "ap ", "associated press", "ft ", "financial times", "wsj"];
 const TIER_C = ["cnbc", "guardian", "al jazeera", "oilprice", "defense one", "coindesk", "bloomberg"];
 
 const FUNDAMENTAL = [

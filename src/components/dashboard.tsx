@@ -7,6 +7,7 @@ import {
   Newspaper,
   X,
 } from "lucide-react";
+import { BookExport } from "@/components/book-export";
 import { ScenarioDistributionBar } from "@/components/charts";
 import { BookStateChips } from "@/components/research-header";
 import { EventGeo, NextChecks, StoryList, usePageIntel } from "@/components/event-intel-panels";
@@ -252,6 +253,18 @@ function DevelopingNowStrip({ activeId }: { activeId: string }) {
   );
 }
 
+function EmptyDeskNote() {
+  const status = useLive((s) => s.status);
+  const error = useLive((s) => s.error);
+  const text =
+    status === "connecting" || status === "idle"
+      ? "Pulling the live tape. A book shows up here once a headline clusters, or you can paste one above."
+      : error
+        ? `${error} Open Data sources in the left rail to see which feed failed.`
+        : "Nothing is on the desk yet. Paste a shock above, or wait for the tape.";
+  return <p className="mt-1 text-caption text-muted">{text}</p>;
+}
+
 /** Thin book chrome — crowding ≠ confirmation; reserved fields only when present. */
 function EventHero({ event, name }: { event: RadarEvent; name: string }) {
   const rescoring = useLive((s) => s.rescoring);
@@ -270,7 +283,8 @@ function EventHero({ event, name }: { event: RadarEvent; name: string }) {
         <BookStateChips event={event} />
         {freshness ? <span className="font-mono text-micro text-subtle">{freshness}</span> : null}
         {sourceN > 0 ? <span className="font-mono text-micro text-subtle">{sourceN} src</span> : null}
-        <div className="ml-auto">
+        <div className="ml-auto flex flex-wrap items-center gap-1">
+          <BookExport event={event} disabled={empty} />
           <button
             type="button"
             disabled={rescoring === event.id || empty}
@@ -284,6 +298,7 @@ function EventHero({ event, name }: { event: RadarEvent; name: string }) {
       <h1 className="mt-1 line-clamp-3 text-base font-semibold tracking-tight text-foreground sm:text-lg">
         {empty ? "No active book" : name}
       </h1>
+      {empty ? <EmptyDeskNote /> : null}
       {!empty && event.summary && !event.summary.startsWith("Don't trade the headline") ? (
         <p className="mt-0.5 line-clamp-2 text-caption text-muted">{event.summary}</p>
       ) : null}

@@ -22,7 +22,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
       <LogoMark />
       <div>
         <div className="text-sm font-semibold leading-none tracking-wide text-foreground">
-          ALPHA RECON
+          RIPPLE RADAR
         </div>
         <div className={cn("mt-0.5 text-micro uppercase tracking-wider text-subtle", compact && "hidden md:block")}>
           Trade what it causes next.

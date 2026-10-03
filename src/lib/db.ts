@@ -111,7 +111,11 @@ async function createPgliteSql(): Promise<Sql> {
   // data survives source edits (it resets on dev-server restart).
   globalRef.__pgliteInstance__ ??= (async () => {
     const { PGlite } = await import("@electric-sql/pglite");
+    // In-memory for preview and tests. The Windows app sets PGLITE_DATA_DIR
+    // under the user profile so an update does not wipe the desk database.
+    const dataDir = typeof process !== "undefined" ? process.env.PGLITE_DATA_DIR?.trim() : "";
     const pg = new PGlite({
+      ...(dataDir ? { dataDir } : {}),
       parsers: {
         [OID_INT8]: Number,
         [OID_DATE]: identity,

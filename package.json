@@ -1,5 +1,6 @@
 {
   "name": "alpha-recon",
+  "version": "0.2.0",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -9,6 +10,9 @@
   "scripts": {
     "dev": "node scripts/with-app-env.mjs vite dev --host 0.0.0.0 --port 8080",
     "build": "node scripts/with-app-env.mjs vite build && npm run db:migrate",
+    "build:desktop": "node scripts/build-desktop.mjs",
+    "desktop:stage": "node scripts/stage-desktop.mjs",
+    "desktop:check-update": "node --experimental-strip-types scripts/check-desktop-update.mjs",
     "db:migrate": "node scripts/migrate.mjs",
     "build:dev": "node scripts/with-app-env.mjs vite build --mode development",
     "preview": "node scripts/with-app-env.mjs vite preview",
@@ -19,7 +23,7 @@
     "test": "sh -c 'rc=0; npm run --silent test:scripts || rc=1; npm run --silent test:app || rc=1; npm run --silent test:engine || rc=1; exit $rc'",
     "test:scripts": "node --test 'scripts/**/*.test.mjs'",
     "test:app": "node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts src/lib/live/fred.test.ts src/lib/live/evidence.test.ts",
-    "test:engine": "tsx --test src/lib/engine/engine.test.ts src/lib/engine/game.test.ts src/lib/engine/routing.test.ts src/lib/ace/probability.test.ts src/lib/ace/dirichlet-persistence.test.ts src/lib/ace/bands.test.ts src/lib/ace/materiality.test.ts src/lib/ace/claim.test.ts src/lib/ace/expected-evidence.test.ts src/lib/ace/intervene.test.ts src/lib/ace/horizon.test.ts src/lib/live/event-identity.test.ts src/lib/live/event-registry.test.ts src/lib/engine/transmission-evidence.test.ts src/lib/ace/prior.test.ts src/lib/ace/game-sensitivity.test.ts src/lib/analogs/retrieval.test.ts src/lib/ace/cascade-rates.test.ts src/lib/ace/macro-quads.test.ts src/lib/live/macro-hlw.test.ts src/lib/live/vol-regime-alignment.test.ts src/lib/live/forecast-ledger.test.ts src/components/macro/mirror.test.tsx src/lib/desk-sync.test.ts src/lib/thesis.test.ts src/lib/brief.test.ts src/lib/live/alerts.test.ts src/lib/engine/compute-access.test.ts src/lib/live/symbols.test.ts src/lib/theme.test.ts src/lib/live/webhook-send.test.ts src/lib/live/release-calendar.test.ts src/lib/live/discover.test.ts src/lib/live/jobs.test.ts src/lib/billing/stripe.test.ts",
+    "test:engine": "tsx --test src/lib/engine/engine.test.ts src/lib/engine/game.test.ts src/lib/engine/routing.test.ts src/lib/ace/probability.test.ts src/lib/ace/dirichlet-persistence.test.ts src/lib/ace/bands.test.ts src/lib/ace/materiality.test.ts src/lib/ace/claim.test.ts src/lib/ace/expected-evidence.test.ts src/lib/ace/intervene.test.ts src/lib/ace/horizon.test.ts src/lib/live/event-identity.test.ts src/lib/live/event-registry.test.ts src/lib/engine/transmission-evidence.test.ts src/lib/ace/prior.test.ts src/lib/ace/game-sensitivity.test.ts src/lib/analogs/retrieval.test.ts src/lib/ace/cascade-rates.test.ts src/lib/ace/macro-quads.test.ts src/lib/live/macro-hlw.test.ts src/lib/live/vol-regime-alignment.test.ts src/lib/live/forecast-ledger.test.ts src/components/macro/mirror.test.tsx src/lib/desk-sync.test.ts src/lib/thesis.test.ts src/lib/brief.test.ts src/lib/live/alerts.test.ts src/lib/engine/compute-access.test.ts src/lib/live/symbols.test.ts src/lib/theme.test.ts src/lib/live/webhook-send.test.ts src/lib/live/release-calendar.test.ts src/lib/live/discover.test.ts src/lib/live/jobs.test.ts src/lib/billing/stripe.test.ts src/lib/live/feed-resilience.test.ts src/lib/desktop/update-check.test.ts src/lib/pglite-persist.test.ts src/lib/desktop/data-folder.test.ts src/lib/desktop/desk-file.test.ts src/lib/export-book.test.ts src/lib/plain-error.test.ts scripts/command-launch.test.mjs",
     "cascade:generate": "python3 ace/models/gdelt_cascade_model.py && node scripts/generate-cascade-rates.mjs",
     "analogs:export": "python3 ace/analogs/export_pool.py && cp artifacts/reports/analog_pool.json src/lib/analogs/pool.json",
     "baserates:generate": "node scripts/generate-base-rates.mjs",

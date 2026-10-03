@@ -120,7 +120,7 @@ let cache: { at: number; read: MacroRead } | null = null;
 
 async function fredCsv(id: string): Promise<string> {
   const res = await fetch(`https://fred.stlouisfed.org/graph/fredgraph.csv?id=${id}`, {
-    headers: { "User-Agent": "AlphaRecon", Accept: "text/csv" },
+    headers: { "User-Agent": "RippleRadar", Accept: "text/csv" },
     signal: AbortSignal.timeout(12000),
   });
   if (!res.ok) throw new Error(`FRED ${id} ${res.status}`);

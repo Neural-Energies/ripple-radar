@@ -1,0 +1,45 @@
+appId: com.neuralenergies.rippleradar
+productName: Ripple Radar
+copyright: Copyright © Neural Energies
+directories:
+  output: ../dist-desktop
+files:
+  - main.cjs
+  - preload.cjs
+  - package.json
+  - build/icon.ico
+  - build/icon.png
+  - node_modules/**/*
+extraResources:
+  - from: ../.output
+    to: output
+asar: true
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+  # Put the icon and version on the exe. Do not sign. A certificate is a separate step.
+  # signAndEditExecutable stays on so the taskbar icon is ours. signExecutable
+  # is off so the build does not look for a certificate.
+  signExecutable: false
+  verifyUpdateCodeSignature: false
+  requestedExecutionLevel: asInvoker
+nsis:
+  oneClick: true
+  perMachine: false
+  allowElevation: false
+  allowToChangeInstallationDirectory: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Ripple Radar
+  uninstallDisplayName: Ripple Radar
+  artifactName: RippleRadar-Setup-${version}.${ext}
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+publish:
+  provider: github
+  owner: Neural-Energies
+  repo: ripple-radar
+  releaseType: release

@@ -1,0 +1,60 @@
+name: Windows desktop
+
+on:
+  pull_request:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish a GitHub Release so installed copies can update
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: windows-desktop-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  installer:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build the local desk server
+        run: npm run build:desktop
+      - name: Stage the Windows shell
+        run: node scripts/stage-desktop.mjs
+      - name: Install the shell
+        working-directory: desktop-stage
+        run: npm install
+      - name: Build the installer
+        working-directory: desktop-stage
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Unsigned on purpose. Also stops electron-builder from hunting for a
+          # certificate and from unpacking the Windows signing tools.
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: |
+          set -euo pipefail
+          publish=never
+          if [[ "${{ github.ref_type }}" == "tag" || "${{ inputs.publish }}" == "true" ]]; then
+            publish=always
+          fi
+          npx electron-builder --win nsis --publish "$publish"
+      - name: Upload the installer
+        if: github.ref_type != 'tag' && inputs.publish != true
+        uses: actions/upload-artifact@v4
+        with:
+          name: ripple-radar-windows
+          path: dist-desktop/*.exe
+          if-no-files-found: error

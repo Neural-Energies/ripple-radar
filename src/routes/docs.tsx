@@ -21,7 +21,7 @@ function DocsPage() {
       <header className="flex flex-col gap-2">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">Docs</h1>
         <p className="text-caption text-muted">
-          Desk reference for Alpha Recon. Operator chrome stays quiet — how-to lives here, not as
+          Desk reference for Ripple Radar. Operator chrome stays quiet — how-to lives here, not as
           coach marks on Live Desk or World Tape.
         </p>
       </header>
@@ -78,7 +78,9 @@ function DocsPage() {
             <DocStep n="05" title="Monitor & model">
               Assets / Watchlists / Alerts / Portfolio are monitor surfaces. Learning and Docs sit
               under Model — calibration on Learning is this desk&apos;s own scored record, and is
-              empty until forecasts resolve.
+              empty until forecasts resolve. Data sources lists each feed. Copy, download, or PDF
+              sits on the book itself. About holds backups and, in the Windows app, the tray and
+              startup setting.
             </DocStep>
           </ol>
         </Panel>
