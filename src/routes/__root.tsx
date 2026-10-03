@@ -53,7 +53,7 @@ function Root() {
   return (
     <html lang="en" className="antialiased" data-theme="light" suppressHydrationWarning>
       <head>
-        {/* Before first paint: light, including when an older choice was saved. */}
+        {/* Before first paint. Light unless Dark or a dark System choice was saved. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         <HeadContent />
       </head>

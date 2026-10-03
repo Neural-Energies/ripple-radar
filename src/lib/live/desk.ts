@@ -15,10 +15,12 @@ export const getEmpiricalBook = createServerFn({ method: "POST" })
     return empiricalBook(data.title, data.actors);
   });
 
-export const getLiveDesk = createServerFn({ method: "POST" }).handler(async () => {
-  const { buildDesk } = await import("./build.server");
-  return buildDesk();
-});
+export const getLiveDesk = createServerFn({ method: "POST" })
+  .validator((input: { fresh?: boolean } | undefined) => ({ fresh: input?.fresh === true }))
+  .handler(async ({ data }) => {
+    const { buildDesk } = await import("./build.server");
+    return buildDesk(data.fresh);
+  });
 
 /** Quotes for held names outside the desk list (watchlists, theses, alert rules). Public market data. */
 export const getQuotes = createServerFn({ method: "POST" })

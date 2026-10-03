@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import type { RadarEvent } from "@/data/types";
 import type { LiveHeadline } from "@/lib/live/types";
 import { flattenTree, pageIntel, type IntelNode, type PageIntel, type StoryView } from "@/lib/engine/page-intel";
+import { safeHttpUrl } from "@/lib/safe-url";
 import { clockLabel } from "@/components/world-tape-helpers";
 import { Badge, Panel } from "@/components/ui";
 import { cn } from "@/lib/utils";
@@ -78,8 +79,8 @@ function StoryRow({ story }: { story: StoryView }) {
         </Badge>
         {story.material ? <span className="text-micro text-subtle">material</span> : null}
       </div>
-      {story.url ? (
-        <a href={story.url} target="_blank" rel="noreferrer" className="mt-0.5 block text-caption leading-snug hover:text-primary hover:underline">
+      {safeHttpUrl(story.url) ? (
+        <a href={safeHttpUrl(story.url)!} target="_blank" rel="noreferrer" className="mt-0.5 block text-caption leading-snug hover:text-primary hover:underline">
           {story.title}
         </a>
       ) : (

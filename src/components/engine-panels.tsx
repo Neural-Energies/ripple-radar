@@ -5,6 +5,7 @@ import type { KnowledgeKind, RadarEvent } from "@/data/types";
 import { observedShare } from "@/lib/ace/expected-evidence";
 import { ENGINE_STEPS, stageOf } from "@/lib/engine/pipeline";
 import { goToEvent } from "@/lib/hooks/use-event-param-sync";
+import { safeHttpUrl } from "@/lib/safe-url";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -155,9 +156,9 @@ export function ExpectedEvidencePanel({ event }: { event: RadarEvent }) {
               {e.appeared && e.matchedHeadline && (
                 <p className="mt-1 break-words text-micro text-muted">
                   Satisfied by{source ? ` ${source.source}` : ""}:{" "}
-                  {source?.url ? (
+                  {safeHttpUrl(source?.url) ? (
                     <a
-                      href={source.url}
+                      href={safeHttpUrl(source?.url)!}
                       target="_blank"
                       rel="noreferrer"
                       className="text-foreground underline-offset-2 hover:text-primary hover:underline"

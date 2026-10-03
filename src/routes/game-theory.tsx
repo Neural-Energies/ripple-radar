@@ -9,6 +9,7 @@ import { goToScenario, validateEventSearch } from "@/lib/hooks/use-event-param-s
 import { getEmpiricalBook } from "@/lib/live/desk";
 import { formatPct, formatVolume, type EmpiricalBook } from "@/lib/live/empirical";
 import { useLiveEvent } from "@/lib/live/provider";
+import { safeHttpUrl } from "@/lib/safe-url";
 import { useApp } from "@/lib/store";
 
 export const Route = createFileRoute("/game-theory")({
@@ -77,18 +78,24 @@ function GameTheoryPage() {
               <ul className="mt-2 flex flex-col gap-1">
                 {book.contracts.map((c) => (
                   <li key={c.question}>
-                    <a
-                      href={c.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-baseline justify-between gap-2 rounded-sm px-1 py-1 hover:bg-card-2"
-                    >
-                      <span className="min-w-0 text-caption text-foreground">{c.question}</span>
-                      <span className="shrink-0 font-mono text-caption tabular-nums text-primary">
-                        {formatPct(c.yes)}
-                        <span className="ml-2 text-subtle">· {formatVolume(c.volumeUsd)}</span>
+                    {safeHttpUrl(c.url) ? (
+                      <a
+                        href={safeHttpUrl(c.url)!}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-baseline justify-between gap-2 rounded-sm px-1 py-1 hover:bg-card-2"
+                      >
+                        <span className="min-w-0 text-caption text-foreground">{c.question}</span>
+                        <span className="shrink-0 font-mono text-caption tabular-nums text-primary">
+                          {formatPct(c.yes)}
+                          <span className="ml-2 text-subtle">· {formatVolume(c.volumeUsd)}</span>
+                        </span>
+                      </a>
+                    ) : (
+                      <span className="flex items-baseline justify-between gap-2 px-1 py-1 text-caption text-foreground">
+                        {c.question}
                       </span>
-                    </a>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -186,11 +193,11 @@ function HistoryBlock({ book, loading }: { book: EmpiricalBook | null; loading: 
           </li>
         ))}
       </ul>
-      {history.url && (
-        <a href={history.url} target="_blank" rel="noreferrer" className="text-micro text-primary hover:underline">
+      {safeHttpUrl(history.url) ? (
+        <a href={safeHttpUrl(history.url)!} target="_blank" rel="noreferrer" className="text-micro text-primary hover:underline">
           {history.citation}
         </a>
-      )}
+      ) : null}
     </div>
   );
 }

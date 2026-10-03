@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { TickerLink } from "@/components/desk-nav";
 import { BookStateChips } from "@/components/research-header";
@@ -9,7 +9,7 @@ import {
   Stamp,
   classTone,
   clockLabel,
-  currentShocks,
+  visibleTape,
   relTone,
   toneBadge,
 } from "@/components/world-tape-helpers";
@@ -18,16 +18,22 @@ import { regionFromText, tagsFromText, themeFromTags } from "@/lib/engine/ontolo
 import { classifyText, reliabilityOf } from "@/lib/live/evidence";
 import { isTapeShock } from "@/lib/engine/relevance";
 import { EMPTY_HEADLINES } from "@/lib/live/empty";
+import { NEWS_FEEDS } from "@/lib/live/feeds";
 import {
+  refreshDesk,
   runAnalyze,
   useLive,
   useLiveClusters,
   useLiveEvent,
   useLiveEvents,
 } from "@/lib/live/provider";
-import type { LiveHeadline } from "@/lib/live/types";
+import { readTapePrefs, writeTapePrefs, type TapePrefs } from "@/lib/live/tape-prefs";
+import { safeHttpUrl } from "@/lib/safe-url";
+import type { FeedSourceStatus, LiveHeadline } from "@/lib/live/types";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
+
+const EMPTY_FEEDS: FeedSourceStatus[] = [];
 
 export const Route = createFileRoute("/events")({ component: EventsPage });
 
@@ -35,7 +41,14 @@ function EventsPage() {
   const navigate = useNavigate();
   const setEvent = useApp((s) => s.setSelectedEventId);
   const addBook = useApp((s) => s.addDeskBook);
-  const headlines = useLive((s) => s.desk?.headlines ?? EMPTY_HEADLINES);
+  const headlines = useLive((s) => s.desk?.tape ?? s.desk?.headlines ?? EMPTY_HEADLINES);
+  const feeds = useLive((s) => s.desk?.feeds ?? EMPTY_FEEDS);
+  const status = useLive((s) => s.status);
+  const [prefs, setPrefs] = useState<TapePrefs>({ shockOnly: false, allSources: true, sources: [], refreshMs: 15_000 });
+  const [refreshing, setRefreshing] = useState(false);
+  useEffect(() => {
+    setPrefs(readTapePrefs());
+  }, []);
   const clusters = useLiveClusters();
   const events = useLiveEvents();
   const analyzing = useLive((s) => s.analyzing);
@@ -63,13 +76,14 @@ function EventsPage() {
     [events],
   );
   const highImp = highBooks.length;
-  const tape = useMemo(() => currentShocks(headlines), [headlines]);
+  const tape = useMemo(() => visibleTape(headlines, prefs), [headlines, prefs]);
   const shockIds = useMemo(() => new Set(tape.flatMap((h) => h.eventIds)), [tape]);
   const shownClusters = useMemo(
-    () => clusters.filter((c) => shockIds.has(c.id) || isTapeShock(c.title)),
-    [clusters, shockIds],
+    () => (prefs.shockOnly ? clusters.filter((c) => shockIds.has(c.id) || isTapeShock(c.title)) : clusters),
+    [clusters, shockIds, prefs.shockOnly],
   );
-  const stream = lens === "headlines" ? headlines : tape;
+  const allHeadlines = useMemo(() => [...headlines].sort((a, b) => b.published - a.published), [headlines]);
+  const stream = lens === "headlines" ? allHeadlines : tape;
   const clusterRows = lens === "clusters" ? clusters : shownClusters;
 
   function pickLens(next: "headlines" | "clusters" | "high") {
@@ -87,6 +101,26 @@ function EventsPage() {
     setHighlightClusterId(clusterId ?? null);
     setSelectedClusterId(clusterId ?? null);
   }
+  function savePrefs(next: TapePrefs) {
+    setPrefs(writeTapePrefs(next));
+  }
+
+  function toggleSource(source: string) {
+    const selected = prefs.allSources ? NEWS_FEEDS.map((f) => f.source) : prefs.sources;
+    const sources = selected.includes(source) ? selected.filter((s) => s !== source) : [...selected, source];
+    const allSources = sources.length === NEWS_FEEDS.length;
+    savePrefs({ ...prefs, allSources, sources: allSources ? [] : sources });
+  }
+
+  async function refreshNow() {
+    setRefreshing(true);
+    try {
+      await refreshDesk(true);
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
   function openOnDesk(eventId: string) {
     setEvent(eventId);
     void navigate({ to: "/", search: { event: eventId } });
@@ -103,6 +137,74 @@ function EventsPage() {
           <Kpi label="Headlines" value={headlines.length} active={lens === "headlines"} onClick={() => pickLens("headlines")} />
           <Kpi label="Clusters" value={clusters.length} active={lens === "clusters"} onClick={() => pickLens("clusters")} />
           <Kpi label="High importance" value={highImp} hint={`Importance ${HIGH_IMP} or higher`} active={lens === "high"} onClick={() => pickLens("high")} />
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-1.5 rounded-md border border-border bg-card px-2 py-1.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-micro uppercase tracking-wider text-subtle">Tape</span>
+          <button
+            type="button"
+            onClick={() => savePrefs({ ...prefs, shockOnly: !prefs.shockOnly })}
+            className={cn(
+              "rounded-sm px-1.5 py-0.5 text-micro uppercase tracking-wider",
+              prefs.shockOnly ? "bg-primary/15 text-primary" : "text-muted hover:text-foreground",
+            )}
+          >
+            {prefs.shockOnly ? "Shocks only" : "All headlines"}
+          </button>
+          {([15_000, 30_000, 60_000] as const).map((ms) => (
+            <button
+              key={ms}
+              type="button"
+              onClick={() => savePrefs({ ...prefs, refreshMs: ms })}
+              className={cn(
+                "rounded-sm px-1.5 py-0.5 font-mono text-micro",
+                prefs.refreshMs === ms ? "bg-primary/15 text-primary" : "text-muted hover:text-foreground",
+              )}
+            >
+              {ms / 1000}s
+            </button>
+          ))}
+          <Button type="button" size="sm" className="h-6 px-2" disabled={refreshing} onClick={() => void refreshNow()}>
+            {refreshing ? "Refreshing…" : "Refresh"}
+          </Button>
+          <Link to="/sources" className="ml-auto text-micro text-primary hover:underline">
+            {status === "connecting" ? "Connecting" : status === "live" ? "Sources live" : "Source status"}
+          </Link>
+        </div>
+        <div className="flex flex-wrap gap-1">
+          <button
+            type="button"
+            onClick={() => savePrefs({ ...prefs, allSources: true, sources: [] })}
+            className={cn(
+              "rounded-sm px-1.5 py-0.5 text-micro",
+              prefs.allSources ? "bg-primary/15 text-primary" : "text-muted hover:text-foreground",
+            )}
+          >
+            All sources
+          </button>
+          {NEWS_FEEDS.map((f) => {
+            const row = feeds.find((feed) => feed.name === f.source);
+            const on = prefs.allSources || prefs.sources.includes(f.source);
+            return (
+              <button
+                key={f.source}
+                type="button"
+                onClick={() => toggleSource(f.source)}
+                className={cn(
+                  "rounded-sm px-1.5 py-0.5 text-micro",
+                  on ? "text-foreground" : "text-subtle line-through",
+                  row?.state === "down" && "text-down",
+                  row?.state === "stale" && "text-warn",
+                )}
+                title={row?.detail ?? f.source}
+              >
+                {f.source}
+                {row ? ` · ${row.state}` : ""}
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -197,9 +299,9 @@ function EventsPage() {
                       <span className="truncate font-mono text-micro text-primary">{h.source}</span>
                       <Badge tone={toneBadge(h.tone)}>{h.tone}</Badge>
                     </button>
-                    {h.url ? (
+                    {safeHttpUrl(h.url) ? (
                       <a
-                        href={h.url}
+                        href={safeHttpUrl(h.url)!}
                         target="_blank"
                         rel="noreferrer"
                         className={cn(
@@ -237,7 +339,11 @@ function EventsPage() {
             })}
             {stream.length === 0 ? (
               <li className="px-3 py-8 text-center text-caption text-muted">
-                No market-moving headlines on the tape yet.
+                {status === "connecting" || status === "idle"
+                  ? "Pulling the live feeds."
+                  : !prefs.allSources || prefs.shockOnly
+                    ? "Nothing matches this filter. Turn on All headlines or All sources."
+                    : "The feeds did not return a headline. The last good tape stays up when one source fails."}
               </li>
             ) : null}
           </ul>
@@ -400,8 +506,8 @@ function EventsPage() {
                   {preview.evidence.slice(0, 3).map((ev) => (
                     <li key={ev.id} className="text-caption leading-snug">
                       <div className="mb-px font-mono text-micro tabular-nums text-subtle">{clockLabel(ev.eventTimeMs)}</div>
-                      {ev.url ? (
-                        <a href={ev.url} target="_blank" rel="noreferrer" className="hover:text-primary">
+                      {safeHttpUrl(ev.url) ? (
+                        <a href={safeHttpUrl(ev.url)!} target="_blank" rel="noreferrer" className="hover:text-primary">
                           {ev.headline}
                         </a>
                       ) : (

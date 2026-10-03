@@ -4,6 +4,7 @@ import { reviewDate } from "@/components/thesis";
 import { Badge, Button, Delta, Empty, Panel } from "@/components/ui";
 import type { MacroState, MacroStateUnavailable } from "@/lib/ace/macro-state";
 import type { Brief, BookBrief, Exposure } from "@/lib/brief";
+import { safeHttpUrl } from "@/lib/safe-url";
 import { cn, formatPct } from "@/lib/utils";
 
 const arrow = (d: "up" | "down" | "mixed" | null) => (d === "up" ? "▲" : d === "down" ? "▼" : d === "mixed" ? "◆" : "");
@@ -168,9 +169,13 @@ export function ComingUp({ upcoming }: { upcoming: Brief["upcoming"] }) {
           <ul className="mt-0.5 flex flex-col">
             {releases.map((r) => (
               <li key={`${r.releaseId}-${r.date}`} className="flex items-baseline justify-between gap-2 border-b border-border/50 py-0.5 last:border-b-0">
-                <a href={r.url} target="_blank" rel="noreferrer" className="min-w-0 truncate hover:text-primary" title={`Moves: ${r.moves.join(", ")}`}>
-                  {r.name}
-                </a>
+                {safeHttpUrl(r.url) ? (
+                  <a href={safeHttpUrl(r.url)!} target="_blank" rel="noreferrer" className="min-w-0 truncate hover:text-primary" title={`Moves: ${r.moves.join(", ")}`}>
+                    {r.name}
+                  </a>
+                ) : (
+                  <span className="min-w-0 truncate">{r.name}</span>
+                )}
                 <span className="shrink-0 font-mono text-micro text-muted">{r.date === upcoming.today ? "today" : calendarDay(r.date)}</span>
               </li>
             ))}

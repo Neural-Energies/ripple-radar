@@ -7,12 +7,21 @@ import { deskFileFromStorage, parseDeskFile } from "@/lib/desktop/desk-file";
 import { checkPublishedRelease } from "@/lib/desktop/release";
 import type { ReleaseDecision } from "@/lib/desktop/update-check";
 import { APP_NAME, APP_VERSION } from "@/lib/desktop/version";
+import { THEME_ORDER, useTheme, type ThemePref } from "@/lib/theme";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
 
+const THEME_LABEL: Record<ThemePref, string> = {
+  light: "Light",
+  dark: "Dark",
+  system: "System",
+};
+
 function SettingsPage() {
+  const theme = useTheme();
   const [version, setVersion] = useState(APP_VERSION);
   const [userData, setUserData] = useState<string | null>(null);
   const [desktop, setDesktop] = useState(false);
@@ -150,6 +159,33 @@ function SettingsPage() {
           <p className="text-caption text-muted">Don't trade the headline. Trade what the headline causes next.</p>
         </div>
       </header>
+
+      <Panel title="Appearance" padded>
+        <div className="flex flex-col gap-2">
+          <p className="text-caption text-muted">
+            Light is the default. Dark screens can trigger migraines, so a new install stays light until you choose otherwise. System follows this computer.
+          </p>
+          <div className="flex flex-wrap gap-1" role="radiogroup" aria-label="Theme">
+            {THEME_ORDER.map((pref) => (
+              <button
+                key={pref}
+                type="button"
+                role="radio"
+                aria-checked={theme.pref === pref}
+                onClick={() => theme.set(pref)}
+                className={cn(
+                  "rounded-sm border px-2.5 py-1 text-caption",
+                  theme.pref === pref
+                    ? "border-primary bg-primary/15 text-primary"
+                    : "border-border bg-card text-foreground hover:bg-card-2",
+                )}
+              >
+                {THEME_LABEL[pref]}
+              </button>
+            ))}
+          </div>
+        </div>
+      </Panel>
 
       <Panel title="About" padded>
         <div className="flex flex-col gap-3">

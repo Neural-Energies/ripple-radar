@@ -1,5 +1,26 @@
 # Ripple Radar — feature audit
 
+## Status as of 0.3.0
+
+| Area | Status | Notes |
+|---|---|---|
+| Light / Dark / System theme | Fixed | Light is the default. The choice is saved. Settings has the switch. |
+| World Tape | Fixed | Live headlines from the free feeds. Last good pull is kept. Per-source status, source filter, shock filter, and refresh interval are on the tape. |
+| Headline ticker | Fixed | The strip under the header scrolls the same live headlines and opens the article. |
+| Desk layout | Fixed | Show, hide, reorder, and side-column width persist. The exposed-markets filter persists. |
+| Links | Fixed | Internal links are checked against the route list. External links must be http(s). The desktop window opens those in the browser and leaves the app's own address alone. |
+| Backup, restore, tray, launch at startup, book export, data sources | Working | Shipped in 0.2.0. |
+| Windows installer and updates | Working | Unsigned. SmartScreen warns. About → Check for updates reads GitHub Releases. |
+| Code signing | Still missing | Azure Artifact Signing Basic is $9.99 a month. |
+| Desktop sign-in | Still missing | The installed app is a local address. Saved accounts and billing stay on the hosted site. |
+| Headline grouping and false book links | Still missing | Quiet days can still glue unrelated stories. Left alone on purpose. |
+| Replay from a past date, filings, ship tracking | Still missing | The ledger does not rebuild a book as of a date. |
+| Fed meeting dates on the brief | Still missing | They are not in the FRED release calendar. |
+
+The sections below are the 2026-10-03 audit. Several "missing" rows there were built before 0.3.0. The table above is the current one.
+
+# Ripple Radar — feature audit (2026-10-03)
+
 **Branch:** `cursor/desktop-engine-depth-5477`  
 **Date:** 2026-10-03  
 **Scope:** What the app did when this note was written.

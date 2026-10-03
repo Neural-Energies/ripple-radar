@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* `dark:` follows an explicit choice, never the operating system. The desk is light. */
+/* `dark:` follows the resolved theme. System is resolved to light or dark before paint. Light is the default. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme {
@@ -71,10 +71,9 @@
 }
 
 /*
- * Light is the default (@theme above) and the only theme the shell applies.
- * The dark palette stays available under an explicit `data-theme="dark"` so a
- * later choice can opt in; nothing in the app sets that attribute. Dark
- * interfaces are not the default — they trigger migraines for the operator.
+ * Light is the default (@theme above). Dark is opt-in. System follows the OS
+ * and is resolved to light or dark on the document, so these tokens apply.
+ * Dark interfaces are not the default — they trigger migraines for the operator.
  * Unlayered overrides win over @theme.
  */
 :root[data-theme="dark"] {
