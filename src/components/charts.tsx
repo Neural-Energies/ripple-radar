@@ -149,7 +149,7 @@ export function Donut({
 }
 
 
-export const SCENARIO_COLORS = ["var(--color-r1)", "var(--color-r2)", "var(--color-r3)", "var(--color-down)", "#a78bfa", "#94a3b8"];
+export const SCENARIO_COLORS = ["var(--color-r1)", "var(--color-r2)", "var(--color-r3)", "var(--color-down)", "var(--color-r4)", "var(--color-subtle)"];
 
 /** Scenario mass as labeled rows. Color is not required to read the mix. */
 export function ScenarioDistributionBar({

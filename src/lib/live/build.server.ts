@@ -17,6 +17,7 @@ import {
   retainList,
   retainRecord,
 } from "./feed-resilience";
+import { NEWS_FEEDS } from "./feeds";
 import { parseRss } from "./rss";
 import { DESK_TICKERS, fromYahoo, QUOTABLE, toYahoo } from "./symbols";
 import type { FeedSourceStatus, LiveBook, LiveCluster, LiveDesk, LiveHeadline, LiveQuote } from "./types";
@@ -39,27 +40,7 @@ let quoteCache: QuoteCache | null = null;
 let newsCache: NewsCache | null = null;
 let lastDesk: LiveDesk | null = null;
 
-const FEEDS: { source: string; url: string }[] = [
-  { source: "BBC World", url: "https://feeds.bbci.co.uk/news/world/rss.xml" },
-  { source: "BBC Business", url: "https://feeds.bbci.co.uk/news/business/rss.xml" },
-  { source: "NYT World", url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml" },
-  { source: "NYT Business", url: "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml" },
-  { source: "Al Jazeera", url: "https://www.aljazeera.com/xml/rss/all.xml" },
-  { source: "OilPrice", url: "https://oilprice.com/rss/main" },
-  { source: "CNBC World", url: "https://www.cnbc.com/id/100727362/device/rss/rss.html" },
-  { source: "CNBC Markets", url: "https://www.cnbc.com/id/15839069/device/rss/rss.html" },
-  { source: "Defense One", url: "https://www.defenseone.com/rss/all/" },
-  { source: "Guardian", url: "https://www.theguardian.com/world/rss" },
-  { source: "Guardian Business", url: "https://www.theguardian.com/uk/business/rss" },
-  { source: "NPR World", url: "https://feeds.npr.org/1004/rss.xml" },
-  { source: "NPR Business", url: "https://feeds.npr.org/1006/rss.xml" },
-  { source: "Fed", url: "https://www.federalreserve.gov/feeds/press_all.xml" },
-  { source: "CoinDesk", url: "https://www.coindesk.com/arc/outboundfeeds/rss/" },
-  {
-    source: "Google News",
-    url: "https://news.google.com/rss/search?q=when:1d+(markets+OR+geopolitics+OR+%22central+bank%22+OR+%22supply+chain%22+OR+sanctions+OR+hurricane+OR+semiconductor)&hl=en-US&gl=US&ceid=US:en",
-  },
-];
+const FEEDS = NEWS_FEEDS;
 
 const FEED_HEADERS = {
   "User-Agent": UA,
@@ -330,7 +311,11 @@ function discover(
   };
 }
 
-export async function buildDesk(): Promise<LiveDesk> {
+export async function buildDesk(fresh = false): Promise<LiveDesk> {
+  if (fresh) {
+    if (newsCache) newsCache = { ...newsCache, at: 0 };
+    if (quoteCache) quoteCache = { ...quoteCache, at: 0 };
+  }
   try {
     const desk = await assembleDesk();
     lastDesk = desk;
@@ -531,6 +516,7 @@ async function assembleDesk(): Promise<LiveDesk> {
     sessions,
     quotes,
     headlines: headlines.slice(0, 40),
+    tape: rawNews.slice(0, 80),
     clusters,
     books,
     liveEvents: events,

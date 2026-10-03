@@ -8,20 +8,21 @@ import { cn } from "@/lib/utils";
 /** Same labels/order as the left rail groups. */
 const PAGES = [
   { to: "/", label: "Live Desk" },
+  { to: "/brief", label: "Brief" },
   { to: "/events", label: "World Tape" },
   { to: "/sources", label: "Data sources" },
   { to: "/maps", label: "Ripple Map" },
   { to: "/scenarios", label: "Scenarios" },
   { to: "/game-theory", label: "Game Theory" },
-  { to: "/macro", label: "Macro Regime" },
   { to: "/assets", label: "Assets" },
   { to: "/macro", label: "Macro" },
+  { to: "/theses", label: "Theses" },
   { to: "/watchlists", label: "Watchlists" },
   { to: "/alerts", label: "Alerts" },
   { to: "/portfolio", label: "Portfolio" },
   { to: "/learning", label: "Learning" },
   { to: "/docs", label: "Docs" },
-  { to: "/settings", label: "About" },
+  { to: "/settings", label: "Settings" },
 ];
 
 export function CommandPalette() {

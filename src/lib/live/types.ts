@@ -99,6 +99,8 @@ export interface LiveDesk {
   sessions: LiveSessions;
   quotes: Record<string, LiveQuote>;
   headlines: LiveHeadline[];
+  /** Every headline from the last good pull, before the market-relevance cut. The World Tape reads this. */
+  tape?: LiveHeadline[];
   clusters: LiveCluster[];
   books: Record<string, LiveBook>;
   liveEvents: RadarEvent[];

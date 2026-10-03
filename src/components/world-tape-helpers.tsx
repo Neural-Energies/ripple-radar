@@ -1,6 +1,7 @@
 import type { EvidenceClass, Reliability } from "@/data/types";
 import { etParts } from "@/lib/live/clock";
 import { isTapeShock } from "@/lib/engine/relevance";
+import type { TapePrefs } from "@/lib/live/tape-prefs";
 import type { LiveCluster, LiveHeadline } from "@/lib/live/types";
 import { cn } from "@/lib/utils";
 
@@ -96,6 +97,14 @@ function sameStory(a: string[], b: string[]): boolean {
   let shared = 0;
   for (const w of b) if (set.has(w)) shared += 1;
   return shared >= 2 || (shared === 1 && a.length <= 4 && b.length <= 4);
+}
+
+/** Live items for the World Tape. Shock mode keeps the strict gate; otherwise every pulled headline stays. */
+export function visibleTape(headlines: LiveHeadline[], prefs: Pick<TapePrefs, "shockOnly" | "sources" | "allSources">): LiveHeadline[] {
+  const sources = prefs.allSources ? null : new Set(prefs.sources);
+  const filtered = sources ? headlines.filter((h) => sources.has(h.source)) : headlines;
+  if (prefs.shockOnly) return currentShocks(filtered);
+  return [...filtered].sort((a, b) => b.published - a.published);
 }
 
 /** Newest shock per story. Layout of the tape does not change — the list does. */

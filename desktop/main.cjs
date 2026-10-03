@@ -31,6 +31,18 @@ let updateState = {
   message: "No published release yet. This copy stays as it is.",
 };
 
+function openHttp(raw) {
+  let url;
+  try {
+    url = new URL(raw);
+  } catch {
+    return;
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") return;
+  if (url.hostname === "127.0.0.1" || url.hostname === "localhost") return;
+  void shell.openExternal(url.href);
+}
+
 function logLine(name, line) {
   try {
     fs.mkdirSync(app.getPath("userData"), { recursive: true });
@@ -508,7 +520,7 @@ async function createWindow() {
   });
   mainWindow.once("ready-to-show", () => mainWindow.show());
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    void shell.openExternal(url);
+    openHttp(url);
     return { action: "deny" };
   });
   try {

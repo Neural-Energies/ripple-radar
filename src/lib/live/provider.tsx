@@ -7,6 +7,7 @@ import { useApp } from "@/lib/store";
 import { ackAlertDeliveries, getAlertInbox } from "./alert-inbox";
 import { evaluateAlerts, stepRule, type Evaluation, type RuleState } from "./alerts";
 import { analyzeEvent, getLiveDesk, getQuotes, rescoreBook } from "./desk";
+import { readTapePrefs } from "./tape-prefs";
 import { EMPTY_BOOKS, EMPTY_CLUSTERS, EMPTY_HEADLINES } from "./empty";
 import { liveAssets, liveEventsList, liveGetAsset, liveGetEvent } from "./overlay";
 import { DESK_TICKERS } from "./symbols";
@@ -76,7 +77,20 @@ export const useLive = create<LiveState>((set) => ({
 
 const LiveCtx = createContext(true);
 
-const POLL_MS = 12_000;
+const POLL_MS = 15_000;
+
+function pollDelay() {
+  if (typeof window === "undefined") return POLL_MS;
+  return readTapePrefs().refreshMs;
+}
+
+/** Pull the desk now. `fresh` skips the short server cache so a click is a new fetch. */
+export async function refreshDesk(fresh = false) {
+  if (!useLive.getState().desk) useLive.getState().setConnecting();
+  const desk = await getLiveDesk({ data: { fresh } });
+  useLive.getState().setDesk(desk);
+  return desk;
+}
 
 /** One loop for the life of the tab. A remount must not clear it — that was
  * dropping the desk after the first pull while the clock kept ticking. */
@@ -89,12 +103,12 @@ function startDeskPoll() {
     void (async () => {
       try {
         if (!useLive.getState().desk) useLive.getState().setConnecting();
-        const desk = await getLiveDesk();
+        const desk = await getLiveDesk({ data: { fresh: false } });
         useLive.getState().setDesk(desk);
       } catch (err) {
         useLive.getState().setError(plainError(err, "The tape did not answer. Open Data sources to see which feed failed."));
       } finally {
-        window.setTimeout(loop, POLL_MS);
+        window.setTimeout(loop, pollDelay());
       }
     })();
   };

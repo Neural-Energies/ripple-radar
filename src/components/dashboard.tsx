@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   ArrowUpRight,
@@ -8,6 +8,7 @@ import {
   X,
 } from "lucide-react";
 import { BookExport } from "@/components/book-export";
+import { DeskArrange, useDeskLayout } from "@/components/desk-arrange";
 import { ScenarioDistributionBar } from "@/components/charts";
 import { BookStateChips } from "@/components/research-header";
 import { EventGeo, NextChecks, StoryList, usePageIntel } from "@/components/event-intel-panels";
@@ -31,6 +32,8 @@ import { EMPTY_HEADLINES } from "@/lib/live/empty";
 import { runAnalyze, runRescore, useLive, useLiveEvents, useQuote } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
 import { useBrief } from "@/lib/use-brief";
+import type { WidgetId } from "@/lib/desk-layout";
+import { safeHttpUrl } from "@/lib/safe-url";
 import { cn, formatPct } from "@/lib/utils";
 
 const TRADE_FILTERS: Array<"All" | TradeCategory> = ["All", "etf", "stock", "futures", "forex", "commodities", "crypto"];
@@ -43,82 +46,96 @@ export function Dashboard({ event }: { event: RadarEvent }) {
   const custom = useApp((s) => s.customScenarios).filter((s) => s.eventId === event.id);
   const scenarios = [...event.scenarios, ...custom];
   const ace = aceScenariosFor(event.headlineTicker);
+  const { layout, update } = useDeskLayout();
+  const hidden = new Set(layout.hidden);
+  const show = (id: WidgetId) => !hidden.has(id);
+  const mainClass = layout.sideSpan === 6 ? "xl:col-span-6" : layout.sideSpan === 4 ? "xl:col-span-8" : "xl:col-span-9";
+  const sideClass = layout.sideSpan === 6 ? "xl:col-span-6" : layout.sideSpan === 4 ? "xl:col-span-4" : "xl:col-span-3";
 
   useEffect(() => {
     setFocusId(null);
   }, [event.id]);
 
+  const strip: Record<string, ReactNode> = {
+    brief: <BriefStrip />,
+    macro: <MacroStrip />,
+    session: <SessionCheck />,
+    vol: <VolStrip />,
+    developing: <DevelopingNowStrip activeId={event.id} />,
+  };
+  const main: Record<string, ReactNode> = {
+    chain: <RippleChain event={event} />,
+    geo:
+      intel.places.length > 0 || intel.basin ? (
+        <EventGeo intel={intel} focusId={focusId} onFocus={setFocusId} />
+      ) : null,
+    trades: (
+      <TradesPanel
+        event={event}
+        compact
+        filter={layout.tradeFilter}
+        onFilter={(tradeFilter) => update({ ...layout, tradeFilter })}
+      />
+    ),
+  };
+  const side: Record<string, ReactNode> = {
+    paths: (
+      <div className="flex flex-col gap-1.5">
+        <ProbabilityReadout event={event} scenarios={scenarios} />
+        <Panel
+          title="Paths"
+          action={
+            <Link to="/scenarios" className="text-micro text-primary hover:underline">
+              Book
+            </Link>
+          }
+        >
+          <ScenarioDistributionBar scenarios={scenarios} showSum onSelect={(sid) => goToScenario(navigate, event.id, sid)} />
+        </Panel>
+      </div>
+    ),
+    forecast: <ForecastDelta eventId={event.id} />,
+    names: <YourNames event={event} />,
+    ace: ace ? (
+      <Panel title={`ACE · ${ace.channel}`} action={<span className="font-mono text-micro text-subtle">move odds</span>}>
+        <ScenarioDistributionBar scenarios={ace.rows} independent caption={ace.caption} />
+      </Panel>
+    ) : null,
+    moving: (
+      <Panel title="Already moving">
+        {event.marketReaction.length === 0 ? (
+          <p className="text-caption text-muted">No liquid names on this book yet.</p>
+        ) : (
+          <ul className="flex flex-col">
+            {event.marketReaction.slice(0, 8).map((m) => (
+              <ReactionRow key={m.ticker} label={m.label} ticker={m.ticker} fallback={m.change} />
+            ))}
+          </ul>
+        )}
+      </Panel>
+    ),
+    checks: <NextChecks intel={intel} />,
+    evidence: <EvidencePanel event={event} />,
+  };
+
   return (
     <div className="flex flex-col gap-1.5">
       <AnalyzeBar />
-      <BriefStrip />
-      <MacroStrip />
-      <SessionCheck />
-      <VolStrip />
-      <DevelopingNowStrip activeId={event.id} />
+      <DeskArrange layout={layout} update={update} />
       <EventHero event={event} name={intel.name} />
-
-      {/* Map stage + analysis column — map dominates */}
-      <div className="grid grid-cols-1 gap-1.5 xl:grid-cols-12 xl:items-stretch">
-        <div className="flex flex-col gap-1.5 xl:col-span-9">
-          <RippleChain event={event} />
-          {intel.places.length > 0 || intel.basin ? (
-            <EventGeo intel={intel} focusId={focusId} onFocus={setFocusId} />
-          ) : null}
+      {layout.order.strip.filter(show).map((id) => (
+        <div key={id}>{strip[id]}</div>
+      ))}
+      <div className="grid grid-cols-1 gap-1.5 xl:grid-cols-12 xl:items-start">
+        <div className={cn("flex flex-col gap-1.5", mainClass)}>
+          {layout.order.main.filter(show).map((id) => (
+            <div key={id}>{main[id]}</div>
+          ))}
         </div>
-
-        <div className="flex flex-col gap-1.5 xl:col-span-3">
-          <ProbabilityReadout event={event} scenarios={scenarios} />
-          <Panel
-            title="Paths"
-            action={
-              <Link to="/scenarios" className="text-micro text-primary hover:underline">
-                Book
-              </Link>
-            }
-          >
-            <ScenarioDistributionBar
-              scenarios={scenarios}
-              showSum
-              onSelect={(sid) => goToScenario(navigate, event.id, sid)}
-            />
-          </Panel>
-          <ForecastDelta eventId={event.id} />
-          <YourNames event={event} />
-          {ace ? (
-            <Panel
-              title={`ACE · ${ace.channel}`}
-              action={<span className="font-mono text-micro text-subtle">move odds</span>}
-            >
-              <ScenarioDistributionBar
-                scenarios={ace.rows}
-                independent
-                caption={ace.caption}
-              />
-            </Panel>
-          ) : null}
-          <Panel title="Already moving">
-            {event.marketReaction.length === 0 ? (
-              <p className="text-caption text-muted">No liquid names on this book yet.</p>
-            ) : (
-              <ul className="flex flex-col">
-                {event.marketReaction.slice(0, 8).map((m) => (
-                  <ReactionRow key={m.ticker} label={m.label} ticker={m.ticker} fallback={m.change} />
-                ))}
-              </ul>
-            )}
-          </Panel>
-          <NextChecks intel={intel} />
-        </div>
-      </div>
-
-      {/* Footer: exposures + evidence + transmission */}
-      <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-12">
-        <div className="lg:col-span-7">
-          <TradesPanel event={event} compact />
-        </div>
-        <div className="lg:col-span-5">
-          <EvidencePanel event={event} />
+        <div className={cn("flex flex-col gap-1.5", sideClass)}>
+          {layout.order.side.filter(show).map((id) => (
+            <div key={id}>{side[id]}</div>
+          ))}
         </div>
       </div>
     </div>
@@ -528,8 +545,17 @@ function ReactionRow({ label, ticker, fallback }: { label: string; ticker: strin
   );
 }
 
-function TradesPanel({ event, compact }: { event: RadarEvent; compact?: boolean }) {
-  const [filter, setFilter] = useState<"All" | TradeCategory>("All");
+function TradesPanel({
+  event,
+  compact,
+  filter,
+  onFilter,
+}: {
+  event: RadarEvent;
+  compact?: boolean;
+  filter: "All" | TradeCategory;
+  onFilter: (next: "All" | TradeCategory) => void;
+}) {
   const rows = event.trades.filter((t) => filter === "All" || t.category === filter);
   const add = useApp((s) => s.addToWatchlist);
   const list = useApp((s) => s.watchlists[0]);
@@ -550,7 +576,7 @@ function TradesPanel({ event, compact }: { event: RadarEvent; compact?: boolean 
           <button
             key={f}
             type="button"
-            onClick={() => setFilter(f)}
+            onClick={() => onFilter(f)}
             className={cn(
               "rounded-sm px-1.5 py-0.5 text-micro uppercase tracking-wider",
               filter === f ? "bg-primary/15 text-primary" : "text-muted hover:text-foreground",
@@ -673,9 +699,9 @@ function EvidencePanel({ event }: { event: RadarEvent }) {
                     {clockLabel(e.eventTimeMs)}
                   </span>
                 </div>
-                {e.url ? (
+                {safeHttpUrl(e.url) ? (
                   <a
-                    href={e.url}
+                    href={safeHttpUrl(e.url)!}
                     target="_blank"
                     rel="noreferrer"
                     className="mt-0.5 block line-clamp-2 text-caption text-foreground underline-offset-2 hover:text-primary hover:underline"

@@ -39,6 +39,7 @@ import { goToEvent, useEventParamSync } from "@/lib/hooks/use-event-param-sync";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { DesktopUpdateNotice } from "@/components/desktop-update";
+import { HeadlineTicker } from "@/components/headline-ticker";
 import { MacroTopNav } from "@/components/macro/top-nav";
 import type { RadarEvent } from "@/data/types";
 
@@ -82,7 +83,7 @@ const NAV_GROUPS: { id: string; label: string; items: NavItem[] }[] = [
     items: [
       { to: "/learning", label: "Learning", icon: GraduationCap },
       { to: "/docs", label: "Docs", icon: BookOpen },
-      { to: "/settings", label: "About", icon: Settings },
+      { to: "/settings", label: "Settings", icon: Settings },
     ],
   },
 ];
@@ -128,6 +129,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           Skip to content
         </a>
         <MacroTopNav onSearch={() => setCommand(true)} alertCount={hits.length} />
+        <HeadlineTicker />
         <DesktopUpdateNotice />
         <main id="main" className="min-w-0 flex-1 overflow-x-hidden">
           <div className="px-2 py-1.5">{children}</div>
@@ -192,6 +194,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <AuthSlot />
         </div>
       </header>
+      <HeadlineTicker />
       <DesktopUpdateNotice />
 
       <div className="flex min-h-0 flex-1">

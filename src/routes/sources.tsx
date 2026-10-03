@@ -48,7 +48,7 @@ function SourcesPage() {
               <p className="font-mono text-micro text-subtle">
                 Pulled {new Date(desk.asOf).toLocaleString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
                 {" · "}
-                {desk.quoteCount} prices · {desk.headlines.length} headlines
+                {desk.quoteCount} prices · {(desk.tape ?? desk.headlines).length} headlines
               </p>
             ) : null}
           </div>

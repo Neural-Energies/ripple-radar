@@ -90,7 +90,7 @@ function Spark({ data, className }: { data: (number | null)[]; className?: strin
     .join(" ");
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className={cn("h-8 w-full", className)} aria-hidden>
-      <path d={d} fill="none" stroke="#5eb0e8" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+      <path d={d} fill="none" stroke="var(--color-primary)" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
     </svg>
   );
 }
@@ -774,7 +774,7 @@ export function InflationDetailView({ read, state }: { read: Read; state: State 
       <div className="mt-1 flex gap-3 text-[10px]">
         <span className="text-down">● Headline CPI</span>
         <span className="text-primary">● Core CPI</span>
-        <span className="text-[#c4b5fd]">● Core PCE</span>
+        <span className="text-r4">● Core PCE</span>
       </div>
       <PathChart
         data={rows}
