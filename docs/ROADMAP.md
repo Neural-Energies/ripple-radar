@@ -10,6 +10,19 @@ This document is the **source of truth for sequencing**. It does not replace Mod
 
 ---
 
+## Audit correction loop — 2026-09-25
+
+Joshua now requests: **code audit → GitHub comments → code fixes → verification → roadmap check → repeat**. This is a bounded quality-correction loop for the audited macro engine. The older freeze/history below remains context for unrelated feature work; it must not prevent the requested audit feedback from being published.
+
+- Baseline reviewed: `bcc651bd204bd9cfe74afd64eae1fbe86bbd8946`; reported macro upgrade: `f6df9bf0b52bcbd6a27f1a761d8f61cf0741e6d1`.
+- Evidence and exact acceptance requirements: [macro-engine audit](audits/2026-09-25-macro-engine.md).
+- **Open:** coherent as-of vintages; identical observation/membership masks in revision comparison; training-only selection; reproducible data snapshots/cache refresh; calendar-aligned completed volatility targets; scorecard/spec provenance; correction of unsupported claims and tie handling.
+- **Next:** implementing AI answers the published findings with fix commits and regression evidence. Reviewer rechecks those commits and updates this status; findings remain open until verified.
+- **Verification so far:** 40 focused Python checks and 34 generated-artifact checks passed, despite reproduced defects. Full Python collection blocked by missing dependencies. Original raw vintage/market cache and scorecards are needed for exact full numerical replay.
+- **Scope note:** HEAD replaced the former `/macro` route with another live view. The audit covers the legacy quantitative engine/artifacts behind the reported figures; it does not certify the new live view.
+
+Do not turn descriptive frequencies into validated forecasting claims, enable failed forecast gates, or mark this correction work complete based only on the old passing tests. Follow the review loop in [AGENTS.md](../AGENTS.md).
+
 ## Product one-liner + slogan
 
 **One-liner:** A general-purpose, event-agnostic intelligence engine that continuously discovers world events, constructs a full research object (scenarios, probabilities, game theory, causal graph, asset discovery, crowding, invalidation, lifecycle), and updates it as evidence arrives.
