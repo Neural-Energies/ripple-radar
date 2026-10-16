@@ -186,6 +186,12 @@ test("parseRss: does not copy pubDate into availableTimeMs when the item is olde
 </channel></rss>`;
   const items = parseRss(xml, "Reuters", INGEST);
   assert.equal(items.length, 2);
+  const quoted = parseRss(
+    `<rss><channel><item><title>&#x2018;Quoted&#x2019; headline</title><link>https://example.test/q</link><pubDate>${PUB}</pubDate></item></channel></rss>`,
+    "MarketWatch",
+    INGEST,
+  );
+  assert.equal(quoted[0]?.title, "‘Quoted’ headline");
 
   const dated = items[0]!;
   assert.equal(dated.eventTimeMs, PUB_MS);

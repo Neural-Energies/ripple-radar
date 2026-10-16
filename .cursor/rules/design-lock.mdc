@@ -12,3 +12,5 @@ Do not change layout, spacing, colors, typography, CSS or Tailwind classes, comp
 Fixes must be functionality, data, and logic only. If a fix cannot be made without a visual change, do not make it. Report it for approval.
 
 Do not invent prices, prints, or research conclusions. Keep sample or fixture data labeled as such.
+
+The morning briefing on `/brief` is part of this lock. Do not restyle it. The design owner owns the visual pass.

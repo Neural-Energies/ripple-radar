@@ -342,6 +342,20 @@ async function assembleDesk(): Promise<LiveDesk> {
     loadNews().catch(() => newsCache?.headlines ?? []),
     loadFredMacroEvidence(),
   ]);
+  try {
+    const { recordTape } = await import("@/lib/briefing/record.server");
+    await recordTape(
+      rawNews.map((h) => ({
+        id: h.id,
+        title: h.title,
+        source: h.source,
+        url: h.url,
+        publishedMs: h.eventTimeMs,
+      })),
+    );
+  } catch (err) {
+    console.error("[briefing] tape record failed:", err);
+  }
   // Identity before anything else. `clusterHeadlines` gives per-poll clusters
   // whose ids change whenever their newest headline does; the registry maps
   // each onto a persistent event -- or opens a new one -- and records how it

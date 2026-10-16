@@ -23,6 +23,7 @@ Do not change layout, spacing, colors, typography, CSS or Tailwind classes, comp
 - Importance and probability are different numbers.
 - Unknown events must construct a complete `RadarEvent` with no developer intervention.
 - No fake tickers. No `if (event === 'hormuz')` branches. Game cells are `{ a, b, label }`.
+- Do not restyle the morning briefing or any other page. See `DESIGN_LOCK.md`.
 
 ## Stack
 
