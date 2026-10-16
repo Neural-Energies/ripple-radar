@@ -1,3 +1,4 @@
+import { env } from "../env.server.ts";
 import { loadHlwRstar } from "./macro-hlw.ts";
 import { volRead, type VolRead } from "./vol-regime.ts";
 import { conflictGap, taylorRule } from "./macro-models.ts";
@@ -15,6 +16,7 @@ import {
   legPath,
   median,
   parseFredCsv,
+  parseFredObservations,
   QUAD_NAME,
   yearOverYear,
   type Quad,
@@ -127,7 +129,27 @@ async function fredCsv(id: string): Promise<string> {
   return res.text();
 }
 
+/** Keyed FRED API. The public chart CSV is blocked from some networks. */
+async function fredApi(id: string, key: string): Promise<ReturnType<typeof parseFredObservations>> {
+  const url = new URL("https://api.stlouisfed.org/fred/series/observations");
+  url.searchParams.set("series_id", id);
+  url.searchParams.set("api_key", key);
+  url.searchParams.set("file_type", "json");
+  const res = await fetch(url, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(12000) });
+  if (!res.ok) throw new Error(`FRED API ${id} ${res.status}`);
+  return parseFredObservations(await res.json());
+}
+
 async function loadCsv(id: string): Promise<ReturnType<typeof parseFredCsv>> {
+  const key = env("FRED_API_KEY");
+  if (key) {
+    try {
+      const rows = await fredApi(id, key);
+      if (rows.length) return rows;
+    } catch {
+      // Fall through to the public CSV.
+    }
+  }
   try {
     return parseFredCsv(await fredCsv(id));
   } catch {

@@ -93,6 +93,32 @@ function waitForHttp(port, timeoutMs = 60_000) {
   });
 }
 
+/**
+ * Optional secrets for the desk server, kept beside the data in userData/fred.env
+ * (KEY=VALUE per line, # comments). Values are never logged.
+ */
+function loadUserEnv(dataRoot) {
+  const file = path.join(dataRoot, "fred.env");
+  const out = {};
+  if (!fs.existsSync(file)) return out;
+  try {
+    for (const raw of fs.readFileSync(file, "utf8").split(/\r?\n/)) {
+      const line = raw.trim();
+      if (!line || line.startsWith("#")) continue;
+      const eq = line.indexOf("=");
+      if (eq < 1) continue;
+      const key = line.slice(0, eq).trim();
+      let value = line.slice(eq + 1).trim();
+      if (/^(["']).*\1$/.test(value)) value = value.slice(1, -1);
+      if (/^[A-Z_][A-Z0-9_]*$/.test(key) && value) out[key] = value;
+    }
+    logLine("server.log", `[desktop] loaded ${Object.keys(out).length} setting(s) from fred.env`);
+  } catch {
+    logLine("server.log", "[desktop] could not read fred.env");
+  }
+  return out;
+}
+
 function startServer(port) {
   const entry = serverEntry();
   if (!fs.existsSync(entry)) {
@@ -103,6 +129,7 @@ function startServer(port) {
   fs.mkdirSync(pglite, { recursive: true });
   const env = {
     ...process.env,
+    ...loadUserEnv(dataRoot),
     ELECTRON_RUN_AS_NODE: "1",
     HOST: "127.0.0.1",
     PORT: String(port),

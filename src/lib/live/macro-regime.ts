@@ -41,6 +41,26 @@ export function parseFredCsv(text: string): FredPoint[] {
   return out;
 }
 
+/**
+ * FRED API series/observations JSON, parsed to the same points as the CSV.
+ * Missing values (".") and non-numeric rows are dropped.
+ */
+export function parseFredObservations(json: unknown): FredPoint[] {
+  const rows = (json as { observations?: unknown } | null)?.observations;
+  if (!Array.isArray(rows)) return [];
+  const out: FredPoint[] = [];
+  for (const row of rows as { date?: unknown; value?: unknown }[]) {
+    const date = typeof row?.date === "string" ? row.date : "";
+    const raw = typeof row?.value === "string" ? row.value.trim() : "";
+    if (!date || !raw || raw === ".") continue;
+    const value = Number(raw);
+    if (!Number.isFinite(value) || monthIndex(date) == null) continue;
+    out.push({ date, value });
+  }
+  out.sort((a, b) => a.date.localeCompare(b.date));
+  return out;
+}
+
 /** Year-over-year percent, matched to the same month a year earlier. */
 export function yearOverYear(points: FredPoint[]): { date: string; rate: number }[] {
   const byMonth = new Map<number, number>();

@@ -7,6 +7,7 @@ import {
   lastOfMonth,
   legPath,
   parseFredCsv,
+  parseFredObservations,
   quadOf,
   regimeFlips,
   yearOverYear,
@@ -142,3 +143,19 @@ test("the nearest one-vote cross is the growth trigger, inflation needs three", 
   assert.deepEqual(inflation?.legs.map((leg) => leg.id), ["core", "cpi", "ppi"]);
 });
 
+
+test("FRED API observations parse like the CSV and drop missing values", () => {
+  const rows = parseFredObservations({
+    observations: [
+      { date: "2025-09-01", value: "." },
+      { date: "2025-08-01", value: "334.1" },
+      { date: "2025-07-01", value: "333.5" },
+    ],
+  });
+  assert.deepEqual(rows, [
+    { date: "2025-07-01", value: 333.5 },
+    { date: "2025-08-01", value: 334.1 },
+  ]);
+  assert.deepEqual(parseFredObservations({ error_code: 400 }), []);
+  assert.deepEqual(parseFredObservations(null), []);
+});
