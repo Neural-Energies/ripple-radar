@@ -136,23 +136,24 @@ export function CommandPalette() {
     <div className="fixed inset-0 z-50 flex items-start justify-center px-3 pt-[12vh]">
       <button
         type="button"
-        className="absolute inset-0 bg-overlay"
+        className="absolute inset-0 bg-overlay backdrop-blur-sm"
         aria-label="Dismiss search"
         onClick={() => setOpen(false)}
       />
       <div
         role="dialog"
         aria-label="Search"
-        className="relative w-full max-w-lg overflow-hidden rounded-xl bg-card shadow-[var(--shadow-border-hover)]"
+        className="relative w-full max-w-xl overflow-hidden rounded-2xl bg-card/90 shadow-[var(--shadow-border-hover)] backdrop-blur-2xl backdrop-saturate-150"
       >
         <input
           ref={inputRef}
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search events, assets, themes…"
-          className="h-11 w-full border-b border-border bg-transparent px-4 text-sm outline-none placeholder:text-subtle"
+          placeholder="Search books, assets, pages…"
+          aria-label="Search"
+          className="h-14 w-full border-b border-border/60 bg-transparent px-5 text-base outline-none placeholder:text-subtle"
         />
-        <ul className="max-h-80 overflow-y-auto py-1">
+        <ul className="max-h-[60vh] overflow-y-auto p-1.5" role="listbox">
           {items.length === 0 && (
             <li className="px-4 py-6 text-center text-caption text-muted">No matches.</li>
           )}
@@ -164,8 +165,8 @@ export function CommandPalette() {
                 onClick={() => go(item)}
                 aria-selected={i === idx}
                 className={cn(
-                  "flex w-full flex-col items-start px-4 py-2 text-left",
-                  i === idx ? "bg-card-2" : "hover:bg-card-2/60",
+                  "flex w-full flex-col items-start rounded-lg px-3 py-2 text-left",
+                  i === idx ? "bg-primary/12" : "hover:bg-card-2/60",
                 )}
               >
                 <span className="flex w-full items-center gap-2">
@@ -179,6 +180,12 @@ export function CommandPalette() {
             </li>
           ))}
         </ul>
+        <div className="flex items-center gap-3 border-t border-border/60 px-4 py-2 text-tiny text-subtle">
+          <span>↑↓ to move</span>
+          <span>↵ to open</span>
+          <span>esc to close</span>
+          <span className="ml-auto">? for shortcuts</span>
+        </div>
       </div>
     </div>
   );
