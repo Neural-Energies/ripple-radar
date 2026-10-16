@@ -1,5 +1,5 @@
 /**
- * Light is the default. Dark and System persist, and System follows the OS.
+ * Deep Navy dark is the default. Light and System persist, and System follows the OS.
  */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -7,9 +7,9 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { nextTheme, parseTheme, resolveTheme, THEME_BOOT, THEME_KEY } from "./theme.ts";
 
-test("an unknown choice is light, and the three preferences are distinct", () => {
-  assert.equal(parseTheme(null), "light");
-  assert.equal(parseTheme("nope"), "light");
+test("an unknown choice is dark, and the three preferences are distinct", () => {
+  assert.equal(parseTheme(null), "dark");
+  assert.equal(parseTheme("nope"), "dark");
   assert.equal(parseTheme("light"), "light");
   assert.equal(parseTheme("dark"), "dark");
   assert.equal(parseTheme("system"), "system");
@@ -44,13 +44,13 @@ function boot(stored: string | null, prefersDark: boolean, throws = false) {
   return { applied: attrs["data-theme"] ?? "", pref: attrs["data-theme-pref"] ?? "", written };
 }
 
-test("the pre-paint script stays light unless dark or a dark system is saved", () => {
-  assert.equal(boot(null, true).applied, "light");
-  assert.equal(boot(null, true).written, "light");
+test("the pre-paint script defaults to dark navy unless light or a light system is saved", () => {
+  assert.equal(boot(null, true).applied, "dark");
+  assert.equal(boot(null, true).written, "dark");
   assert.equal(boot("dark", false).applied, "dark");
   assert.equal(boot("system", false).applied, "light");
   assert.equal(boot("system", true).applied, "dark");
-  assert.equal(boot("light", true, true).applied, "light");
+  assert.equal(boot("light", true, true).applied, "dark");
 });
 
 test("the default tokens are the light palette, and dark is a separate palette", () => {
@@ -58,6 +58,6 @@ test("the default tokens are the light palette, and dark is a separate palette",
   const theme = css.slice(css.indexOf("@theme {"), css.indexOf("}", css.indexOf("@theme {")));
   assert.match(theme, /--color-background:\s*#f5f7fa/);
   const dark = css.slice(css.indexOf(':root[data-theme="dark"]'), css.indexOf("}", css.indexOf(':root[data-theme="dark"]')));
-  assert.match(dark, /--color-background:\s*#060a12/);
+  assert.match(dark, /--color-background:\s*#0a1324/);
   assert.match(dark, /color-scheme:\s*dark/);
 });

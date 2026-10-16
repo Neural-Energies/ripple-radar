@@ -1,18 +1,18 @@
 /**
- * Light is the default. Dark screens trigger migraines, so a missing or
- * unknown choice stays light. Dark and System are explicit, and they persist.
+ * Deep Navy dark (matching Research Control Center) is the default. A missing
+ * or unknown choice resolves to dark. Light and System are explicit, and persist.
  */
 import { useEffect, useState } from "react";
 
 export type ThemePref = "light" | "dark" | "system";
 export type ResolvedTheme = "light" | "dark";
 
-export const THEME_KEY = "ripple-theme";
+export const THEME_KEY = "ripple-theme-navy";
 export const THEME_ORDER: ThemePref[] = ["light", "dark", "system"];
 
 export function parseTheme(raw: string | null | undefined): ThemePref {
   if (raw === "dark" || raw === "system" || raw === "light") return raw;
-  return "light";
+  return "dark";
 }
 
 export function resolveTheme(pref: ThemePref, prefersDark: boolean): ResolvedTheme {
@@ -26,8 +26,8 @@ export function nextTheme(pref: ThemePref): ThemePref {
   return THEME_ORDER[(i + 1) % THEME_ORDER.length] ?? "light";
 }
 
-/** Before first paint. Unknown storage and a blocked store both stay light. */
-export const THEME_BOOT = `(function(){var key="${THEME_KEY}";var pref="light";try{var raw=localStorage.getItem(key);if(raw==="dark"||raw==="light"||raw==="system")pref=raw;else localStorage.setItem(key,"light")}catch(e){}var dark=false;try{dark=window.matchMedia("(prefers-color-scheme: dark)").matches===true}catch(e){}var resolved=pref==="dark"||(pref==="system"&&dark)?"dark":"light";document.documentElement.setAttribute("data-theme",resolved);document.documentElement.setAttribute("data-theme-pref",pref)})()`;
+/** Before first paint. Unknown storage and a blocked store both resolve to dark. */
+export const THEME_BOOT = `(function(){var key="${THEME_KEY}";var pref="dark";try{var raw=localStorage.getItem(key);if(raw==="dark"||raw==="light"||raw==="system")pref=raw;else localStorage.setItem(key,"dark")}catch(e){}var dark=false;try{dark=window.matchMedia("(prefers-color-scheme: dark)").matches===true}catch(e){}var resolved=pref==="light"||(pref==="system"&&!dark)?"light":"dark";document.documentElement.setAttribute("data-theme",resolved);document.documentElement.setAttribute("data-theme-pref",pref)})()`;
 
 function prefersDark(): boolean {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
@@ -38,7 +38,7 @@ export function readTheme(): ThemePref {
   try {
     return parseTheme(globalThis.localStorage?.getItem(THEME_KEY));
   } catch {
-    return "light";
+    return "dark";
   }
 }
 
@@ -48,7 +48,7 @@ export function applyTheme(pref: ThemePref = readTheme()): ResolvedTheme {
     document.documentElement.setAttribute("data-theme", resolved);
     document.documentElement.setAttribute("data-theme-pref", pref);
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", resolved === "dark" ? "#060a12" : "#f5f7fa");
+    if (meta) meta.setAttribute("content", resolved === "dark" ? "#0a1324" : "#f5f7fa");
   }
   try {
     globalThis.localStorage?.setItem(THEME_KEY, pref);
@@ -58,10 +58,10 @@ export function applyTheme(pref: ThemePref = readTheme()): ResolvedTheme {
   return resolved;
 }
 
-/** Light until the saved choice is read. System follows the OS after mount. */
+/** Dark until the saved choice is read. System follows the OS after mount. */
 export function useTheme() {
-  const [pref, setPref] = useState<ThemePref>("light");
-  const [resolved, setResolved] = useState<ResolvedTheme>("light");
+  const [pref, setPref] = useState<ThemePref>("dark");
+  const [resolved, setResolved] = useState<ResolvedTheme>("dark");
 
   useEffect(() => {
     const apply = (next: ThemePref) => {

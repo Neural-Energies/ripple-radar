@@ -79,29 +79,29 @@
  */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --color-background: #060a12;
-  --color-foreground: #f2f5fa;
-  --color-card: #0f131c;
-  --color-card-2: #151a25;
-  --color-card-3: #1c2230;
-  --color-muted: #9aa5b8;
+  --color-background: #0a1324;
+  --color-foreground: #e6ecf5;
+  --color-card: #101c33;
+  --color-card-2: #15263d;
+  --color-card-3: #1a3048;
+  --color-muted: #8fa0bb;
   --color-subtle: #6b7689;
-  --color-primary: #4cc3e6;
-  --color-primary-foreground: #04131b;
-  --color-border: #222a38;
-  --color-ring: #4cc3e6;
-  --color-up: #34d399;
-  --color-down: #ff6b72;
-  --color-warn: #f5b84a;
-  --color-core: #ff6b6b;
-  --color-r1: #4cc3e6;
-  --color-r2: #4ade80;
-  --color-r3: #f5b84a;
-  --color-r4: #8aa8ff;
+  --color-primary: #5aa9ff;
+  --color-primary-foreground: #f7fbff;
+  --color-border: rgba(230, 236, 245, 0.14);
+  --color-ring: #5aa9ff;
+  --color-up: #3fc58a;
+  --color-down: #ef6b6b;
+  --color-warn: #f0b45a;
+  --color-core: #ef6b6b;
+  --color-r1: #5aa9ff;
+  --color-r2: #3fc58a;
+  --color-r3: #f0b45a;
+  --color-r4: #7eb6ff;
   --color-overlay: rgb(3 6 12 / 64%);
   --shadow-border: 0 0 0 1px rgb(255 255 255 / 0.06), 0 1px 2px rgb(0 0 0 / 0.3);
   --shadow-border-hover: 0 0 0 1px rgb(255 255 255 / 0.12), 0 6px 20px rgb(0 0 0 / 0.35);
-  --shadow-glow: 0 0 24px rgb(76 195 232 / 0.16);
+  --shadow-glow: 0 0 24px rgba(126, 182, 255, 0.16);
 }
 
 :root[data-theme="light"] {

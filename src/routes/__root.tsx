@@ -31,7 +31,7 @@ export const Route = createRootRoute({
         content:
           "Don't trade the headline. Trade what it causes next. Ripple Radar maps shocks into transmission chains, probabilities, and ranked second-order exposures.",
       },
-      { name: "theme-color", content: "#f5f7fa" },
+      { name: "theme-color", content: "#0a1324" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
