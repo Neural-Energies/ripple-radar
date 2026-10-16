@@ -208,7 +208,15 @@ export function rankDrivers(headlines: ScoredHeadline[], windowStart: number, no
     out.push({ id: h.id, title: h.title, source: h.source, url: h.url, publishedMs: h.publishedMs, sentiment: h.sentiment, topics, impact, markets });
   }
   out.sort((a, b) => b.impact - a.impact || b.publishedMs - a.publishedMs);
-  return out.slice(0, limit);
+  // The same story can be stored more than once (several feeds, re-publishes). Keep the strongest.
+  const seen = new Set<string>();
+  const unique = out.filter((d) => {
+    const key = d.title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  return unique.slice(0, limit);
 }
 
 export interface ImpactedMarket {

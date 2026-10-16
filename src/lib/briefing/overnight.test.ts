@@ -114,3 +114,10 @@ test("Yahoo chart JSON parses to bars and keeps gaps as null", () => {
   assert.equal(bars[1]!.c, null);
   assert.equal(meta.price, 5);
 });
+
+test("the same story stored twice is listed once", () => {
+  const a = h("a", close15 + step, -80, { energy: -80 });
+  const b = { ...h("b", close15 + 2 * step, -60, { energy: -60 }), title: "Headline A!" };
+  const rows = rankDrivers([a, b], close15, close15 + 10 * step);
+  assert.deepEqual(rows.map((r) => r.id), ["a"]);
+});
