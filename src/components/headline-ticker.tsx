@@ -2,12 +2,14 @@ import { Link } from "@tanstack/react-router";
 import { EMPTY_HEADLINES } from "@/lib/live/empty";
 import { useLive } from "@/lib/live/provider";
 import { safeHttpUrl } from "@/lib/safe-url";
+import { useTapeSpeed } from "@/lib/use-tape-speed";
 
 /** Scrolling live headlines. Quotes stay on the book; this strip is the news tape. */
 export function HeadlineTicker() {
   const headlines = useLive((s) => s.desk?.tape ?? s.desk?.headlines ?? EMPTY_HEADLINES);
   const status = useLive((s) => s.status);
   const items = headlines.slice(0, 16);
+  const tapeRef = useTapeSpeed<HTMLDivElement>([items.length]);
   if (items.length === 0) {
     return (
       <div className="border-b border-border bg-card px-2 py-1 font-mono text-micro text-subtle">
@@ -24,7 +26,7 @@ export function HeadlineTicker() {
   const doubled = [...items, ...items];
   return (
     <div className="overflow-hidden border-b border-border bg-card">
-      <div className="flex w-max animate-tape gap-6 px-2 py-1">
+      <div ref={tapeRef} className="flex w-max animate-tape gap-6 px-2 py-1">
         {doubled.map((h, i) => {
           const href = safeHttpUrl(h.url);
           const body = (

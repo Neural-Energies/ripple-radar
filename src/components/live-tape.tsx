@@ -5,12 +5,14 @@ import type { LiveQuote } from "@/lib/live/types";
 import { useLive, useLiveEvent } from "@/lib/live/provider";
 import { useApp } from "@/lib/store";
 import { cn, formatPct, formatPrice } from "@/lib/utils";
+import { useTapeSpeed } from "@/lib/use-tape-speed";
 
 /**
  * Compact selected-book quote strip (not the global hardcoded universe).
  * Unused by AppShell after utility-bar merge — kept for World Tape / optional chrome.
  */
 export function LiveTape() {
+  const tapeRef = useTapeSpeed<HTMLDivElement>();
   const desk = useLive((s) => s.desk);
   const status = useLive((s) => s.status);
   const eventId = useApp((s) => s.selectedEventId);
@@ -48,7 +50,7 @@ export function LiveTape() {
               : "No book tickers with quotes yet"}
           </div>
         ) : (
-          <div className="flex w-max animate-tape gap-4 px-2 py-1">
+          <div ref={tapeRef} className="flex w-max animate-tape gap-4 px-2 py-1">
             {doubled.map((q, i) => (
               <div key={q.ticker + i} className="flex items-baseline gap-1 font-mono text-micro">
                 <Link
