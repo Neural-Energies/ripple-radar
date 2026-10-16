@@ -148,7 +148,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-30 border-b border-border/70 bg-background/75 backdrop-blur-xl backdrop-saturate-150">
         <div className="flex h-10 items-center gap-1.5 px-2 lg:gap-2 lg:px-2.5">
           <button
             type="button"
@@ -437,7 +437,7 @@ function SideNav({ pathname, collapsed }: { pathname: string; collapsed: boolean
                 to={n.to}
                 title={n.label}
                 className={cn(
-                  "relative flex min-h-8 items-center gap-2 rounded-sm text-caption transition-colors duration-150",
+                  "relative flex min-h-8 items-center gap-2 rounded-md text-caption font-medium transition-colors duration-150",
                   collapsed ? "size-8 justify-center px-0" : "px-2",
                   active
                     ? "bg-primary/10 text-foreground"

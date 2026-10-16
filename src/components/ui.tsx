@@ -3,11 +3,11 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md font-medium transition-[color,background-color,box-shadow,transform] duration-150 ease-out active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
         secondary:
           "border border-border bg-card-2 text-foreground hover:bg-card-3",
         ghost: "text-muted hover:bg-card-2 hover:text-foreground",
@@ -70,7 +70,7 @@ export function Badge({
     <span
       title={title}
       className={cn(
-        "inline-flex items-center rounded-sm px-1.5 py-0.5 text-micro font-medium uppercase tracking-wider",
+        "inline-flex h-fit items-center rounded-full px-2 py-0.5 text-micro font-semibold uppercase tracking-[0.06em] tabular-nums",
         tones[tone],
         className,
       )}
@@ -100,22 +100,22 @@ export function Panel({
   return (
     <section
       className={cn(
-        "flex h-full min-w-0 flex-col overflow-hidden rounded-md bg-card shadow-[var(--shadow-border)]",
+        "flex h-full min-w-0 flex-col overflow-hidden rounded-lg bg-card shadow-[var(--shadow-border)]",
         className,
       )}
     >
       {title != null && (
-        <header className="flex h-7 shrink-0 items-center justify-between gap-2 border-b border-border px-2.5">
+        <header className="flex h-8 shrink-0 items-center justify-between gap-2 border-b border-border/70 bg-card-2/40 px-3">
           <div className="flex min-w-0 items-center gap-1.5">
             {icon ? <span className="text-primary">{icon}</span> : null}
-            <h2 className="truncate text-micro font-medium uppercase tracking-wider text-muted">
+            <h2 className="truncate text-micro font-semibold uppercase tracking-[0.08em] text-muted">
               {title}
             </h2>
           </div>
           {action}
         </header>
       )}
-      <div className={cn(padded && "p-2", bodyClassName)}>{children}</div>
+      <div className={cn(padded && "p-2.5", bodyClassName)}>{children}</div>
     </section>
   );
 }
@@ -166,7 +166,8 @@ export function Divider({ className }: { className?: string }) {
 
 export function Empty({ children }: { children: ReactNode }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-1 px-4 py-8 text-center text-caption text-muted">
+    <div role="status" className="flex flex-col items-center justify-center gap-1.5 px-4 py-10 text-center text-caption text-muted">
+      <span aria-hidden className="mb-1 size-1.5 rounded-full bg-subtle/60" />
       {children}
     </div>
   );
@@ -185,4 +186,8 @@ export function Card({
       {children}
     </div>
   );
+}
+
+export function Skeleton({ className }: { className?: string }) {
+  return <div aria-hidden className={cn("skeleton h-3", className)} />;
 }

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Badge, Button, Empty, Panel } from "@/components/ui";
+import { Badge, Button, Empty, Panel, Skeleton } from "@/components/ui";
 import { useCurrentUser } from "@/lib/auth/use-current-user";
 import { getMorningBriefing } from "@/lib/briefing/api";
 import { levelsToWatch, morningSummary, whatMatters, type BotView, type Trend } from "@/lib/briefing/assemble";
@@ -31,17 +31,56 @@ function trendLabel(trend: Trend): string {
   return "collecting";
 }
 
+function MoodGauge({ value }: { value: number | null }) {
+  const v = value == null ? 0 : Math.max(-100, Math.min(100, value));
+  const r = 44;
+  const len = Math.PI * r;
+  const frac = (v + 100) / 200;
+  const color = value == null ? "var(--color-subtle)" : v > 5 ? "var(--color-up)" : v < -5 ? "var(--color-warn)" : "var(--color-primary)";
+  return (
+    <div className="relative h-[68px] w-[120px] shrink-0" role="img" aria-label={`Market mood ${signed(value)} on a scale of minus 100 to plus 100`}>
+      <svg viewBox="0 0 120 68" className="h-full w-full">
+        <path d="M16 60 A44 44 0 0 1 104 60" fill="none" stroke="var(--color-card-3)" strokeWidth="9" strokeLinecap="round" />
+        {value != null ? (
+          <path
+            d="M16 60 A44 44 0 0 1 104 60"
+            fill="none"
+            stroke={color}
+            strokeWidth="9"
+            strokeLinecap="round"
+            strokeDasharray={`${len * frac} ${len}`}
+            className="transition-[stroke-dasharray] duration-700 ease-out"
+          />
+        ) : null}
+      </svg>
+      <span className="absolute inset-x-0 bottom-0 text-center text-2xl font-semibold tabular-nums leading-none tracking-tight" style={{ color: value == null ? "var(--color-muted)" : color }}>
+        {signed(value)}
+      </span>
+    </div>
+  );
+}
+
+function LoadingRows({ rows = 3 }: { rows?: number }) {
+  return (
+    <div className="flex flex-col gap-2 py-1" aria-busy="true" aria-label="Loading">
+      {Array.from({ length: rows }, (_, i) => (
+        <Skeleton key={i} className={i % 2 ? "w-2/3" : "w-full"} />
+      ))}
+    </div>
+  );
+}
+
 function BotCard({ bot }: { bot: BotView }) {
   return (
-    <article className="rounded-md bg-card-2 p-2.5">
+    <article className="rounded-lg bg-card-2 p-3 shadow-[var(--shadow-border)] transition-shadow duration-200 hover:shadow-[var(--shadow-border-hover)]">
       <header className="flex items-center justify-between gap-2">
-        <h3 className="text-caption font-medium">{bot.name}</h3>
+        <h3 className="text-body font-semibold tracking-tight">{bot.name}</h3>
         <span className="text-micro uppercase tracking-wider text-subtle">
           {bot.confidence === "none" ? "Collecting" : `Confidence ${bot.confidence}`}
         </span>
       </header>
       <div className="mt-1 flex items-baseline gap-2">
-        <span className={cn("font-mono text-2xl font-semibold tabular-nums leading-none", toneOf(bot.today.score))}>
+        <span className={cn("text-2xl font-semibold tabular-nums leading-none tracking-tight", toneOf(bot.today.score))}>
           {signed(bot.today.score)}
         </span>
         <span className="text-micro text-muted">{trendLabel(bot.trend)}</span>
@@ -123,11 +162,11 @@ export function MorningBriefing() {
         : "Loughran–McDonald-style lexicon. No XAI_API_KEY, so the model pass is off.";
 
   return (
-    <div className="flex flex-col gap-3">
-      <div>
-        <p className="text-micro uppercase tracking-wider text-subtle">Morning briefing · {day}</p>
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">{name ? `Good morning, ${name}.` : "Good morning."}</h1>
-        <p className="mt-1 max-w-3xl text-caption text-muted">{summary}</p>
+    <div className="flex flex-col gap-3.5">
+      <div className="px-0.5 pt-1">
+        <p className="text-micro font-semibold uppercase tracking-[0.08em] text-subtle">Morning briefing · {day}</p>
+        <h1 className="mt-1 text-[1.875rem] font-bold leading-tight tracking-[-0.02em] text-foreground">{name ? `Good morning, ${name}.` : "Good morning."}</h1>
+        <p className="mt-1.5 max-w-3xl text-base leading-relaxed text-muted">{summary}</p>
       </div>
 
       <Panel
@@ -136,17 +175,15 @@ export function MorningBriefing() {
         action={<span className="text-micro text-subtle">{scorer}</span>}
       >
         {!data ? (
-          <p className="text-caption text-muted">{query.isError ? "Briefing request failed." : "Loading stored scores…"}</p>
+          query.isError ? <p className="text-caption text-down">Briefing request failed.</p> : <LoadingRows />
         ) : (
-          <div className="grid gap-3 md:grid-cols-[auto_minmax(0,1fr)] md:items-center">
-            <div>
-              <div className="text-micro uppercase tracking-wider text-subtle">Today</div>
-              <div className={cn("font-mono text-2xl font-semibold tabular-nums leading-none", toneOf(data.mood.today))}>
-                {signed(data.mood.today)}
-              </div>
+          <div className="grid gap-4 p-1 md:grid-cols-[auto_minmax(0,1fr)] md:items-center">
+            <div className="flex flex-col items-center">
+              <MoodGauge value={data.mood.today} />
+              <div className="mt-1 text-micro uppercase tracking-[0.08em] text-subtle">Today</div>
             </div>
             <div>
-              <h2 className="text-body font-medium capitalize">{data.mood.label}</h2>
+              <h2 className="text-base font-semibold capitalize tracking-tight">{data.mood.label}</h2>
               <p className="mt-1 text-caption text-muted">
                 Composite of the bots that have a score. {data.stored} headlines stored in the last five days, {data.scored} of them scored onto a bot.
               </p>
@@ -172,10 +209,10 @@ export function MorningBriefing() {
         ) : (
           <ol className="flex flex-col">
             {matters.map((row, i) => (
-              <li key={row.id} className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] gap-2 border-t border-border/50 py-2 first:border-t-0">
-                <span className="font-mono text-caption tabular-nums text-subtle">{i + 1}</span>
+              <li key={row.id} className="grid grid-cols-[1.75rem_minmax(0,1fr)_auto] gap-2 border-t border-border/50 py-2.5 first:border-t-0">
+                <span className="text-lg font-semibold tabular-nums leading-tight text-subtle">{i + 1}</span>
                 <div className="min-w-0">
-                  <Link to="/" search={{ event: row.id }} className="text-caption font-medium hover:text-primary">
+                  <Link to="/" search={{ event: row.id }} className="text-body font-semibold hover:text-primary">
                     {row.title}
                   </Link>
                   <div className="text-micro text-subtle">
@@ -186,10 +223,13 @@ export function MorningBriefing() {
                     <div className="mt-1 flex flex-wrap items-center gap-1">
                       {row.chain.map((node, n) => (
                         <span key={`${node.label}-${n}`} className="flex items-center gap-1">
-                          {n > 0 ? <span className="text-micro text-subtle">→</span> : null}
-                          <Badge tone={node.direction === "up" ? "up" : node.direction === "down" ? "down" : "neutral"}>
-                            {node.label} {node.direction === "up" ? "▲" : node.direction === "down" ? "▼" : "◆"}
-                          </Badge>
+                          {n > 0 ? <span aria-hidden className="text-micro text-subtle">→</span> : null}
+                          <span className="inline-flex items-center gap-1 rounded-md bg-card-3 px-1.5 py-0.5 text-tiny font-medium text-foreground">
+                            {node.label}
+                            <span className={node.direction === "up" ? "text-up" : node.direction === "down" ? "text-down" : "text-subtle"}>
+                              {node.direction === "up" ? "↑" : node.direction === "down" ? "↓" : "◆"}
+                            </span>
+                          </span>
                         </span>
                       ))}
                     </div>
@@ -218,7 +258,7 @@ export function MorningBriefing() {
         }
       >
         {!data ? (
-          <p className="text-caption text-muted">{query.isError ? "Briefing request failed." : "Loading stored scores…"}</p>
+          query.isError ? <p className="text-caption text-down">Briefing request failed.</p> : <LoadingRows rows={4} />
         ) : bots.length === 0 ? (
           <Empty>No bot is {filter} on the stored tape.</Empty>
         ) : (
@@ -265,7 +305,7 @@ export function MorningBriefing() {
         </Panel>
         <Panel className="h-auto" title="Today's calendar" action={<span className="text-micro text-subtle">New York date</span>}>
           {!data ? (
-            <p className="text-caption text-muted">{query.isError ? "Calendar request failed." : "Loading the calendar…"}</p>
+            query.isError ? <p className="text-caption text-down">Calendar request failed.</p> : <LoadingRows />
           ) : data.calendar.items.length === 0 ? (
             <Empty>{data.calendar.detail}</Empty>
           ) : (
