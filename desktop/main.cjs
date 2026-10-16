@@ -500,7 +500,7 @@ async function createWindow() {
     minWidth: 960,
     minHeight: 640,
     title: APP_NAME,
-    backgroundColor: "#f5f7fa",
+    backgroundColor: "#0a1324",
     show: false,
     autoHideMenuBar: true,
     icon: fs.existsSync(icon) ? icon : undefined,
