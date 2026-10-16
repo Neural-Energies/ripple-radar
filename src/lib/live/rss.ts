@@ -14,6 +14,7 @@ function decode(raw: string) {
     .replace(new RegExp(amp + "quot;", "g"), '"')
     .replace(new RegExp(amp + "#39;", "g"), "'")
     .replace(new RegExp(amp + "apos;", "g"), "'")
+    .replace(new RegExp(amp + "#x([0-9a-f]+);", "gi"), (_, n) => String.fromCharCode(parseInt(n, 16)))
     .replace(new RegExp(amp + "#(\\d+);", "g"), (_, n) => String.fromCharCode(Number(n)))
     .replace(new RegExp(amp + "nbsp;", "g"), " ")
     .replace(/\s+/g, " ")

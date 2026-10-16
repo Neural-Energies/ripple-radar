@@ -45,3 +45,28 @@ export const authMiddleware = createMiddleware({ type: "function" })
     const userId = await requireUserId(context.bearerToken);
     return next({ context: { userId } });
   });
+
+/**
+ * Same bearer + same-site checks as `authMiddleware`, but a signed-out caller
+ * continues with an empty id instead of a thrown 401. Analyze and rescore use
+ * this so they can return their own sign-in error, or the local engine when
+ * no model key is configured. Endpoints that touch per-user rows stay on
+ * `authMiddleware`.
+ */
+export const optionalAuthMiddleware = createMiddleware({ type: "function" })
+  .client(async ({ next }) => {
+    const { getBearerToken } = await import("./client");
+    return next({ sendContext: { bearerToken: getBearerToken() ?? undefined } });
+  })
+  .server(async ({ next, context }) => {
+    const { assertSameSiteRequest } = await import("./isolation.server");
+    const { requireUserId, UnauthorizedError } = await import("./verify.server");
+    assertSameSiteRequest();
+    try {
+      const userId = await requireUserId(context.bearerToken);
+      return next({ context: { userId } });
+    } catch (err) {
+      if (err instanceof UnauthorizedError) return next({ context: { userId: "" } });
+      throw err;
+    }
+  });

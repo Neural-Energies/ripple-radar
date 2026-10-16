@@ -15,6 +15,9 @@ export const NEWS_FEEDS: { source: string; url: string }[] = [
   { source: "NPR Business", url: "https://feeds.npr.org/1006/rss.xml" },
   { source: "Fed", url: "https://www.federalreserve.gov/feeds/press_all.xml" },
   { source: "CoinDesk", url: "https://www.coindesk.com/arc/outboundfeeds/rss/" },
+  { source: "MarketWatch", url: "https://feeds.content.dowjones.io/public/rss/mw_topstories" },
+  { source: "ECB", url: "https://www.ecb.europa.eu/rss/press.html" },
+  { source: "Bank of England", url: "https://www.bankofengland.co.uk/rss/news" },
   {
     source: "Google News",
     url: "https://news.google.com/rss/search?q=when:1d+(markets+OR+geopolitics+OR+%22central+bank%22+OR+%22supply+chain%22+OR+sanctions+OR+hurricane+OR+semiconductor)&hl=en-US&gl=US&ceid=US:en",

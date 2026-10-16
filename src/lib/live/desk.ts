@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { RadarEvent } from "@/data/types";
-import { authMiddleware } from "@/lib/auth/middleware";
+import { authMiddleware, optionalAuthMiddleware } from "@/lib/auth/middleware";
 
 export const getEmpiricalBook = createServerFn({ method: "POST" })
   .validator((input: { title: string; actors: string[] }) => {
@@ -37,7 +37,7 @@ export const getQuotes = createServerFn({ method: "POST" })
 // Paid compute (PR #5 B05): signed in, scoped to the account; the entitlement
 // and the per-account allowance are checked inside, before any model call.
 export const rescoreBook = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([optionalAuthMiddleware])
   .validator((input: { eventId: string; snapshot?: RadarEvent }) => ({
     eventId: typeof input?.eventId === "string" ? input.eventId.slice(0, 200) : "",
     snapshot: input?.snapshot && typeof input.snapshot === "object" ? input.snapshot : undefined,
@@ -48,7 +48,7 @@ export const rescoreBook = createServerFn({ method: "POST" })
   });
 
 export const analyzeEvent = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([optionalAuthMiddleware])
   .validator((input: { text: string }) => ({ text: typeof input?.text === "string" ? input.text : "" }))
   .handler(async ({ data, context }) => {
     const { analyze } = await import("@/lib/engine/analyze.server");

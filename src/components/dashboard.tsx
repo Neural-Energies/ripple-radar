@@ -481,6 +481,8 @@ function AnalyzeBar() {
   const [draft, setDraft] = useState("");
   const [ready, setReady] = useState(false);
   const analyzing = useLive((s) => s.analyzing);
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   useEffect(() => setReady(true), []);
   return (
     <div className="rounded-md border border-border bg-card px-2 py-1">
@@ -493,7 +495,11 @@ function AnalyzeBar() {
             e.preventDefault();
             const t = draft.trim();
             if (!t) return;
-            void runAnalyze(t).then(() => setDraft(""));
+            void runAnalyze(t).then((ev) => {
+              if (!ev) return;
+              setDraft("");
+              goToEvent(navigate, pathname, ev.id);
+            });
           }}
         >
           <span className="shrink-0 text-micro font-medium uppercase tracking-wider text-muted">Analyze</span>

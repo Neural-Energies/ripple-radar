@@ -141,13 +141,15 @@ export async function analyze(text: string, userId: string, deps: AnalyzeDeps = 
   const q = typeof text === "string" ? text.trim() : "";
   if (q.length < 8) return { ok: false, error: "Describe the event in a sentence." };
   if (q.length > MAX_TEXT) return { ok: false, error: `Keep the description under ${MAX_TEXT} characters.` };
-  if (!userId) return { ok: false, error: "Sign in to analyze an event." };
 
   const desk = await deps.desk();
   const fallback = composeFromText(q, desk.headlines, desk.quotes);
   const apiKey = deps.env.XAI_API_KEY?.trim();
   const plan = apiKey ? modelPlan(deps.env) : null;
+  // No model key: the local engine is the product, signed in or not. A key
+  // means a paid call, which still requires an account.
   if (!apiKey || !plan) return { ok: true, event: fallback, source: "engine" };
+  if (!userId) return { ok: false, error: "Sign in to analyze an event." };
 
   const sql = await deps.sql();
   const now = deps.now();
