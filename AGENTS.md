@@ -8,6 +8,12 @@ Event-agnostic macro intelligence engine. Discovers world events from live tape 
 
 Slogan: **Don't trade the headline. Trade what the headline causes next.**
 
+## Design lock
+
+The current UI is frozen. See `DESIGN_LOCK.md` and `.cursor/rules/design-lock.mdc`.
+
+Do not change layout, spacing, colors, typography, CSS or Tailwind classes, component structure or arrangement, copy placement, or navigation. Fixes are functionality, data, and logic only. If a fix cannot be made without a visual change, do not make it; report it for approval.
+
 ## Hard rules
 
 - Production code has **zero hardcoded events, players, graphs, or research conclusions**.

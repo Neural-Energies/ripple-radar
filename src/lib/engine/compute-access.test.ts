@@ -97,6 +97,17 @@ test("anonymous, unentitled and expired accounts never reach the paid model", as
   assert.equal(h.calls.length, 0, "no paid call was made for any of them");
 });
 
+test("with no model key, a signed-out description still becomes an engine book", async () => {
+  clearAnalyzeCache();
+  const sql = await db();
+  const h = harness(sql);
+  h.deps.env = {};
+  const out = await analyze(TEXT, "", h.deps);
+  assert.ok(out.ok && out.source === "engine");
+  assert.ok(out.ok && out.event.scenarios.length > 0 && out.event.nodes.length > 0);
+  assert.equal(h.calls.length, 0);
+});
+
 test("the same prefix with a different ending is a different analysis", async () => {
   clearAnalyzeCache();
   const sql = await db();
