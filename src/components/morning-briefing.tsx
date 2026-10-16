@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { OvernightSection } from "@/components/overnight";
 import { Badge, Button, Empty, Panel, Skeleton } from "@/components/ui";
 import { useCurrentUser } from "@/lib/auth/use-current-user";
 import { getMorningBriefing } from "@/lib/briefing/api";
@@ -252,6 +253,8 @@ export function MorningBriefing() {
           </ol>
         )}
       </Panel>
+
+      <OvernightSection matters={matters} />
 
       <Panel
         className="h-auto"

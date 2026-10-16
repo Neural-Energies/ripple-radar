@@ -341,7 +341,7 @@ export function ImportanceMeter({ event }: { event: RadarEvent }) {
   return (
     <div className="grid grid-cols-2 gap-3">
       <Link to="/events" className="block hover:bg-card-2/60 rounded-sm px-0.5">
-        <div className="text-micro uppercase tracking-wider text-subtle">Importance</div>
+        <div className="text-micro uppercase tracking-wide text-subtle">Importance</div>
         <div className="font-mono text-lg tabular-nums text-foreground">{imp}</div>
         <p className="text-micro text-muted">≠ probability · World Tape</p>
       </Link>

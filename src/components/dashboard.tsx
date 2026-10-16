@@ -460,7 +460,7 @@ function ProbabilityReadout({ event, scenarios }: { event: RadarEvent; scenarios
           )}
         </div>
         <div className="rounded-sm bg-card-2 px-2 py-1.5">
-          <div className="text-micro uppercase tracking-wider text-subtle">Importance</div>
+          <div className="text-micro uppercase tracking-normal text-subtle">Importance</div>
           <div className="mt-0.5 font-mono text-2xl font-semibold tabular-nums leading-none text-foreground">
             {hasImp ? event.importance : "—"}
           </div>
