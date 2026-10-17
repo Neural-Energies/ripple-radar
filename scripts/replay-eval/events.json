@@ -1,0 +1,300 @@
+{
+  "version": 1,
+  "asOfRule": "Each text is a lead or decision sentence that was public at release. Sentences that describe the later price move were not included. Consensus is used only to label the naive baseline, and only where this file cites a poll.",
+  "events": [
+    {
+      "id": "cpi-2023-02-14",
+      "group": "cpi",
+      "title": "US CPI, January 2023",
+      "releaseUtc": "2023-02-14T13:30:00Z",
+      "text": "The Consumer Price Index for All Urban Consumers (CPI-U) rose 0.5 percent in January on a seasonally adjusted basis, after increasing 0.1 percent in December. Over the last 12 months, the all items index increased 6.4 percent before seasonal adjustment.",
+      "source": "https://www.bls.gov/news.release/archives/cpi_02142023.htm",
+      "sourceNote": "BLS lead, embargo until 8:30 a.m. ET. A pre-release economist poll was not re-fetched for this row, so the naive card abstains.",
+      "naive": "none"
+    },
+    {
+      "id": "cpi-2023-07-12",
+      "group": "cpi",
+      "title": "US CPI, June 2023",
+      "releaseUtc": "2023-07-12T12:30:00Z",
+      "text": "The Consumer Price Index for All Urban Consumers (CPI-U) rose 0.2 percent in June on a seasonally adjusted basis, after increasing 0.1 percent in May. Over the last 12 months, the all items index increased 3.0 percent before seasonal adjustment.",
+      "source": "https://www.bls.gov/news.release/archives/cpi_07122023.htm",
+      "sourceNote": "Engine sees the BLS lead only. Naive cool-inflation card uses the Reuters poll, which is not in the engine text: 0.2% on the month and 3.0% on the year versus 0.3% and 3.1% forecast.",
+      "naive": "cool_inflation",
+      "naiveSource": "https://www.reuters.com/markets/us/us-consumer-prices-rise-modestly-june-core-inflation-slowing-2023-07-12/"
+    },
+    {
+      "id": "cpi-2023-11-14",
+      "group": "cpi",
+      "title": "US CPI, October 2023",
+      "releaseUtc": "2023-11-14T13:30:00Z",
+      "text": "The Consumer Price Index for All Urban Consumers (CPI-U) was unchanged in October on a seasonally adjusted basis, after increasing 0.4 percent in September. Over the last 12 months, the all items index increased 3.2 percent before seasonal adjustment. The energy index fell 2.5 percent over the month.",
+      "source": "https://www.bls.gov/news.release/archives/cpi_11142023.htm",
+      "sourceNote": "BLS lead plus the energy sentence in the same opening. Naive card abstains: poll page not archived in this run.",
+      "naive": "none"
+    },
+    {
+      "id": "cpi-2024-04-10",
+      "group": "cpi",
+      "title": "US CPI, March 2024",
+      "releaseUtc": "2024-04-10T12:30:00Z",
+      "text": "The Consumer Price Index for All Urban Consumers (CPI-U) increased 0.4 percent in March on a seasonally adjusted basis, the same increase as in February. Over the last 12 months, the all items index increased 3.5 percent before seasonal adjustment.",
+      "source": "https://www.bls.gov/news.release/archives/cpi_04102024.htm",
+      "sourceNote": "Engine sees the BLS lead only. The naive hot-inflation card uses the Reuters poll, which is not in the engine text: 0.4% on the month and 3.5% on the year versus 0.3% and 3.4% forecast.",
+      "naive": "hot_inflation",
+      "naiveSource": "https://www.reuters.com/markets/us/us-consumer-prices-rise-more-than-expected-march-2024-04-10/"
+    },
+    {
+      "id": "cpi-2024-09-11",
+      "group": "cpi",
+      "title": "US CPI, August 2024",
+      "releaseUtc": "2024-09-11T12:30:00Z",
+      "text": "The Consumer Price Index for All Urban Consumers (CPI-U) increased 0.2 percent on a seasonally adjusted basis, the same increase as in July. Over the last 12 months, the all items index increased 2.5 percent before seasonal adjustment.",
+      "source": "https://www.bls.gov/news.release/archives/cpi_09112024.htm",
+      "sourceNote": "Engine sees the BLS lead only. Naive cool-inflation card uses the Reuters poll: 0.2% on the month, in line, and 2.5% on the year versus 2.6% forecast. The year-on-year miss is what makes the card cool rather than an abstention.",
+      "naive": "cool_inflation",
+      "naiveSource": "https://www.reuters.com/markets/us/view-small-aug-cpi-rise-seen-sealing-25-bp-cut-next-week-2024-09-11/"
+    },
+    {
+      "id": "cpi-2025-02-12",
+      "group": "cpi",
+      "title": "US CPI, January 2025",
+      "releaseUtc": "2025-02-12T13:30:00Z",
+      "text": "The Consumer Price Index for All Urban Consumers (CPI-U) increased 0.5 percent on a seasonally adjusted basis in January, after rising 0.4 percent in December. Over the last 12 months, the all items index increased 3.0 percent before seasonal adjustment.",
+      "source": "https://www.bls.gov/news.release/archives/cpi_02122025.htm",
+      "sourceNote": "BLS lead, 8:30 a.m. ET. Naive card abstains: poll page not archived in this run.",
+      "naive": "none"
+    },
+    {
+      "id": "cpi-2026-01-13",
+      "group": "cpi",
+      "title": "US CPI, December 2025",
+      "releaseUtc": "2026-01-13T13:30:00Z",
+      "text": "The Consumer Price Index for All Urban Consumers (CPI-U) increased 0.3 percent on a seasonally adjusted basis in December. Over the last 12 months, the all items index increased 2.7 percent before seasonal adjustment.",
+      "source": "https://www.bls.gov/news.release/archives/cpi_01132026.htm",
+      "sourceNote": "BLS lead, 8:30 a.m. ET. Reuters reported the increase was in line with economists' expectations, so the naive card abstains rather than calling a hot or cool print.",
+      "naive": "inline",
+      "naiveSource": "https://www.reuters.com/business/us-consumer-prices-increase-expected-december-2026-01-13/"
+    },
+    {
+      "id": "nfp-2023-10-06",
+      "group": "nfp",
+      "title": "US employment situation, September 2023",
+      "releaseUtc": "2023-10-06T12:30:00Z",
+      "text": "Total nonfarm payroll employment rose by 336,000 in September, and the unemployment rate was unchanged at 3.8 percent.",
+      "source": "https://www.bls.gov/news.release/archives/empsit_10062023.htm",
+      "sourceNote": "BLS lead, 8:30 a.m. ET. Naive hot-labor card is the pre-set verb rule: payrolls rose and unemployment did not.",
+      "naive": "hot_labor"
+    },
+    {
+      "id": "nfp-2024-02-02",
+      "group": "nfp",
+      "title": "US employment situation, January 2024",
+      "releaseUtc": "2024-02-02T13:30:00Z",
+      "text": "Total nonfarm payroll employment rose by 353,000 in January, and the unemployment rate remained at 3.7 percent.",
+      "source": "https://www.bls.gov/news.release/archives/empsit_02022024.htm",
+      "sourceNote": "BLS lead, 8:30 a.m. ET. Naive hot-labor card: payrolls rose, unemployment did not.",
+      "naive": "hot_labor"
+    },
+    {
+      "id": "nfp-2024-08-02",
+      "group": "nfp",
+      "title": "US employment situation, July 2024",
+      "releaseUtc": "2024-08-02T12:30:00Z",
+      "text": "The unemployment rate rose to 4.3 percent in July, and nonfarm payroll employment edged up by 114,000.",
+      "source": "https://www.bls.gov/news.release/archives/empsit_08022024.htm",
+      "sourceNote": "BLS lead, 8:30 a.m. ET. Naive cold-labor card: the unemployment rate rose, which the pre-set verb rule ranks ahead of the payroll verb. Reuters poll was 175,000 payrolls versus the 114,000 print (https://www.reuters.com/markets/rates-bonds/view-soft-us-payrolls-number-opens-door-september-fed-cut-2024-08-02/). That poll is not in the engine text.",
+      "naive": "cold_labor"
+    },
+    {
+      "id": "nfp-2026-01-09",
+      "group": "nfp",
+      "title": "US employment situation, December 2025",
+      "releaseUtc": "2026-01-09T13:30:00Z",
+      "text": "Both total nonfarm payroll employment (+50,000) and the unemployment rate (4.4 percent) changed little in December.",
+      "source": "https://www.bls.gov/news.release/archives/empsit_01092026.htm",
+      "sourceNote": "BLS lead, 8:30 a.m. ET. Naive card abstains: the release says both figures changed little.",
+      "naive": "none"
+    },
+    {
+      "id": "fomc-2023-03-22",
+      "group": "fomc",
+      "title": "FOMC hike, March 2023",
+      "releaseUtc": "2023-03-22T18:00:00Z",
+      "text": "The Committee decided to raise the target range for the federal funds rate to 4-3/4 to 5 percent.",
+      "source": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20230322a.htm",
+      "sourceNote": "Decision sentence from the statement released at 2:00 p.m. EDT. Naive hawkish card follows the hike, not a surprise-versus-futures measure.",
+      "naive": "hawkish"
+    },
+    {
+      "id": "fomc-2023-07-26",
+      "group": "fomc",
+      "title": "FOMC hike, July 2023",
+      "releaseUtc": "2023-07-26T18:00:00Z",
+      "text": "The Committee decided to raise the target range for the federal funds rate to 5-1/4 to 5-1/2 percent.",
+      "source": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20230726a.htm",
+      "sourceNote": "Decision sentence, 2:00 p.m. EDT. Naive hawkish card.",
+      "naive": "hawkish"
+    },
+    {
+      "id": "fomc-2023-12-13",
+      "group": "fomc",
+      "title": "FOMC hold, December 2023",
+      "releaseUtc": "2023-12-13T19:00:00Z",
+      "text": "Inflation has eased over the past year but remains elevated. The Committee decided to maintain the target range for the federal funds rate at 5-1/4 to 5-1/2 percent.",
+      "source": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20231213a.htm",
+      "sourceNote": "Two sentences from the statement released at 2:00 p.m. EST. The dot plot is not in this text. Naive card abstains because the decision was to maintain the range.",
+      "naive": "hold"
+    },
+    {
+      "id": "fomc-2024-09-18",
+      "group": "fomc",
+      "title": "FOMC cut, September 2024",
+      "releaseUtc": "2024-09-18T18:00:00Z",
+      "text": "In light of the progress on inflation and the balance of risks, the Committee decided to lower the target range for the federal funds rate by 1/2 percentage point to 4-3/4 to 5 percent.",
+      "source": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20240918a.htm",
+      "sourceNote": "Decision sentence, 2:00 p.m. EDT. Naive dovish card follows the cut. It does not score whether 50bp was more than priced.",
+      "naive": "dovish"
+    },
+    {
+      "id": "fomc-2024-12-18",
+      "group": "fomc",
+      "title": "FOMC cut, December 2024",
+      "releaseUtc": "2024-12-18T19:00:00Z",
+      "text": "The Committee decided to lower the target range for the federal funds rate by 1/4 percentage point to 4-1/4 to 4-1/2 percent.",
+      "source": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20241218a.htm",
+      "sourceNote": "Decision sentence, 2:00 p.m. EST. Naive dovish card follows the cut. The higher dot-plot path is not in this sentence and was not used to relabel the card.",
+      "naive": "dovish"
+    },
+    {
+      "id": "opec-2023-04-02",
+      "group": "opec",
+      "title": "OPEC+ voluntary cuts, April 2023",
+      "releaseUtc": "2023-04-02T22:00:00Z",
+      "text": "Saudi Arabia and other OPEC+ oil producers announced further oil output cuts of around 1.16 million barrels per day.",
+      "source": "https://www.reuters.com/business/energy/sarabia-other-opec-producers-announce-voluntary-oil-output-cuts-2023-04-02/",
+      "sourceNote": "Sunday announcement. The Reuters copy that predicted an immediate price rise was not fed. 22:00 UTC is an approximate Sunday-evening stamp; the cash reaction session is the next SPY session. Naive oil-cut card.",
+      "naive": "oil_cut"
+    },
+    {
+      "id": "opec-2023-06-04",
+      "group": "opec",
+      "title": "Saudi July output cut, June 2023",
+      "releaseUtc": "2023-06-04T18:00:00Z",
+      "text": "Saudi Arabia will make a deep cut to its output in July on top of a broader OPEC+ deal to limit supply into 2024. Saudi output would drop to 9 million barrels per day in July from around 10 million barrels per day in May.",
+      "source": "https://www.reuters.com/business/energy/opec-meets-debate-production-quotas-new-cut-sources-2023-06-04/",
+      "sourceNote": "Sunday, 4 June 2023, Vienna. Clock is the calendar day, not a minute-stamped wire. Cash session is the next SPY session. Naive oil-cut card.",
+      "naive": "oil_cut"
+    },
+    {
+      "id": "opec-2023-11-30",
+      "group": "opec",
+      "title": "OPEC+ voluntary cuts, November 2023",
+      "releaseUtc": "2023-11-30T22:12:00Z",
+      "text": "OPEC+ oil producers agreed to voluntary output cuts totalling about 2.2 million barrels per day for early next year, led by Saudi Arabia rolling over its current voluntary cut.",
+      "source": "https://www.reuters.com/markets/commodities/opec-ministers-meet-discuss-additional-oil-output-cuts-2023-11-30/",
+      "sourceNote": "Reuters update 22:12 UTC on 30 November 2023, after the US cash close, so the cash reaction session is the next SPY session. Official tally: https://www.opec.org/pr-detail/39-30-nov-2023.html. Naive oil-cut card.",
+      "naive": "oil_cut"
+    },
+    {
+      "id": "geo-2023-10-07",
+      "group": "geo",
+      "title": "Hamas attack on Israel",
+      "releaseUtc": "2023-10-07T04:30:00Z",
+      "text": "A surprise attack by Hamas on Israel combined gunmen breaching security barriers with a barrage of rockets fired from Gaza.",
+      "source": "https://www.reuters.com/world/middle-east/how-hamas-attack-israel-unfolded-2023-10-07/",
+      "sourceNote": "Saturday dawn. Cash session is the next SPY session (Monday 9 October 2023; US equities were open on Columbus Day). The sentence does not include later market prices. Naive geopolitical-shock card.",
+      "naive": "geo_shock"
+    },
+    {
+      "id": "geo-2024-01-12",
+      "group": "geo",
+      "title": "US-UK strikes on Houthi targets",
+      "releaseUtc": "2024-01-12T03:00:00Z",
+      "text": "U.S. and British forces launched air strikes across Yemen against Houthi forces in retaliation for attacks on Red Sea shipping.",
+      "source": "https://www.reuters.com/world/us-britain-carry-out-strikes-against-houthis-yemen-officials-2024-01-11/",
+      "sourceNote": "Strikes were overnight into Friday 12 January 2024. 03:00 UTC is before the US cash open, so Friday is the cash session. Naive geopolitical-shock card.",
+      "naive": "geo_shock"
+    },
+    {
+      "id": "geo-2024-04-13",
+      "group": "geo",
+      "title": "Iran drone and missile attack on Israel",
+      "releaseUtc": "2024-04-13T22:00:00Z",
+      "text": "Iran launched explosive drones and fired missiles at Israel late on Saturday in its first direct attack on Israeli territory.",
+      "source": "https://www.reuters.com/world/middle-east/iran-launches-drone-attack-israel-expected-unfold-over-hours-2024-04-13/",
+      "sourceNote": "Saturday night. Cash session is Monday 15 April 2024. The damage assessment later in the Reuters piece was not fed. Naive geopolitical-shock card.",
+      "naive": "geo_shock"
+    },
+    {
+      "id": "nvda-2023-05-24",
+      "group": "tech",
+      "title": "NVIDIA Q1 FY2024 results and guide",
+      "releaseUtc": "2023-05-24T20:20:00Z",
+      "text": "NVIDIA reported revenue for the first quarter ended April 30, 2023, of $7.19 billion. The outlook for the second quarter of fiscal 2024 is revenue of $11.00 billion, plus or minus 2 percent.",
+      "source": "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-first-quarter-fiscal-2024",
+      "sourceNote": "Company results, after the US cash close on 24 May 2023. The reaction session is the next SPY session. Naive card is long NVDA, QQQ, and SPY because the release printed an $11 billion outlook. This run did not re-fetch the sell-side poll PDF; contemporaneous coverage treated that outlook as far above the prior consensus near $7 billion.",
+      "naive": "long_nvda"
+    },
+    {
+      "id": "tsla-2024-07-23",
+      "group": "tech",
+      "title": "Tesla Q2 2024 results",
+      "releaseUtc": "2024-07-23T21:30:00Z",
+      "text": "Tesla reported its lowest profit margin in more than five years and missed Wall Street earnings. Automotive gross margin was 14.6 percent versus analysts' estimates of 16.3 percent. Operating income decreased to $1.6 billion, a 6.3 percent operating margin.",
+      "source": "https://www.reuters.com/business/autos-transportation/tesla-revenue-sees-surprise-rise-second-quarter-revenue-2024-07-23/",
+      "sourceNote": "Reuters copy filed before the 24 July cash open (updated 07:16 UTC on 24 July) plus Tesla's own Q2 operating-income line. The later 'shares tumbled' story was not fed. Webcast was 4:30 p.m. CT on 23 July. Naive card is short TSLA, QQQ, and SPY.",
+      "naive": "short_tsla"
+    },
+    {
+      "id": "deepseek-2025-01-27",
+      "group": "tech",
+      "title": "DeepSeek assistant launch",
+      "releaseUtc": "2025-01-27T14:30:00Z",
+      "text": "Chinese startup DeepSeek launched a free AI assistant that it says uses less data at a fraction of the cost of incumbent services.",
+      "source": "https://www.reuters.com/technology/chinas-deepseek-sets-off-ai-market-rout-2025-01-27/",
+      "sourceNote": "The launch clause Reuters places in the prior week. Sentences about Monday's selloff and the dollar loss in Nvidia's market value were not fed, and the name Nvidia was not added. Release is stamped at the US cash open on 27 January 2025 so the prior close is 24 January. Naive card abstains: a short-Nvidia rule would use knowledge of how the episode traded.",
+      "naive": "none"
+    },
+    {
+      "id": "tariff-2025-04-02",
+      "group": "policy",
+      "title": "US reciprocal tariffs announced",
+      "releaseUtc": "2025-04-02T20:00:00Z",
+      "text": "The United States will impose a 10 percent baseline tariff on all imports effective April 5 and higher duties on several of its biggest trading partners, including a 34 percent tariff on China.",
+      "source": "https://www.reuters.com/world/us/us-businesses-brace-more-pain-liberation-day-tariffs-loom-2025-04-02/",
+      "sourceNote": "Announcement date 2 April 2025. Stamped at 16:00 ET so the cash reaction session is the next SPY session; the minute the remarks began was not re-verified. Naive tariff card is the pre-set growth-uncertainty rule, not a fit to the subsequent path.",
+      "naive": "tariff"
+    },
+    {
+      "id": "ctrl-superbowl-2024-02-11",
+      "group": "control",
+      "title": "Super Bowl LVIII",
+      "releaseUtc": "2024-02-12T04:30:00Z",
+      "text": "The Kansas City Chiefs beat the San Francisco 49ers 25-22 in overtime to win the Super Bowl.",
+      "source": "https://www.nfl.com/super-bowl/",
+      "sourceNote": "Official final of Super Bowl LVIII, 11 February 2024. Evening event; cash session is 12 February. Naive card abstains. This is a non-event control.",
+      "naive": "none"
+    },
+    {
+      "id": "ctrl-oscars-2024-03-10",
+      "group": "control",
+      "title": "Academy Awards 2024",
+      "releaseUtc": "2024-03-11T02:00:00Z",
+      "text": "Oppenheimer won the Oscar for best picture at the Academy Awards.",
+      "source": "https://www.oscars.org/oscars/ceremonies/2024",
+      "sourceNote": "96th Academy Awards, 10 March 2024. Cash session is 11 March. Naive card abstains. Non-event control.",
+      "naive": "none"
+    },
+    {
+      "id": "ctrl-iphone-2023-09-12",
+      "group": "control",
+      "title": "Apple iPhone 15 event",
+      "releaseUtc": "2023-09-12T17:00:00Z",
+      "text": "Apple unveiled the iPhone 15 and iPhone 15 Pro at its annual product event.",
+      "source": "https://www.apple.com/newsroom/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/",
+      "sourceNote": "Apple event, 12 September 2023, 10:00 a.m. Pacific, during the US cash session. Naive card abstains. Product-launch control, not a macro print.",
+      "naive": "none"
+    }
+  ]
+}

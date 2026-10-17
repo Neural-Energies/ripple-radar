@@ -1,0 +1,5689 @@
+{
+  "generatedBy": "scripts/replay-eval/predict.ts",
+  "engine": "composeFromText",
+  "quotesPassed": false,
+  "llm": "not called — replay uses the deterministic fallback only",
+  "yahooSymbols": [
+    "AAPL",
+    "AIG",
+    "AMD",
+    "BTC-USD",
+    "BWET",
+    "BZ=F",
+    "CL=F",
+    "DX-Y.NYB",
+    "ES=F",
+    "ETH-USD",
+    "FRO",
+    "GC=F",
+    "GLD",
+    "HG=F",
+    "HO=F",
+    "INSW",
+    "ITA",
+    "IWM",
+    "KRE",
+    "LMT",
+    "MU",
+    "NQ=F",
+    "NVDA",
+    "QQQ",
+    "SMH",
+    "SPY",
+    "TIP",
+    "TLT",
+    "TSLA",
+    "TSM",
+    "UNP",
+    "UUP",
+    "XLE",
+    "XLF",
+    "ZB=F",
+    "ZN=F",
+    "^GSPC",
+    "^TNX",
+    "^VIX"
+  ],
+  "events": [
+    {
+      "id": "cpi-2023-02-14",
+      "group": "cpi",
+      "title": "US CPI, January 2023",
+      "releaseUtc": "2023-02-14T13:30:00Z",
+      "text": "The Consumer Price Index for All Urban Consumers (CPI-U) rose 0.5 percent in January on a seasonally adjusted basis, after increasing 0.1 percent in December. Over the last 12 months, the all items index increased 6.4 percent before seasonal adjustment.",
+      "source": "https://www.bls.gov/news.release/archives/cpi_02142023.htm",
+      "sourceNote": "BLS lead, embargo until 8:30 a.m. ET. A pre-release economist poll was not re-fetched for this row, so the naive card abstains.",
+      "naive": "none",
+      "naiveSource": null,
+      "tone": "down",
+      "toneHits": {
+        "escalate": [
+          "ban"
+        ],
+        "deescalate": [
+          "ease",
+          "eased"
+        ]
+      },
+      "tags": [
+        "inflation"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 6,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 58,
+      "headlineTicker": "TIP",
+      "nodes": [
+        {
+          "id": "inflation",
+          "label": "Inflation",
+          "ticker": "TIP",
+          "level": 1,
+          "direction": "mixed",
+          "impact": 74
+        },
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 2,
+          "direction": "up",
+          "impact": 61
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 3,
+          "direction": "down",
+          "impact": 48
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 4,
+          "direction": "up",
+          "impact": 35
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 2,
+          "direction": "up",
+          "impact": 58
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 3,
+          "direction": "down",
+          "impact": 45
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 4,
+          "direction": "up",
+          "impact": 32
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 3,
+          "direction": "down",
+          "impact": 43
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 4,
+          "direction": "up",
+          "impact": 30
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "XLF",
+          "level": 3,
+          "direction": "down",
+          "impact": 41
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": "mixed",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 93,
+          "distance": 2,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 86,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 81,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 79,
+          "distance": 4,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 74,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 67,
+          "distance": 4,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 66,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 59,
+          "distance": 4,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "XLF",
+          "yahoo": "XLF",
+          "name": "Financials",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 58,
+          "distance": 3,
+          "horizonLabel": "days"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 57,
+          "distance": 2,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "ZB",
+          "yahoo": "ZB=F",
+          "name": "30-year T-bond (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 53,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        }
+      ]
+    },
+    {
+      "id": "cpi-2023-07-12",
+      "group": "cpi",
+      "title": "US CPI, June 2023",
+      "releaseUtc": "2023-07-12T12:30:00Z",
+      "text": "The Consumer Price Index for All Urban Consumers (CPI-U) rose 0.2 percent in June on a seasonally adjusted basis, after increasing 0.1 percent in May. Over the last 12 months, the all items index increased 3.0 percent before seasonal adjustment.",
+      "source": "https://www.bls.gov/news.release/archives/cpi_07122023.htm",
+      "sourceNote": "Engine sees the BLS lead only. Naive cool-inflation card uses the Reuters poll, which is not in the engine text: 0.2% on the month and 3.0% on the year versus 0.3% and 3.1% forecast.",
+      "naive": "cool_inflation",
+      "naiveSource": "https://www.reuters.com/markets/us/us-consumer-prices-rise-modestly-june-core-inflation-slowing-2023-07-12/",
+      "tone": "down",
+      "toneHits": {
+        "escalate": [
+          "ban"
+        ],
+        "deescalate": [
+          "ease",
+          "eased"
+        ]
+      },
+      "tags": [
+        "inflation"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 6,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 58,
+      "headlineTicker": "TIP",
+      "nodes": [
+        {
+          "id": "inflation",
+          "label": "Inflation",
+          "ticker": "TIP",
+          "level": 1,
+          "direction": "mixed",
+          "impact": 74
+        },
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 2,
+          "direction": "up",
+          "impact": 61
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 3,
+          "direction": "down",
+          "impact": 48
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 4,
+          "direction": "up",
+          "impact": 35
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 2,
+          "direction": "up",
+          "impact": 58
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 3,
+          "direction": "down",
+          "impact": 45
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 4,
+          "direction": "up",
+          "impact": 32
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 3,
+          "direction": "down",
+          "impact": 43
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 4,
+          "direction": "up",
+          "impact": 30
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "XLF",
+          "level": 3,
+          "direction": "down",
+          "impact": 41
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": "mixed",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 93,
+          "distance": 2,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 86,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 81,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 79,
+          "distance": 4,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 74,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 67,
+          "distance": 4,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 66,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 59,
+          "distance": 4,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "XLF",
+          "yahoo": "XLF",
+          "name": "Financials",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 58,
+          "distance": 3,
+          "horizonLabel": "days"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 57,
+          "distance": 2,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "ZB",
+          "yahoo": "ZB=F",
+          "name": "30-year T-bond (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 53,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        }
+      ]
+    },
+    {
+      "id": "cpi-2023-11-14",
+      "group": "cpi",
+      "title": "US CPI, October 2023",
+      "releaseUtc": "2023-11-14T13:30:00Z",
+      "text": "The Consumer Price Index for All Urban Consumers (CPI-U) was unchanged in October on a seasonally adjusted basis, after increasing 0.4 percent in September. Over the last 12 months, the all items index increased 3.2 percent before seasonal adjustment. The energy index fell 2.5 percent over the month.",
+      "source": "https://www.bls.gov/news.release/archives/cpi_11142023.htm",
+      "sourceNote": "BLS lead plus the energy sentence in the same opening. Naive card abstains: poll page not archived in this run.",
+      "naive": "none",
+      "naiveSource": null,
+      "tone": "down",
+      "toneHits": {
+        "escalate": [
+          "ban"
+        ],
+        "deescalate": [
+          "ease",
+          "eased",
+          "unchanged"
+        ]
+      },
+      "tags": [
+        "inflation"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 6,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 58,
+      "headlineTicker": "TIP",
+      "nodes": [
+        {
+          "id": "inflation",
+          "label": "Inflation",
+          "ticker": "TIP",
+          "level": 1,
+          "direction": "mixed",
+          "impact": 74
+        },
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 2,
+          "direction": "up",
+          "impact": 61
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 3,
+          "direction": "down",
+          "impact": 48
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 4,
+          "direction": "up",
+          "impact": 35
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 2,
+          "direction": "up",
+          "impact": 58
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 3,
+          "direction": "down",
+          "impact": 45
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 4,
+          "direction": "up",
+          "impact": 32
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 3,
+          "direction": "down",
+          "impact": 43
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 4,
+          "direction": "up",
+          "impact": 30
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "XLF",
+          "level": 3,
+          "direction": "down",
+          "impact": 41
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": "mixed",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 93,
+          "distance": 2,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 86,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 81,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 79,
+          "distance": 4,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 74,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 67,
+          "distance": 4,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 66,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 59,
+          "distance": 4,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "XLF",
+          "yahoo": "XLF",
+          "name": "Financials",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 58,
+          "distance": 3,
+          "horizonLabel": "days"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 57,
+          "distance": 2,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "ZB",
+          "yahoo": "ZB=F",
+          "name": "30-year T-bond (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 53,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        }
+      ]
+    },
+    {
+      "id": "cpi-2024-04-10",
+      "group": "cpi",
+      "title": "US CPI, March 2024",
+      "releaseUtc": "2024-04-10T12:30:00Z",
+      "text": "The Consumer Price Index for All Urban Consumers (CPI-U) increased 0.4 percent in March on a seasonally adjusted basis, the same increase as in February. Over the last 12 months, the all items index increased 3.5 percent before seasonal adjustment.",
+      "source": "https://www.bls.gov/news.release/archives/cpi_04102024.htm",
+      "sourceNote": "Engine sees the BLS lead only. The naive hot-inflation card uses the Reuters poll, which is not in the engine text: 0.4% on the month and 3.5% on the year versus 0.3% and 3.4% forecast.",
+      "naive": "hot_inflation",
+      "naiveSource": "https://www.reuters.com/markets/us/us-consumer-prices-rise-more-than-expected-march-2024-04-10/",
+      "tone": "down",
+      "toneHits": {
+        "escalate": [
+          "ban"
+        ],
+        "deescalate": [
+          "ease",
+          "eased"
+        ]
+      },
+      "tags": [
+        "inflation"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 6,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 58,
+      "headlineTicker": "TIP",
+      "nodes": [
+        {
+          "id": "inflation",
+          "label": "Inflation",
+          "ticker": "TIP",
+          "level": 1,
+          "direction": "mixed",
+          "impact": 74
+        },
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 2,
+          "direction": "up",
+          "impact": 61
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 3,
+          "direction": "down",
+          "impact": 48
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 4,
+          "direction": "up",
+          "impact": 35
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 2,
+          "direction": "up",
+          "impact": 58
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 3,
+          "direction": "down",
+          "impact": 45
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 4,
+          "direction": "up",
+          "impact": 32
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 3,
+          "direction": "down",
+          "impact": 43
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 4,
+          "direction": "up",
+          "impact": 30
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "XLF",
+          "level": 3,
+          "direction": "down",
+          "impact": 41
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": "mixed",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 93,
+          "distance": 2,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 86,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 81,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 79,
+          "distance": 4,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 74,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 67,
+          "distance": 4,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 66,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 59,
+          "distance": 4,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "XLF",
+          "yahoo": "XLF",
+          "name": "Financials",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 58,
+          "distance": 3,
+          "horizonLabel": "days"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 57,
+          "distance": 2,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "ZB",
+          "yahoo": "ZB=F",
+          "name": "30-year T-bond (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 53,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        }
+      ]
+    },
+    {
+      "id": "cpi-2024-09-11",
+      "group": "cpi",
+      "title": "US CPI, August 2024",
+      "releaseUtc": "2024-09-11T12:30:00Z",
+      "text": "The Consumer Price Index for All Urban Consumers (CPI-U) increased 0.2 percent on a seasonally adjusted basis, the same increase as in July. Over the last 12 months, the all items index increased 2.5 percent before seasonal adjustment.",
+      "source": "https://www.bls.gov/news.release/archives/cpi_09112024.htm",
+      "sourceNote": "Engine sees the BLS lead only. Naive cool-inflation card uses the Reuters poll: 0.2% on the month, in line, and 2.5% on the year versus 2.6% forecast. The year-on-year miss is what makes the card cool rather than an abstention.",
+      "naive": "cool_inflation",
+      "naiveSource": "https://www.reuters.com/markets/us/view-small-aug-cpi-rise-seen-sealing-25-bp-cut-next-week-2024-09-11/",
+      "tone": "down",
+      "toneHits": {
+        "escalate": [
+          "ban"
+        ],
+        "deescalate": [
+          "ease",
+          "eased"
+        ]
+      },
+      "tags": [
+        "inflation"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 6,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 58,
+      "headlineTicker": "TIP",
+      "nodes": [
+        {
+          "id": "inflation",
+          "label": "Inflation",
+          "ticker": "TIP",
+          "level": 1,
+          "direction": "mixed",
+          "impact": 74
+        },
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 2,
+          "direction": "up",
+          "impact": 61
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 3,
+          "direction": "down",
+          "impact": 48
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 4,
+          "direction": "up",
+          "impact": 35
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 2,
+          "direction": "up",
+          "impact": 58
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 3,
+          "direction": "down",
+          "impact": 45
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 4,
+          "direction": "up",
+          "impact": 32
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 3,
+          "direction": "down",
+          "impact": 43
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 4,
+          "direction": "up",
+          "impact": 30
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "XLF",
+          "level": 3,
+          "direction": "down",
+          "impact": 41
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": "mixed",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 93,
+          "distance": 2,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 86,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 81,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 79,
+          "distance": 4,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 74,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 67,
+          "distance": 4,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 66,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 59,
+          "distance": 4,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "XLF",
+          "yahoo": "XLF",
+          "name": "Financials",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 58,
+          "distance": 3,
+          "horizonLabel": "days"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 57,
+          "distance": 2,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "ZB",
+          "yahoo": "ZB=F",
+          "name": "30-year T-bond (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 53,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        }
+      ]
+    },
+    {
+      "id": "cpi-2025-02-12",
+      "group": "cpi",
+      "title": "US CPI, January 2025",
+      "releaseUtc": "2025-02-12T13:30:00Z",
+      "text": "The Consumer Price Index for All Urban Consumers (CPI-U) increased 0.5 percent on a seasonally adjusted basis in January, after rising 0.4 percent in December. Over the last 12 months, the all items index increased 3.0 percent before seasonal adjustment.",
+      "source": "https://www.bls.gov/news.release/archives/cpi_02122025.htm",
+      "sourceNote": "BLS lead, 8:30 a.m. ET. Naive card abstains: poll page not archived in this run.",
+      "naive": "none",
+      "naiveSource": null,
+      "tone": "down",
+      "toneHits": {
+        "escalate": [
+          "ban"
+        ],
+        "deescalate": [
+          "ease",
+          "eased"
+        ]
+      },
+      "tags": [
+        "inflation"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 6,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 58,
+      "headlineTicker": "TIP",
+      "nodes": [
+        {
+          "id": "inflation",
+          "label": "Inflation",
+          "ticker": "TIP",
+          "level": 1,
+          "direction": "mixed",
+          "impact": 74
+        },
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 2,
+          "direction": "up",
+          "impact": 61
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 3,
+          "direction": "down",
+          "impact": 48
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 4,
+          "direction": "up",
+          "impact": 35
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 2,
+          "direction": "up",
+          "impact": 58
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 3,
+          "direction": "down",
+          "impact": 45
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 4,
+          "direction": "up",
+          "impact": 32
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 3,
+          "direction": "down",
+          "impact": 43
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 4,
+          "direction": "up",
+          "impact": 30
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "XLF",
+          "level": 3,
+          "direction": "down",
+          "impact": 41
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": "mixed",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 93,
+          "distance": 2,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 86,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 81,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 79,
+          "distance": 4,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 74,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 67,
+          "distance": 4,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 66,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 59,
+          "distance": 4,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "XLF",
+          "yahoo": "XLF",
+          "name": "Financials",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 58,
+          "distance": 3,
+          "horizonLabel": "days"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 57,
+          "distance": 2,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "ZB",
+          "yahoo": "ZB=F",
+          "name": "30-year T-bond (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 53,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        }
+      ]
+    },
+    {
+      "id": "cpi-2026-01-13",
+      "group": "cpi",
+      "title": "US CPI, December 2025",
+      "releaseUtc": "2026-01-13T13:30:00Z",
+      "text": "The Consumer Price Index for All Urban Consumers (CPI-U) increased 0.3 percent on a seasonally adjusted basis in December. Over the last 12 months, the all items index increased 2.7 percent before seasonal adjustment.",
+      "source": "https://www.bls.gov/news.release/archives/cpi_01132026.htm",
+      "sourceNote": "BLS lead, 8:30 a.m. ET. Reuters reported the increase was in line with economists' expectations, so the naive card abstains rather than calling a hot or cool print.",
+      "naive": "inline",
+      "naiveSource": "https://www.reuters.com/business/us-consumer-prices-increase-expected-december-2026-01-13/",
+      "tone": "down",
+      "toneHits": {
+        "escalate": [
+          "ban"
+        ],
+        "deescalate": [
+          "ease",
+          "eased"
+        ]
+      },
+      "tags": [
+        "inflation"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 6,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 58,
+      "headlineTicker": "TIP",
+      "nodes": [
+        {
+          "id": "inflation",
+          "label": "Inflation",
+          "ticker": "TIP",
+          "level": 1,
+          "direction": "mixed",
+          "impact": 74
+        },
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 2,
+          "direction": "up",
+          "impact": 61
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 3,
+          "direction": "down",
+          "impact": 48
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 4,
+          "direction": "up",
+          "impact": 35
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 2,
+          "direction": "up",
+          "impact": 58
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 3,
+          "direction": "down",
+          "impact": 45
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 4,
+          "direction": "up",
+          "impact": 32
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 3,
+          "direction": "down",
+          "impact": 43
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 4,
+          "direction": "up",
+          "impact": 30
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "XLF",
+          "level": 3,
+          "direction": "down",
+          "impact": 41
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": "mixed",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 93,
+          "distance": 2,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 86,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 81,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 79,
+          "distance": 4,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 74,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 67,
+          "distance": 4,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 66,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 59,
+          "distance": 4,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "XLF",
+          "yahoo": "XLF",
+          "name": "Financials",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 58,
+          "distance": 3,
+          "horizonLabel": "days"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 57,
+          "distance": 2,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "ZB",
+          "yahoo": "ZB=F",
+          "name": "30-year T-bond (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 53,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        }
+      ]
+    },
+    {
+      "id": "nfp-2023-10-06",
+      "group": "nfp",
+      "title": "US employment situation, September 2023",
+      "releaseUtc": "2023-10-06T12:30:00Z",
+      "text": "Total nonfarm payroll employment rose by 336,000 in September, and the unemployment rate was unchanged at 3.8 percent.",
+      "source": "https://www.bls.gov/news.release/archives/empsit_10062023.htm",
+      "sourceNote": "BLS lead, 8:30 a.m. ET. Naive hot-labor card is the pre-set verb rule: payrolls rose and unemployment did not.",
+      "naive": "hot_labor",
+      "naiveSource": null,
+      "tone": "down",
+      "toneHits": {
+        "escalate": [],
+        "deescalate": [
+          "unchanged"
+        ]
+      },
+      "tags": [
+        "rates"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 6,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 55,
+      "headlineTicker": "TNX",
+      "nodes": [
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 1,
+          "direction": "mixed",
+          "impact": 74
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 2,
+          "direction": "down",
+          "impact": 61
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 3,
+          "direction": "up",
+          "impact": 48
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 2,
+          "direction": "down",
+          "impact": 59
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 3,
+          "direction": "up",
+          "impact": 46
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 2,
+          "direction": "down",
+          "impact": 57
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 3,
+          "direction": "down",
+          "impact": 44
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "KRE",
+          "level": 2,
+          "direction": "down",
+          "impact": 55
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 3,
+          "direction": "up",
+          "impact": 42
+        }
+      ],
+      "conflicts": [
+        {
+          "ticker": "KRE",
+          "directions": [
+            "down",
+            "up"
+          ]
+        }
+      ],
+      "trades": [
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "mixed",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 93,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 86,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 85,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 78,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 77,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 70,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 69,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 65,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 64,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 60,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "QQQ",
+          "yahoo": "QQQ",
+          "name": "Nasdaq 100",
+          "side": "short",
+          "nodeDirection": null,
+          "score": 53,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        }
+      ]
+    },
+    {
+      "id": "nfp-2024-02-02",
+      "group": "nfp",
+      "title": "US employment situation, January 2024",
+      "releaseUtc": "2024-02-02T13:30:00Z",
+      "text": "Total nonfarm payroll employment rose by 353,000 in January, and the unemployment rate remained at 3.7 percent.",
+      "source": "https://www.bls.gov/news.release/archives/empsit_02022024.htm",
+      "sourceNote": "BLS lead, 8:30 a.m. ET. Naive hot-labor card: payrolls rose, unemployment did not.",
+      "naive": "hot_labor",
+      "naiveSource": null,
+      "tone": "neutral",
+      "toneHits": {
+        "escalate": [],
+        "deescalate": []
+      },
+      "tags": [
+        "rates"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 6,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 55,
+      "headlineTicker": "TNX",
+      "nodes": [
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 2,
+          "direction": "down",
+          "impact": 61
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 3,
+          "direction": "up",
+          "impact": 48
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 2,
+          "direction": "down",
+          "impact": 59
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 3,
+          "direction": "up",
+          "impact": 46
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 2,
+          "direction": "down",
+          "impact": 57
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 3,
+          "direction": "down",
+          "impact": 44
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "KRE",
+          "level": 2,
+          "direction": "down",
+          "impact": 55
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 3,
+          "direction": "up",
+          "impact": 42
+        }
+      ],
+      "conflicts": [
+        {
+          "ticker": "KRE",
+          "directions": [
+            "down",
+            "up"
+          ]
+        }
+      ],
+      "trades": [
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 93,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 86,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 85,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 78,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 77,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 70,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 69,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 65,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 64,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 60,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "QQQ",
+          "yahoo": "QQQ",
+          "name": "Nasdaq 100",
+          "side": "short",
+          "nodeDirection": null,
+          "score": 53,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        }
+      ]
+    },
+    {
+      "id": "nfp-2024-08-02",
+      "group": "nfp",
+      "title": "US employment situation, July 2024",
+      "releaseUtc": "2024-08-02T12:30:00Z",
+      "text": "The unemployment rate rose to 4.3 percent in July, and nonfarm payroll employment edged up by 114,000.",
+      "source": "https://www.bls.gov/news.release/archives/empsit_08022024.htm",
+      "sourceNote": "BLS lead, 8:30 a.m. ET. Naive cold-labor card: the unemployment rate rose, which the pre-set verb rule ranks ahead of the payroll verb. Reuters poll was 175,000 payrolls versus the 114,000 print (https://www.reuters.com/markets/rates-bonds/view-soft-us-payrolls-number-opens-door-september-fed-cut-2024-08-02/). That poll is not in the engine text.",
+      "naive": "cold_labor",
+      "naiveSource": null,
+      "tone": "neutral",
+      "toneHits": {
+        "escalate": [],
+        "deescalate": []
+      },
+      "tags": [
+        "rates"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 6,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 55,
+      "headlineTicker": "TNX",
+      "nodes": [
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 2,
+          "direction": "down",
+          "impact": 61
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 3,
+          "direction": "up",
+          "impact": 48
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 2,
+          "direction": "down",
+          "impact": 59
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 3,
+          "direction": "up",
+          "impact": 46
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 2,
+          "direction": "down",
+          "impact": 57
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 3,
+          "direction": "down",
+          "impact": 44
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "KRE",
+          "level": 2,
+          "direction": "down",
+          "impact": 55
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 3,
+          "direction": "up",
+          "impact": 42
+        }
+      ],
+      "conflicts": [
+        {
+          "ticker": "KRE",
+          "directions": [
+            "down",
+            "up"
+          ]
+        }
+      ],
+      "trades": [
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 93,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 86,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 85,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 78,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 77,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 70,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 69,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 65,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 64,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 60,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "QQQ",
+          "yahoo": "QQQ",
+          "name": "Nasdaq 100",
+          "side": "short",
+          "nodeDirection": null,
+          "score": 53,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        }
+      ]
+    },
+    {
+      "id": "nfp-2026-01-09",
+      "group": "nfp",
+      "title": "US employment situation, December 2025",
+      "releaseUtc": "2026-01-09T13:30:00Z",
+      "text": "Both total nonfarm payroll employment (+50,000) and the unemployment rate (4.4 percent) changed little in December.",
+      "source": "https://www.bls.gov/news.release/archives/empsit_01092026.htm",
+      "sourceNote": "BLS lead, 8:30 a.m. ET. Naive card abstains: the release says both figures changed little.",
+      "naive": "none",
+      "naiveSource": null,
+      "tone": "neutral",
+      "toneHits": {
+        "escalate": [],
+        "deescalate": []
+      },
+      "tags": [
+        "rates"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 6,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 55,
+      "headlineTicker": "TNX",
+      "nodes": [
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 2,
+          "direction": "down",
+          "impact": 61
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 3,
+          "direction": "up",
+          "impact": 48
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 2,
+          "direction": "down",
+          "impact": 59
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 3,
+          "direction": "up",
+          "impact": 46
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 2,
+          "direction": "down",
+          "impact": 57
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 3,
+          "direction": "down",
+          "impact": 44
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "KRE",
+          "level": 2,
+          "direction": "down",
+          "impact": 55
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 3,
+          "direction": "up",
+          "impact": 42
+        }
+      ],
+      "conflicts": [
+        {
+          "ticker": "KRE",
+          "directions": [
+            "down",
+            "up"
+          ]
+        }
+      ],
+      "trades": [
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 93,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 86,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 85,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 78,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 77,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 70,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 69,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 65,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 64,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 60,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "QQQ",
+          "yahoo": "QQQ",
+          "name": "Nasdaq 100",
+          "side": "short",
+          "nodeDirection": null,
+          "score": 53,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        }
+      ]
+    },
+    {
+      "id": "fomc-2023-03-22",
+      "group": "fomc",
+      "title": "FOMC hike, March 2023",
+      "releaseUtc": "2023-03-22T18:00:00Z",
+      "text": "The Committee decided to raise the target range for the federal funds rate to 4-3/4 to 5 percent.",
+      "source": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20230322a.htm",
+      "sourceNote": "Decision sentence from the statement released at 2:00 p.m. EDT. Naive hawkish card follows the hike, not a surprise-versus-futures measure.",
+      "naive": "hawkish",
+      "naiveSource": null,
+      "tone": "neutral",
+      "toneHits": {
+        "escalate": [],
+        "deescalate": []
+      },
+      "tags": [
+        "rates"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 6,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 55,
+      "headlineTicker": "TNX",
+      "nodes": [
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 2,
+          "direction": "down",
+          "impact": 61
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 3,
+          "direction": "up",
+          "impact": 48
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 2,
+          "direction": "down",
+          "impact": 59
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 3,
+          "direction": "up",
+          "impact": 46
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 2,
+          "direction": "down",
+          "impact": 57
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 3,
+          "direction": "down",
+          "impact": 44
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "KRE",
+          "level": 2,
+          "direction": "down",
+          "impact": 55
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 3,
+          "direction": "up",
+          "impact": 42
+        }
+      ],
+      "conflicts": [
+        {
+          "ticker": "KRE",
+          "directions": [
+            "down",
+            "up"
+          ]
+        }
+      ],
+      "trades": [
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 93,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 86,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 85,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 78,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 77,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 70,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 69,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 65,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 64,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 60,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "QQQ",
+          "yahoo": "QQQ",
+          "name": "Nasdaq 100",
+          "side": "short",
+          "nodeDirection": null,
+          "score": 53,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        }
+      ]
+    },
+    {
+      "id": "fomc-2023-07-26",
+      "group": "fomc",
+      "title": "FOMC hike, July 2023",
+      "releaseUtc": "2023-07-26T18:00:00Z",
+      "text": "The Committee decided to raise the target range for the federal funds rate to 5-1/4 to 5-1/2 percent.",
+      "source": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20230726a.htm",
+      "sourceNote": "Decision sentence, 2:00 p.m. EDT. Naive hawkish card.",
+      "naive": "hawkish",
+      "naiveSource": null,
+      "tone": "neutral",
+      "toneHits": {
+        "escalate": [],
+        "deescalate": []
+      },
+      "tags": [
+        "rates"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 6,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 55,
+      "headlineTicker": "TNX",
+      "nodes": [
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 2,
+          "direction": "down",
+          "impact": 61
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 3,
+          "direction": "up",
+          "impact": 48
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 2,
+          "direction": "down",
+          "impact": 59
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 3,
+          "direction": "up",
+          "impact": 46
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 2,
+          "direction": "down",
+          "impact": 57
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 3,
+          "direction": "down",
+          "impact": 44
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "KRE",
+          "level": 2,
+          "direction": "down",
+          "impact": 55
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 3,
+          "direction": "up",
+          "impact": 42
+        }
+      ],
+      "conflicts": [
+        {
+          "ticker": "KRE",
+          "directions": [
+            "down",
+            "up"
+          ]
+        }
+      ],
+      "trades": [
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 93,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 86,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 85,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 78,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 77,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 70,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 69,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 65,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 64,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 60,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "QQQ",
+          "yahoo": "QQQ",
+          "name": "Nasdaq 100",
+          "side": "short",
+          "nodeDirection": null,
+          "score": 53,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        }
+      ]
+    },
+    {
+      "id": "fomc-2023-12-13",
+      "group": "fomc",
+      "title": "FOMC hold, December 2023",
+      "releaseUtc": "2023-12-13T19:00:00Z",
+      "text": "Inflation has eased over the past year but remains elevated. The Committee decided to maintain the target range for the federal funds rate at 5-1/4 to 5-1/2 percent.",
+      "source": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20231213a.htm",
+      "sourceNote": "Two sentences from the statement released at 2:00 p.m. EST. The dot plot is not in this text. Naive card abstains because the decision was to maintain the range.",
+      "naive": "hold",
+      "naiveSource": null,
+      "tone": "down",
+      "toneHits": {
+        "escalate": [],
+        "deescalate": [
+          "ease",
+          "eased"
+        ]
+      },
+      "tags": [
+        "rates",
+        "inflation"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 10,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 58,
+      "headlineTicker": "TNX",
+      "nodes": [
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 1,
+          "direction": "mixed",
+          "impact": 74
+        },
+        {
+          "id": "inflation",
+          "label": "Inflation",
+          "ticker": "TIP",
+          "level": 1,
+          "direction": "mixed",
+          "impact": 73
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 2,
+          "direction": "down",
+          "impact": 60
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 3,
+          "direction": "up",
+          "impact": 47
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 2,
+          "direction": "down",
+          "impact": 57
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 3,
+          "direction": "up",
+          "impact": 44
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 2,
+          "direction": "down",
+          "impact": 54
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 3,
+          "direction": "down",
+          "impact": 41
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 4,
+          "direction": "up",
+          "impact": 28
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "XLF",
+          "level": 2,
+          "direction": "down",
+          "impact": 51
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "mixed",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": "mixed",
+          "score": 96,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 89,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 82,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 81,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 74,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 73,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 66,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "XLF",
+          "yahoo": "XLF",
+          "name": "Financials",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 61,
+          "distance": 2,
+          "horizonLabel": "days"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 60,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 59,
+          "distance": 4,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "ZB",
+          "yahoo": "ZB=F",
+          "name": "30-year T-bond (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 56,
+          "distance": 1,
+          "horizonLabel": "minutes–weeks"
+        }
+      ]
+    },
+    {
+      "id": "fomc-2024-09-18",
+      "group": "fomc",
+      "title": "FOMC cut, September 2024",
+      "releaseUtc": "2024-09-18T18:00:00Z",
+      "text": "In light of the progress on inflation and the balance of risks, the Committee decided to lower the target range for the federal funds rate by 1/2 percentage point to 4-3/4 to 5 percent.",
+      "source": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20240918a.htm",
+      "sourceNote": "Decision sentence, 2:00 p.m. EDT. Naive dovish card follows the cut. It does not score whether 50bp was more than priced.",
+      "naive": "dovish",
+      "naiveSource": null,
+      "tone": "neutral",
+      "toneHits": {
+        "escalate": [],
+        "deescalate": []
+      },
+      "tags": [
+        "rates",
+        "inflation"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 10,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 58,
+      "headlineTicker": "TNX",
+      "nodes": [
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        },
+        {
+          "id": "inflation",
+          "label": "Inflation",
+          "ticker": "TIP",
+          "level": 1,
+          "direction": "up",
+          "impact": 73
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 2,
+          "direction": "down",
+          "impact": 60
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 3,
+          "direction": "up",
+          "impact": 47
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 2,
+          "direction": "down",
+          "impact": 57
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 3,
+          "direction": "up",
+          "impact": 44
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 2,
+          "direction": "down",
+          "impact": 54
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 3,
+          "direction": "down",
+          "impact": 41
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 4,
+          "direction": "up",
+          "impact": 28
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "XLF",
+          "level": 2,
+          "direction": "down",
+          "impact": 51
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 96,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 89,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 82,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 81,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 74,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 73,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 66,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "XLF",
+          "yahoo": "XLF",
+          "name": "Financials",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 61,
+          "distance": 2,
+          "horizonLabel": "days"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 60,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 59,
+          "distance": 4,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "ZB",
+          "yahoo": "ZB=F",
+          "name": "30-year T-bond (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 56,
+          "distance": 1,
+          "horizonLabel": "minutes–weeks"
+        }
+      ]
+    },
+    {
+      "id": "fomc-2024-12-18",
+      "group": "fomc",
+      "title": "FOMC cut, December 2024",
+      "releaseUtc": "2024-12-18T19:00:00Z",
+      "text": "The Committee decided to lower the target range for the federal funds rate by 1/4 percentage point to 4-1/4 to 4-1/2 percent.",
+      "source": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20241218a.htm",
+      "sourceNote": "Decision sentence, 2:00 p.m. EST. Naive dovish card follows the cut. The higher dot-plot path is not in this sentence and was not used to relabel the card.",
+      "naive": "dovish",
+      "naiveSource": null,
+      "tone": "neutral",
+      "toneHits": {
+        "escalate": [],
+        "deescalate": []
+      },
+      "tags": [
+        "rates"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 6,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 55,
+      "headlineTicker": "TNX",
+      "nodes": [
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 2,
+          "direction": "down",
+          "impact": 61
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 3,
+          "direction": "up",
+          "impact": 48
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "ETH",
+          "level": 2,
+          "direction": "down",
+          "impact": 59
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 3,
+          "direction": "up",
+          "impact": 46
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 2,
+          "direction": "down",
+          "impact": 57
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 3,
+          "direction": "down",
+          "impact": 44
+        },
+        {
+          "id": "banking",
+          "label": "Banks / deposits",
+          "ticker": "KRE",
+          "level": 2,
+          "direction": "down",
+          "impact": 55
+        },
+        {
+          "id": "credit",
+          "label": "Credit / funding",
+          "ticker": "KRE",
+          "level": 3,
+          "direction": "up",
+          "impact": 42
+        }
+      ],
+      "conflicts": [
+        {
+          "ticker": "KRE",
+          "directions": [
+            "down",
+            "up"
+          ]
+        }
+      ],
+      "trades": [
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 93,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 86,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "ETH",
+          "yahoo": "ETH-USD",
+          "name": "Ether",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 85,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 78,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 77,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 70,
+          "distance": 3,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 69,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "KRE",
+          "yahoo": "KRE",
+          "name": "Regional banks",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 65,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 64,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "ZN",
+          "yahoo": "ZN=F",
+          "name": "10-year T-note (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 60,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "QQQ",
+          "yahoo": "QQQ",
+          "name": "Nasdaq 100",
+          "side": "short",
+          "nodeDirection": null,
+          "score": 53,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        }
+      ]
+    },
+    {
+      "id": "opec-2023-04-02",
+      "group": "opec",
+      "title": "OPEC+ voluntary cuts, April 2023",
+      "releaseUtc": "2023-04-02T22:00:00Z",
+      "text": "Saudi Arabia and other OPEC+ oil producers announced further oil output cuts of around 1.16 million barrels per day.",
+      "source": "https://www.reuters.com/business/energy/sarabia-other-opec-producers-announce-voluntary-oil-output-cuts-2023-04-02/",
+      "sourceNote": "Sunday announcement. The Reuters copy that predicted an immediate price rise was not fed. 22:00 UTC is an approximate Sunday-evening stamp; the cash reaction session is the next SPY session. Naive oil-cut card.",
+      "naive": "oil_cut",
+      "naiveSource": null,
+      "tone": "up",
+      "toneHits": {
+        "escalate": [
+          "cut"
+        ],
+        "deescalate": []
+      },
+      "tags": [
+        "energy",
+        "crude",
+        "policy"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 13.5,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 61,
+      "headlineTicker": "CL",
+      "nodes": [
+        {
+          "id": "energy",
+          "label": "Energy prices",
+          "ticker": "CL",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        },
+        {
+          "id": "crude",
+          "label": "Crude / barrels",
+          "ticker": "BZ",
+          "level": 1,
+          "direction": "up",
+          "impact": 73
+        },
+        {
+          "id": "policy",
+          "label": "Policy / official",
+          "ticker": "TNX",
+          "level": 1,
+          "direction": "up",
+          "impact": 72
+        },
+        {
+          "id": "shipping",
+          "label": "Seaborne logistics",
+          "ticker": "BWET",
+          "level": 2,
+          "direction": "up",
+          "impact": 59
+        },
+        {
+          "id": "freight",
+          "label": "Tonne-miles / freight",
+          "ticker": "INSW",
+          "level": 3,
+          "direction": "up",
+          "impact": 46
+        },
+        {
+          "id": "insurance",
+          "label": "War-risk / insurance",
+          "ticker": "AIG",
+          "level": 4,
+          "direction": "up",
+          "impact": 33
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 4,
+          "direction": "up",
+          "impact": 32
+        },
+        {
+          "id": "inflation",
+          "label": "Inflation",
+          "ticker": "TIP",
+          "level": 2,
+          "direction": "up",
+          "impact": 55
+        },
+        {
+          "id": "industrial",
+          "label": "Industrial demand",
+          "ticker": "HG",
+          "level": 3,
+          "direction": "down",
+          "impact": 42
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 4,
+          "direction": "up",
+          "impact": 29
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 4,
+          "direction": "up",
+          "impact": 28
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "CL",
+          "yahoo": "CL=F",
+          "name": "WTI crude",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "BZ",
+          "yahoo": "BZ=F",
+          "name": "Brent",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 96,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 92,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "BWET",
+          "yahoo": "BWET",
+          "name": "Breakwave Tanker",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 85,
+          "distance": 2,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "INSW",
+          "yahoo": "INSW",
+          "name": "International Seaways",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 78,
+          "distance": 3,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "AIG",
+          "yahoo": "AIG",
+          "name": "AIG",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 71,
+          "distance": 4,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 69,
+          "distance": 2,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 67,
+          "distance": 4,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "HG",
+          "yahoo": "HG=F",
+          "name": "Copper",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 62,
+          "distance": 3,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "HO",
+          "yahoo": "HO=F",
+          "name": "ULSD diesel",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 56,
+          "distance": 1,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 55,
+          "distance": 4,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 51,
+          "distance": 4,
+          "horizonLabel": "minutes–days"
+        }
+      ]
+    },
+    {
+      "id": "opec-2023-06-04",
+      "group": "opec",
+      "title": "Saudi July output cut, June 2023",
+      "releaseUtc": "2023-06-04T18:00:00Z",
+      "text": "Saudi Arabia will make a deep cut to its output in July on top of a broader OPEC+ deal to limit supply into 2024. Saudi output would drop to 9 million barrels per day in July from around 10 million barrels per day in May.",
+      "source": "https://www.reuters.com/business/energy/opec-meets-debate-production-quotas-new-cut-sources-2023-06-04/",
+      "sourceNote": "Sunday, 4 June 2023, Vienna. Clock is the calendar day, not a minute-stamped wire. Cash session is the next SPY session. Naive oil-cut card.",
+      "naive": "oil_cut",
+      "naiveSource": null,
+      "tone": "neutral",
+      "toneHits": {
+        "escalate": [
+          "cut"
+        ],
+        "deescalate": [
+          "deal"
+        ]
+      },
+      "tags": [
+        "energy",
+        "policy"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 9.5,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 61,
+      "headlineTicker": "CL",
+      "nodes": [
+        {
+          "id": "energy",
+          "label": "Energy prices",
+          "ticker": "CL",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        },
+        {
+          "id": "policy",
+          "label": "Policy / official",
+          "ticker": "TNX",
+          "level": 1,
+          "direction": "up",
+          "impact": 73
+        },
+        {
+          "id": "shipping",
+          "label": "Seaborne logistics",
+          "ticker": "BWET",
+          "level": 2,
+          "direction": "up",
+          "impact": 60
+        },
+        {
+          "id": "freight",
+          "label": "Tonne-miles / freight",
+          "ticker": "INSW",
+          "level": 3,
+          "direction": "up",
+          "impact": 47
+        },
+        {
+          "id": "insurance",
+          "label": "War-risk / insurance",
+          "ticker": "AIG",
+          "level": 4,
+          "direction": "up",
+          "impact": 34
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 4,
+          "direction": "up",
+          "impact": 33
+        },
+        {
+          "id": "inflation",
+          "label": "Inflation",
+          "ticker": "TIP",
+          "level": 2,
+          "direction": "up",
+          "impact": 56
+        },
+        {
+          "id": "industrial",
+          "label": "Industrial demand",
+          "ticker": "HG",
+          "level": 3,
+          "direction": "down",
+          "impact": 43
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 4,
+          "direction": "up",
+          "impact": 30
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 4,
+          "direction": "up",
+          "impact": 29
+        },
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TLT",
+          "level": 2,
+          "direction": "up",
+          "impact": 52
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "CL",
+          "yahoo": "CL=F",
+          "name": "WTI crude",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 96,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "BWET",
+          "yahoo": "BWET",
+          "name": "Breakwave Tanker",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 89,
+          "distance": 2,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "INSW",
+          "yahoo": "INSW",
+          "name": "International Seaways",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 82,
+          "distance": 3,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "AIG",
+          "yahoo": "AIG",
+          "name": "AIG",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 75,
+          "distance": 4,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 73,
+          "distance": 2,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 71,
+          "distance": 4,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "HG",
+          "yahoo": "HG=F",
+          "name": "Copper",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 66,
+          "distance": 3,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 59,
+          "distance": 4,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 57,
+          "distance": 2,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BZ",
+          "yahoo": "BZ=F",
+          "name": "Brent",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 56,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 55,
+          "distance": 4,
+          "horizonLabel": "minutes–days"
+        }
+      ]
+    },
+    {
+      "id": "opec-2023-11-30",
+      "group": "opec",
+      "title": "OPEC+ voluntary cuts, November 2023",
+      "releaseUtc": "2023-11-30T22:12:00Z",
+      "text": "OPEC+ oil producers agreed to voluntary output cuts totalling about 2.2 million barrels per day for early next year, led by Saudi Arabia rolling over its current voluntary cut.",
+      "source": "https://www.reuters.com/markets/commodities/opec-ministers-meet-discuss-additional-oil-output-cuts-2023-11-30/",
+      "sourceNote": "Reuters update 22:12 UTC on 30 November 2023, after the US cash close, so the cash reaction session is the next SPY session. Official tally: https://www.opec.org/pr-detail/39-30-nov-2023.html. Naive oil-cut card.",
+      "naive": "oil_cut",
+      "naiveSource": null,
+      "tone": "up",
+      "toneHits": {
+        "escalate": [
+          "cut"
+        ],
+        "deescalate": []
+      },
+      "tags": [
+        "energy",
+        "crude",
+        "policy"
+      ],
+      "family": "policy",
+      "relevance": {
+        "score": 13.5,
+        "keep": true
+      },
+      "probability": 3,
+      "importance": 61,
+      "headlineTicker": "CL",
+      "nodes": [
+        {
+          "id": "energy",
+          "label": "Energy prices",
+          "ticker": "CL",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        },
+        {
+          "id": "crude",
+          "label": "Crude / barrels",
+          "ticker": "BZ",
+          "level": 1,
+          "direction": "up",
+          "impact": 73
+        },
+        {
+          "id": "policy",
+          "label": "Policy / official",
+          "ticker": "TNX",
+          "level": 1,
+          "direction": "up",
+          "impact": 72
+        },
+        {
+          "id": "shipping",
+          "label": "Seaborne logistics",
+          "ticker": "BWET",
+          "level": 2,
+          "direction": "up",
+          "impact": 59
+        },
+        {
+          "id": "freight",
+          "label": "Tonne-miles / freight",
+          "ticker": "INSW",
+          "level": 3,
+          "direction": "up",
+          "impact": 46
+        },
+        {
+          "id": "insurance",
+          "label": "War-risk / insurance",
+          "ticker": "AIG",
+          "level": 4,
+          "direction": "up",
+          "impact": 33
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 4,
+          "direction": "up",
+          "impact": 32
+        },
+        {
+          "id": "inflation",
+          "label": "Inflation",
+          "ticker": "TIP",
+          "level": 2,
+          "direction": "up",
+          "impact": 55
+        },
+        {
+          "id": "industrial",
+          "label": "Industrial demand",
+          "ticker": "HG",
+          "level": 3,
+          "direction": "down",
+          "impact": 42
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 4,
+          "direction": "up",
+          "impact": 29
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 4,
+          "direction": "up",
+          "impact": 28
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "CL",
+          "yahoo": "CL=F",
+          "name": "WTI crude",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "BZ",
+          "yahoo": "BZ=F",
+          "name": "Brent",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 96,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 92,
+          "distance": 1,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "BWET",
+          "yahoo": "BWET",
+          "name": "Breakwave Tanker",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 85,
+          "distance": 2,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "INSW",
+          "yahoo": "INSW",
+          "name": "International Seaways",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 78,
+          "distance": 3,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "AIG",
+          "yahoo": "AIG",
+          "name": "AIG",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 71,
+          "distance": 4,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 69,
+          "distance": 2,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 67,
+          "distance": 4,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "HG",
+          "yahoo": "HG=F",
+          "name": "Copper",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 62,
+          "distance": 3,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "HO",
+          "yahoo": "HO=F",
+          "name": "ULSD diesel",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 56,
+          "distance": 1,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 55,
+          "distance": 4,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 51,
+          "distance": 4,
+          "horizonLabel": "minutes–days"
+        }
+      ]
+    },
+    {
+      "id": "geo-2023-10-07",
+      "group": "geo",
+      "title": "Hamas attack on Israel",
+      "releaseUtc": "2023-10-07T04:30:00Z",
+      "text": "A surprise attack by Hamas on Israel combined gunmen breaching security barriers with a barrage of rockets fired from Gaza.",
+      "source": "https://www.reuters.com/world/middle-east/how-hamas-attack-israel-unfolded-2023-10-07/",
+      "sourceNote": "Saturday dawn. Cash session is the next SPY session (Monday 9 October 2023; US equities were open on Columbus Day). The sentence does not include later market prices. Naive geopolitical-shock card.",
+      "naive": "geo_shock",
+      "naiveSource": null,
+      "tone": "up",
+      "toneHits": {
+        "escalate": [
+          "attack",
+          "fire"
+        ],
+        "deescalate": []
+      },
+      "tags": [],
+      "family": "other",
+      "relevance": {
+        "score": -2,
+        "keep": false
+      },
+      "probability": 5,
+      "importance": 32,
+      "headlineTicker": "SPX",
+      "nodes": [
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "QQQ",
+          "yahoo": "QQQ",
+          "name": "Nasdaq 100",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 96,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "IWM",
+          "yahoo": "IWM",
+          "name": "Russell 2000",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 92,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        }
+      ]
+    },
+    {
+      "id": "geo-2024-01-12",
+      "group": "geo",
+      "title": "US-UK strikes on Houthi targets",
+      "releaseUtc": "2024-01-12T03:00:00Z",
+      "text": "U.S. and British forces launched air strikes across Yemen against Houthi forces in retaliation for attacks on Red Sea shipping.",
+      "source": "https://www.reuters.com/world/us-britain-carry-out-strikes-against-houthis-yemen-officials-2024-01-11/",
+      "sourceNote": "Strikes were overnight into Friday 12 January 2024. 03:00 UTC is before the US cash open, so Friday is the cash session. Naive geopolitical-shock card.",
+      "naive": "geo_shock",
+      "naiveSource": null,
+      "tone": "up",
+      "toneHits": {
+        "escalate": [
+          "attack",
+          "strike"
+        ],
+        "deescalate": []
+      },
+      "tags": [
+        "shipping",
+        "defense",
+        "labor"
+      ],
+      "family": "kinetic",
+      "relevance": {
+        "score": 11,
+        "keep": true
+      },
+      "probability": 5,
+      "importance": 62,
+      "headlineTicker": "BWET",
+      "nodes": [
+        {
+          "id": "shipping",
+          "label": "Seaborne logistics",
+          "ticker": "BWET",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        },
+        {
+          "id": "defense",
+          "label": "Defense / restock",
+          "ticker": "ITA",
+          "level": 1,
+          "direction": "up",
+          "impact": 73
+        },
+        {
+          "id": "labor",
+          "label": "Labor / throughput",
+          "ticker": "UNP",
+          "level": 1,
+          "direction": "up",
+          "impact": 72
+        },
+        {
+          "id": "freight",
+          "label": "Tonne-miles / freight",
+          "ticker": "INSW",
+          "level": 2,
+          "direction": "up",
+          "impact": 59
+        },
+        {
+          "id": "insurance",
+          "label": "War-risk / insurance",
+          "ticker": "AIG",
+          "level": 3,
+          "direction": "up",
+          "impact": 46
+        },
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 4,
+          "direction": "up",
+          "impact": 33
+        },
+        {
+          "id": "duration",
+          "label": "Duration",
+          "ticker": "TLT",
+          "level": 4,
+          "direction": "down",
+          "impact": 32
+        },
+        {
+          "id": "industrial",
+          "label": "Industrial demand",
+          "ticker": "HG",
+          "level": 2,
+          "direction": "down",
+          "impact": 55
+        },
+        {
+          "id": "inflation",
+          "label": "Inflation",
+          "ticker": "TIP",
+          "level": 3,
+          "direction": "up",
+          "impact": 42
+        },
+        {
+          "id": "fx",
+          "label": "FX / dollar funding",
+          "ticker": "UUP",
+          "level": 4,
+          "direction": "up",
+          "impact": 29
+        },
+        {
+          "id": "crypto",
+          "label": "Crypto / liquidity",
+          "ticker": "BTC",
+          "level": 4,
+          "direction": "down",
+          "impact": 28
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "BWET",
+          "yahoo": "BWET",
+          "name": "Breakwave Tanker",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "ITA",
+          "yahoo": "ITA",
+          "name": "US Aerospace & Defense",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 96,
+          "distance": 1,
+          "horizonLabel": "weeks–quarters"
+        },
+        {
+          "ticker": "UNP",
+          "yahoo": "UNP",
+          "name": "Union Pacific",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 92,
+          "distance": 1,
+          "horizonLabel": "weeks"
+        },
+        {
+          "ticker": "INSW",
+          "yahoo": "INSW",
+          "name": "International Seaways",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 85,
+          "distance": 2,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "AIG",
+          "yahoo": "AIG",
+          "name": "AIG",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 78,
+          "distance": 3,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 71,
+          "distance": 4,
+          "horizonLabel": "minutes"
+        },
+        {
+          "ticker": "HG",
+          "yahoo": "HG=F",
+          "name": "Copper",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 69,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "TLT",
+          "yahoo": "TLT",
+          "name": "20+ Treasury",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 67,
+          "distance": 4,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 62,
+          "distance": 3,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "FRO",
+          "yahoo": "FRO",
+          "name": "Frontline",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 56,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "UUP",
+          "yahoo": "UUP",
+          "name": "US Dollar",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 55,
+          "distance": 4,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 51,
+          "distance": 4,
+          "horizonLabel": "minutes–weeks"
+        }
+      ]
+    },
+    {
+      "id": "geo-2024-04-13",
+      "group": "geo",
+      "title": "Iran drone and missile attack on Israel",
+      "releaseUtc": "2024-04-13T22:00:00Z",
+      "text": "Iran launched explosive drones and fired missiles at Israel late on Saturday in its first direct attack on Israeli territory.",
+      "source": "https://www.reuters.com/world/middle-east/iran-launches-drone-attack-israel-expected-unfold-over-hours-2024-04-13/",
+      "sourceNote": "Saturday night. Cash session is Monday 15 April 2024. The damage assessment later in the Reuters piece was not fed. Naive geopolitical-shock card.",
+      "naive": "geo_shock",
+      "naiveSource": null,
+      "tone": "up",
+      "toneHits": {
+        "escalate": [
+          "attack",
+          "missile",
+          "drone",
+          "fire"
+        ],
+        "deescalate": []
+      },
+      "tags": [
+        "defense",
+        "energy"
+      ],
+      "family": "kinetic",
+      "relevance": {
+        "score": 9,
+        "keep": true
+      },
+      "probability": 5,
+      "importance": 62,
+      "headlineTicker": "ITA",
+      "nodes": [
+        {
+          "id": "defense",
+          "label": "Defense / restock",
+          "ticker": "ITA",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        },
+        {
+          "id": "energy",
+          "label": "Energy prices",
+          "ticker": "CL",
+          "level": 1,
+          "direction": "up",
+          "impact": 73
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 2,
+          "direction": "up",
+          "impact": 60
+        },
+        {
+          "id": "freight",
+          "label": "Tonne-miles / freight",
+          "ticker": "BWET",
+          "level": 3,
+          "direction": "up",
+          "impact": 47
+        },
+        {
+          "id": "insurance",
+          "label": "War-risk / insurance",
+          "ticker": "AIG",
+          "level": 4,
+          "direction": "up",
+          "impact": 34
+        },
+        {
+          "id": "liquidity",
+          "label": "Funding / liquidity",
+          "ticker": "BTC",
+          "level": 4,
+          "direction": "up",
+          "impact": 33
+        },
+        {
+          "id": "shipping",
+          "label": "Seaborne logistics",
+          "ticker": "INSW",
+          "level": 2,
+          "direction": "up",
+          "impact": 56
+        },
+        {
+          "id": "industrial",
+          "label": "Industrial demand",
+          "ticker": "HG",
+          "level": 3,
+          "direction": "down",
+          "impact": 43
+        },
+        {
+          "id": "vol",
+          "label": "Volatility",
+          "ticker": "VIX",
+          "level": 4,
+          "direction": "up",
+          "impact": 29
+        },
+        {
+          "id": "inflation",
+          "label": "Inflation",
+          "ticker": "TIP",
+          "level": 2,
+          "direction": "up",
+          "impact": 52
+        },
+        {
+          "id": "rates",
+          "label": "Rates / curve",
+          "ticker": "TNX",
+          "level": 3,
+          "direction": "up",
+          "impact": 39
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "ITA",
+          "yahoo": "ITA",
+          "name": "US Aerospace & Defense",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "weeks–quarters"
+        },
+        {
+          "ticker": "CL",
+          "yahoo": "CL=F",
+          "name": "WTI crude",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 96,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 89,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "BWET",
+          "yahoo": "BWET",
+          "name": "Breakwave Tanker",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 82,
+          "distance": 3,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "AIG",
+          "yahoo": "AIG",
+          "name": "AIG",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 75,
+          "distance": 4,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "INSW",
+          "yahoo": "INSW",
+          "name": "International Seaways",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 73,
+          "distance": 2,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "BTC",
+          "yahoo": "BTC-USD",
+          "name": "Bitcoin",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 71,
+          "distance": 4,
+          "horizonLabel": "minutes–weeks"
+        },
+        {
+          "ticker": "HG",
+          "yahoo": "HG=F",
+          "name": "Copper",
+          "side": "short",
+          "nodeDirection": "down",
+          "score": 66,
+          "distance": 3,
+          "horizonLabel": "hours–weeks"
+        },
+        {
+          "ticker": "TIP",
+          "yahoo": "TIP",
+          "name": "TIPS",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 61,
+          "distance": 2,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "VIX",
+          "yahoo": "^VIX",
+          "name": "VIX",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 59,
+          "distance": 4,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "LMT",
+          "yahoo": "LMT",
+          "name": "Lockheed Martin",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 56,
+          "distance": 1,
+          "horizonLabel": "weeks–quarters"
+        },
+        {
+          "ticker": "TNX",
+          "yahoo": "^TNX",
+          "name": "10-year yield",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 54,
+          "distance": 3,
+          "horizonLabel": "minutes"
+        }
+      ]
+    },
+    {
+      "id": "nvda-2023-05-24",
+      "group": "tech",
+      "title": "NVIDIA Q1 FY2024 results and guide",
+      "releaseUtc": "2023-05-24T20:20:00Z",
+      "text": "NVIDIA reported revenue for the first quarter ended April 30, 2023, of $7.19 billion. The outlook for the second quarter of fiscal 2024 is revenue of $11.00 billion, plus or minus 2 percent.",
+      "source": "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-first-quarter-fiscal-2024",
+      "sourceNote": "Company results, after the US cash close on 24 May 2023. The reaction session is the next SPY session. Naive card is long NVDA, QQQ, and SPY because the release printed an $11 billion outlook. This run did not re-fetch the sell-side poll PDF; contemporaneous coverage treated that outlook as far above the prior consensus near $7 billion.",
+      "naive": "long_nvda",
+      "naiveSource": null,
+      "tone": "neutral",
+      "toneHits": {
+        "escalate": [],
+        "deescalate": []
+      },
+      "tags": [
+        "semiconductor",
+        "compute"
+      ],
+      "family": "tech",
+      "relevance": {
+        "score": 7,
+        "keep": true
+      },
+      "probability": 5,
+      "importance": 41,
+      "headlineTicker": "TSM",
+      "nodes": [
+        {
+          "id": "semiconductor",
+          "label": "Semiconductors",
+          "ticker": "TSM",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        },
+        {
+          "id": "compute",
+          "label": "Compute / AI kit",
+          "ticker": "NVDA",
+          "level": 1,
+          "direction": "up",
+          "impact": 73
+        },
+        {
+          "id": "tech",
+          "label": "Hardware / devices",
+          "ticker": "AAPL",
+          "level": 2,
+          "direction": "up",
+          "impact": 60
+        },
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 2,
+          "direction": "up",
+          "impact": 59
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "TSM",
+          "yahoo": "TSM",
+          "name": "TSMC",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "days–quarters"
+        },
+        {
+          "ticker": "NVDA",
+          "yahoo": "NVDA",
+          "name": "NVIDIA",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 94,
+          "distance": 1,
+          "horizonLabel": "weeks–quarters"
+        },
+        {
+          "ticker": "AAPL",
+          "yahoo": "AAPL",
+          "name": "Apple",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 89,
+          "distance": 2,
+          "horizonLabel": "weeks–quarters"
+        },
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 85,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "SMH",
+          "yahoo": "SMH",
+          "name": "VanEck Semi",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 84,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "MU",
+          "yahoo": "MU",
+          "name": "Micron",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 80,
+          "distance": 1,
+          "horizonLabel": "weeks"
+        },
+        {
+          "ticker": "AMD",
+          "yahoo": "AMD",
+          "name": "AMD",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 76,
+          "distance": 1,
+          "horizonLabel": "weeks–quarters"
+        },
+        {
+          "ticker": "QQQ",
+          "yahoo": "QQQ",
+          "name": "Nasdaq 100",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 69,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "NQ",
+          "yahoo": "NQ=F",
+          "name": "E-mini Nasdaq-100 (front month)",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 65,
+          "distance": 2,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "IWM",
+          "yahoo": "IWM",
+          "name": "Russell 2000",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 61,
+          "distance": 2,
+          "horizonLabel": "days–weeks"
+        },
+        {
+          "ticker": "XLE",
+          "yahoo": "XLE",
+          "name": "Energy Select",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 57,
+          "distance": 2,
+          "horizonLabel": "hours–weeks"
+        }
+      ]
+    },
+    {
+      "id": "tsla-2024-07-23",
+      "group": "tech",
+      "title": "Tesla Q2 2024 results",
+      "releaseUtc": "2024-07-23T21:30:00Z",
+      "text": "Tesla reported its lowest profit margin in more than five years and missed Wall Street earnings. Automotive gross margin was 14.6 percent versus analysts' estimates of 16.3 percent. Operating income decreased to $1.6 billion, a 6.3 percent operating margin.",
+      "source": "https://www.reuters.com/business/autos-transportation/tesla-revenue-sees-surprise-rise-second-quarter-revenue-2024-07-23/",
+      "sourceNote": "Reuters copy filed before the 24 July cash open (updated 07:16 UTC on 24 July) plus Tesla's own Q2 operating-income line. The later 'shares tumbled' story was not fed. Webcast was 4:30 p.m. CT on 23 July. Naive card is short TSLA, QQQ, and SPY.",
+      "naive": "short_tsla",
+      "naiveSource": null,
+      "tone": "down",
+      "toneHits": {
+        "escalate": [],
+        "deescalate": [
+          "ease",
+          "eased"
+        ]
+      },
+      "tags": [],
+      "family": "other",
+      "relevance": {
+        "score": -2,
+        "keep": false
+      },
+      "probability": 5,
+      "importance": 32,
+      "headlineTicker": "SPX",
+      "nodes": [
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 1,
+          "direction": "mixed",
+          "impact": 74
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "long",
+          "nodeDirection": "mixed",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "QQQ",
+          "yahoo": "QQQ",
+          "name": "Nasdaq 100",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 96,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "IWM",
+          "yahoo": "IWM",
+          "name": "Russell 2000",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 92,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        }
+      ]
+    },
+    {
+      "id": "deepseek-2025-01-27",
+      "group": "tech",
+      "title": "DeepSeek assistant launch",
+      "releaseUtc": "2025-01-27T14:30:00Z",
+      "text": "Chinese startup DeepSeek launched a free AI assistant that it says uses less data at a fraction of the cost of incumbent services.",
+      "source": "https://www.reuters.com/technology/chinas-deepseek-sets-off-ai-market-rout-2025-01-27/",
+      "sourceNote": "The launch clause Reuters places in the prior week. Sentences about Monday's selloff and the dollar loss in Nvidia's market value were not fed, and the name Nvidia was not added. Release is stamped at the US cash open on 27 January 2025 so the prior close is 24 January. Naive card abstains: a short-Nvidia rule would use knowledge of how the episode traded.",
+      "naive": "none",
+      "naiveSource": null,
+      "tone": "neutral",
+      "toneHits": {
+        "escalate": [],
+        "deescalate": []
+      },
+      "tags": [],
+      "family": "other",
+      "relevance": {
+        "score": -2,
+        "keep": false
+      },
+      "probability": 5,
+      "importance": 32,
+      "headlineTicker": "SPX",
+      "nodes": [
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "QQQ",
+          "yahoo": "QQQ",
+          "name": "Nasdaq 100",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 96,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "IWM",
+          "yahoo": "IWM",
+          "name": "Russell 2000",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 92,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        }
+      ]
+    },
+    {
+      "id": "tariff-2025-04-02",
+      "group": "policy",
+      "title": "US reciprocal tariffs announced",
+      "releaseUtc": "2025-04-02T20:00:00Z",
+      "text": "The United States will impose a 10 percent baseline tariff on all imports effective April 5 and higher duties on several of its biggest trading partners, including a 34 percent tariff on China.",
+      "source": "https://www.reuters.com/world/us/us-businesses-brace-more-pain-liberation-day-tariffs-loom-2025-04-02/",
+      "sourceNote": "Announcement date 2 April 2025. Stamped at 16:00 ET so the cash reaction session is the next SPY session; the minute the remarks began was not re-verified. Naive tariff card is the pre-set growth-uncertainty rule, not a fit to the subsequent path.",
+      "naive": "tariff",
+      "naiveSource": null,
+      "tone": "neutral",
+      "toneHits": {
+        "escalate": [],
+        "deescalate": []
+      },
+      "tags": [
+        "china"
+      ],
+      "family": "other",
+      "relevance": {
+        "score": 2,
+        "keep": true
+      },
+      "probability": 5,
+      "importance": 32,
+      "headlineTicker": "SPX",
+      "nodes": [
+        {
+          "id": "china",
+          "label": "China demand / policy",
+          "ticker": null,
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 94,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "QQQ",
+          "yahoo": "QQQ",
+          "name": "Nasdaq 100",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 90,
+          "distance": 3,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "IWM",
+          "yahoo": "IWM",
+          "name": "Russell 2000",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 86,
+          "distance": 3,
+          "horizonLabel": "days–weeks"
+        }
+      ]
+    },
+    {
+      "id": "ctrl-superbowl-2024-02-11",
+      "group": "control",
+      "title": "Super Bowl LVIII",
+      "releaseUtc": "2024-02-12T04:30:00Z",
+      "text": "The Kansas City Chiefs beat the San Francisco 49ers 25-22 in overtime to win the Super Bowl.",
+      "source": "https://www.nfl.com/super-bowl/",
+      "sourceNote": "Official final of Super Bowl LVIII, 11 February 2024. Evening event; cash session is 12 February. Naive card abstains. This is a non-event control.",
+      "naive": "none",
+      "naiveSource": null,
+      "tone": "neutral",
+      "toneHits": {
+        "escalate": [],
+        "deescalate": []
+      },
+      "tags": [],
+      "family": "other",
+      "relevance": {
+        "score": -10,
+        "keep": false
+      },
+      "probability": 5,
+      "importance": 32,
+      "headlineTicker": "SPX",
+      "nodes": [
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "QQQ",
+          "yahoo": "QQQ",
+          "name": "Nasdaq 100",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 96,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "IWM",
+          "yahoo": "IWM",
+          "name": "Russell 2000",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 92,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        }
+      ]
+    },
+    {
+      "id": "ctrl-oscars-2024-03-10",
+      "group": "control",
+      "title": "Academy Awards 2024",
+      "releaseUtc": "2024-03-11T02:00:00Z",
+      "text": "Oppenheimer won the Oscar for best picture at the Academy Awards.",
+      "source": "https://www.oscars.org/oscars/ceremonies/2024",
+      "sourceNote": "96th Academy Awards, 10 March 2024. Cash session is 11 March. Naive card abstains. Non-event control.",
+      "naive": "none",
+      "naiveSource": null,
+      "tone": "up",
+      "toneHits": {
+        "escalate": [
+          "war"
+        ],
+        "deescalate": []
+      },
+      "tags": [],
+      "family": "other",
+      "relevance": {
+        "score": -10,
+        "keep": false
+      },
+      "probability": 5,
+      "importance": 32,
+      "headlineTicker": "SPX",
+      "nodes": [
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "QQQ",
+          "yahoo": "QQQ",
+          "name": "Nasdaq 100",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 96,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "IWM",
+          "yahoo": "IWM",
+          "name": "Russell 2000",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 92,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        }
+      ]
+    },
+    {
+      "id": "ctrl-iphone-2023-09-12",
+      "group": "control",
+      "title": "Apple iPhone 15 event",
+      "releaseUtc": "2023-09-12T17:00:00Z",
+      "text": "Apple unveiled the iPhone 15 and iPhone 15 Pro at its annual product event.",
+      "source": "https://www.apple.com/newsroom/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/",
+      "sourceNote": "Apple event, 12 September 2023, 10:00 a.m. Pacific, during the US cash session. Naive card abstains. Product-launch control, not a macro print.",
+      "naive": "none",
+      "naiveSource": null,
+      "tone": "neutral",
+      "toneHits": {
+        "escalate": [],
+        "deescalate": []
+      },
+      "tags": [],
+      "family": "other",
+      "relevance": {
+        "score": -2,
+        "keep": false
+      },
+      "probability": 5,
+      "importance": 32,
+      "headlineTicker": "SPX",
+      "nodes": [
+        {
+          "id": "equity",
+          "label": "Equities",
+          "ticker": "SPX",
+          "level": 1,
+          "direction": "up",
+          "impact": 74
+        }
+      ],
+      "conflicts": [],
+      "trades": [
+        {
+          "ticker": "SPX",
+          "yahoo": "^GSPC",
+          "name": "S&P 500",
+          "side": "long",
+          "nodeDirection": "up",
+          "score": 99,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "QQQ",
+          "yahoo": "QQQ",
+          "name": "Nasdaq 100",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 96,
+          "distance": 1,
+          "horizonLabel": "minutes–days"
+        },
+        {
+          "ticker": "IWM",
+          "yahoo": "IWM",
+          "name": "Russell 2000",
+          "side": "long",
+          "nodeDirection": null,
+          "score": 92,
+          "distance": 1,
+          "horizonLabel": "days–weeks"
+        }
+      ]
+    }
+  ]
+}
