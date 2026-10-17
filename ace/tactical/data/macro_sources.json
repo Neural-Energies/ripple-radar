@@ -1,0 +1,17 @@
+{
+  "built_at": "2026-10-17T15:17:19Z",
+  "cpi_nfp": "Philadelphia Fed Real-Time Data Set, monthly vintages PCPI and EMPLOY. First vintage that contains the observation month. Month-over-month CPI uses that vintage's own prior level. Payrolls are the change in thousands in that vintage.",
+  "cpi_url": "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/real-time-data/data-files/xlsx/pcpiMvMd.xlsx",
+  "nfp_url": "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/real-time-data/data-files/xlsx/employMvMd.xlsx",
+  "fomc": "Federal Reserve statement pages whose title contains 'FOMC statement'. Surprise is the change in the Yahoo ZQ=F implied rate (100 minus the price). On a session dated the 1st, 2nd or 3rd the change is open to close, because the continuous contract splices then. Otherwise it is close to close.",
+  "fomc_statements": 187,
+  "news": "Baker, Bloom and Davis daily news-based US EPU, averaged within the calendar month. policyuncertainty.com All_Daily_Policy_Data.csv. This is the series FRED publishes as USEPUINDXD. The FRED file did not download.",
+  "news_url": "https://www.policyuncertainty.com/media/All_Daily_Policy_Data.csv",
+  "consensus": "No free CPI, payroll or funds-rate survey history was available. CPI and payroll consensus is the median of the previous 36 first releases. FOMC consensus is the rate already in the fed-funds future.",
+  "counts": {
+    "cpi": 952,
+    "nfp": 1051,
+    "fomc": 187,
+    "catalog": 29
+  }
+}

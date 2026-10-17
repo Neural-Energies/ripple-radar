@@ -42,6 +42,7 @@ import { Route as ApiAlertsRunRouteImport } from './routes/api/alerts/run'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webhook'
 import { Route as ApiLedgerResolveRouteImport } from './routes/api/ledger/resolve'
+import { Route as ApiTacticalRouteImport } from './routes/api/tactical'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -208,6 +209,11 @@ const ApiLedgerResolveRoute = ApiLedgerResolveRouteImport.update({
   path: '/api/ledger/resolve',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiTacticalRoute = ApiTacticalRouteImport.update({
+  id: '/api/tactical',
+  path: '/api/tactical',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -243,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/ledger/resolve': typeof ApiLedgerResolveRoute
+  '/api/tactical': typeof ApiTacticalRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -277,6 +284,7 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/ledger/resolve': typeof ApiLedgerResolveRoute
+  '/api/tactical': typeof ApiTacticalRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -313,6 +321,7 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/ledger/resolve': typeof ApiLedgerResolveRoute
+  '/api/tactical': typeof ApiTacticalRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -350,6 +359,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/billing/webhook'
     | '/api/ledger/resolve'
+    | '/api/tactical'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -384,6 +394,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/billing/webhook'
     | '/api/ledger/resolve'
+    | '/api/tactical'
   id:
     | '__root__'
     | '/'
@@ -419,6 +430,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/billing/webhook'
     | '/api/ledger/resolve'
+    | '/api/tactical'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -444,6 +456,7 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiBillingWebhookRoute: typeof ApiBillingWebhookRoute
   ApiLedgerResolveRoute: typeof ApiLedgerResolveRoute
+  ApiTacticalRoute: typeof ApiTacticalRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -679,6 +692,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLedgerResolveRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/tactical': {
+      id: '/api/tactical'
+      path: '/api/tactical'
+      fullPath: '/api/tactical'
+      preLoaderRoute: typeof ApiTacticalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -744,6 +764,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiBillingWebhookRoute: ApiBillingWebhookRoute,
   ApiLedgerResolveRoute: ApiLedgerResolveRoute,
+  ApiTacticalRoute: ApiTacticalRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
