@@ -51,6 +51,29 @@ MAX_CONTRACTS = 4
 # equity indexes and two ticks per side on gold and crude.
 COMMISSION_PER_SIDE = 2.50
 
+# Macro-surprise and news overlay. Fixed before the 2023–2026 overlay P&L
+# was scored. The factor rules above are not retuned.
+# Consensus for CPI and payrolls is the median of the previous 36 first
+# releases. There is no free survey history, so this is a proxy.
+SURPRISE_MEDIAN = 36
+# Z-scores need two years of train-window surprises before they speak.
+# The mean and standard deviation then freeze at the train-window close.
+SURPRISE_MIN_Z = 24
+# Smaller than this, the release is "in line" and the macro book abstains.
+Z_ABSTAIN = 0.5
+# At or above this, a surprise may flatten or replace the core position.
+Z_OVERRIDE = 1.0
+# Growth and inflation state: trailing median of the point-in-time 12-month
+# change. Sixty months is five years. Fewer than that and the state is unknown.
+REGIME_TRAIL = 60
+# News filter: lagged monthly news-based EPU above its train-window 80th
+# percentile flattens NQ and ES. It does not open a short.
+EPU_HIGH_Q = 0.80
+NEWS_ASSETS = ("NQ", "ES")
+# The core the overlays sit on. Not chosen by searching the test window;
+# it is the one-lot volatility-filtered trend from the factor book.
+CORE_MODEL = "vol_filter_tsmom"
+
 
 @dataclass(frozen=True)
 class Contract:
@@ -153,5 +176,23 @@ CITATIONS: tuple[dict[str, str], ...] = (
         "short": "Maillard, Roncalli and Teiletche (2010)",
         "cite": "Maillard, Sébastien, Thierry Roncalli, and Jérôme Teiletche. \"The Properties of Equally Weighted Risk Contribution Portfolios.\" Journal of Portfolio Management 36, no. 4 (2010): 60–70.",
         "used_for": "Equal risk contribution. With a common correlation assumption this is inverse-volatility weighting, applied here as an equal dollar-vol budget per market.",
+    },
+    {
+        "id": "kuttner2001",
+        "short": "Kuttner (2001)",
+        "cite": "Kuttner, Kenneth N. \"Monetary Policy Surprises and Interest Rates: Evidence from the Fed Funds Futures Market.\" Journal of Monetary Economics 47, no. 3 (2001): 523–544.",
+        "used_for": "The FOMC surprise is the change in the front 30-day fed-funds future on the statement day. A free Reuters poll of the decision does not exist for the full sample.",
+    },
+    {
+        "id": "bhj2005",
+        "short": "Boyd, Hu and Jagannathan (2005)",
+        "cite": "Boyd, John H., Jian Hu, and Ravi Jagannathan. \"The Stock Market's Reaction to Unemployment News: Why Bad News Is Usually Good for Stocks.\" Journal of Finance 60, no. 2 (2005): 649–672.",
+        "used_for": "The payroll surprise flips sign with the growth state. In an expansion a strong print is a short in the equity indexes; in a contraction it is a long.",
+    },
+    {
+        "id": "bbd2016",
+        "short": "Baker, Bloom and Davis (2016)",
+        "cite": "Baker, Scott R., Nicholas Bloom, and Steven J. Davis. \"Measuring Economic Policy Uncertainty.\" Quarterly Journal of Economics 131, no. 4 (2016): 1593–1636.",
+        "used_for": "The news layer is their daily news-based Economic Policy Uncertainty index, lagged one month, used only to flatten equity-index futures.",
     },
 )

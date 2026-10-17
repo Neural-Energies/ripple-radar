@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 
 from ace.tactical.data import DAILY_PATH, build_panel, load_panel, write_panel
+from ace.tactical.overlay import CANDIDATES
 from ace.tactical.report import build_book
 from ace.tactical.spec import CONTRACTS, MODELS
 
@@ -46,6 +47,26 @@ def _print(book: dict) -> None:
                 f"{_fmt(inn['total_pnl']):>12} {_fmt(inn['sharpe'], 2):>7} {_fmt(inn['max_drawdown']):>12} {_fmt(inn['profit_factor'], 2):>6} {inn['trade_count']:>5} "
                 f"{_fmt(out['total_pnl']):>12} {_fmt(out['sharpe'], 2):>7} {_fmt(out['max_drawdown']):>12} {_fmt(out['profit_factor'], 2):>6} {out['trade_count']:>5}"
             )
+    layers = book["layers"]
+    print(f"recommended stack: {layers['recommended']}")
+    print(f"{'stack':<24} {'OOS pnl':>12} {'OOS sh':>7} {'OOS dd':>12} {'OOS pf':>6} {'OOS n':>6} {'vs core':>12}")
+    names = ["core", *CANDIDATES, "naive_proxy", "naive_catalog"]
+    for name in names:
+        out = layers["stacks"][name]["book"]["out_of_sample"]
+        delta = layers["stacks"][name]["incremental_oos_pnl"]
+        print(
+            f"{name:<24} {_fmt(out['total_pnl']):>12} {_fmt(out['sharpe'], 2):>7} "
+            f"{_fmt(out['max_drawdown']):>12} {_fmt(out['profit_factor'], 2):>6} {out['trade_count']:>6} {_fmt(delta):>12}"
+        )
+        for asset in CONTRACTS:
+            row = layers["stacks"][name]["assets"][asset]["out_of_sample"]
+            print(
+                f"{'':<24} {asset:<4} {_fmt(row['total_pnl']):>12} {_fmt(row['sharpe'], 2):>7} "
+                f"{_fmt(row['max_drawdown']):>12} {_fmt(row['profit_factor'], 2):>6} {row['trade_count']:>6}"
+            )
+    hit = layers["stacks"]["naive_catalog"].get("hit_rate") or {}
+    if hit:
+        print(f"catalog hit rate {hit.get('hits')}/{hit.get('decided')} = {hit.get('hit_rate')}")
 
 
 def main() -> None:

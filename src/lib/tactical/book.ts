@@ -55,8 +55,28 @@ export interface TacticalModel {
   book: BookResult;
 }
 
+export interface TacticalLayers {
+  core_model: string;
+  selection_rule: string;
+  candidates: string[];
+  recommended: string;
+  stack_chosen_on_test: boolean;
+  parameters_fit_on_test: boolean;
+  stacks: Record<
+    string,
+    {
+      summary: string;
+      beats_core: boolean;
+      incremental_oos_pnl: number;
+      assets: Record<string, AssetResult>;
+      book: BookResult;
+      hit_rate?: { calls: number; decided: number; hits: number; flats: number; hit_rate: number | null };
+    }
+  >;
+}
+
 export interface TacticalBook {
-  schema: "tactical-book-v1";
+  schema: "tactical-book-v2";
   generated_at: string;
   as_of: string;
   tuned_on_test: boolean;
@@ -74,6 +94,7 @@ export interface TacticalBook {
   };
   citations: { id: string; short: string; cite: string; used_for: string }[];
   models: Record<string, TacticalModel>;
+  layers: TacticalLayers;
 }
 
 export const tacticalBook = book as TacticalBook;

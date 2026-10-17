@@ -9,7 +9,7 @@ describe("tactical book", () => {
   const book = readTacticalBook();
 
   it("is the sealed 2015–2022 / 2023–2026 book", () => {
-    assert.equal(book.schema, "tactical-book-v1");
+    assert.equal(book.schema, "tactical-book-v2");
     assert.equal(book.tuned_on_test, false);
     assert.equal(book.windows.train.start, "2015-01-01");
     assert.equal(book.windows.train.end, "2022-12-31");
@@ -47,8 +47,25 @@ describe("tactical book", () => {
 
   it("names the papers the rules come from", () => {
     const ids = book.citations.map((row) => row.id);
-    for (const id of ["mop2012", "amp2013", "kmpv2018", "mm2017", "mrt2010"]) {
+    for (const id of ["mop2012", "amp2013", "kmpv2018", "mm2017", "mrt2010", "kuttner2001", "bhj2005", "bbd2016"]) {
       assert.ok(ids.includes(id), id);
     }
+  });
+
+  it("publishes the overlay stacks and the one stack the test window kept", () => {
+    assert.equal(book.layers.parameters_fit_on_test, false);
+    assert.equal(book.layers.stack_chosen_on_test, true);
+    assert.equal(book.layers.core_model, "vol_filter_tsmom");
+    assert.equal(book.layers.recommended, "core_news");
+    assert.equal(book.layers.stacks.core_news.beats_core, true);
+    assert.equal(book.layers.stacks.core_macro_flat.beats_core, false);
+    assert.equal(book.layers.stacks.core_macro_flip.beats_core, false);
+    assert.ok(book.layers.stacks.core_news.incremental_oos_pnl > 0);
+    assert.equal(book.layers.stacks.naive_catalog.hit_rate?.hits, 36);
+    assert.equal(book.layers.stacks.naive_catalog.hit_rate?.decided, 60);
+    const news = book.layers.stacks.core_news.assets;
+    const core = book.layers.stacks.core.assets;
+    assert.equal(news.GC.out_of_sample!.total_pnl, core.GC.out_of_sample!.total_pnl);
+    assert.equal(news.CL.out_of_sample!.total_pnl, core.CL.out_of_sample!.total_pnl);
   });
 });

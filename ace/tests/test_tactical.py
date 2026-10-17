@@ -137,6 +137,15 @@ def test_published_book_matches_a_fresh_run_and_the_windows_are_sealed():
                     assert stats[window]["start"] >= TEST_START
         for window in ("in_sample", "out_of_sample"):
             assert block["book"][window]["total_pnl"] == pytest.approx(fresh_block["book"][window]["total_pnl"], abs=1e-6)
+    assert saved["schema"] == "tactical-book-v2"
+    assert saved["layers"]["parameters_fit_on_test"] is False
+    assert saved["layers"]["stack_chosen_on_test"] is True
+    assert saved["layers"]["recommended"] == fresh["layers"]["recommended"]
+    for name in ("core", "core_news", "core_macro_flat", "core_macro_flip", "macro_only", "naive_proxy", "naive_catalog"):
+        for window in ("in_sample", "out_of_sample"):
+            assert saved["layers"]["stacks"][name]["book"][window]["total_pnl"] == pytest.approx(
+                fresh["layers"]["stacks"][name]["book"][window]["total_pnl"], abs=1e-6
+            )
 
 
 def test_out_of_sample_prices_do_not_move_the_frozen_volatility_line():

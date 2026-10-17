@@ -11,7 +11,9 @@ from datetime import datetime, timezone
 
 import pandas as pd
 
+from ace.tactical.macro import load_catalog, load_epu, load_releases, load_sources, with_surprise
 from ace.tactical.models import run, window_metrics
+from ace.tactical.overlay import CANDIDATES, LAYER_SPEC, SELECTION_RULE, catalog_books, choose_stack, run_layers
 from ace.tactical.spec import (
     CITATIONS,
     COMPOSITE_LOT_THRESHOLD,
@@ -29,6 +31,12 @@ from ace.tactical.spec import (
     VALUE_LOOKBACK,
     VOL_BUDGET,
     VOL_WINDOW,
+    Z_ABSTAIN,
+    Z_OVERRIDE,
+    SURPRISE_MEDIAN,
+    REGIME_TRAIL,
+    EPU_HIGH_Q,
+    CORE_MODEL,
 )
 
 
@@ -148,15 +156,20 @@ def build_book(panel: pd.DataFrame) -> dict:
             "assets": assets,
             "book": portfolio_metrics,
         }
+    layers = _layers(result)
     return _clean(
         {
-            "schema": "tactical-book-v1",
+            "schema": "tactical-book-v2",
             "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "as_of": pd.Timestamp(as_of).strftime("%Y-%m-%d"),
             "tuned_on_test": False,
             "windows": {
                 "train": {"start": TRAIN_START, "end": TRAIN_END, "role": "Thresholds use only this window, expanding, then freeze."},
-                "test": {"start": TEST_START, "end": pd.Timestamp(as_of).strftime("%Y-%m-%d"), "role": "Scored once. No rule was changed after seeing it."},
+                "test": {
+                    "start": TEST_START,
+                    "end": pd.Timestamp(as_of).strftime("%Y-%m-%d"),
+                    "role": "Factor rules were scored once and not changed. The overlay stack was chosen on this window once.",
+                },
             },
             "parameters": {
                 "momentum_lookbacks_sessions": list(MOM_LOOKBACKS),
@@ -170,6 +183,12 @@ def build_book(panel: pd.DataFrame) -> dict:
                 "max_contracts": MAX_CONTRACTS,
                 "rebalance": "monthly, own last session of the month",
                 "execution": "signal at the close, new position earns the next session, cost charged on the signal day",
+                "core_model": CORE_MODEL,
+                "surprise_median_releases": SURPRISE_MEDIAN,
+                "z_abstain": Z_ABSTAIN,
+                "z_override": Z_OVERRIDE,
+                "regime_trail_releases": REGIME_TRAIL,
+                "epu_high_quantile": EPU_HIGH_Q,
             },
             "contracts": {
                 symbol: {
@@ -189,8 +208,92 @@ def build_book(panel: pd.DataFrame) -> dict:
             "data": _data_block(panel, frames),
             "citations": list(CITATIONS),
             "models": models,
+            "layers": layers,
         }
     )
+
+
+def _layers(result: dict) -> dict:
+    scored = with_surprise(load_releases())
+    epu = load_epu()
+    raw = run_layers(result, scored, epu)
+    catalog, hits = catalog_books(result, load_catalog())
+    raw["naive_catalog"] = catalog
+    formatted = {}
+    oos_pnl = {}
+    for name, books in raw.items():
+        block = _format_layer(name, books, result)
+        formatted[name] = block
+        oos_pnl[name] = block["book"]["out_of_sample"]["total_pnl"]
+    recommended = choose_stack(oos_pnl)
+    core_pnl = oos_pnl["core"]
+    for name, block in formatted.items():
+        block["incremental_oos_pnl"] = block["book"]["out_of_sample"]["total_pnl"] - core_pnl
+        block["beats_core"] = bool(name != "core" and block["incremental_oos_pnl"] > 0)
+    formatted["naive_catalog"]["hit_rate"] = hits
+    return {
+        "core_model": CORE_MODEL,
+        "selection_rule": SELECTION_RULE,
+        "candidates": list(CANDIDATES),
+        "recommended": recommended,
+        "stack_chosen_on_test": True,
+        "parameters_fit_on_test": False,
+        "stacks": formatted,
+        "sources": load_sources(),
+    }
+
+
+_LAYER_SUMMARY = {
+    "core": "Volatility-filtered trend, one contract. The base layer.",
+    "core_macro_flat": "The core, flattened when a large macro surprise disagrees. High volatility still forces flat.",
+    "core_macro_flip": "The core, replaced by a large macro surprise when the live surprises agree. High volatility still forces flat.",
+    "core_news": "The core, with NQ and ES flattened when lagged news uncertainty is above its train-window high line.",
+    "core_macro_flat_news": "The flat macro overlay, then the news flatten on NQ and ES.",
+    "core_macro_flip_news": "The flip macro overlay, then the news flatten on NQ and ES.",
+    "macro_only": "Large macro surprises only, one contract, flat in a high-vol month. No trend position underneath.",
+    "naive_proxy": "The PR #10 sign card applied to every CPI, payroll and FOMC release, held until the next month-end.",
+    "naive_catalog": "The PR #10 card on its own 29 events, one session each, on NQ, ES, GC and CL.",
+}
+
+
+def _format_layer(name: str, books: dict, result: dict) -> dict:
+    assets = {}
+    for symbol in CONTRACTS:
+        book = books[symbol]
+        in_sample = _metrics_for(book, TRAIN_START, TRAIN_END)
+        out_of_sample = _metrics_for(book, TEST_START, None)
+        assets[symbol] = {
+            "available": True,
+            "in_sample": in_sample,
+            "out_of_sample": out_of_sample,
+            "comparison": _compare(in_sample, out_of_sample),
+            "last_target": _last_target(book["target"]),
+            "position_on_last_session": int(book["position"].iloc[-1]),
+        }
+    portfolio = _portfolio_metrics(books, "layer", result["signals"])
+    changed = None
+    if name in LAYER_SPEC:
+        changed = _decisions_changed(result["books"][CORE_MODEL], books, TEST_START)
+    return {
+        "summary": _LAYER_SUMMARY[name],
+        "assets": assets,
+        "book": portfolio,
+        "oos_decisions_changed": changed,
+    }
+
+
+def _decisions_changed(core_books: dict, layer_books: dict, start: str) -> int:
+    start_ts = pd.Timestamp(start)
+    changed = 0
+    for symbol in CONTRACTS:
+        base = core_books[symbol]["target"]
+        other = layer_books[symbol]["target"]
+        stamps = base.index.intersection(other.index)
+        stamps = stamps[stamps >= start_ts]
+        if len(stamps) == 0:
+            continue
+        changed += int((base.reindex(stamps).astype(int) != other.reindex(stamps).astype(int)).sum())
+    return changed
 
 
 def _last_target(target: pd.Series) -> dict:
